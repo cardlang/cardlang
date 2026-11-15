@@ -1,0 +1,20 @@
+// rule: NAM-11, NAM-13
+// source: DN §3.7, §4.1, §4.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Use before declaration. A function calls a later function, and a constant uses a later structure type.
+function run() -> u32 {
+    return prepare();
+}
+
+function prepare() -> u32 {
+    return Ok(INITIAL.value);
+}
+
+const INITIAL: Measurement = Measurement { value: 10, valid: true };
+
+struct Measurement {
+    value: u32;
+    valid: bool;
+}

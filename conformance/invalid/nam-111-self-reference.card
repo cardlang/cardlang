@@ -1,0 +1,10 @@
+// rule: NAM-20, NAM-22
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-2
+// note: A local that refers to itself in its own initializer (DN §4.2).
+function advance() {
+    var next: u32 = next + 1;
+    return Ok();
+}

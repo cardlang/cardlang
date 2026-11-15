@@ -1,0 +1,10 @@
+// rule: NAM-10
+// source: DN §5.1
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-7
+// note: A storage keyword inside a function.
+function process() {
+    session ready: bool;
+    return Ok();
+}

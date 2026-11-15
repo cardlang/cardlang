@@ -1,0 +1,11 @@
+// rule: NAM-11
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-1
+// note: The same name for a type and a global.
+struct Account {
+    balance: u32;
+}
+
+persistent Account: u32;

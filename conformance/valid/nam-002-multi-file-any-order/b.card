@@ -1,0 +1,3 @@
+function base_value() -> u32 {
+    return Ok(BASE);
+}

@@ -1,0 +1,28 @@
+// rule: NAM-15, NAM-16
+// source: DN §3.11, §4.2, §6.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Qualified members whose names equal top-level constants.
+errors WalletError {
+    InsufficientFunds = 1;
+}
+
+const InsufficientFunds: u16 = 7;
+
+enum OperationState {
+    Idle;
+    Receiving;
+}
+
+const Receiving: bool = true;
+session state: OperationState;
+
+function start() {
+    state = OperationState.Receiving;
+    return Ok();
+}
+
+function refuse() {
+    return Err(WalletError.InsufficientFunds);
+}

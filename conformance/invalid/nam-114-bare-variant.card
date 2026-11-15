@@ -1,0 +1,17 @@
+// rule: NAM-16, NAM-22
+// source: DN §3.11
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-2
+// note: A bare variant name.
+enum OperationState {
+    Idle;
+    Receiving;
+}
+
+session state: OperationState;
+
+function reset_state() {
+    state = Idle;
+    return Ok();
+}

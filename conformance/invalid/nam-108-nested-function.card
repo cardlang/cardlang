@@ -1,0 +1,12 @@
+// rule: NAM-7
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: A function declared inside a function.
+function outer() {
+    function inner() {
+        return Ok();
+    }
+    return Ok();
+}

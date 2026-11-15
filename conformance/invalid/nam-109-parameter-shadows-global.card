@@ -1,0 +1,15 @@
+// rule: NAM-21
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-3
+// note: A parameter that shadows a global (DN §4.2).
+struct Account {
+    balance: u32;
+}
+
+persistent account: Account;
+
+function inspect(account: ref Account) -> u32 {
+    return Ok(account.balance);
+}

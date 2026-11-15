@@ -23,7 +23,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 |---|---|---|---|
 | 01-scope-and-conventions.md | SP0 | DN header, §1, §2, §3 (intro), §12, §13; PN §1 | none (conventions only) |
 | 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-24 |
-| 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §4.1, §4.2, §5.1 | pending |
+| 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §3.7, §3.11, §4.1, §4.2, §5.1, §6.3, §11.1 | NAM-1 … NAM-22 |
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.2, §9–§9.3 | pending |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.10 | pending |
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.5, §6.2, §6.5, §8.1, §8.3, §9.3 | pending |
@@ -34,7 +34,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 complete (LEX rules); A.2 pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 complete; A.2.1 complete (NAM rules); rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -44,11 +44,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 |---|---|---|---|---|---|
 | D-001 | Language name: CardLang | SP0 | 01 §1.1 |  | covered |
 | D-002 | Custom card-oriented language | SP0 | 01 §1.1 |  | covered |
-| D-003 | Global declarations: `persistent`, `session` or `const` | SP2 | — |  | pending |
+| D-003 | Global declarations: `persistent`, `session` or `const` | SP2 | NAM-6, NAM-9 |  | covered |
 | D-004 | `persistent` and `session` imply mutable state | SP9 | — |  | pending |
 | D-005 | Global `const` declares a compile-time constant | SP4 | — |  | pending |
 | D-006 | Local value declarations use `var` only | SP6 | — |  | pending |
-| D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | — |  | pending |
+| D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
 | D-008 | Explicit persistent state | SP9 | — | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | SP13 | — | OI-17 | pending |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | SP8 | — |  | pending |
@@ -61,9 +61,9 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-017 | `attempt` type | SP8 | — |  | pending |
 | D-018 | One application error set with explicit nonzero `u16` codes | SP8 | — | OI-13 | pending |
 | D-019 | Application/platform errors and traps have separate reporting categories | SP8 | — |  | pending |
-| D-020 | Single application or completely isolated applications | SP2 | — |  | pending |
-| D-021 | Multiple source files form one application compilation unit | SP2 | — |  | pending |
-| D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | — |  | pending |
+| D-020 | Single application or completely isolated applications | SP2 | NAM-5 |  | covered |
+| D-021 | Multiple source files form one application compilation unit | SP2 | NAM-1 |  | covered |
+| D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | NAM-1, NAM-2, NAM-6, NAM-8 |  | covered |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | SP1 | LEX-1, LEX-2, LEX-3, LEX-12 | OI-1 | covered |
 | D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |  | partial |
 | D-025 | No-value ordinary function signature | SP7 | — |  | pending |
@@ -79,17 +79,17 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-035 | Commands called by application code | SP11 | — |  | pending |
 | D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
 | D-037 | No preprocessor/macros/textual includes | SP1 | LEX-24 |  | covered |
-| D-038 | Application declarations and struct fields visible across all source files | SP2 | — |  | pending |
-| D-039 | User modules/namespaces/imports/exports/classes/access modifiers | SP2 | — |  | pending |
-| D-040 | File order does not control name resolution or initialization order | SP2 | — |  | pending |
+| D-038 | Application declarations and struct fields visible across all source files | SP2 | NAM-13 |  | covered |
+| D-039 | User modules/namespaces/imports/exports/classes/access modifiers | SP2 | NAM-8 |  | covered |
+| D-040 | File order does not control name resolution or initialization order | SP2 | NAM-4 |  | covered |
 | D-041 | Host entry point | SP11 | — | OI-5 | pending |
 | D-042 | Application protocol | SP11 | — |  | pending |
 | D-043 | Classical smart-card status | SP13 | — | OI-2 | pending |
-| D-044 | Platform interface names cannot be redefined | SP2 | LEX-15 (spellings); declaration ban pending SP2 | OI-4 | partial |
-| D-045 | One shared top-level naming scope for types and values | SP2 | — |  | pending |
-| D-046 | No function overloading or local function/type/error-set definitions | SP2 | — |  | pending |
-| D-047 | Fields and error members have owner-specific name scopes | SP2 | — |  | pending |
-| D-048 | Local binding visible only after its initializer completes | SP2 | — |  | pending |
+| D-044 | Platform interface names cannot be redefined | SP2 | LEX-15, NAM-14 | OI-4 | covered |
+| D-045 | One shared top-level naming scope for types and values | SP2 | NAM-11 |  | covered |
+| D-046 | No function overloading or local function/type/error-set definitions | SP2 | NAM-7, NAM-12 |  | covered |
+| D-047 | Fields and error members have owner-specific name scopes | SP2 | NAM-15, NAM-16, NAM-17 |  | covered |
+| D-048 | Local binding visible only after its initializer completes | SP2 | NAM-19, NAM-20, NAM-22 |  | covered |
 | D-049 | Command execution | SP11 | — |  | pending |
 | D-050 | Session state at chip power-on | SP9 | — |  | pending |
 | D-051 | Ordinary traps preserve application session state | SP12 | — |  | pending |
@@ -189,9 +189,9 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | — | OI-2 | pending |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | — | OI-3 | pending |
-| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15; declaration ban pending SP2 | OI-4 | partial |
+| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15, NAM-14 | OI-4 | covered |
 | D-405 | Entry point is the single `command` declaration, any name | SP11 | — | OI-5 | pending |
-| D-406 | Platform API calls use the reserved `card.` path form | SP2 | — | OI-6 | pending |
+| D-406 | Platform API calls use the reserved `card.` path form | SP2 | NAM-17, NAM-18 | OI-6 | covered |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | — | OI-8 | pending |
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | — | OI-9 | pending |
@@ -219,5 +219,15 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-310 | Boolean literals are exactly `true` and `false` | SP1 | LEX-21 |  | covered |
 | D-311 | File and line boundaries are preserved for diagnostics | SP1 | LEX-5, LEX-11 |  | covered |
 | D-312 | Semicolons are mandatory | SP1 | LEX-23 |  | covered |
+| D-313 | A declaration cannot span source files | SP2 | NAM-2 |  | covered |
+| D-314 | Functions and types may be used before their declaration, including across files | SP2 | NAM-4, NAM-13 |  | covered |
+| D-315 | Shadowing any visible name is forbidden | SP2 | NAM-21 |  | covered |
+| D-316 | Function, command, structure, enum and error-set declarations are top-level only | SP2 | NAM-7 |  | covered |
+| D-317 | Field names never become bare names | SP2 | NAM-17 |  | covered |
+| D-318 | Enum variants and error members are always qualified | SP2 | NAM-16 |  | covered |
+| D-319 | Platform-supplied configuration structures and algorithm enums use the ordinary naming rules, with no imports, namespaces or private fields | SP2 | NAM-14 |  | covered |
+| D-320 | Plain `var` and combined qualifiers are forbidden at application scope | SP2 | NAM-9, NAM-10 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
+| D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
+| D-426 | File-list duplicates are a build error; empty list allowed | SP2 | NAM-3 | OI-26 | covered |

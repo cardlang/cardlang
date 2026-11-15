@@ -1,0 +1,9 @@
+// rule: NAM-11
+// source: DN §4.1, §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-1
+// note: The same function is declared in two files.
+function helper() {
+    return Ok();
+}

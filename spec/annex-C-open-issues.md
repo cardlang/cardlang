@@ -38,6 +38,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |
 | OI-23 | Source text details: byte-order mark and line breaks | Gap | SP1 | Resolved |
 | OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |
+| OI-25 | Primitive type names | Gap | SP2 | Resolved |
+| OI-26 | Build file-list constraints | Gap | SP2 | Resolved |
 
 ---
 
@@ -85,7 +87,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §3.0 says keywords cannot be identifiers but gives no list. DN §4.2 says built-ins and platform names are reserved. DN §3.6 says `abort` is reserved. D-044 is affected.
-- **Affected rules:** LEX-13, LEX-15; chapter 3 pending (SP2)
+- **Affected rules:** LEX-13, LEX-15, NAM-14
 - **Question:** Which spellings are keywords, which are reserved built-in names, and which platform names are reserved?
 - **Options:** Keywords, as they appear in the notes' syntax: `persistent session const var function command struct enum errors transaction abort attempt require else if while for in match return break continue true false not and or ref inout`. Then decide:
   - (a) whether `Ok` and `Err` are keywords or reserved names;
@@ -123,7 +125,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §4.1 says a spelling such as `card.crypto...` "may be used without introducing a general application namespace system; the precise spelling is not fixed". DN §4.2 says dot access resolves from the receiver's type. DN §11.2 gives illustrative calls `card.resources.create(…)`.
-- **Affected rules:** pending (SP2, SP5)
+- **Affected rules:** NAM-17, NAM-18; call syntax pending (SP5)
 - **Question:** How does the grammar express a platform API call without a namespace system?
 - **Options:**
   - (a) A distinct syntactic form for platform names: a reserved root `card` followed by `.` segments. It resolves only against the platform API catalog and is never a field access.
@@ -403,6 +405,34 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-424)
 - **Decision:** Recommendation adopted.
 
+## OI-25 — Primitive type names
+
+- **Kind:** gap
+- **Sources:** DN §3.1 (primitive types); D-075; D-404 (the keyword list does not include the type names)
+- **Affected rules:** NAM-14, NAM-21
+- **Question:** The names `u8 u16 u32 i8 i16 i32 bool` are not keywords. Can an application declare something with one of these names?
+- **Options:**
+  - (a) No. They are predeclared type names in the application scope.
+  - (b) No. Make them keywords.
+  - (c) Yes, they may be redeclared.
+- **Recommendation:** (a). This keeps the agreed keyword list unchanged.
+- **Status:** resolved 2026-11-15 (D-425)
+- **Decision:** Option (a). Declaring one is CE-NAM-5, and shadowing one is CE-NAM-3.
+
+## OI-26 — Build file-list constraints
+
+- **Kind:** gap
+- **Sources:** DN §4.1; D-021
+- **Affected rules:** NAM-3
+- **Questions:**
+  1. What happens if the same file is listed twice in the build file list?
+  2. Is an empty file list allowed?
+- **Recommendation:**
+  1. A build-configuration error, outside the language.
+  2. Allowed by the language. It fails because there is no `command` (chapter 12).
+- **Status:** resolved 2026-11-15 (D-426)
+- **Decision:** Recommendation adopted.
+
 ---
 
 ## Resolution log
@@ -412,9 +442,9 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
 | 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Pending: applied when SP10 drafts its chapter |
-| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied in chapter 2: LEX-13, LEX-15 (SP1); declaration ban in chapter 3 (SP2) |
+| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
-| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Pending: applied when SP2 drafts its chapter |
+| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Pending: applied when SP5 drafts its chapter |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
@@ -432,3 +462,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 (SP1) |
 | 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 (SP1) |
+| 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
+| 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 (SP2) |

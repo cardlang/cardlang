@@ -1,0 +1,13 @@
+// rule: NAM-12
+// source: DN §3.7, §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-1
+// note: Overloading.
+function check(value: u32) {
+    return Ok();
+}
+
+function check(value: u8) {
+    return Ok();
+}

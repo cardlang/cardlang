@@ -1,0 +1,33 @@
+// rule: NAM-15, NAM-17
+// source: DN §3.11, §4.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Reused field and variant names, and a field named `length`.
+struct Account {
+    balance: u32;
+    length: u32;
+}
+
+struct Summary {
+    balance: u32;
+}
+
+enum OperationState {
+    Idle;
+    Receiving;
+}
+
+enum ConnectionState {
+    Idle;
+    Connected;
+}
+
+session state: OperationState;
+session link: ConnectionState;
+
+function reset_states() {
+    state = OperationState.Idle;
+    link = ConnectionState.Idle;
+    return Ok();
+}

@@ -1,0 +1,15 @@
+// rule: NAM-19, NAM-21
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The same local name in sibling scopes (DN §4.2).
+function choose(condition: bool) -> u32 {
+    if condition {
+        var temporary: u32 = 1;
+        return Ok(temporary);
+    } else {
+        var temporary: u32 = 2;
+        return Ok(temporary);
+    }
+}

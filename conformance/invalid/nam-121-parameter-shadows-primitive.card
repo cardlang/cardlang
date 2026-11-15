@@ -1,0 +1,9 @@
+// rule: NAM-14, NAM-21
+// source: D-425
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-3
+// note: A parameter named like a predeclared type.
+function check(u8: u32) {
+    return Ok();
+}

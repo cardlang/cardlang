@@ -64,13 +64,36 @@ Lexical errors are CE-LEX-1 to CE-LEX-4 (chapter 2 §2.8).
 
 The syntactic grammar works on the token sequence of each file. Whitespace and comments never appear in it. In syntactic productions, quoted strings stand for the keyword or punctuator token with that spelling. `Identifier` and `IntegerLiteral` refer to the token classes of §A.1.
 
+### A.2.1 Source files and top-level declarations (chapter 3)
+
 ```
-SourceFile ::= TopLevelDeclaration*      /* defined in A.2.1 (SP2) */
+SourceFile             ::= TopLevelDeclaration*
+TopLevelDeclaration    ::= GlobalValueDeclaration | FunctionDeclaration | CommandDeclaration
+                         | StructDeclaration | EnumDeclaration | ErrorSetDeclaration
+GlobalValueDeclaration ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
+StorageKeyword         ::= 'persistent' | 'session' | 'const' | 'var'
+StructDeclaration      ::= 'struct' Identifier '{' FieldDeclaration* '}'
+FieldDeclaration       ::= Identifier ':' Type ';'
+EnumDeclaration        ::= 'enum' Identifier '{' ( Identifier ';' )* '}'
+ErrorSetDeclaration    ::= 'errors' Identifier '{' ErrorMember* '}'
+ErrorMember            ::= Identifier '=' Expression ';'
+FunctionDeclaration    ::= 'function' Identifier ParameterList ReturnType? Block
+CommandDeclaration     ::= 'command' Identifier ParameterList ReturnType? Block
 ```
+
+Notes on these productions:
+
+- **Deliberately permissive.** The grammar accepts some programs that chapter rules then reject with a specific compile-error class:
+  - any combination of storage keywords (NAM-9, NAM-10);
+  - an initializer on any global value declaration (chapters 5 and 10);
+  - empty structures and enums (chapter 4);
+  - a `command` with any signature (chapter 12).
+- **Dotted names.** `Owner.Member`, `card.service.operation` and field access all parse as the member-access form of the expression grammar (§A.2.4). Chapter 3 (NAM-17) decides which meaning a dotted form has, from what its first segment resolves to. The grammar does not distinguish them.
+- **Later sections.** `Type` is defined in §A.2.2, `Expression` in §A.2.4, `Block` in §A.2.5, and `ParameterList` and `ReturnType` in §A.2.6.
 
 | Section | Content | Filled in by |
 |---|---|---|
-| A.2.1 | Source files and top-level declarations | SP2 |
+| A.2.1 | Source files and top-level declarations | SP2 (done) |
 | A.2.2 | Types | SP3 |
 | A.2.3 | Constant expressions (shared with A.2.4) | SP4 |
 | A.2.4 | Expressions | SP5 |

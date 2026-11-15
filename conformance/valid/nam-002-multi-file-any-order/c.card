@@ -1,0 +1,2 @@
+const BASE: u32 = 32;
+const EXTRA: u32 = BASE * 2;

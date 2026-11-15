@@ -1,0 +1,12 @@
+// rule: NAM-19, NAM-22
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-2
+// note: A local used after its block has ended.
+function outside() -> u32 {
+    if true {
+        var inner: u32 = 1;
+    }
+    return Ok(inner);
+}

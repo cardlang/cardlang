@@ -1,0 +1,9 @@
+// rule: NAM-14
+// source: D-425
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-5
+// note: Redeclaring a primitive type name.
+struct u8 {
+    value: u32;
+}

@@ -43,11 +43,11 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 |---|---|---|---|---|---|---|---|---|
 | D-001 | Language name: CardLang | Agreed | [Agreed] | language | DN §1 | SP0 |  | 01 §1.1 |
 | D-002 | Custom card-oriented language | Agreed direction | [Agreed] | language | DN §1 | SP0 |  | 01 §1.1 |
-| D-003 | Global declarations: `persistent`, `session` or `const` | Agreed; exactly one keyword | [Agreed] | language | DN §5.1 | SP2 |  | pending |
+| D-003 | Global declarations: `persistent`, `session` or `const` | Agreed; exactly one keyword | [Agreed] | language | DN §5.1 | SP2 |  | NAM-6, NAM-9 |
 | D-004 | `persistent` and `session` imply mutable state | Agreed | [Agreed] | language | DN §5.1 | SP9 |  | pending |
 | D-005 | Global `const` declares a compile-time constant | Agreed | [Agreed] | language | DN §5.1, §3.10 | SP4 |  | pending |
 | D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | pending |
-| D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | pending |
+| D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
 | D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | pending |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | Agreed direction | [Agreed] | language | DN §6.1, §6.4 | SP8 |  | pending |
@@ -60,9 +60,9 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-017 | `attempt` type | Exactly the successful payload type; statement form only for no-payload success | [Agreed] | language | DN §6.3 | SP8 |  | pending |
 | D-018 | One application error set with explicit nonzero `u16` codes | Agreed | [Agreed] | language | DN §6.3 | SP8 | OI-13 | pending |
 | D-019 | Application/platform errors and traps have separate reporting categories | Agreed | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-020 | Single application or completely isolated applications | Agreed; no cross-application calls/references/shared state | [Agreed] | language | DN §1, §4.1; PN §1 | SP2 |  | pending |
-| D-021 | Multiple source files form one application compilation unit | Agreed; explicit file list and build-supplied identity | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | pending |
-| D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | pending |
+| D-020 | Single application or completely isolated applications | Agreed; no cross-application calls/references/shared state | [Agreed] | language | DN §1, §4.1; PN §1 | SP2 |  | NAM-5 |
+| D-021 | Multiple source files form one application compilation unit | Agreed; explicit file list and build-supplied identity | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1 |
+| D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1, NAM-2, NAM-6, NAM-8 |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | Agreed | [Agreed] | language | DN §1, §3.0 | SP1 | OI-1 | LEX-1, LEX-2, LEX-3, LEX-12 |
 | D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |
 | D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | pending |
@@ -78,17 +78,17 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | pending |
 | D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
 | D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-24 |
-| D-038 | Application declarations and struct fields visible across all source files | Agreed; no per-file privacy | [Agreed] | language | DN §4.1 | SP2 |  | pending |
-| D-039 | User modules/namespaces/imports/exports/classes/access modifiers | Omitted initially | [Agreed] | language | DN §4.1 | SP2 |  | pending |
-| D-040 | File order does not control name resolution or initialization order | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | pending |
+| D-038 | Application declarations and struct fields visible across all source files | Agreed; no per-file privacy | [Agreed] | language | DN §4.1 | SP2 |  | NAM-13 |
+| D-039 | User modules/namespaces/imports/exports/classes/access modifiers | Omitted initially | [Agreed] | language | DN §4.1 | SP2 |  | NAM-8 |
+| D-040 | File order does not control name resolution or initialization order | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | NAM-4 |
 | D-041 | Host entry point | Exactly one command per application; ref u8[] request, inout u8[] response, successful u32 byte count | [Agreed] | language | DN §4 | SP11 | OI-5 | pending |
 | D-042 | Application protocol | Application parses and dispatches request bytes and encodes response bytes; no generated typed-command serialization | [Agreed] | language | DN §4 | SP11 |  | pending |
 | D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | pending |
-| D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | LEX-15 (spellings); declaration ban pending SP2 |
-| D-045 | One shared top-level naming scope for types and values | Agreed; duplicate names forbidden | [Agreed] | language | DN §4.2 | SP2 |  | pending |
-| D-046 | No function overloading or local function/type/error-set definitions | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | pending |
-| D-047 | Fields and error members have owner-specific name scopes | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | pending |
-| D-048 | Local binding visible only after its initializer completes | Agreed | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | pending |
+| D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | LEX-15, NAM-14 |
+| D-045 | One shared top-level naming scope for types and values | Agreed; duplicate names forbidden | [Agreed] | language | DN §4.2 | SP2 |  | NAM-11 |
+| D-046 | No function overloading or local function/type/error-set definitions | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-7, NAM-12 |
+| D-047 | Fields and error members have owner-specific name scopes | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-15, NAM-16, NAM-17 |
+| D-048 | Local binding visible only after its initializer completes | Agreed | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | NAM-19, NAM-20, NAM-22 |
 | D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | pending |
 | D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | pending |
 | D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | pending |
@@ -209,6 +209,14 @@ Sub-plans add rows here as they reach each DN section.
 | D-310 | Boolean literals are exactly `true` and `false`; no string, character, floating-point or null literals | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-21 |
 | D-311 | File and line boundaries are preserved for diagnostics; a trailing comment or token cannot consume the next file's text | Agreed (DN body text) | [Agreed] | language | DN §3.0, §4.1 | SP1 |  | LEX-5, LEX-11 |
 | D-312 | Semicolons are mandatory; there is no automatic semicolon insertion | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-23 |
+| D-313 | A declaration cannot span source files | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP2 |  | NAM-2 |
+| D-314 | Functions and types may be used before their declaration, including across files | Agreed (DN body text) | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | NAM-4, NAM-13 |
+| D-315 | Shadowing any visible name is forbidden (application declarations, parameters, locals, loop and pattern bindings); same-scope duplicates are errors; sibling scopes may reuse names | Agreed (DN body text) | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | NAM-21 |
+| D-316 | Function, command, structure, enum and error-set declarations are top-level only | Agreed (DN body text) | [Agreed] | language | DN §4.2 | SP2 |  | NAM-7 |
+| D-317 | Field names never become bare names; dot access resolves from the receiver's type | Agreed (DN body text) | [Agreed] | language | DN §4.2 | SP2 |  | NAM-17 |
+| D-318 | Enum variants and error members are always qualified (`Owner.Member`) and are never imported as bare names | Agreed (DN body text) | [Agreed] | language | DN §3.11, §4.2, §6.3 | SP2 |  | NAM-16 |
+| D-319 | Platform-supplied configuration structures and algorithm enums use the ordinary naming rules, with no imports, namespaces or private fields | Agreed (DN body text) | [Agreed] | language | DN §11.1 | SP2 |  | NAM-14 |
+| D-320 | Plain `var` and combined qualifiers are forbidden at application scope; there is no `local` keyword | Agreed (DN body text) | [Agreed] | language | DN §5.1 | SP2 |  | NAM-9, NAM-10 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -217,9 +225,9 @@ Sub-plans add rows here as they reach each DN section.
 | D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | LEX-1 |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | pending |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | pending |
-| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15; declaration ban pending SP2 |
+| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15, NAM-14 |
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
-| D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | pending |
+| D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | pending |
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | pending |
@@ -237,3 +245,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | pending |
 | D-423 | Leading UTF-8 byte-order mark ignored; LF, CR and CRLF are line breaks (CRLF counts once) | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-23 | SP1 | OI-23 | LEX-4, LEX-5 |
 | D-424 | Longest-match tokens; numeric-run rule for literals; no identifier length limit | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-24 | SP1 | OI-24 | LEX-10, LEX-16, LEX-18 |
+| D-425 | Primitive type names are predeclared names in every application scope, not keywords | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-25 | SP2 | OI-25 | NAM-14 |
+| D-426 | A file listed twice is a build-configuration error; an empty file list is allowed by the language | Resolved by user 2026-11-15 | [Agreed] | tooling | Annex C OI-26 | SP2 | OI-26 | NAM-3 |

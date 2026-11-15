@@ -1,0 +1,7 @@
+// rule: NAM-2
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: a.card contains only comments; b.card has a declaration.
+// This file intentionally declares nothing.
