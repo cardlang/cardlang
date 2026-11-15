@@ -1,0 +1,10 @@
+// rule: OUT-8, OUT-15
+// source: D-413
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: attempt on checked_convert with no error set.
+function narrow(incoming: u16) -> u8 {
+    var value: u8 = attempt checked_convert<u8>(incoming);
+    return Ok(value);
+}

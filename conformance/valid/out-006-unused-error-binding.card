@@ -1,0 +1,20 @@
+// rule: OUT-14
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: An error binding that is never used.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function check() -> u32 {
+    match read_value() {
+        Ok(value) => {
+            return Ok(value);
+        }
+        Err(error) => {
+            return Ok(0);
+        }
+    }
+}

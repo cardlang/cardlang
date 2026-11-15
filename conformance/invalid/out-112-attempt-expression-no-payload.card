@@ -1,0 +1,14 @@
+// rule: OUT-9
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-4
+// note: The expression form with a call that has no payload.
+function authenticate() {
+    return Ok();
+}
+
+function check() {
+    var result: u32 = attempt authenticate();
+    return Ok();
+}

@@ -14,15 +14,15 @@ This is the normative specification of the CardLang language. It is being writte
 | [06-expressions.md](06-expressions.md) | 6 Expressions | SP5 | Draft complete |
 | [07-statements-and-control-flow.md](07-statements-and-control-flow.md) | 7 Statements and control flow | SP6 | Draft complete |
 | [08-functions-and-references.md](08-functions-and-references.md) | 8 Functions, references and slices | SP7 | Draft complete |
-| 09-outcomes-and-errors.md | 9 Outcomes and errors | SP8 | Not started |
+| [09-outcomes-and-errors.md](09-outcomes-and-errors.md) | 9 Outcomes and errors | SP8 | Draft complete |
 | 10-state-and-initialization.md | 10 State and initialization | SP9 | Not started |
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.6 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.7 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-35 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–8 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-37 resolved; OI-22 open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–9 |
 
 Related files:
 
@@ -40,7 +40,8 @@ Related files:
 | 6 Expressions | 51 | 51 | 0 | 0 |
 | 7 Statements and control flow | 22 | 22 | 0 | 0 |
 | 8 Functions, references and slices | 23 | 23 | 0 | 0 |
-| **Total** | 179 | 179 | 0 | 0 |
+| 9 Outcomes and errors | 20 | 20 | 0 | 0 |
+| **Total** | 199 | 199 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -95,6 +96,13 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-TYP-5 | Unsized array type outside a ref/inout parameter | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-6 | Array of arrays | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-7 | Array length zero or not unsigned | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
+| CE-OUT-1 | Outcome discarded by a call used as a statement | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-2 | Return form does not match the payload, or forwarding mismatch | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-3 | Err or require operand is not an application error member or error binding | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-4 | Invalid attempt operand or form | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-5 | Invalid outcome match | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-6 | Error binding used other than in return Err or abort Err | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-7 | Invalid error set | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-STM-1 | Expression other than an attempt call used as a statement | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
 | CE-STM-2 | Assignment target is not an assignable place | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
 | CE-STM-3 | break or continue outside a loop | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |

@@ -1,0 +1,26 @@
+// rule: OUT-12
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-5
+// note: No catch-all arm, although every error is listed.
+errors WalletError {
+    InsufficientFunds = 1;
+    AccountBlocked = 2;
+}
+
+function debit() {
+    return Err(WalletError.InsufficientFunds);
+}
+
+function check() {
+    match debit() {
+        Ok() => {
+        }
+        Err(WalletError.InsufficientFunds) => {
+        }
+        Err(WalletError.AccountBlocked) => {
+        }
+    }
+    return Ok();
+}

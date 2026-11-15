@@ -1,0 +1,20 @@
+// rule: OUT-14, STM-19
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-7
+// note: An error binding as a require operand.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function check(ready: bool) {
+    match read_value() {
+        Ok(_) => {
+        }
+        Err(error) => {
+            require ready else error;
+        }
+    }
+    return Ok();
+}

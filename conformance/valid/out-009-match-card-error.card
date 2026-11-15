@@ -1,0 +1,22 @@
+// rule: OUT-11, OUT-19
+// source: D-437
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Matching a CardError member and propagating others.
+session total: u32;
+
+function add_to_total(amount: u32) -> bool {
+    match checked_add(total, amount) {
+        Ok(value) => {
+            total = value;
+            return Ok(true);
+        }
+        Err(CardError.Overflow) => {
+            return Ok(false);
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+}

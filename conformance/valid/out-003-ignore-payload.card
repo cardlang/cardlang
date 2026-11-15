@@ -1,0 +1,20 @@
+// rule: OUT-11
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Ok(_) deliberately ignores a payload.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function check() {
+    match read_value() {
+        Ok(_) => {
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

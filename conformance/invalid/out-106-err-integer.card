@@ -1,0 +1,9 @@
+// rule: OUT-4
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-3
+// note: An integer as an Err operand.
+function check() {
+    return Err(5);
+}

@@ -1,0 +1,10 @@
+// rule: OUT-7
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-1
+// note: A checked intrinsic used as a statement.
+function check(a: u32, b: u32) {
+    checked_add(a, b);
+    return Ok();
+}

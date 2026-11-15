@@ -1,0 +1,13 @@
+// rule: OUT-15
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-7
+// note: Two error sets.
+errors First {
+    A = 1;
+}
+
+errors Second {
+    B = 2;
+}

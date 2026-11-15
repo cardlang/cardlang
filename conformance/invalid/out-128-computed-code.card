@@ -1,0 +1,11 @@
+// rule: OUT-16
+// source: D-428
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-7
+// note: A computed error code.
+const BASE_CODE: u16 = 10;
+
+errors WalletError {
+    Derived = BASE_CODE + 1;
+}

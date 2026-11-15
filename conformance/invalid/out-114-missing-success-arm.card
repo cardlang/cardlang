@@ -1,0 +1,17 @@
+// rule: OUT-12
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-5
+// note: No success arm.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function check() {
+    match read_value() {
+        Err(_) => {
+        }
+    }
+    return Ok();
+}

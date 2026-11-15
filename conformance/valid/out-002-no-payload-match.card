@@ -1,0 +1,35 @@
+// rule: OUT-11, OUT-12
+// source: DN §3.7, §6.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Ok() and a specific error arm before the catch-all.
+errors WalletError {
+    InsufficientFunds = 1;
+}
+
+struct Account {
+    balance: u32;
+}
+
+session account: Account;
+
+function debit(target: inout Account, amount: u32) {
+    require amount <= target.balance else WalletError.InsufficientFunds;
+    target.balance = target.balance - amount;
+    return Ok();
+}
+
+function pay(amount: u32) {
+    match debit(inout account, amount) {
+        Ok() => {
+        }
+        Err(WalletError.InsufficientFunds) => {
+            return Ok();
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

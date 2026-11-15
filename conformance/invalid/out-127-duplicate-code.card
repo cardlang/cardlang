@@ -1,0 +1,10 @@
+// rule: OUT-16
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-7
+// note: Two members with the same code.
+errors WalletError {
+    First = 1;
+    Second = 1;
+}

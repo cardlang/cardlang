@@ -1,0 +1,28 @@
+// rule: OUT-11, OUT-12, OUT-13
+// source: DN §6.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Handling success and failure locally.
+errors WalletError {
+    InsufficientFunds = 1;
+}
+
+session balance: u32;
+
+function subtract(current_balance: u32, amount: u32) -> u32 {
+    require amount <= current_balance else WalletError.InsufficientFunds;
+    return Ok(current_balance - amount);
+}
+
+function withdraw(amount: u32) {
+    match subtract(balance, amount) {
+        Ok(value) => {
+            balance = value;
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

@@ -1,0 +1,22 @@
+// rule: OUT-5
+// source: DN §6.3; D-413
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Forwarding a call's outcome and a checked intrinsic's outcome.
+errors WalletError {
+    InsufficientFunds = 1;
+}
+
+function subtract(current_balance: u32, amount: u32) -> u32 {
+    require amount <= current_balance else WalletError.InsufficientFunds;
+    return Ok(current_balance - amount);
+}
+
+function remaining(current_balance: u32, amount: u32) -> u32 {
+    return subtract(current_balance, amount);
+}
+
+function safe_sum(a: u32, b: u32) -> u32 {
+    return checked_add(a, b);
+}

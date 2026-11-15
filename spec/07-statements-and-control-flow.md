@@ -398,8 +398,8 @@ RequireStatement ::= 'require' Expression 'else' Expression ';'
 Chapter 11 forbids a `return` that would leave a transaction.
 *Sources: D-106, D-107; DN §3.6, §6.1.*
 
-**STM-19 [Agreed]** `require c else M;` behaves exactly like `if not c { return Err(M); }`, including evaluation, typing and the transaction restrictions of chapter 11. `c` checks against `bool`. `M` must be a qualified error member, either of the application's error set or of `CardError` (NAM-16). Any other operand is **CE-STM-7**, including an integer, an error binding or a call.
-*Sources: D-348, D-028; DN §3.6, §6.2, §6.3.*
+**STM-19 [Agreed]** `require c else M;` behaves exactly like `if not c { return Err(M); }`, including evaluation, typing and the transaction restrictions of chapter 11. `c` checks against `bool`. `M` must be a qualified member of the application's error set (NAM-16). A member of `CardError` is **CE-OUT-3**, because application code never originates a platform error (OUT-19, amended by D-437). Any other operand is **CE-STM-7**, including an integer, an error binding or a call.
+*Sources: D-348, D-028, D-437 (OI-37); DN §3.6, §6.2, §6.3.*
 
 ### Examples
 

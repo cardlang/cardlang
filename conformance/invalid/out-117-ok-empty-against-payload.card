@@ -1,0 +1,19 @@
+// rule: OUT-11
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-5
+// note: Ok() against an outcome with a payload.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function check() {
+    match read_value() {
+        Ok() => {
+        }
+        Err(_) => {
+        }
+    }
+    return Ok();
+}

@@ -49,6 +49,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-33 | Expression statements | Gap | SP6 | Resolved |
 | OI-34 | Standalone blocks | Gap | SP6 | Resolved |
 | OI-35 | `ref` to read-only bindings | Gap | SP7 | Resolved |
+| OI-36 | Empty error set | Gap | SP8 | Resolved |
+| OI-37 | Application use of `CardError` members | Gap | SP8 | Resolved |
 
 ---
 
@@ -326,7 +328,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier
 - **Sources:** D-012 says "Agreed direction; detailed typing open". The typing was later developed in DN §6.3: transient outcomes, no `Result<T>`, and exact `attempt` typing (D-015–D-017).
-- **Affected rules:** pending (SP8)
+- **Affected rules:** OUT-1 to OUT-14
 - **Recommendation:** treat this as resolved by DN §6.3 once SP8 has formalized the outcome typing rules. Close it at SP8 review.
 - **Status:** resolved 2026-11-15 (D-418)
 - **Decision:** Recommendation adopted. "Detailed typing open" is settled by DN §6.3 (transient outcomes, no `Result<T>`, exact `attempt` typing). SP8 formalizes it.
@@ -466,7 +468,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - DN §6.3 shows only literal codes, such as `InsufficientFunds = 1;`.
   - The DN §3.3 table lists "Application error-code literal" as having the required `u16` type.
   - D-018 is affected.
-- **Affected rules:** CEX-6; chapter 9 (pending SP8)
+- **Affected rules:** CEX-6, OUT-16
 - **Question:** May an error-member code be any constant expression of type `u16`, or only a literal?
 - **Options:**
   - (a) An integer literal only, with `u16` context.
@@ -577,6 +579,35 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-435)
 - **Decision:** Option (a).
 
+## OI-36 — Empty error set
+
+- **Kind:** gap
+- **Sources:** DN §6.3 (only non-empty sets are shown); TYP-10, TYP-13 (empty enums and structures are errors); D-413
+- **Affected rules:** OUT-15
+- **Question:** May an error set declare no members?
+- **Options:**
+  - (a) No; at least one member.
+  - (b) Yes.
+- **Recommendation:** (a). This is consistent with enums and structures. An application without errors declares no set.
+- **Status:** resolved 2026-11-15 (D-436)
+- **Decision:** Option (a).
+
+## OI-37 — Application use of `CardError` members
+
+- **Kind:** gap
+- **Sources:** DN §6.3:
+  - "Named error members are permitted in `return Err(...)`, `abort Err(...)`, `require ... else ...` and specific `Err(ErrorSet.Member)` patterns."
+  - "Error-member patterns may name either application or platform errors."
+  - "Application-defined names cannot impersonate that namespace."
+- **Affected rules:** OUT-4, OUT-19; STM-19
+- **Question:** May application code originate a platform error, for example `return Err(CardError.NotFound);`?
+- **Options:**
+  - (a) No. `CardError` members may be named only in patterns, and received platform errors are propagated through error bindings.
+  - (b) Yes, everywhere.
+- **Recommendation:** (a). A platform-category error then always originates in the platform.
+- **Status:** resolved 2026-11-15 (D-437)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -595,12 +626,12 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 (SP7) |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
-| 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
+| 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 (SP8) |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
 | 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
 | 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
-| 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Pending: applied when SP8 drafts its chapter |
+| 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14 (SP8); closed |
 | 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
@@ -609,7 +640,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
 | 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 (SP2) |
 | 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 (SP3) |
-| 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | CEX-6 (SP4); chapter 9 pending (SP8) |
+| 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | Applied: CEX-6 (SP4); chapter 9: OUT-16 (SP8) |
 | 2026-11-15 | OI-29 | Constant slice endpoints checked at compile time (D-429) | User | Applied in chapter 5: CEX-10 (SP4) |
 | 2026-11-15 | OI-30 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized (D-430) | User | Applied in chapter 6 (SP5) |
 | 2026-11-15 | OI-31 | Arithmetic failure classes: above maximum is Overflow (D-431) | User | Applied in chapter 6 (SP5) |
@@ -617,3 +648,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-33 | Only the attempt expression statement (D-433) | User | Applied in chapter 7: STM-2 (SP6) |
 | 2026-11-15 | OI-34 | No standalone blocks (D-434) | User | Applied in chapter 7: STM-3 (SP6) |
 | 2026-11-15 | OI-35 | for index or pattern binding may be passed as ref (D-435) | User | Applied in chapter 8: FUN-9 (SP7) |
+| 2026-11-15 | OI-36 | An error set needs at least one member (D-436) | User | Applied in chapter 9: OUT-15 (SP8) |
+| 2026-11-15 | OI-37 | CardError members only in patterns (D-437) | User | Applied in chapter 9: OUT-4, OUT-19; chapter 7: STM-19 (SP8) |

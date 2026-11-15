@@ -50,16 +50,16 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
 | D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | pending |
-| D-010 | Recoverable errors through explicit results, execution faults through traps | Agreed direction | [Agreed] | language | DN §6.1, §6.4 | SP8 |  | pending |
-| D-011 | No general-purpose exceptions initially | Agreed direction | [Agreed] | language | DN §6.1 | SP8 |  | pending |
-| D-012 | Every function returns a success/error result | Agreed direction; detailed typing open | [Agreed] | language | DN §6.1, §6.3 | SP8 | OI-18 | pending |
-| D-013 | Explicit outcome handling uses `match` with `Ok` / `Err` | Agreed | [Agreed] | language | DN §3.6, §6.1 | SP8 |  | pending |
-| D-014 | Automatic error propagation with `attempt` | Agreed | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-015 | Discarded function outcomes | Compilation error | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-016 | Stored result values / user-visible `Result<T>` | Not supported initially; outcomes must be consumed immediately | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-017 | `attempt` type | Exactly the successful payload type; statement form only for no-payload success | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-018 | One application error set with explicit nonzero `u16` codes | Agreed | [Agreed] | language | DN §6.3 | SP8 | OI-13 | pending |
-| D-019 | Application/platform errors and traps have separate reporting categories | Agreed | [Agreed] | language | DN §6.3 | SP8 |  | pending |
+| D-010 | Recoverable errors through explicit results, execution faults through traps | Agreed direction | [Agreed] | language | DN §6.1, §6.4 | SP8 |  | OUT-1 |
+| D-011 | No general-purpose exceptions initially | Agreed direction | [Agreed] | language | DN §6.1 | SP8 |  | OUT-1 |
+| D-012 | Every function returns a success/error result | Agreed direction; detailed typing open | [Agreed] | language | DN §6.1, §6.3 | SP8 | OI-18 | OUT-1, OUT-2 |
+| D-013 | Explicit outcome handling uses `match` with `Ok` / `Err` | Agreed | [Agreed] | language | DN §3.6, §6.1 | SP8 |  | OUT-11 |
+| D-014 | Automatic error propagation with `attempt` | Agreed | [Agreed] | language | DN §6.3 | SP8 |  | OUT-8, OUT-10 |
+| D-015 | Discarded function outcomes | Compilation error | [Agreed] | language | DN §6.3 | SP8 |  | OUT-5, OUT-7 |
+| D-016 | Stored result values / user-visible `Result<T>` | Not supported initially; outcomes must be consumed immediately | [Agreed] | language | DN §6.3 | SP8 |  | OUT-2 |
+| D-017 | `attempt` type | Exactly the successful payload type; statement form only for no-payload success | [Agreed] | language | DN §6.3 | SP8 |  | OUT-9, OUT-10 |
+| D-018 | One application error set with explicit nonzero `u16` codes | Agreed | [Agreed] | language | DN §6.3 | SP8 | OI-13 | OUT-15, OUT-16 |
+| D-019 | Application/platform errors and traps have separate reporting categories | Agreed | [Agreed] | language | DN §6.3 | SP8 |  | OUT-18 |
 | D-020 | Single application or completely isolated applications | Agreed; no cross-application calls/references/shared state | [Agreed] | language | DN §1, §4.1; PN §1 | SP2 |  | NAM-5 |
 | D-021 | Multiple source files form one application compilation unit | Agreed; explicit file list and build-supplied identity | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1 |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1, NAM-2, NAM-6, NAM-8 |
@@ -68,7 +68,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | FUN-2 |
 | D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1 |
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | EXP-49 |
-| D-028 | Error pattern bindings | Arm-local propagation only; no ordinary error value type initially | [Agreed] | language | DN §6.3 | SP8 |  | pending |
+| D-028 | Error pattern bindings | Arm-local propagation only; no ordinary error value type initially | [Agreed] | language | DN §6.3 | SP8 |  | OUT-4, OUT-14 |
 | D-029 | Constant-only calculations outside global constants | Compile-time evaluation; evaluated failures are compilation errors | [Agreed] | language | DN §3.10 | SP4 | OI-11 | CEX-7, CEX-8, CEX-9 |
 | D-030 | Function completion analysis | Conservative structural rules; trapping calculations are not a return exemption | [Agreed] | language | DN §3.7 | SP6 |  | STM-20, STM-21 |
 | D-031 | Recursion, function values/pointers and user-defined generics | Not supported initially | [Agreed] | language | DN §3.7 | SP7 |  | FUN-4, FUN-5 |
@@ -147,8 +147,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-104 | Left-to-right evaluation and short-circuit boolean logic | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | EXP-20, EXP-21, EXP-50 |
 | D-105 | Assignment is a statement, not an expression | Agreed | [Agreed] | language | DN §3.5 | SP6 |  | STM-6 |
 | D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | Agreed | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15 |
-| D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | Agreed | [Agreed] | language | DN §3.6, §3.7 | SP8 |  | pending |
-| D-108 | Exhaustive result matching; read-only loop and pattern bindings | Agreed | [Agreed] | language | DN §3.6 | SP8 |  | pending |
+| D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | Agreed | [Agreed] | language | DN §3.6, §3.7 | SP8 |  | OUT-3, OUT-4 |
+| D-108 | Exhaustive result matching; read-only loop and pattern bindings | Agreed | [Agreed] | language | DN §3.6 | SP8 |  | OUT-12, OUT-13 |
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | pending |
 | D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | pending |
 | D-111 | `abort` scope | Lexically inside a transaction only; helpers return Err for the transaction owner to handle | [Agreed] | language | DN §7.2 | SP10 |  | pending |
@@ -189,7 +189,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23; Annex B pending SP12/SP13 |
 | D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | pending |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | pending |
-| D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | pending |
+| D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) |
 
 ## DN body-only decisions (D-301…)
 
@@ -256,6 +256,15 @@ Sub-plans add rows here as they reach each DN section.
 | D-357 | Compilers preserve observable aliasing effects; no assumption that `ref` storage is stable or `inout` storage unaliased; no substituted copies | Agreed (DN body text) | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-14 |
 | D-358 | Physical copies may be removed only when behavior is unchanged; sharing is never substituted for copying | Agreed (DN body text) | [Agreed] | language | DN §3.8 | SP7 |  | FUN-17 |
 | D-359 | Inside the callee a view is indexed from 0 and its `.length` is the region length; a parameter cannot resize or rebind its region; a view may be narrowed to a slice within its region | Agreed (DN body text) | [Agreed] | language | DN §8.4 | SP7 |  | FUN-21 |
+| D-360 | An outcome match has exactly one success arm, zero or more specific error arms and one mandatory final catch-all (`Err(name)` or `Err(_)`); specific errors precede the catch-all; listing every known error does not make the catch-all optional | Agreed (DN body text) | [Agreed] | language | DN §3.6, §6.3 | SP8 |  | OUT-12 |
+| D-361 | Pattern vocabulary: `Ok(name)`, `Ok(_)`, `Ok()`, `Err(Set.Member)`, `Err(name)`, `Err(_)`; no guards, alternatives, ranges, nested patterns or destructuring | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP8 |  | OUT-11 |
+| D-362 | Success payload bindings are independent read-only arm-local copies | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP8 |  | OUT-13 |
+| D-363 | `Ok` and `Err` are restricted syntax for returns, `abort` and patterns, not general constructors | Agreed (DN body text) | [Agreed] | language | DN §6.3 | SP8 |  | OUT-6 |
+| D-364 | `attempt` propagates the error unchanged regardless of the enclosing payload type and never catches traps | Agreed (DN body text) | [Agreed] | language | DN §6.3 | SP8 |  | OUT-10 |
+| D-365 | Application errors carry identity only (no strings or payloads); names and codes are unique within the error set | Agreed (DN body text) | [Agreed] | language | DN §6.3 | SP8 |  | OUT-16, OUT-18 |
+| D-366 | Published error codes must not change meaning or be reused after removal | Agreed (DN body text) | [Agreed] | language | DN §6.3; PN §5 | SP8 |  | OUT-17 |
+| D-367 | Platform errors use the reserved `CardError` namespace, which applications cannot impersonate; no application-origin field; propagation preserves category and code | Agreed (DN body text) | [Agreed] | language | DN §6.3 | SP8 |  | OUT-18, OUT-19 |
+| D-368 | Returning or propagating `Err` is not a rollback request; earlier persistent and session changes remain | Agreed (DN body text) | [Agreed] | language | DN §6.3, §7.2 | SP8 |  | OUT-20 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -268,17 +277,17 @@ Sub-plans add rows here as they reach each DN section.
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
-| D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51; meaning in chapter 9 (SP8) |
+| D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51, OUT-8, OUT-10 |
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | STM-9 |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | CEX-7, CEX-10 |
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
-| D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | pending |
+| D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | OUT-5, OUT-15 |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19, EXP-7 |
 | D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | pending |
 | D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | pending |
-| D-418 | Outcome typing settled by DN §6.3 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-18 | SP8 | OI-18 | pending |
+| D-418 | Outcome typing settled by DN §6.3 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-18 | SP8 | OI-18 | OUT-1, OUT-2 |
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-19 | SP9 | OI-19 | pending |
 | D-420 | Resource storage strategy is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-20 | SP13 | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | pending |
@@ -287,7 +296,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-425 | Primitive type names are predeclared names in every application scope, not keywords | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-25 | SP2 | OI-25 | NAM-14 |
 | D-426 | A file listed twice is a build-configuration error; an empty file list is allowed by the language | Resolved by user 2026-11-15 | [Agreed] | tooling | Annex C OI-26 | SP2 | OI-26 | NAM-3 |
 | D-427 | Storage representation of values (Booleans, enums, layouts) is not language-visible; persistent layout across upgrades is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-27 | SP3 | OI-27 | TYP-9 |
-| D-428 | Error-member codes are integer literals (u16 context), not general constant expressions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-28 | SP8 | OI-28 | CEX-6; literal rule pending chapter 9 (SP8) |
+| D-428 | Error-member codes are integer literals (u16 context), not general constant expressions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-28 | SP8 | OI-28 | CEX-6, OUT-16 |
 | D-429 | Constant slice endpoints on an array of type-known length are checked at compile time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-29 | SP4 | OI-29 | CEX-10 |
 | D-430 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-30 | SP5 | OI-30 | EXP-6 |
 | D-431 | Arithmetic failure classes: above maximum is Overflow; below minimum (incl. unsigned subtraction) is Underflow; signed minimum / -1 is Overflow; negating the signed minimum is TRAP-NEGATION and checked_neg returns CardError.Overflow | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-31 | SP5 | OI-31 | EXP-23, EXP-24, EXP-25, EXP-29 |
@@ -295,3 +304,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-433 | Only `attempt call;` is an expression statement; any other expression statement is a compilation error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-33 | SP6 | OI-33 | STM-2 |
 | D-434 | No standalone block statements in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-34 | SP6 | OI-34 | STM-3 |
 | D-435 | A `for` index or pattern binding may be passed as `ref`, never `inout` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-35 | SP7 | OI-35 | FUN-9, FUN-10 |
+| D-436 | An error set must declare at least one member | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-36 | SP8 | OI-36 | OUT-15 |
+| D-437 | Application code may name `CardError` members only in `Err` patterns; it propagates platform errors through bindings and never originates them in return, abort or require | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-37 | SP8 | OI-37 | OUT-4, OUT-19, STM-19 |

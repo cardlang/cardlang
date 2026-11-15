@@ -190,6 +190,20 @@ Notes on these productions:
 - **Restrictions from chapter 8.** Chapter 8 restricts where slices may appear (FUN-18), requires argument modes to match parameter modes (FUN-7), and restricts which arguments a reference may take (FUN-9, FUN-10).
 - **Restriction from chapter 4.** An unsized `T[]` parameter type is allowed only with `ref` or `inout` (TYP-21).
 
+### A.2.7 Outcomes, patterns and error sets (chapter 9)
+
+This section adds no new productions. The relevant ones are defined elsewhere:
+
+- `ErrorSetDeclaration` and `ErrorMember` are in §A.2.1.
+- The `Ok` and `Err` forms of `Pattern` and `ReturnStatement` are in §A.2.5.
+- `attempt` is in `UnaryExpression`, §A.2.4.
+
+Chapter 9 restricts these productions as follows:
+
+- `ErrorMember` accepts any `Expression` as its code, but OUT-16 requires an integer literal (CE-OUT-7).
+- `Ok(…)` and `Err(…)` occur only in returns, `abort` and patterns (OUT-6).
+- Nested patterns such as `Ok(State.Idle)` do not derive (CE-SYN-1).
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
@@ -198,7 +212,7 @@ Notes on these productions:
 | A.2.4 | Expressions | SP5 (done) |
 | A.2.5 | Statements and blocks | SP6 (done) |
 | A.2.6 | Functions, parameters, arguments and slices | SP7 (done) |
-| A.2.7 | Outcomes, patterns and error sets | SP8 |
+| A.2.7 | Outcomes, patterns and error sets | SP8 (done) |
 | A.2.8 | State declarations | SP9 |
 | A.2.9 | Transactions | SP10 |
 | A.2.10 | The host entry point | SP11 |

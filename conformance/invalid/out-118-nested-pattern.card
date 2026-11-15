@@ -1,0 +1,26 @@
+// rule: OUT-11
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: A nested pattern Ok(State.Idle).
+enum State {
+    Idle;
+    Busy;
+}
+
+function read_state() -> State {
+    return Ok(State.Idle);
+}
+
+function check() {
+    match read_state() {
+        Ok(State.Idle) => {
+        }
+        Ok(_) => {
+        }
+        Err(_) => {
+        }
+    }
+    return Ok();
+}

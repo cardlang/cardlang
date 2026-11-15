@@ -29,12 +29,12 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-51 |
 | 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-22 |
 | 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-23 |
-| 09-outcomes-and-errors.md | SP8 | DN §3.2 (`checked_convert`), §3.6 (patterns), §6.1, §6.3 | pending |
+| 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1 | pending |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.6 complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.7 complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -51,16 +51,16 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
 | D-008 | Explicit persistent state | SP9 | — | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | SP13 | — | OI-17 | pending |
-| D-010 | Recoverable errors through explicit results, execution faults through traps | SP8 | — |  | pending |
-| D-011 | No general-purpose exceptions initially | SP8 | — |  | pending |
-| D-012 | Every function returns a success/error result | SP8 | — | OI-18 | pending |
-| D-013 | Explicit outcome handling uses `match` with `Ok` / `Err` | SP8 | — |  | pending |
-| D-014 | Automatic error propagation with `attempt` | SP8 | — |  | pending |
-| D-015 | Discarded function outcomes | SP8 | — |  | pending |
-| D-016 | Stored result values / user-visible `Result<T>` | SP8 | — |  | pending |
-| D-017 | `attempt` type | SP8 | — |  | pending |
-| D-018 | One application error set with explicit nonzero `u16` codes | SP8 | — | OI-13 | pending |
-| D-019 | Application/platform errors and traps have separate reporting categories | SP8 | — |  | pending |
+| D-010 | Recoverable errors through explicit results, execution faults through traps | SP8 | OUT-1 |  | covered |
+| D-011 | No general-purpose exceptions initially | SP8 | OUT-1 |  | covered |
+| D-012 | Every function returns a success/error result | SP8 | OUT-1, OUT-2 | OI-18 | covered |
+| D-013 | Explicit outcome handling uses `match` with `Ok` / `Err` | SP8 | OUT-11 |  | covered |
+| D-014 | Automatic error propagation with `attempt` | SP8 | OUT-8, OUT-10 |  | covered |
+| D-015 | Discarded function outcomes | SP8 | OUT-5, OUT-7 |  | covered |
+| D-016 | Stored result values / user-visible `Result<T>` | SP8 | OUT-2 |  | covered |
+| D-017 | `attempt` type | SP8 | OUT-9, OUT-10 |  | covered |
+| D-018 | One application error set with explicit nonzero `u16` codes | SP8 | OUT-15, OUT-16 | OI-13 | covered |
+| D-019 | Application/platform errors and traps have separate reporting categories | SP8 | OUT-18 |  | covered |
 | D-020 | Single application or completely isolated applications | SP2 | NAM-5 |  | covered |
 | D-021 | Multiple source files form one application compilation unit | SP2 | NAM-1 |  | covered |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | NAM-1, NAM-2, NAM-6, NAM-8 |  | covered |
@@ -69,7 +69,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-025 | No-value ordinary function signature | SP7 | FUN-2 |  | covered |
 | D-026 | Function arguments | SP7 | FUN-1 |  | covered |
 | D-027 | Calls inside argument expressions | SP5 | EXP-49 |  | covered |
-| D-028 | Error pattern bindings | SP8 | — |  | pending |
+| D-028 | Error pattern bindings | SP8 | OUT-4, OUT-14 |  | covered |
 | D-029 | Constant-only calculations outside global constants | SP4 | CEX-7, CEX-8, CEX-9 | OI-11 | covered |
 | D-030 | Function completion analysis | SP6 | STM-20, STM-21 |  | covered |
 | D-031 | Recursion, function values/pointers and user-defined generics | SP7 | FUN-4, FUN-5 |  | covered |
@@ -148,8 +148,8 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-104 | Left-to-right evaluation and short-circuit boolean logic | SP5 | EXP-20, EXP-21, EXP-50 |  | covered |
 | D-105 | Assignment is a statement, not an expression | SP6 | STM-6 |  | covered |
 | D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | SP6 | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15 |  | covered |
-| D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | SP8 | — |  | pending |
-| D-108 | Exhaustive result matching; read-only loop and pattern bindings | SP8 | — |  | pending |
+| D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | SP8 | OUT-3, OUT-4 |  | covered |
+| D-108 | Exhaustive result matching; read-only loop and pattern bindings | SP8 | OUT-12, OUT-13 |  | covered |
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | SP10 | — |  | pending |
 | D-110 | Explicit recoverable transaction exit: `abort Err(error);` | SP10 | — |  | pending |
 | D-111 | `abort` scope | SP10 | — |  | pending |
@@ -185,7 +185,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-206 | Exceeding a runtime stack/execution limit traps | SP12 | TYP-23; Annex B pending SP12/SP13 |  | partial |
 | D-207 | Commit failure never resumes after the block | SP10 | — |  | pending |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | — |  | pending |
-| D-209 | Published application/platform error-code meanings remain stable | SP12 | — | OI-15 | pending |
+| D-209 | Published application/platform error-code meanings remain stable | SP12 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) | OI-15 | partial |
 | D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | — | OI-2 | pending |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | — | OI-3 | pending |
@@ -193,17 +193,17 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-405 | Entry point is the single `command` declaration, any name | SP11 | — | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | SP2 | NAM-17, NAM-18 | OI-6 | covered |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
-| D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51; meaning in chapter 9 (SP8) | OI-8 | covered |
+| D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51, OUT-8, OUT-10 | OI-8 | covered |
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | STM-9 | OI-9 | covered |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 | OI-10 | covered |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | CEX-7, CEX-10 | OI-11 | covered |
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
-| D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | — | OI-13 | pending |
+| D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | OUT-5, OUT-15 | OI-13 | covered |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19, EXP-7 | OI-14 | covered |
 | D-415 | Trap-kind and placeholder platform-error names | SP12 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) | OI-15 | partial |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | — | OI-16 | pending |
 | D-417 | Large-data object API is future platform work | SP13 | — | OI-17 | pending |
-| D-418 | Outcome typing settled by DN §6.3 | SP8 | — | OI-18 | pending |
+| D-418 | Outcome typing settled by DN §6.3 | SP8 | OUT-1, OUT-2 | OI-18 | covered |
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | SP9 | — | OI-19 | pending |
 | D-420 | Resource storage strategy is platform-defined | SP13 | — | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | SP13 | — | OI-21 | pending |
@@ -266,12 +266,21 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-357 | Compilers preserve observable aliasing effects | SP7 | FUN-14 |  | covered |
 | D-358 | Physical copies may be removed only when behavior is unchanged | SP7 | FUN-17 |  | covered |
 | D-359 | Inside the callee a view is indexed from 0 and its `.length` is the region length | SP7 | FUN-21 |  | covered |
+| D-360 | An outcome match has exactly one success arm, zero or more specific error arms and one mandatory final catch-all (`Err(name)` or `Err(_)`) | SP8 | OUT-12 |  | covered |
+| D-361 | Pattern vocabulary: `Ok(name)`, `Ok(_)`, `Ok()`, `Err(Set.Member)`, `Err(name)`, `Err(_)` | SP8 | OUT-11 |  | covered |
+| D-362 | Success payload bindings are independent read-only arm-local copies | SP8 | OUT-13 |  | covered |
+| D-363 | `Ok` and `Err` are restricted syntax for returns, `abort` and patterns, not general constructors | SP8 | OUT-6 |  | covered |
+| D-364 | `attempt` propagates the error unchanged regardless of the enclosing payload type and never catches traps | SP8 | OUT-10 |  | covered |
+| D-365 | Application errors carry identity only (no strings or payloads) | SP8 | OUT-16, OUT-18 |  | covered |
+| D-366 | Published error codes must not change meaning or be reused after removal | SP8 | OUT-17 |  | covered |
+| D-367 | Platform errors use the reserved `CardError` namespace, which applications cannot impersonate | SP8 | OUT-18, OUT-19 |  | covered |
+| D-368 | Returning or propagating `Err` is not a rollback request | SP8 | OUT-20 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
 | D-426 | File-list duplicates are a build error; empty list allowed | SP2 | NAM-3 | OI-26 | covered |
 | D-427 | Storage representation is not language-visible | SP3 | TYP-9 | OI-27 | covered |
-| D-428 | Error-member codes are integer literals | SP8 | CEX-6; literal rule pending chapter 9 (SP8) | OI-28 | partial |
+| D-428 | Error-member codes are integer literals | SP8 | CEX-6, OUT-16 | OI-28 | covered |
 | D-429 | Constant slice endpoints checked at compile time | SP4 | CEX-10 | OI-29 | covered |
 | D-430 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized | SP5 | EXP-6 | OI-30 | covered |
 | D-431 | Arithmetic failure classes: above maximum is Overflow | SP5 | EXP-23, EXP-24, EXP-25, EXP-29 | OI-31 | covered |
@@ -279,3 +288,5 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-433 | Only `attempt call | SP6 | STM-2 | OI-33 | covered |
 | D-434 | No standalone block statements in Draft 0.1 | SP6 | STM-3 | OI-34 | covered |
 | D-435 | for index or pattern binding may be passed as ref | SP7 | FUN-9, FUN-10 | OI-35 | covered |
+| D-436 | An error set must declare at least one member | SP8 | OUT-15 | OI-36 | covered |
+| D-437 | Application code may name `CardError` members only in `Err` patterns | SP8 | OUT-4, OUT-19, STM-19 | OI-37 | covered |

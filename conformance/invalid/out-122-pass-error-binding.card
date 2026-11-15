@@ -1,0 +1,24 @@
+// rule: OUT-14
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-6
+// note: An error binding passed as an argument.
+function read_value() -> u32 {
+    return Ok(7);
+}
+
+function log_error(code: u16) {
+    return Ok();
+}
+
+function check() {
+    match read_value() {
+        Ok(_) => {
+        }
+        Err(error) => {
+            attempt log_error(error);
+        }
+    }
+    return Ok();
+}
