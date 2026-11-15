@@ -1,0 +1,16 @@
+// rule: FUN-18, FUN-21
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Narrowing a view, and a slice as the receiver of .length.
+function first_half(data: ref u8[]) -> u32 {
+    return Ok(data.length);
+}
+
+function narrow(data: inout u8[]) -> u32 {
+    var half: u32 = data.length / 2;
+    var size: u32 = data[0..half].length;
+    data[0] = 1;
+    return first_half(ref data[0..half]);
+}

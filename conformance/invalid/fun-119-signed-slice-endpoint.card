@@ -1,0 +1,16 @@
+// rule: FUN-19
+// source: D-410
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-9
+// note: A signed slice endpoint.
+session buffer: u8[16];
+
+function inspect(data: ref u8[]) {
+    return Ok();
+}
+
+function check(start: i8) {
+    attempt inspect(ref buffer[start..4]);
+    return Ok();
+}

@@ -175,6 +175,21 @@ Notes on these productions:
 - **Range separator.** In `ForStatement`, `..` is the range separator. A `for` bound is parsed with the constructor restriction of EXP-6.
 - **Patterns.** `Pattern` covers both enum and outcome patterns. Chapter 9 gives meaning to the `Ok` and `Err` patterns, and §A.2.7 refers back here.
 
+### A.2.6 Functions and parameters (chapter 8)
+
+```
+FunctionDeclaration ::= 'function' Identifier ParameterList ReturnType? Block   /* also in A.2.1 */
+ParameterList       ::= '(' ( Parameter ( ',' Parameter )* ','? )? ')'
+Parameter           ::= Identifier ':' ( 'ref' | 'inout' )? Type
+ReturnType          ::= '->' Type
+```
+
+Notes on these productions:
+
+- **Arguments and slices.** Call-site argument modes (`Argument`) and slices (the `'..'` form of `PostfixPart`) are in §A.2.4.
+- **Restrictions from chapter 8.** Chapter 8 restricts where slices may appear (FUN-18), requires argument modes to match parameter modes (FUN-7), and restricts which arguments a reference may take (FUN-9, FUN-10).
+- **Restriction from chapter 4.** An unsized `T[]` parameter type is allowed only with `ref` or `inout` (TYP-21).
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
@@ -182,7 +197,7 @@ Notes on these productions:
 | A.2.3 | Constant expressions | SP4 (done; see below) |
 | A.2.4 | Expressions | SP5 (done) |
 | A.2.5 | Statements and blocks | SP6 (done) |
-| A.2.6 | Functions, parameters, arguments and slices | SP7 |
+| A.2.6 | Functions, parameters, arguments and slices | SP7 (done) |
 | A.2.7 | Outcomes, patterns and error sets | SP8 |
 | A.2.8 | State declarations | SP9 |
 | A.2.9 | Transactions | SP10 |

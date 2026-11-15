@@ -13,16 +13,16 @@ This is the normative specification of the CardLang language. It is being writte
 | [05-constant-expressions.md](05-constant-expressions.md) | 5 Constant expressions | SP4 | Draft complete |
 | [06-expressions.md](06-expressions.md) | 6 Expressions | SP5 | Draft complete |
 | [07-statements-and-control-flow.md](07-statements-and-control-flow.md) | 7 Statements and control flow | SP6 | Draft complete |
-| 08-functions-and-references.md | 8 Functions, references and slices | SP7 | Not started |
+| [08-functions-and-references.md](08-functions-and-references.md) | 8 Functions, references and slices | SP7 | Draft complete |
 | 09-outcomes-and-errors.md | 9 Outcomes and errors | SP8 | Not started |
 | 10-state-and-initialization.md | 10 State and initialization | SP9 | Not started |
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.5 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.6 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-34 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–7 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-35 resolved; OI-22 open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–8 |
 
 Related files:
 
@@ -39,7 +39,8 @@ Related files:
 | 5 Constant expressions | 14 | 14 | 0 | 0 |
 | 6 Expressions | 51 | 51 | 0 | 0 |
 | 7 Statements and control flow | 22 | 22 | 0 | 0 |
-| **Total** | 156 | 156 | 0 | 0 |
+| 8 Functions, references and slices | 23 | 23 | 0 | 0 |
+| **Total** | 179 | 179 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -68,6 +69,11 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-EXP-14 | Outcome used where a value is required | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
 | CE-EXP-15 | Call target is not callable | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
 | CE-EXP-16 | Wrong number of arguments | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-FUN-1 | Call graph contains a cycle (recursion) | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
+| CE-FUN-2 | Argument mode does not match the parameter mode | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
+| CE-FUN-3 | ref or inout argument does not identify existing storage | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
+| CE-FUN-4 | inout argument is not mutable through its path | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
+| CE-FUN-5 | Slice in a position where slices are not allowed | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
 | CE-LEX-1 | File is not valid UTF-8 | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |

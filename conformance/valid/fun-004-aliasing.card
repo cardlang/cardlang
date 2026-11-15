@@ -1,0 +1,18 @@
+// rule: FUN-12, FUN-13, FUN-14
+// source: DN §3.8
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The same byte written through a reference and a global.
+session buffer: u8[16];
+
+function update(target: inout u8, index: u32) {
+    target = 1;
+    buffer[index] = 2;
+    return Ok();
+}
+
+function demonstrate_aliasing() {
+    attempt update(inout buffer[0], 0);
+    return Ok();
+}

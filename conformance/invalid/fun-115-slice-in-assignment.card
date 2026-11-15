@@ -1,0 +1,13 @@
+// rule: FUN-18
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-5
+// note: A slice on the right of an assignment.
+session buffer: u8[16];
+session destination: u8[4];
+
+function check() {
+    destination = buffer[0..4];
+    return Ok();
+}

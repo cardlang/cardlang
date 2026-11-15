@@ -28,13 +28,13 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.8, §3.10, §3.11, §5.1, §6.5 | CEX-1 … CEX-14 |
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-51 |
 | 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-22 |
-| 08-functions-and-references.md | SP7 | DN §3.7, §3.8, §8.4 | pending |
+| 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-23 |
 | 09-outcomes-and-errors.md | SP8 | DN §3.2 (`checked_convert`), §3.6 (patterns), §6.1, §6.3 | pending |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1 | pending |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.5 complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.6 complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -66,15 +66,15 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | NAM-1, NAM-2, NAM-6, NAM-8 |  | covered |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | SP1 | LEX-1, LEX-2, LEX-3, LEX-12 | OI-1 | covered |
 | D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |  | partial |
-| D-025 | No-value ordinary function signature | SP7 | — |  | pending |
-| D-026 | Function arguments | SP7 | — |  | pending |
+| D-025 | No-value ordinary function signature | SP7 | FUN-2 |  | covered |
+| D-026 | Function arguments | SP7 | FUN-1 |  | covered |
 | D-027 | Calls inside argument expressions | SP5 | EXP-49 |  | covered |
 | D-028 | Error pattern bindings | SP8 | — |  | pending |
 | D-029 | Constant-only calculations outside global constants | SP4 | CEX-7, CEX-8, CEX-9 | OI-11 | covered |
 | D-030 | Function completion analysis | SP6 | STM-20, STM-21 |  | covered |
-| D-031 | Recursion, function values/pointers and user-defined generics | SP7 | — |  | pending |
-| D-032 | Function prototypes | SP7 | — |  | pending |
-| D-033 | Successful function returns | SP7 | — |  | pending |
+| D-031 | Recursion, function values/pointers and user-defined generics | SP7 | FUN-4, FUN-5 |  | covered |
+| D-032 | Function prototypes | SP7 | FUN-3 |  | covered |
+| D-033 | Successful function returns | SP7 | FUN-2 |  | covered |
 | D-034 | Reachable function fall-through | SP6 | STM-21 |  | covered |
 | D-035 | Commands called by application code | SP11 | — |  | pending |
 | D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
@@ -153,16 +153,16 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | SP10 | — |  | pending |
 | D-110 | Explicit recoverable transaction exit: `abort Err(error);` | SP10 | — |  | pending |
 | D-111 | `abort` scope | SP10 | — |  | pending |
-| D-112 | Parameters: by value, read-only `ref`, mutable `inout` | SP7 | — |  | pending |
-| D-113 | Reference modes explicit at declaration and call site | SP7 | — |  | pending |
-| D-114 | References are call-scoped; no raw pointers or escaping references | SP7 | — |  | pending |
-| D-115 | Reference permissions | SP7 | — |  | pending |
-| D-116 | Assignment/value parameters/value returns create independent values | SP7 | — |  | pending |
-| D-117 | References may target variables, fields and array elements; not temporaries | SP7 | — |  | pending |
-| D-118 | Reference and slice overlap | SP7 | — |  | pending |
-| D-119 | Array slices `array[start..end]` | SP7 | — | OI-10 | pending |
-| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
-| D-121 | By-value array parameters | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
+| D-112 | Parameters: by value, read-only `ref`, mutable `inout` | SP7 | FUN-1, FUN-6 |  | covered |
+| D-113 | Reference modes explicit at declaration and call site | SP7 | FUN-7 |  | covered |
+| D-114 | References are call-scoped; no raw pointers or escaping references | SP7 | FUN-6, FUN-16 |  | covered |
+| D-115 | Reference permissions | SP7 | FUN-6, FUN-10, FUN-12, FUN-15 |  | covered |
+| D-116 | Assignment/value parameters/value returns create independent values | SP7 | EXP-46, STM-8, FUN-6, FUN-17 |  | covered |
+| D-117 | References may target variables, fields and array elements; not temporaries | SP7 | FUN-9 |  | covered |
+| D-118 | Reference and slice overlap | SP7 | FUN-12, FUN-13 |  | covered |
+| D-119 | Array slices `array[start..end]` | SP7 | FUN-18, FUN-20 | OI-10 | covered |
+| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | TYP-21, FUN-8, FUN-21 |  | covered |
+| D-121 | By-value array parameters | SP7 | TYP-21, FUN-8 |  | covered |
 | D-122 | Mutable global declaration initializers | SP9 | — |  | pending |
 | D-123 | Automatic defaults | SP9 | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |  | partial |
 | D-124 | Application-specific global setup | SP9 | — | OI-7 | pending |
@@ -174,7 +174,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-130 | Explicit array/structure construction remains complete | SP5 | EXP-43, EXP-45 |  | covered |
 | D-131 | Nested transactions, including through function calls | SP10 | — | OI-3 | pending |
 | D-132 | Callee persistent assignments participate in an active transaction | SP10 | — |  | pending |
-| D-133 | By-value aggregate parameters | SP13 | — | OI-21 | pending |
+| D-133 | By-value aggregate parameters | SP13 | FUN-17 (value semantics); placement guidance pending Annex B (SP13) | OI-21 | partial |
 | D-134 | Familiar imperative syntax, static types | SP0 | 01 §1.1 |  | deferred |
 | D-135 | Compact custom VM with single-digit KiB RAM goals | SP13 | — |  | pending |
 | D-201 | No opaque platform value types | SP13 | — |  | pending |
@@ -195,7 +195,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51; meaning in chapter 9 (SP8) | OI-8 | covered |
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | STM-9 | OI-9 | covered |
-| D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | EXP-42 (parsing); positions pending chapter 8 (SP7) | OI-10 | partial |
+| D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 | OI-10 | covered |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | CEX-7, CEX-10 | OI-11 | covered |
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | — | OI-13 | pending |
@@ -236,7 +236,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-327 | Qualified enum variants are constant expressions | SP4 | CEX-3 |  | covered |
 | D-328 | `.length` of a fixed array through a plain variable/field path is constant without reading contents | SP4 | CEX-4 |  | covered |
 | D-329 | Compile-time evaluation preserves short-circuiting | SP4 | CEX-11 |  | covered |
-| D-330 | Global constants need no writable state and their representation is an implementation detail | SP4 | CEX-2; inout ban enforced in chapter 8 (SP7) |  | partial |
+| D-330 | Global constants need no writable state and their representation is an implementation detail | SP4 | CEX-2, FUN-10 |  | covered |
 | D-331 | The nested-call ban applies in constant expressions | SP4 | CEX-14 |  | covered |
 | D-332 | Constant expressions never read persistent or session contents | SP4 | CEX-5 |  | covered |
 | D-333 | A typed operand supplies the expected type for an untyped literal operand on either side | SP5 | EXP-11 |  | covered |
@@ -258,6 +258,14 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-349 | No chained assignment, increment/decrement operators or assignment in conditions | SP6 | STM-6 |  | covered |
 | D-350 | An explicit local initializer is not preceded by a default | SP6 | STM-5 |  | covered |
 | D-351 | Unreachable statements are permitted and still checked | SP6 | STM-22 |  | covered |
+| D-352 | Ordinary functions may access globals, call platform APIs and open transactions | SP7 | FUN-3, FUN-22 |  | covered |
+| D-353 | All arguments are evaluated left to right and reference/slice regions established and bounds-checked before the callee starts | SP7 | FUN-11 |  | covered |
+| D-354 | Forwarding: `ref` to `ref` | SP7 | FUN-15 |  | covered |
+| D-355 | References and views end with their call on Ok or Err | SP7 | FUN-16 |  | covered |
+| D-356 | Storage identity survives reference passing: a write through `inout` to persistent storage is a persistent write | SP7 | FUN-23 |  | covered |
+| D-357 | Compilers preserve observable aliasing effects | SP7 | FUN-14 |  | covered |
+| D-358 | Physical copies may be removed only when behavior is unchanged | SP7 | FUN-17 |  | covered |
+| D-359 | Inside the callee a view is indexed from 0 and its `.length` is the region length | SP7 | FUN-21 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
@@ -270,3 +278,4 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-432 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> | SP5 | EXP-34, EXP-36, EXP-37, LEX-15, NAM-14, CEX-5 | OI-32 | covered |
 | D-433 | Only `attempt call | SP6 | STM-2 | OI-33 | covered |
 | D-434 | No standalone block statements in Draft 0.1 | SP6 | STM-3 | OI-34 | covered |
+| D-435 | for index or pattern binding may be passed as ref | SP7 | FUN-9, FUN-10 | OI-35 | covered |

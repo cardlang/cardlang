@@ -1,0 +1,24 @@
+// rule: FUN-15
+// source: DN §3.8
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: An inout parameter forwarded as ref and as inout.
+struct Account {
+    balance: u32;
+}
+
+function inspect(source: ref Account) {
+    return Ok();
+}
+
+function update(target: inout Account) {
+    target.balance = 0;
+    return Ok();
+}
+
+function process(target: inout Account) {
+    attempt inspect(ref target);
+    attempt update(inout target);
+    return Ok();
+}

@@ -65,15 +65,15 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1, NAM-2, NAM-6, NAM-8 |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | Agreed | [Agreed] | language | DN §1, §3.0 | SP1 | OI-1 | LEX-1, LEX-2, LEX-3, LEX-12 |
 | D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |
-| D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | pending |
-| D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | pending |
+| D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | FUN-2 |
+| D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1 |
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | EXP-49 |
 | D-028 | Error pattern bindings | Arm-local propagation only; no ordinary error value type initially | [Agreed] | language | DN §6.3 | SP8 |  | pending |
 | D-029 | Constant-only calculations outside global constants | Compile-time evaluation; evaluated failures are compilation errors | [Agreed] | language | DN §3.10 | SP4 | OI-11 | CEX-7, CEX-8, CEX-9 |
 | D-030 | Function completion analysis | Conservative structural rules; trapping calculations are not a return exemption | [Agreed] | language | DN §3.7 | SP6 |  | STM-20, STM-21 |
-| D-031 | Recursion, function values/pointers and user-defined generics | Not supported initially | [Agreed] | language | DN §3.7 | SP7 |  | pending |
-| D-032 | Function prototypes | Not supported; definitions are visible regardless of source order | [Agreed] | language | DN §3.7 | SP7 |  | pending |
-| D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | pending |
+| D-031 | Recursion, function values/pointers and user-defined generics | Not supported initially | [Agreed] | language | DN §3.7 | SP7 |  | FUN-4, FUN-5 |
+| D-032 | Function prototypes | Not supported; definitions are visible regardless of source order | [Agreed] | language | DN §3.7 | SP7 |  | FUN-3 |
+| D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | FUN-2 |
 | D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | STM-21 |
 | D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | pending |
 | D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
@@ -152,16 +152,16 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | pending |
 | D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | pending |
 | D-111 | `abort` scope | Lexically inside a transaction only; helpers return Err for the transaction owner to handle | [Agreed] | language | DN §7.2 | SP10 |  | pending |
-| D-112 | Parameters: by value, read-only `ref`, mutable `inout` | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | pending |
-| D-113 | Reference modes explicit at declaration and call site | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | pending |
-| D-114 | References are call-scoped; no raw pointers or escaping references | Agreed | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | pending |
-| D-115 | Reference permissions | ref is read-only through that path; inout permits reads/writes; neither grants exclusivity | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | pending |
-| D-116 | Assignment/value parameters/value returns create independent values | Agreed | [Agreed] | language | DN §3.8 | SP7 |  | pending |
-| D-117 | References may target variables, fields and array elements; not temporaries | Agreed | [Agreed] | language | DN §3.8 | SP7 |  | pending |
-| D-118 | Reference and slice overlap | Allowed, including mutable overlap; no overlap checks or overlap traps | [Agreed] | language | DN §3.8, §8.4 | SP7 |  | pending |
-| D-119 | Array slices `array[start..end]` | Agreed; half-open borrowed regions, bounds checked; empty slices allowed | [Agreed] | language | DN §8.4 | SP7 | OI-10 | pending |
-| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
-| D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
+| D-112 | Parameters: by value, read-only `ref`, mutable `inout` | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1, FUN-6 |
+| D-113 | Reference modes explicit at declaration and call site | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-7 |
+| D-114 | References are call-scoped; no raw pointers or escaping references | Agreed | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-6, FUN-16 |
+| D-115 | Reference permissions | ref is read-only through that path; inout permits reads/writes; neither grants exclusivity | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-6, FUN-10, FUN-12, FUN-15 |
+| D-116 | Assignment/value parameters/value returns create independent values | Agreed | [Agreed] | language | DN §3.8 | SP7 |  | EXP-46, STM-8, FUN-6, FUN-17 |
+| D-117 | References may target variables, fields and array elements; not temporaries | Agreed | [Agreed] | language | DN §3.8 | SP7 |  | FUN-9 |
+| D-118 | Reference and slice overlap | Allowed, including mutable overlap; no overlap checks or overlap traps | [Agreed] | language | DN §3.8, §8.4 | SP7 |  | FUN-12, FUN-13 |
+| D-119 | Array slices `array[start..end]` | Agreed; half-open borrowed regions, bounds checked; empty slices allowed | [Agreed] | language | DN §8.4 | SP7 | OI-10 | FUN-18, FUN-20 |
+| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21, FUN-8, FUN-21 |
+| D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21, FUN-8 |
 | D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | pending |
 | D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |
 | D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | pending |
@@ -173,7 +173,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | EXP-43, EXP-45 |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
 | D-132 | Callee persistent assignments participate in an active transaction | Agreed | [Agreed] | language | DN §7.3 | SP10 |  | pending |
-| D-133 | By-value aggregate parameters | Temporary application RAM; call-frame placement proposed | [Agreed]; placement informative (D-421) | VM/profile | DN §3.8; PN §4 | SP13 | OI-21 | pending |
+| D-133 | By-value aggregate parameters | Temporary application RAM; call-frame placement proposed | [Agreed]; placement informative (D-421) | VM/profile | DN §3.8; PN §4 | SP13 | OI-21 | FUN-17 (value semantics); placement guidance pending Annex B (SP13) |
 | D-134 | Familiar imperative syntax, static types | Proposed baseline | [Proposal] | language | DN §3 | SP0 |  | 01 §1.1 (informative) |
 | D-135 | Compact custom VM with single-digit KiB RAM goals | Feasibility direction; unmeasured | [Proposal] | VM/profile | PN §4 | SP13 |  | pending |
 
@@ -226,7 +226,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-327 | Qualified enum variants are constant expressions; equality of constant enum values is constant-evaluable | Agreed (DN body text) | [Agreed] | language | DN §3.11 | SP4 |  | CEX-3 |
 | D-328 | `.length` of a fixed array through a plain variable/field path is constant without reading contents; more complex receivers must satisfy the constant restrictions | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-4 |
 | D-329 | Compile-time evaluation preserves short-circuiting; skipped operands are still name-resolved and type-checked | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-11 |
-| D-330 | Global constants need no writable state and their representation is an implementation detail; a constant may be passed through `ref`, never `inout` | Agreed (DN body text) | [Agreed] | language | DN §3.8, §5.1 | SP4 |  | CEX-2; inout ban enforced in chapter 8 (SP7) |
+| D-330 | Global constants need no writable state and their representation is an implementation detail; a constant may be passed through `ref`, never `inout` | Agreed (DN body text) | [Agreed] | language | DN §3.8, §5.1 | SP4 |  | CEX-2, FUN-10 |
 | D-331 | The nested-call ban applies in constant expressions; nested conversions use intermediate constants | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-14 |
 | D-332 | Constant expressions never read persistent or session contents | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-5 |
 | D-333 | A typed operand supplies the expected type for an untyped literal operand on either side; a Boolean result expectation alone does not establish integer widths; missing or ambiguous context is an error | Agreed (DN body text) | [Agreed] | language | DN §3.3 | SP5 |  | EXP-11 |
@@ -248,6 +248,14 @@ Sub-plans add rows here as they reach each DN section.
 | D-349 | No chained assignment, increment/decrement operators or assignment in conditions; compound assignment is deferred | Agreed (DN body text) | [Agreed] | language | DN §3.5 | SP6 |  | STM-6 |
 | D-350 | An explicit local initializer is not preceded by a default; a failed initializer has no default fallback; uninitialized locals default each time their declaration is reached | Agreed (DN body text) | [Agreed] | language | DN §3.9 | SP6 |  | STM-5 |
 | D-351 | Unreachable statements are permitted and still checked | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP6 |  | STM-22 |
+| D-352 | Ordinary functions may access globals, call platform APIs and open transactions; no purity or effect annotations and no `pure`, `static` or `public` modifiers | Agreed (DN body text) | [Agreed] | language | DN §3.7 | SP7 |  | FUN-3, FUN-22 |
+| D-353 | All arguments are evaluated left to right and reference/slice regions established and bounds-checked before the callee starts; regions are not re-evaluated during the call | Agreed (DN body text) | [Agreed] | language | DN §3.7, §8.4 | SP7 |  | FUN-11 |
+| D-354 | Forwarding: `ref` to `ref`; `inout` to `ref` or `inout`; fields, elements and slices forwarded alike; never strengthens permissions or extends lifetime | Agreed (DN body text) | [Agreed] | language | DN §3.8, §8.4 | SP7 |  | FUN-15 |
+| D-355 | References and views end with their call on Ok or Err; frames terminated by a trap discard their references | Agreed (DN body text) | [Agreed] | language | DN §3.8 | SP7 |  | FUN-16 |
+| D-356 | Storage identity survives reference passing: a write through `inout` to persistent storage is a persistent write; Err does not undo earlier mutations | Agreed (DN body text) | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-23 |
+| D-357 | Compilers preserve observable aliasing effects; no assumption that `ref` storage is stable or `inout` storage unaliased; no substituted copies | Agreed (DN body text) | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-14 |
+| D-358 | Physical copies may be removed only when behavior is unchanged; sharing is never substituted for copying | Agreed (DN body text) | [Agreed] | language | DN §3.8 | SP7 |  | FUN-17 |
+| D-359 | Inside the callee a view is indexed from 0 and its `.length` is the region length; a parameter cannot resize or rebind its region; a view may be narrowed to a slice within its region | Agreed (DN body text) | [Agreed] | language | DN §8.4 | SP7 |  | FUN-21 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -262,7 +270,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51; meaning in chapter 9 (SP8) |
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | STM-9 |
-| D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | EXP-42 (parsing); positions pending chapter 8 (SP7) |
+| D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | CEX-7, CEX-10 |
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | pending |
@@ -286,3 +294,4 @@ Sub-plans add rows here as they reach each DN section.
 | D-432 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T>; direct values; excluded from constant expressions initially | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-32 | SP5 | OI-32 | EXP-34, EXP-36, EXP-37, LEX-15, NAM-14, CEX-5 |
 | D-433 | Only `attempt call;` is an expression statement; any other expression statement is a compilation error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-33 | SP6 | OI-33 | STM-2 |
 | D-434 | No standalone block statements in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-34 | SP6 | OI-34 | STM-3 |
+| D-435 | A `for` index or pattern binding may be passed as `ref`, never `inout` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-35 | SP7 | OI-35 | FUN-9, FUN-10 |

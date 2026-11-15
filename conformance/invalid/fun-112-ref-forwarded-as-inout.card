@@ -1,0 +1,15 @@
+// rule: FUN-15
+// source: DN §3.8
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-4
+// note: A ref parameter forwarded as inout.
+function clear(target: inout u32) {
+    target = 0;
+    return Ok();
+}
+
+function check(source: ref u32) {
+    attempt clear(inout source);
+    return Ok();
+}

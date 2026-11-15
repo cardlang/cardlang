@@ -1,0 +1,15 @@
+// rule: FUN-10
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-4
+// note: A by-value parameter passed as inout.
+function clear(target: inout u32) {
+    target = 0;
+    return Ok();
+}
+
+function check(value: u32) {
+    attempt clear(inout value);
+    return Ok();
+}

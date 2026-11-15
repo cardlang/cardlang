@@ -1,0 +1,14 @@
+// rule: FUN-2
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A structure groups two return values.
+struct Measurement {
+    value: u32;
+    valid: bool;
+}
+
+function measure() -> Measurement {
+    return Ok(Measurement { value: 10, valid: true });
+}

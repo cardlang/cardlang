@@ -1,0 +1,17 @@
+// rule: FUN-7
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-2
+// note: An inout parameter given an argument without inout.
+session counter: u32;
+
+function clear(target: inout u32) {
+    target = 0;
+    return Ok();
+}
+
+function check() {
+    attempt clear(counter);
+    return Ok();
+}

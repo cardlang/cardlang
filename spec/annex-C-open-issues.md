@@ -48,6 +48,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-32 | Integer and byte conversion | Gap | SP5 | Resolved |
 | OI-33 | Expression statements | Gap | SP6 | Resolved |
 | OI-34 | Standalone blocks | Gap | SP6 | Resolved |
+| OI-35 | `ref` to read-only bindings | Gap | SP7 | Resolved |
 
 ---
 
@@ -196,7 +197,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §8.4 "Remaining slice specification details" lists five items. D-119 and D-120 are affected.
-- **Affected rules:** pending (SP7)
+- **Affected rules:** EXP-42, FUN-8, FUN-18, FUN-19, FUN-20, FUN-21
 - **Questions:**
   1. Endpoint typing: are the allowed endpoint types the same as index types (`u8`/`u16`/`u32`)? Must both endpoints have the same type? Do literal-only endpoints get `u32` context?
   2. The order in which receiver, start and end are evaluated, and which failed check is reported first.
@@ -563,6 +564,19 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-434)
 - **Decision:** Option (a).
 
+## OI-35 — `ref` to read-only bindings
+
+- **Kind:** gap
+- **Sources:** DN §3.8 (references may target "named variables, structure fields and array elements"); D-117
+- **Affected rules:** FUN-9
+- **Question:** May a `for` index or a pattern binding be passed as a `ref` argument?
+- **Options:**
+  - (a) Yes, as `ref` only, never `inout`.
+  - (b) No; copy the value into a `var` first.
+- **Recommendation:** (a). Such a binding is existing read-only storage, so passing it as `ref` grants nothing new.
+- **Status:** resolved 2026-11-15 (D-435)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -578,7 +592,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 (SP6) |
-| 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
+| 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 (SP7) |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
@@ -602,3 +616,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-32 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> (D-432) | User | Applied in chapter 6 (SP5) |
 | 2026-11-15 | OI-33 | Only the attempt expression statement (D-433) | User | Applied in chapter 7: STM-2 (SP6) |
 | 2026-11-15 | OI-34 | No standalone blocks (D-434) | User | Applied in chapter 7: STM-3 (SP6) |
+| 2026-11-15 | OI-35 | for index or pattern binding may be passed as ref (D-435) | User | Applied in chapter 8: FUN-9 (SP7) |

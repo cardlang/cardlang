@@ -1,0 +1,9 @@
+// rule: FUN-3, FUN-4
+// source: DN §3.7, §4.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A call to a function declared later in another file.
+function run() -> u32 {
+    return prepare();
+}

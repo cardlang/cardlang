@@ -1,0 +1,28 @@
+// rule: FUN-13
+// source: DN §3.8
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Overlapping inout/ref and inout/inout arguments.
+struct Account {
+    balance: u32;
+}
+
+session account: Account;
+session counters: u32[4];
+
+function modify(target: inout Account, source: ref Account) {
+    target.balance = source.balance + 1;
+    return Ok();
+}
+
+function copy_into(first: inout u32, second: inout u32) {
+    first = second;
+    return Ok();
+}
+
+function overlap(first_index: u8, second_index: u8) {
+    attempt modify(inout account, ref account);
+    attempt copy_into(inout counters[first_index], inout counters[second_index]);
+    return Ok();
+}

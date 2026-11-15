@@ -1,0 +1,26 @@
+// rule: FUN-6, FUN-9
+// source: DN §3.8
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: ref and inout of a structure and of a field.
+struct Account {
+    balance: u32;
+}
+
+persistent account: Account;
+
+function get_balance(source: ref Account) -> u32 {
+    return Ok(source.balance);
+}
+
+function increment(target: inout u32) {
+    target = target + 1;
+    return Ok();
+}
+
+function use_references() -> u32 {
+    attempt increment(inout account.balance);
+    var balance: u32 = attempt get_balance(ref account);
+    return Ok(balance);
+}

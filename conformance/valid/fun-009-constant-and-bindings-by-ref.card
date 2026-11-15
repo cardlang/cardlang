@@ -1,0 +1,24 @@
+// rule: FUN-9
+// source: DN §3.8; D-435
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: References to a constant, a by-value parameter and a for index.
+const IDENTIFIER: u8[4] = [1, 2, 3, 4];
+
+function sum(data: ref u8[]) -> u32 {
+    return Ok(data.length);
+}
+
+function count(value: ref u32) -> u32 {
+    return Ok(value);
+}
+
+function readers(limit: u32) -> u32 {
+    var total: u32 = attempt sum(ref IDENTIFIER);
+    var copied: u32 = attempt count(ref limit);
+    for index: u32 in 0..4 {
+        total = total + attempt count(ref index);
+    }
+    return Ok(total + copied);
+}
