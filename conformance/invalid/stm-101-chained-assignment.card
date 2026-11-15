@@ -1,0 +1,12 @@
+// rule: STM-6
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: Chained assignment.
+function check() {
+    var a: u32;
+    var b: u32;
+    a = b = 0;
+    return Ok();
+}

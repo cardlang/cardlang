@@ -1,0 +1,12 @@
+// rule: STM-7, STM-14
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: Assignment to a for index.
+function check() {
+    for index: u8 in 0..4 {
+        index = 3;
+    }
+    return Ok();
+}

@@ -1,0 +1,24 @@
+// rule: STM-12, STM-15
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A while loop with continue and break.
+session buffer: u8[16];
+
+function scan() -> u8 {
+    var index: u8 = 0;
+    var found: u8 = 0;
+    while index < 16 {
+        if buffer[index] == 0 {
+            index = index + 1;
+            continue;
+        }
+        if buffer[index] == 0xFF {
+            break;
+        }
+        found = found + 1;
+        index = index + 1;
+    }
+    return Ok(found);
+}

@@ -1,0 +1,12 @@
+// rule: STM-6
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: Assignment inside a condition.
+function check() {
+    var ready: bool;
+    if ready = true {
+    }
+    return Ok();
+}

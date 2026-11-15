@@ -1,0 +1,13 @@
+// rule: STM-17
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-4
+// note: An integer scrutinee.
+function check(count: u8) {
+    match count {
+        _ => {
+        }
+    }
+    return Ok();
+}

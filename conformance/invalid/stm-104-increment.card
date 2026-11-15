@@ -1,0 +1,11 @@
+// rule: STM-6
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: There is no increment operator.
+function check() {
+    var count: u32;
+    count++;
+    return Ok();
+}

@@ -1,0 +1,12 @@
+// rule: STM-7
+// source: DN §5.1, §9
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: Assignment to an element of a constant.
+const IDENTIFIER: u8[4] = [1, 2, 3, 4];
+
+function check() {
+    IDENTIFIER[0] = 9;
+    return Ok();
+}

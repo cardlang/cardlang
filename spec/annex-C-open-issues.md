@@ -46,6 +46,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-30 | Structure constructor in conditions | Gap | SP5 | Resolved |
 | OI-31 | Overflow versus underflow | Proposal-to-validate | SP5 | Resolved |
 | OI-32 | Integer and byte conversion | Gap | SP5 | Resolved |
+| OI-33 | Expression statements | Gap | SP6 | Resolved |
+| OI-34 | Standalone blocks | Gap | SP6 | Resolved |
 
 ---
 
@@ -181,7 +183,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §8.2 defines the order for one indexed destination: index, then bounds check, then right-hand side, then store. DN §3.5 gives general left-to-right evaluation. D-080 is affected.
-- **Affected rules:** pending (SP6)
+- **Affected rules:** STM-9
 - **Question:** What is the order for destinations like `a[i].b[j] = rhs` or `s.f[k] = rhs`?
 - **Options:**
   - (a) Evaluate the whole destination path left to right first, with each index evaluated once and bounds-checked as it is reached. Then evaluate the right-hand side, then store.
@@ -535,6 +537,32 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - All are direct-value intrinsics, excluded from constant expressions initially.
   - Their names are reserved.
 
+## OI-33 — Expression statements
+
+- **Kind:** gap
+- **Sources:** DN §6.3 (the `attempt` statement form only for no-payload success; discarded outcomes are errors)
+- **Affected rules:** STM-2
+- **Question:** Besides `attempt call;`, may an expression be used as a statement, as in `a + b;`?
+- **Options:**
+  - (a) No. The `attempt` form is the only expression statement.
+  - (b) Allow expression statements that produce no outcome.
+- **Recommendation:** (a). Other forms have no useful effect.
+- **Status:** resolved 2026-11-15 (D-433)
+- **Decision:** Option (a).
+
+## OI-34 — Standalone blocks
+
+- **Kind:** gap
+- **Sources:** DN §3.6 (blocks belong to control-flow bodies; standalone blocks are neither used nor forbidden)
+- **Affected rules:** STM-3
+- **Question:** May a bare `{ … }` be used as a statement that opens a nested scope?
+- **Options:**
+  - (a) No.
+  - (b) Yes.
+- **Recommendation:** (a). It can be added later without breaking programs.
+- **Status:** resolved 2026-11-15 (D-434)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -549,7 +577,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
-| 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
+| 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 (SP6) |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
@@ -572,3 +600,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-30 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized (D-430) | User | Applied in chapter 6 (SP5) |
 | 2026-11-15 | OI-31 | Arithmetic failure classes: above maximum is Overflow (D-431) | User | Applied in chapter 6 (SP5) |
 | 2026-11-15 | OI-32 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> (D-432) | User | Applied in chapter 6 (SP5) |
+| 2026-11-15 | OI-33 | Only the attempt expression statement (D-433) | User | Applied in chapter 7: STM-2 (SP6) |
+| 2026-11-15 | OI-34 | No standalone blocks (D-434) | User | Applied in chapter 7: STM-3 (SP6) |

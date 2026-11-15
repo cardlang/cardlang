@@ -1,0 +1,14 @@
+// rule: STM-7
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: Assignment to a function name.
+function helper() {
+    return Ok();
+}
+
+function check() {
+    helper = 1;
+    return Ok();
+}

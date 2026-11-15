@@ -1,0 +1,9 @@
+// rule: STM-21
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-5
+// note: No final return.
+function check() {
+    var count: u32 = 1;
+}

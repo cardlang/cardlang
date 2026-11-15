@@ -1,0 +1,29 @@
+// rule: STM-7, STM-8
+// source: DN §7.1, §9.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Assignment to locals, globals, nested fields, elements and an inout parameter.
+struct Identity {
+    identifier: u8[4];
+    version: u16;
+}
+
+struct Account {
+    identity: Identity;
+    balance: u32;
+    counters: u32[8];
+}
+
+persistent account: Account;
+session buffer: u8[16];
+
+function update(target: inout u32, index: u8) {
+    var local: u32 = 1;
+    local = 2;
+    buffer[index] = 0xFF;
+    account.identity.version = 2;
+    account.counters[0] = account.counters[0] + 1;
+    target = local;
+    return Ok();
+}

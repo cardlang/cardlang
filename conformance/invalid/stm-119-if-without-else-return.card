@@ -1,0 +1,11 @@
+// rule: STM-20, STM-21
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-5
+// note: An if without else that returns only in its block.
+function check(ready: bool) -> u32 {
+    if ready {
+        return Ok(1);
+    }
+}

@@ -1,0 +1,15 @@
+// rule: STM-20
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A return inside while true.
+session ready: bool;
+
+function wait_ready() {
+    while true {
+        if ready {
+            return Ok();
+        }
+    }
+}

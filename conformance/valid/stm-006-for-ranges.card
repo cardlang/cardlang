@@ -1,0 +1,24 @@
+// rule: STM-13, STM-14
+// source: DN §3.6, §8.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: for over u8 and i16, an empty range, and a .length bound.
+session buffer: u8[16];
+
+function ranges() -> i16 {
+    var total: i16 = 0;
+    for index: u8 in 0..16 {
+        buffer[index] = 0;
+    }
+    for offset: i16 in -5..5 {
+        total = total + offset;
+    }
+    for unused: u32 in 10..0 {
+        total = 1;
+    }
+    for position: u32 in 0..buffer.length {
+        buffer[position] = 1;
+    }
+    return Ok(total);
+}

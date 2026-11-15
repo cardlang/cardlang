@@ -1,0 +1,12 @@
+// rule: STM-8
+// source: DN §8.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Whole-array assignment between identical array types.
+function copy() {
+    var source: u8[16];
+    var destination: u8[16];
+    destination = source;
+    return Ok();
+}

@@ -1,0 +1,27 @@
+// rule: STM-16, STM-20
+// source: DN §3.11
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A match listing every variant; every arm returns.
+enum OperationState {
+    Idle;
+    Receiving;
+    Complete;
+}
+
+session state: OperationState;
+
+function describe() -> u8 {
+    match state {
+        OperationState.Idle => {
+            return Ok(0);
+        }
+        OperationState.Receiving => {
+            return Ok(1);
+        }
+        OperationState.Complete => {
+            return Ok(2);
+        }
+    }
+}

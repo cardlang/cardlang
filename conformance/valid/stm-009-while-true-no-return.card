@@ -1,0 +1,10 @@
+// rule: STM-20, STM-21
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: while true without break needs no return after it.
+function forever() -> u32 {
+    while true {
+    }
+}

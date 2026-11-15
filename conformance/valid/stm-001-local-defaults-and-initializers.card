@@ -1,0 +1,13 @@
+// rule: STM-4, STM-5
+// source: DN §3.9
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Locals with and without initializers.
+function locals() -> u32 {
+    var counter: u32;
+    var working: u8[16];
+    var limit: u32 = 100;
+    counter = limit + 1;
+    return Ok(counter);
+}

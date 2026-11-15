@@ -27,14 +27,14 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.1, §8.2, §8.4, §9–§9.3 | TYP-1 … TYP-23 |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.8, §3.10, §3.11, §5.1, §6.5 | CEX-1 … CEX-14 |
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-51 |
-| 07-statements-and-control-flow.md | SP6 | DN §3.6, §3.7 (completion), §8.2 | pending |
+| 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-22 |
 | 08-functions-and-references.md | SP7 | DN §3.7, §3.8, §8.4 | pending |
 | 09-outcomes-and-errors.md | SP8 | DN §3.2 (`checked_convert`), §3.6 (patterns), §6.1, §6.3 | pending |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1 | pending |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.4 complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.5 complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -47,7 +47,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-003 | Global declarations: `persistent`, `session` or `const` | SP2 | NAM-6, NAM-9 |  | covered |
 | D-004 | `persistent` and `session` imply mutable state | SP9 | — |  | pending |
 | D-005 | Global `const` declares a compile-time constant | SP4 | CEX-1, CEX-2 |  | covered |
-| D-006 | Local value declarations use `var` only | SP6 | — |  | pending |
+| D-006 | Local value declarations use `var` only | SP6 | NAM-10, STM-4 |  | covered |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
 | D-008 | Explicit persistent state | SP9 | — | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | SP13 | — | OI-17 | pending |
@@ -71,11 +71,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-027 | Calls inside argument expressions | SP5 | EXP-49 |  | covered |
 | D-028 | Error pattern bindings | SP8 | — |  | pending |
 | D-029 | Constant-only calculations outside global constants | SP4 | CEX-7, CEX-8, CEX-9 | OI-11 | covered |
-| D-030 | Function completion analysis | SP6 | — |  | pending |
+| D-030 | Function completion analysis | SP6 | STM-20, STM-21 |  | covered |
 | D-031 | Recursion, function values/pointers and user-defined generics | SP7 | — |  | pending |
 | D-032 | Function prototypes | SP7 | — |  | pending |
 | D-033 | Successful function returns | SP7 | — |  | pending |
-| D-034 | Reachable function fall-through | SP6 | — |  | pending |
+| D-034 | Reachable function fall-through | SP6 | STM-21 |  | covered |
 | D-035 | Commands called by application code | SP11 | — |  | pending |
 | D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
 | D-037 | No preprocessor/macros/textual includes | SP1 | LEX-24 |  | covered |
@@ -110,7 +110,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-066 | Empty structures | SP3 | TYP-13 |  | covered |
 | D-067 | Enums | SP3 | TYP-4, TYP-10, TYP-11, TYP-12 |  | covered |
 | D-068 | Enum defaults | SP3 | TYP-22 |  | covered |
-| D-069 | Enum matching | SP6 | — |  | pending |
+| D-069 | Enum matching | SP6 | STM-16, STM-17 |  | covered |
 | D-070 | Structure constructors | SP5 | EXP-45 |  | covered |
 | D-071 | Structure array fields accept `fill(value)` and explicit lists | SP5 | TYP-14, EXP-45 |  | covered |
 | D-072 | Structures may contain other structures | SP3 | TYP-14 |  | covered |
@@ -119,9 +119,9 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | SP3 | TYP-1, TYP-6, TYP-7, TYP-8 |  | covered |
 | D-076 | Byte arrays as `u8[N]` | SP3 | TYP-20 | OI-12 | covered |
 | D-077 | Zero-length and direct multidimensional arrays | SP3 | TYP-18, TYP-19 |  | covered |
-| D-078 | Whole-array assignment | SP6 | — |  | pending |
+| D-078 | Whole-array assignment | SP6 | STM-8 |  | covered |
 | D-079 | fill(expression) | SP5 | EXP-44 |  | covered |
-| D-080 | Indexed assignment order | SP6 | — | OI-9 | pending |
+| D-080 | Indexed assignment order | SP6 | STM-9, STM-10 | OI-9 | covered |
 | D-081 | No implicit conversions between integer types | SP5 | TYP-5, EXP-12 |  | covered |
 | D-082 | Arithmetic and comparisons require matching integer types | SP5 | EXP-12, EXP-13, EXP-14 |  | covered |
 | D-083 | Explicit `convert<T>` and `checked_convert<T>` intrinsics | SP5 | EXP-31, EXP-32, EXP-33 |  | covered |
@@ -146,8 +146,8 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | SP5 | EXP-1, EXP-2, EXP-5 |  | covered |
 | D-103 | Same-operator chains evaluate left to right; comparison chains forbidden | SP5 | EXP-3, EXP-4 |  | covered |
 | D-104 | Left-to-right evaluation and short-circuit boolean logic | SP5 | EXP-20, EXP-21, EXP-50 |  | covered |
-| D-105 | Assignment is a statement, not an expression | SP6 | — |  | pending |
-| D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | SP6 | — |  | pending |
+| D-105 | Assignment is a statement, not an expression | SP6 | STM-6 |  | covered |
+| D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | SP6 | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15 |  | covered |
 | D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | SP8 | — |  | pending |
 | D-108 | Exhaustive result matching; read-only loop and pattern bindings | SP8 | — |  | pending |
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | SP10 | — |  | pending |
@@ -164,12 +164,12 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
 | D-121 | By-value array parameters | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
 | D-122 | Mutable global declaration initializers | SP9 | — |  | pending |
-| D-123 | Automatic defaults | SP9 | TYP-22 (default values); application pending SP9 |  | partial |
+| D-123 | Automatic defaults | SP9 | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |  | partial |
 | D-124 | Application-specific global setup | SP9 | — | OI-7 | pending |
 | D-125 | Runtime resources | SP13 | — |  | pending |
 | D-126 | Resource identifier space | SP13 | — |  | pending |
 | D-127 | Resource storage strategy and cleanup | SP13 | — | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | SP9 | TYP-22 (default values); application pending SP9 |  | partial |
+| D-128 | Array/structure defaults apply recursively | SP9 | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |  | partial |
 | D-129 | Global const requires an explicit initializer | SP4 | CEX-1 |  | covered |
 | D-130 | Explicit array/structure construction remains complete | SP5 | EXP-43, EXP-45 |  | covered |
 | D-131 | Nested transactions, including through function calls | SP10 | — | OI-3 | pending |
@@ -194,7 +194,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-406 | Platform API calls use the reserved `card.` path form | SP2 | NAM-17, NAM-18 | OI-6 | covered |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51; meaning in chapter 9 (SP8) | OI-8 | covered |
-| D-409 | Assignment: destination path first, then RHS, then store | SP6 | — | OI-9 | pending |
+| D-409 | Assignment: destination path first, then RHS, then store | SP6 | STM-9 | OI-9 | covered |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | EXP-42 (parsing); positions pending chapter 8 (SP7) | OI-10 | partial |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | CEX-7, CEX-10 | OI-11 | covered |
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
@@ -249,6 +249,15 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-340 | `fill` needs an expected fixed-array type | SP5 | EXP-44 |  | covered |
 | D-341 | Array lists must have exactly the destination length | SP5 | EXP-43 |  | covered |
 | D-342 | Integer-to-byte encoding is explicit, separate from numeric conversion, and must state byte order | SP5 | EXP-36, EXP-37, EXP-38 |  | covered |
+| D-343 | Braces are mandatory on every control-flow body and match arm | SP6 | STM-1, STM-11 |  | covered |
+| D-344 | No `switch`, fall-through, `goto`, labelled loops or multi-level exits | SP6 | STM-1, STM-16 |  | covered |
+| D-345 | `for` uses a half-open ascending unit-step range | SP6 | STM-13, STM-14 |  | covered |
+| D-346 | `continue` in a `while` rechecks the condition | SP6 | STM-15 |  | covered |
+| D-347 | Infinite loops are written `while true` | SP6 | STM-12 |  | covered |
+| D-348 | `require c else E | SP6 | STM-19 |  | covered |
+| D-349 | No chained assignment, increment/decrement operators or assignment in conditions | SP6 | STM-6 |  | covered |
+| D-350 | An explicit local initializer is not preceded by a default | SP6 | STM-5 |  | covered |
+| D-351 | Unreachable statements are permitted and still checked | SP6 | STM-22 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
@@ -259,3 +268,5 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-430 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized | SP5 | EXP-6 | OI-30 | covered |
 | D-431 | Arithmetic failure classes: above maximum is Overflow | SP5 | EXP-23, EXP-24, EXP-25, EXP-29 | OI-31 | covered |
 | D-432 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> | SP5 | EXP-34, EXP-36, EXP-37, LEX-15, NAM-14, CEX-5 | OI-32 | covered |
+| D-433 | Only `attempt call | SP6 | STM-2 | OI-33 | covered |
+| D-434 | No standalone block statements in Draft 0.1 | SP6 | STM-3 | OI-34 | covered |

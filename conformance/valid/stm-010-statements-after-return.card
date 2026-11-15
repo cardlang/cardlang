@@ -1,0 +1,10 @@
+// rule: STM-22
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A statement after a return is permitted.
+function early() -> u32 {
+    return Ok(1);
+    var unused: u32 = 2;
+}

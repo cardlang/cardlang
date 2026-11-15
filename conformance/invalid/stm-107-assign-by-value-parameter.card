@@ -1,0 +1,10 @@
+// rule: STM-7
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: Assignment to a by-value parameter.
+function check(amount: u32) {
+    amount = 0;
+    return Ok();
+}

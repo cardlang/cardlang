@@ -12,17 +12,17 @@ This is the normative specification of the CardLang language. It is being writte
 | [04-types.md](04-types.md) | 4 Types | SP3 | Draft complete |
 | [05-constant-expressions.md](05-constant-expressions.md) | 5 Constant expressions | SP4 | Draft complete |
 | [06-expressions.md](06-expressions.md) | 6 Expressions | SP5 | Draft complete |
-| 07-statements-and-control-flow.md | 7 Statements and control flow | SP6 | Not started |
+| [07-statements-and-control-flow.md](07-statements-and-control-flow.md) | 7 Statements and control flow | SP6 | Draft complete |
 | 08-functions-and-references.md | 8 Functions, references and slices | SP7 | Not started |
 | 09-outcomes-and-errors.md | 9 Outcomes and errors | SP8 | Not started |
 | 10-state-and-initialization.md | 10 State and initialization | SP9 | Not started |
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.4 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.5 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-32 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–6 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-34 resolved; OI-22 open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–7 |
 
 Related files:
 
@@ -38,7 +38,8 @@ Related files:
 | 4 Types | 23 | 23 | 0 | 0 |
 | 5 Constant expressions | 14 | 14 | 0 | 0 |
 | 6 Expressions | 51 | 51 | 0 | 0 |
-| **Total** | 134 | 134 | 0 | 0 |
+| 7 Statements and control flow | 22 | 22 | 0 | 0 |
+| **Total** | 156 | 156 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -88,6 +89,13 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-TYP-5 | Unsized array type outside a ref/inout parameter | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-6 | Array of arrays | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-7 | Array length zero or not unsigned | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
+| CE-STM-1 | Expression other than an attempt call used as a statement | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-2 | Assignment target is not an assignable place | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-3 | break or continue outside a loop | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-4 | Invalid match: missing, repeated or foreign variant, wildcard, or unmatchable scrutinee | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-5 | Function or command body may complete normally | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-6 | for index type is not an integer type | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
+| CE-STM-7 | require operand is not a qualified error member | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
 | CE-SYN-1 | No derivation of the grammar exists | [Annex A §A.0](annex-A-grammar.md#a0-syntax-errors) |
 
 ## Index of trap kinds

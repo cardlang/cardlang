@@ -46,7 +46,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-003 | Global declarations: `persistent`, `session` or `const` | Agreed; exactly one keyword | [Agreed] | language | DN §5.1 | SP2 |  | NAM-6, NAM-9 |
 | D-004 | `persistent` and `session` imply mutable state | Agreed | [Agreed] | language | DN §5.1 | SP9 |  | pending |
 | D-005 | Global `const` declares a compile-time constant | Agreed | [Agreed] | language | DN §5.1, §3.10 | SP4 |  | CEX-1, CEX-2 |
-| D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | pending |
+| D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | NAM-10, STM-4 |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
 | D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | pending |
 | D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | pending |
@@ -70,11 +70,11 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | EXP-49 |
 | D-028 | Error pattern bindings | Arm-local propagation only; no ordinary error value type initially | [Agreed] | language | DN §6.3 | SP8 |  | pending |
 | D-029 | Constant-only calculations outside global constants | Compile-time evaluation; evaluated failures are compilation errors | [Agreed] | language | DN §3.10 | SP4 | OI-11 | CEX-7, CEX-8, CEX-9 |
-| D-030 | Function completion analysis | Conservative structural rules; trapping calculations are not a return exemption | [Agreed] | language | DN §3.7 | SP6 |  | pending |
+| D-030 | Function completion analysis | Conservative structural rules; trapping calculations are not a return exemption | [Agreed] | language | DN §3.7 | SP6 |  | STM-20, STM-21 |
 | D-031 | Recursion, function values/pointers and user-defined generics | Not supported initially | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-032 | Function prototypes | Not supported; definitions are visible regardless of source order | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | pending |
-| D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | pending |
+| D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | STM-21 |
 | D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | pending |
 | D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
 | D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-24 |
@@ -109,7 +109,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-066 | Empty structures | Compilation error initially | [Agreed] | language | DN §9.3 | SP3 |  | TYP-13 |
 | D-067 | Enums | Named, nominal, nonempty; no payloads or numeric values | [Agreed] | language | DN §3.11 | SP3 |  | TYP-4, TYP-10, TYP-11, TYP-12 |
 | D-068 | Enum defaults | First declared variant | [Agreed] | language | DN §3.11 | SP3 |  | TYP-22 |
-| D-069 | Enum matching | All variants explicit, no duplicate or catch-all arms | [Agreed] | language | DN §3.11, §3.6 | SP6 |  | pending |
+| D-069 | Enum matching | All variants explicit, no duplicate or catch-all arms | [Agreed] | language | DN §3.11, §3.6 | SP6 |  | STM-16, STM-17 |
 | D-070 | Structure constructors | Direct values; every field exactly once; written-order evaluation | [Agreed] | language | DN §9.3 | SP5 |  | EXP-45 |
 | D-071 | Structure array fields accept `fill(value)` and explicit lists | Agreed | [Agreed] | language | DN §9 | SP5 |  | TYP-14, EXP-45 |
 | D-072 | Structures may contain other structures | Agreed | [Agreed] | language | DN §9.1 | SP3 |  | TYP-14 |
@@ -118,9 +118,9 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | Agreed | [Agreed] | language | DN §3.1 | SP3 |  | TYP-1, TYP-6, TYP-7, TYP-8 |
 | D-076 | Byte arrays as `u8[N]` | Agreed | [Agreed] | language | DN §3.1, §8 | SP3 | OI-12 | TYP-20 |
 | D-077 | Zero-length and direct multidimensional arrays | Forbidden/deferred initially | [Agreed] | language | DN §8.2 | SP3 |  | TYP-18, TYP-19 |
-| D-078 | Whole-array assignment | Exact element type and length; independent value copy | [Agreed] | language | DN §8.2 | SP6 |  | pending |
+| D-078 | Whole-array assignment | Exact element type and length; independent value copy | [Agreed] | language | DN §8.2 | SP6 |  | STM-8 |
 | D-079 | fill(expression) | Reserved array-construction intrinsic; direct array value, once-and-copy | [Agreed] | language | DN §8.3 | SP5 |  | EXP-44 |
-| D-080 | Indexed assignment order | Evaluate/check destination index before right-hand side | [Agreed] | language | DN §8.2 | SP6 | OI-9 | pending |
+| D-080 | Indexed assignment order | Evaluate/check destination index before right-hand side | [Agreed] | language | DN §8.2 | SP6 | OI-9 | STM-9, STM-10 |
 | D-081 | No implicit conversions between integer types | Agreed | [Agreed] | language | DN §3.2 | SP5 |  | TYP-5, EXP-12 |
 | D-082 | Arithmetic and comparisons require matching integer types | Agreed | [Agreed] | language | DN §3.2, §3.5 | SP5 |  | EXP-12, EXP-13, EXP-14 |
 | D-083 | Explicit `convert<T>` and `checked_convert<T>` intrinsics | Agreed | [Agreed] | language | DN §3.2 | SP5 |  | EXP-31, EXP-32, EXP-33 |
@@ -145,8 +145,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | EXP-1, EXP-2, EXP-5 |
 | D-103 | Same-operator chains evaluate left to right; comparison chains forbidden | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | EXP-3, EXP-4 |
 | D-104 | Left-to-right evaluation and short-circuit boolean logic | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | EXP-20, EXP-21, EXP-50 |
-| D-105 | Assignment is a statement, not an expression | Agreed | [Agreed] | language | DN §3.5 | SP6 |  | pending |
-| D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | Agreed | [Agreed] | language | DN §3.6 | SP6 |  | pending |
+| D-105 | Assignment is a statement, not an expression | Agreed | [Agreed] | language | DN §3.5 | SP6 |  | STM-6 |
+| D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | Agreed | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15 |
 | D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | Agreed | [Agreed] | language | DN §3.6, §3.7 | SP8 |  | pending |
 | D-108 | Exhaustive result matching; read-only loop and pattern bindings | Agreed | [Agreed] | language | DN §3.6 | SP8 |  | pending |
 | D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | pending |
@@ -163,12 +163,12 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
 | D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
 | D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | pending |
-| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22 (default values); application pending SP9 |
+| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |
 | D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | pending |
 | D-125 | Runtime resources | Application-chosen u32 identifiers; 0 invalid; runtime-owned objects | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22 (default values); application pending SP9 |
+| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |
 | D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | CEX-1 |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | EXP-43, EXP-45 |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
@@ -239,6 +239,15 @@ Sub-plans add rows here as they reach each DN section.
 | D-340 | `fill` needs an expected fixed-array type; evaluates its argument once; copies independently; self-source fill captures the original value | Agreed (DN body text) | [Agreed] | language | DN §8.3 | SP5 |  | EXP-44 |
 | D-341 | Array lists must have exactly the destination length; no padding or truncation | Agreed (DN body text) | [Agreed] | language | DN §8 | SP5 |  | EXP-43 |
 | D-342 | Integer-to-byte encoding is explicit, separate from numeric conversion, and must state byte order | Agreed (DN body text) | [Agreed] | language | DN §3.4 | SP5 |  | EXP-36, EXP-37, EXP-38 |
+| D-343 | Braces are mandatory on every control-flow body and match arm; conditions must be `bool`; parentheses around a whole condition are optional | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-11 |
+| D-344 | No `switch`, fall-through, `goto`, labelled loops or multi-level exits; `if` and `match` are statements | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-16 |
+| D-345 | `for` uses a half-open ascending unit-step range; bounds evaluated once left to right; zero iterations when start >= end; read-only index local to the body; endpoints must fit the index type | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-13, STM-14 |
+| D-346 | `continue` in a `while` rechecks the condition; in a `for` it advances the index | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-15 |
+| D-347 | Infinite loops are written `while true`; termination need not be proved; execution-budget exhaustion traps | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-12 |
+| D-348 | `require c else E;` is exactly `if not c { return Err(E); }` | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP6 |  | STM-19 |
+| D-349 | No chained assignment, increment/decrement operators or assignment in conditions; compound assignment is deferred | Agreed (DN body text) | [Agreed] | language | DN §3.5 | SP6 |  | STM-6 |
+| D-350 | An explicit local initializer is not preceded by a default; a failed initializer has no default fallback; uninitialized locals default each time their declaration is reached | Agreed (DN body text) | [Agreed] | language | DN §3.9 | SP6 |  | STM-5 |
+| D-351 | Unreachable statements are permitted and still checked | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP6 |  | STM-22 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -252,7 +261,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51; meaning in chapter 9 (SP8) |
-| D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | pending |
+| D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | STM-9 |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | EXP-42 (parsing); positions pending chapter 8 (SP7) |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | CEX-7, CEX-10 |
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
@@ -275,3 +284,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-430 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-30 | SP5 | OI-30 | EXP-6 |
 | D-431 | Arithmetic failure classes: above maximum is Overflow; below minimum (incl. unsigned subtraction) is Underflow; signed minimum / -1 is Overflow; negating the signed minimum is TRAP-NEGATION and checked_neg returns CardError.Overflow | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-31 | SP5 | OI-31 | EXP-23, EXP-24, EXP-25, EXP-29 |
 | D-432 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T>; direct values; excluded from constant expressions initially | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-32 | SP5 | OI-32 | EXP-34, EXP-36, EXP-37, LEX-15, NAM-14, CEX-5 |
+| D-433 | Only `attempt call;` is an expression statement; any other expression statement is a compilation error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-33 | SP6 | OI-33 | STM-2 |
+| D-434 | No standalone block statements in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-34 | SP6 | OI-34 | STM-3 |

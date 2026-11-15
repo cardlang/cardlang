@@ -1,0 +1,14 @@
+// rule: STM-13
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-2
+// note: An endpoint that does not fit u8.
+session buffer: u8[256];
+
+function check() {
+    for index: u8 in 0..256 {
+        buffer[index] = 0;
+    }
+    return Ok();
+}

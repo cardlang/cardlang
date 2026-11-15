@@ -1,0 +1,29 @@
+// rule: STM-16
+// source: DN §3.11
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-4
+// note: A variant of another enum.
+enum Other {
+    Off;
+}
+
+enum Mode {
+    Off;
+    On;
+    Standby;
+}
+
+session mode: Mode;
+
+function check() {
+    match mode {
+        Mode.Off => {
+        }
+        Mode.On => {
+        }
+        Other.Off => {
+        }
+    }
+    return Ok();
+}

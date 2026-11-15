@@ -1,0 +1,15 @@
+// rule: STM-11, STM-20
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: An if/else if/else chain in which every branch returns.
+function classify(amount: u32, balance: u32) -> u8 {
+    if amount == 0 {
+        return Ok(0);
+    } else if amount > balance {
+        return Ok(1);
+    } else {
+        return Ok(2);
+    }
+}

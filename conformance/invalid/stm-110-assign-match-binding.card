@@ -1,0 +1,19 @@
+// rule: STM-7
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: Assignment to a pattern binding.
+session balance: u32;
+
+function check(amount: u32) {
+    match checked_sub(balance, amount) {
+        Ok(value) => {
+            value = 1;
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

@@ -138,13 +138,50 @@ Notes on these productions:
 - **Constructors in conditions.** A `StructConstructor` must be parenthesized at the outer level of an `if`/`while` condition, a `for` range bound and a `match` scrutinee (EXP-6). In those positions, `Identifier '{'` begins the body.
 - **Parsed but restricted.** Slices (`'..'` in an index bracket) and argument modes are parsed here. Chapter 8 restricts where they may appear.
 
+### A.2.5 Statements and blocks (chapter 7)
+
+```
+Block               ::= '{' Statement* '}'
+Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
+                      | IfStatement | WhileStatement | ForStatement | MatchStatement
+                      | BreakStatement | ContinueStatement | ReturnStatement | RequireStatement
+                      | TransactionStatement | AbortStatement        /* A.2.9 */
+VarStatement        ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
+AssignmentStatement ::= Expression '=' Expression ';'
+ExpressionStatement ::= Expression ';'
+IfStatement         ::= 'if' Expression Block ( 'else' 'if' Expression Block )* ( 'else' Block )?
+WhileStatement      ::= 'while' Expression Block
+ForStatement        ::= 'for' Identifier ':' Type 'in' Expression '..' Expression Block
+MatchStatement      ::= 'match' Expression '{' MatchArm* '}'
+MatchArm            ::= Pattern '=>' Block
+Pattern             ::= 'Ok' '(' ( Identifier | '_' )? ')'
+                      | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
+                      | Identifier '.' Identifier
+                      | '_'
+BreakStatement      ::= 'break' ';'
+ContinueStatement   ::= 'continue' ';'
+ReturnStatement     ::= 'return' ( 'Ok' '(' Expression? ')' | 'Err' '(' Expression ')' | Expression ) ';'
+RequireStatement    ::= 'require' Expression 'else' Expression ';'
+```
+
+Notes on these productions:
+
+- **Deliberately permissive.** Some forms parse so that a chapter rule can give a specific error:
+  - any storage keywords in `VarStatement` (NAM-10);
+  - any left side in `AssignmentStatement` (STM-7);
+  - any `ExpressionStatement` (STM-2);
+  - a `_` arm (STM-16, chapter 9).
+- **What is absent.** There is no standalone block statement (STM-3) and no compound-assignment form (STM-6).
+- **Range separator.** In `ForStatement`, `..` is the range separator. A `for` bound is parsed with the constructor restriction of EXP-6.
+- **Patterns.** `Pattern` covers both enum and outcome patterns. Chapter 9 gives meaning to the `Ok` and `Err` patterns, and §A.2.7 refers back here.
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
 | A.2.2 | Types | SP3 (done) |
 | A.2.3 | Constant expressions | SP4 (done; see below) |
 | A.2.4 | Expressions | SP5 (done) |
-| A.2.5 | Statements and blocks | SP6 |
+| A.2.5 | Statements and blocks | SP6 (done) |
 | A.2.6 | Functions, parameters, arguments and slices | SP7 |
 | A.2.7 | Outcomes, patterns and error sets | SP8 |
 | A.2.8 | State declarations | SP9 |
