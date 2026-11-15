@@ -10,7 +10,7 @@ This is the normative specification of the CardLang language. It is being writte
 | [02-lexical-structure.md](02-lexical-structure.md) | 2 Lexical structure | SP1 | Draft complete |
 | [03-program-structure-and-names.md](03-program-structure-and-names.md) | 3 Program structure and names | SP2 | Draft complete |
 | [04-types.md](04-types.md) | 4 Types | SP3 | Draft complete |
-| 05-constant-expressions.md | 5 Constant expressions | SP4 | Not started |
+| [05-constant-expressions.md](05-constant-expressions.md) | 5 Constant expressions | SP4 | Draft complete |
 | 06-expressions.md | 6 Expressions | SP5 | Not started |
 | 07-statements-and-control-flow.md | 7 Statements and control flow | SP6 | Not started |
 | 08-functions-and-references.md | 8 Functions, references and slices | SP7 | Not started |
@@ -19,10 +19,10 @@ This is the normative specification of the CardLang language. It is being writte
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1, A.2.1 and A.2.2 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.3 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-27 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–4 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-29 resolved; OI-22 open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–5 |
 
 Related files:
 
@@ -36,7 +36,8 @@ Related files:
 | 2 Lexical structure | 24 | 24 | 0 | 0 |
 | 3 Program structure and names | 22 | 22 | 0 | 0 |
 | 4 Types | 23 | 23 | 0 | 0 |
-| **Total** | 69 | 69 | 0 | 0 |
+| 5 Constant expressions | 14 | 14 | 0 | 0 |
+| **Total** | 83 | 83 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -44,6 +45,11 @@ Each sub-plan updates this table when its chapter is drafted.
 
 | Class | Meaning | Defined in |
 |---|---|---|
+| CE-CEX-1 | const declaration without an initializer | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
+| CE-CEX-2 | Non-constant expression where a constant is required | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
+| CE-CEX-3 | Arithmetic failure during compile-time evaluation | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
+| CE-CEX-4 | Bounds failure during compile-time evaluation | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
+| CE-CEX-5 | Dependency cycle among constants, lengths and types | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
 | CE-LEX-1 | File is not valid UTF-8 | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |

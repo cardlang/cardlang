@@ -45,7 +45,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-002 | Custom card-oriented language | Agreed direction | [Agreed] | language | DN §1 | SP0 |  | 01 §1.1 |
 | D-003 | Global declarations: `persistent`, `session` or `const` | Agreed; exactly one keyword | [Agreed] | language | DN §5.1 | SP2 |  | NAM-6, NAM-9 |
 | D-004 | `persistent` and `session` imply mutable state | Agreed | [Agreed] | language | DN §5.1 | SP9 |  | pending |
-| D-005 | Global `const` declares a compile-time constant | Agreed | [Agreed] | language | DN §5.1, §3.10 | SP4 |  | pending |
+| D-005 | Global `const` declares a compile-time constant | Agreed | [Agreed] | language | DN §5.1, §3.10 | SP4 |  | CEX-1, CEX-2 |
 | D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | pending |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
 | D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | pending |
@@ -69,7 +69,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | pending |
 | D-028 | Error pattern bindings | Arm-local propagation only; no ordinary error value type initially | [Agreed] | language | DN §6.3 | SP8 |  | pending |
-| D-029 | Constant-only calculations outside global constants | Compile-time evaluation; evaluated failures are compilation errors | [Agreed] | language | DN §3.10 | SP4 | OI-11 | pending |
+| D-029 | Constant-only calculations outside global constants | Compile-time evaluation; evaluated failures are compilation errors | [Agreed] | language | DN §3.10 | SP4 | OI-11 | CEX-7, CEX-8, CEX-9 |
 | D-030 | Function completion analysis | Conservative structural rules; trapping calculations are not a return exemption | [Agreed] | language | DN §3.7 | SP6 |  | pending |
 | D-031 | Recursion, function values/pointers and user-defined generics | Not supported initially | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-032 | Function prototypes | Not supported; definitions are visible regardless of source order | [Agreed] | language | DN §3.7 | SP7 |  | pending |
@@ -133,13 +133,13 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-090 | Unary negation | Signed only; unrepresentable negation traps | [Agreed] | language | DN §6.5 | SP5 |  | pending |
 | D-091 | Checked arithmetic | add/sub/mul/div/rem/neg intrinsics return outcomes | [Agreed] | language | DN §6.5 | SP5 | OI-13 | pending |
 | D-092 | Wrapping arithmetic | add/sub/mul intrinsics return direct modular values | [Agreed] | language | DN §6.5 | SP5 |  | pending |
-| D-093 | Checked/wrapping arithmetic intrinsics in constants | Excluded initially | [Agreed] | language | DN §3.10, §6.5 | SP4 |  | pending |
-| D-094 | Constant expressions | Deterministic side-effect-free subset; see section 3.10 | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-095 | Guaranteed convert<T> in constant expressions | Agreed; constant operand with independently known source type; full source range must fit target | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-096 | checked_convert<T> in constant expressions | Excluded initially; no compile-time outcome handling | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-097 | Constant-evaluation boundary algorithm | Structural policy proposed in section 3.10; detailed acceptance examples pending validation | [Agreed] (via D-411) | language | DN §3.10 | SP4 | OI-11 | pending |
-| D-098 | Constant dependencies | Forward references allowed; cycles are compilation errors | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-099 | Fixed-array lengths | Unsigned constant expressions; literal-only expressions use u32 context | [Agreed] | language | DN §3.10 | SP4 |  | TYP-19 (length type); evaluation pending SP4 |
+| D-093 | Checked/wrapping arithmetic intrinsics in constants | Excluded initially | [Agreed] | language | DN §3.10, §6.5 | SP4 |  | CEX-5 |
+| D-094 | Constant expressions | Deterministic side-effect-free subset; see section 3.10 | [Agreed] | language | DN §3.10 | SP4 |  | CEX-3, CEX-6 |
+| D-095 | Guaranteed convert<T> in constant expressions | Agreed; constant operand with independently known source type; full source range must fit target | [Agreed] | language | DN §3.10 | SP4 |  | CEX-3 |
+| D-096 | checked_convert<T> in constant expressions | Excluded initially; no compile-time outcome handling | [Agreed] | language | DN §3.10 | SP4 |  | CEX-5 |
+| D-097 | Constant-evaluation boundary algorithm | Structural policy proposed in section 3.10; detailed acceptance examples pending validation | [Agreed] (via D-411) | language | DN §3.10 | SP4 | OI-11 | CEX-7 |
+| D-098 | Constant dependencies | Forward references allowed; cycles are compilation errors | [Agreed] | language | DN §3.10 | SP4 |  | CEX-12, CEX-13 |
+| D-099 | Fixed-array lengths | Unsigned constant expressions; literal-only expressions use u32 context | [Agreed] | language | DN §3.10 | SP4 |  | TYP-19, CEX-6 |
 | D-100 | No implicit boolean/numeric, array or structure conversions | Agreed | [Agreed] | language | DN §3.4 | SP3 |  | TYP-5, TYP-7 |
 | D-101 | No general truncating cast initially | Agreed | [Agreed] | language | DN §3.2 | SP5 |  | pending |
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | pending |
@@ -169,7 +169,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | pending |
 | D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22 (default values); application pending SP9 |
-| D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | pending |
+| D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | CEX-1 |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | pending |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
 | D-132 | Callee persistent assignments participate in an active transaction | Agreed | [Agreed] | language | DN §7.3 | SP10 |  | pending |
@@ -222,6 +222,13 @@ Sub-plans add rows here as they reach each DN section.
 | D-323 | Unsized array types `T[]` exist only as `ref`/`inout` parameter types; no unsized owned variables, fields or returns | Agreed (DN body text) | [Agreed] | language | DN §8.4 | SP3 |  | TYP-2, TYP-21 |
 | D-324 | Structure field types are integers, booleans, enums, arrays and other structures; no methods, inheritance, field defaults or field-level storage qualifiers | Agreed (DN body text) | [Agreed] | language | DN §9, §9.3 | SP3 |  | TYP-14 |
 | D-325 | A type declaration does not define physical layout, wire encoding or durable encoding; enum representation and variant order are not a stable encoding | Agreed (DN body text) | [Agreed] | language | DN §3.9, §3.11, §9.2, §9.3 | SP3 |  | TYP-9 |
+| D-326 | Constant evaluation is deterministic and side-effect-free; no user-defined compile-time functions | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-3, CEX-5, CEX-12 |
+| D-327 | Qualified enum variants are constant expressions; equality of constant enum values is constant-evaluable | Agreed (DN body text) | [Agreed] | language | DN §3.11 | SP4 |  | CEX-3 |
+| D-328 | `.length` of a fixed array through a plain variable/field path is constant without reading contents; more complex receivers must satisfy the constant restrictions | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-4 |
+| D-329 | Compile-time evaluation preserves short-circuiting; skipped operands are still name-resolved and type-checked | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-11 |
+| D-330 | Global constants need no writable state and their representation is an implementation detail; a constant may be passed through `ref`, never `inout` | Agreed (DN body text) | [Agreed] | language | DN §3.8, §5.1 | SP4 |  | CEX-2; inout ban enforced in chapter 8 (SP7) |
+| D-331 | The nested-call ban applies in constant expressions; nested conversions use intermediate constants | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-14 |
+| D-332 | Constant expressions never read persistent or session contents | Agreed (DN body text) | [Agreed] | language | DN §3.10 | SP4 |  | CEX-5 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -237,7 +244,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | pending |
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | pending |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | pending |
-| D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | pending |
+| D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | CEX-7, CEX-10 |
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | pending |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19 |
@@ -253,3 +260,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-425 | Primitive type names are predeclared names in every application scope, not keywords | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-25 | SP2 | OI-25 | NAM-14 |
 | D-426 | A file listed twice is a build-configuration error; an empty file list is allowed by the language | Resolved by user 2026-11-15 | [Agreed] | tooling | Annex C OI-26 | SP2 | OI-26 | NAM-3 |
 | D-427 | Storage representation of values (Booleans, enums, layouts) is not language-visible; persistent layout across upgrades is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-27 | SP3 | OI-27 | TYP-9 |
+| D-428 | Error-member codes are integer literals (u16 context), not general constant expressions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-28 | SP8 | OI-28 | CEX-6; literal rule pending chapter 9 (SP8) |
+| D-429 | Constant slice endpoints on an array of type-known length are checked at compile time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-29 | SP4 | OI-29 | CEX-10 |

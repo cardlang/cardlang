@@ -1,0 +1,13 @@
+// rule: CEX-3
+// source: DN §3.11
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Enum constants, and equality between them.
+enum OperationState {
+    Idle;
+    Receiving;
+}
+
+const INITIAL_STATE: OperationState = OperationState.Idle;
+const STARTS_IDLE: bool = INITIAL_STATE == OperationState.Idle;

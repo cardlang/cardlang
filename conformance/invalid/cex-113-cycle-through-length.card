@@ -1,0 +1,8 @@
+// rule: CEX-13
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-5
+// note: An array length that depends on the array's own length.
+session buffer: u8[N];
+const N: u32 = buffer.length;

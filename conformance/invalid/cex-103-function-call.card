@@ -1,0 +1,11 @@
+// rule: CEX-5, CEX-6
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-2
+// note: A function call, through `attempt`, in a constant.
+function base_value() -> u32 {
+    return Ok(32);
+}
+
+const BASE: u32 = attempt base_value();

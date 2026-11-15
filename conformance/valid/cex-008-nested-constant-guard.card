@@ -1,0 +1,12 @@
+// rule: CEX-7
+// source: DN §3.10; D-411
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The nested constant expression `false and …` short-circuits, so the division is skipped even though the outer expression depends on runtime state.
+const ZERO: u32 = 0;
+session runtime_flag: bool;
+
+function check() -> bool {
+    return Ok(runtime_flag and (false and ((10 / ZERO) == 1)));
+}

@@ -1,0 +1,15 @@
+// rule: CEX-3
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Indexing a constant array, and selecting a field of a constant structure.
+struct Limits {
+    low: u16;
+    high: u16;
+}
+
+const IDENTIFIER: u8[4] = [1, 2, 3, 4];
+const FIRST_BYTE: u8 = IDENTIFIER[0];
+const LIMITS: Limits = Limits { low: 10, high: 200 };
+const HIGH: u16 = LIMITS.high;

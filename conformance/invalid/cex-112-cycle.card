@@ -1,0 +1,8 @@
+// rule: CEX-13
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-5
+// note: Two constants that depend on each other.
+const FIRST: u32 = SECOND + 1;
+const SECOND: u32 = FIRST + 1;

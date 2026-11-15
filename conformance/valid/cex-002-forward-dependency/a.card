@@ -1,0 +1,7 @@
+// rule: CEX-12
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A constant uses a constant declared in a later file; must pass in every file order.
+const CAPACITY: u32 = BLOCK_SIZE * 4;

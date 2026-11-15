@@ -1,0 +1,7 @@
+// rule: CEX-9
+// source: DN §6.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-3
+// note: The minimum signed value divided by −1.
+const M: i8 = -128 / -1;

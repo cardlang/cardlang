@@ -1,0 +1,12 @@
+// rule: CEX-7
+// source: DN §3.10; D-411
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-3
+// note: A constant-only failure after a `return`.
+const ZERO: u32 = 0;
+
+function after_return() {
+    return Ok();
+    var result: u32 = 10 / ZERO;
+}

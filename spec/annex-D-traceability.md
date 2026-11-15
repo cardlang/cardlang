@@ -25,7 +25,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-24 |
 | 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §3.7, §3.11, §4.1, §4.2, §5.1, §6.3, §11.1 | NAM-1 … NAM-22 |
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.1, §8.2, §8.4, §9–§9.3 | TYP-1 … TYP-23 |
-| 05-constant-expressions.md | SP4 | DN §3.3, §3.10 | pending |
+| 05-constant-expressions.md | SP4 | DN §3.3, §3.8, §3.10, §3.11, §5.1, §6.5 | CEX-1 … CEX-14 |
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.5, §6.2, §6.5, §8.1, §8.3, §9.3 | pending |
 | 07-statements-and-control-flow.md | SP6 | DN §3.6, §3.7 (completion), §8.2 | pending |
 | 08-functions-and-references.md | SP7 | DN §3.7, §3.8, §8.4 | pending |
@@ -34,7 +34,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1 (NAM) and A.2.2 (TYP) complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1 (NAM), A.2.2 (TYP) and A.2.3 (CEX) complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -46,7 +46,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-002 | Custom card-oriented language | SP0 | 01 §1.1 |  | covered |
 | D-003 | Global declarations: `persistent`, `session` or `const` | SP2 | NAM-6, NAM-9 |  | covered |
 | D-004 | `persistent` and `session` imply mutable state | SP9 | — |  | pending |
-| D-005 | Global `const` declares a compile-time constant | SP4 | — |  | pending |
+| D-005 | Global `const` declares a compile-time constant | SP4 | CEX-1, CEX-2 |  | covered |
 | D-006 | Local value declarations use `var` only | SP6 | — |  | pending |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
 | D-008 | Explicit persistent state | SP9 | — | OI-16 | pending |
@@ -70,7 +70,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-026 | Function arguments | SP7 | — |  | pending |
 | D-027 | Calls inside argument expressions | SP5 | — |  | pending |
 | D-028 | Error pattern bindings | SP8 | — |  | pending |
-| D-029 | Constant-only calculations outside global constants | SP4 | — | OI-11 | pending |
+| D-029 | Constant-only calculations outside global constants | SP4 | CEX-7, CEX-8, CEX-9 | OI-11 | covered |
 | D-030 | Function completion analysis | SP6 | — |  | pending |
 | D-031 | Recursion, function values/pointers and user-defined generics | SP7 | — |  | pending |
 | D-032 | Function prototypes | SP7 | — |  | pending |
@@ -134,13 +134,13 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-090 | Unary negation | SP5 | — |  | pending |
 | D-091 | Checked arithmetic | SP5 | — | OI-13 | pending |
 | D-092 | Wrapping arithmetic | SP5 | — |  | pending |
-| D-093 | Checked/wrapping arithmetic intrinsics in constants | SP4 | — |  | pending |
-| D-094 | Constant expressions | SP4 | — |  | pending |
-| D-095 | Guaranteed convert<T> in constant expressions | SP4 | — |  | pending |
-| D-096 | checked_convert<T> in constant expressions | SP4 | — |  | pending |
-| D-097 | Constant-evaluation boundary algorithm | SP4 | — | OI-11 | pending |
-| D-098 | Constant dependencies | SP4 | — |  | pending |
-| D-099 | Fixed-array lengths | SP4 | TYP-19 (length type); evaluation pending SP4 |  | partial |
+| D-093 | Checked/wrapping arithmetic intrinsics in constants | SP4 | CEX-5 |  | covered |
+| D-094 | Constant expressions | SP4 | CEX-3, CEX-6 |  | covered |
+| D-095 | Guaranteed convert<T> in constant expressions | SP4 | CEX-3 |  | covered |
+| D-096 | checked_convert<T> in constant expressions | SP4 | CEX-5 |  | covered |
+| D-097 | Constant-evaluation boundary algorithm | SP4 | CEX-7 | OI-11 | covered |
+| D-098 | Constant dependencies | SP4 | CEX-12, CEX-13 |  | covered |
+| D-099 | Fixed-array lengths | SP4 | TYP-19, CEX-6 |  | covered |
 | D-100 | No implicit boolean/numeric, array or structure conversions | SP3 | TYP-5, TYP-7 |  | covered |
 | D-101 | No general truncating cast initially | SP5 | — |  | pending |
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | SP5 | — |  | pending |
@@ -170,7 +170,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-126 | Resource identifier space | SP13 | — |  | pending |
 | D-127 | Resource storage strategy and cleanup | SP13 | — | OI-20 | pending |
 | D-128 | Array/structure defaults apply recursively | SP9 | TYP-22 (default values); application pending SP9 |  | partial |
-| D-129 | Global const requires an explicit initializer | SP4 | — |  | pending |
+| D-129 | Global const requires an explicit initializer | SP4 | CEX-1 |  | covered |
 | D-130 | Explicit array/structure construction remains complete | SP5 | — |  | pending |
 | D-131 | Nested transactions, including through function calls | SP10 | — | OI-3 | pending |
 | D-132 | Callee persistent assignments participate in an active transaction | SP10 | — |  | pending |
@@ -196,7 +196,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | — | OI-8 | pending |
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | — | OI-9 | pending |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | — | OI-10 | pending |
-| D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | — | OI-11 | pending |
+| D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | CEX-7, CEX-10 | OI-11 | covered |
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | — | OI-13 | pending |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19 | OI-14 | covered |
@@ -232,8 +232,17 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-323 | Unsized array types `T[]` exist only as `ref`/`inout` parameter types | SP3 | TYP-2, TYP-21 |  | covered |
 | D-324 | Structure field types are integers, booleans, enums, arrays and other structures | SP3 | TYP-14 |  | covered |
 | D-325 | A type declaration does not define physical layout, wire encoding or durable encoding | SP3 | TYP-9 |  | covered |
+| D-326 | Constant evaluation is deterministic and side-effect-free | SP4 | CEX-3, CEX-5, CEX-12 |  | covered |
+| D-327 | Qualified enum variants are constant expressions | SP4 | CEX-3 |  | covered |
+| D-328 | `.length` of a fixed array through a plain variable/field path is constant without reading contents | SP4 | CEX-4 |  | covered |
+| D-329 | Compile-time evaluation preserves short-circuiting | SP4 | CEX-11 |  | covered |
+| D-330 | Global constants need no writable state and their representation is an implementation detail | SP4 | CEX-2; inout ban enforced in chapter 8 (SP7) |  | partial |
+| D-331 | The nested-call ban applies in constant expressions | SP4 | CEX-14 |  | covered |
+| D-332 | Constant expressions never read persistent or session contents | SP4 | CEX-5 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
 | D-426 | File-list duplicates are a build error; empty list allowed | SP2 | NAM-3 | OI-26 | covered |
 | D-427 | Storage representation is not language-visible | SP3 | TYP-9 | OI-27 | covered |
+| D-428 | Error-member codes are integer literals | SP8 | CEX-6; literal rule pending chapter 9 (SP8) | OI-28 | partial |
+| D-429 | Constant slice endpoints checked at compile time | SP4 | CEX-10 | OI-29 | covered |

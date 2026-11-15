@@ -1,0 +1,12 @@
+// rule: CEX-7
+// source: DN §3.10; D-411
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-3
+// note: A runtime guard does not stop evaluation of the constant-only right operand.
+const ZERO: u32 = 0;
+session runtime_flag: bool;
+
+function check() -> bool {
+    return Ok(runtime_flag and ((10 / ZERO) == 1));
+}

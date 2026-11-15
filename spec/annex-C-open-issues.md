@@ -41,6 +41,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-25 | Primitive type names | Gap | SP2 | Resolved |
 | OI-26 | Build file-list constraints | Gap | SP2 | Resolved |
 | OI-27 | Boolean and enum storage representation | Contradiction | SP3 | Resolved |
+| OI-28 | Error-member code expressions | Gap | SP4, SP8 | Resolved |
+| OI-29 | Constant slice endpoints | Gap | SP4 | Resolved |
 
 ---
 
@@ -214,7 +216,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate, plus gap
 - **Sources:** DN §3.10 "Structural evaluation boundary (proposal for specification)" and its remaining classification question. D-029 and D-097 are affected.
-- **Affected rules:** pending (SP4)
+- **Affected rules:** CEX-7, CEX-10
 - **Questions:**
   1. Adopt the six-step structural algorithm and the illustrative acceptance table in DN §3.10 as normative?
   2. If a constant-only index is out of range for an array whose length is known from its type, but the array is in mutable storage (for example `buffer[200]` on a `u8[128]` session array), is that a compilation error or a runtime trap?
@@ -451,6 +453,35 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-427)
 - **Decision:** Option (a).
 
+## OI-28 — Error-member code expressions
+
+- **Kind:** gap
+- **Sources:**
+  - DN §6.3 shows only literal codes, such as `InsufficientFunds = 1;`.
+  - The DN §3.3 table lists "Application error-code literal" as having the required `u16` type.
+  - D-018 is affected.
+- **Affected rules:** CEX-6; chapter 9 (pending SP8)
+- **Question:** May an error-member code be any constant expression of type `u16`, or only a literal?
+- **Options:**
+  - (a) An integer literal only, with `u16` context.
+  - (b) Any constant expression of type `u16`.
+- **Recommendation:** (a). It matches the notes and keeps published codes easy to read in the source. It can be relaxed later without breaking programs.
+- **Status:** resolved 2026-11-15 (D-428)
+- **Decision:** Option (a).
+
+## OI-29 — Constant slice endpoints
+
+- **Kind:** gap
+- **Sources:** D-411 (a constant out-of-range index is a compile error); DN §8.4; D-119
+- **Affected rules:** CEX-10
+- **Question:** Are constant-only slice endpoints on an array of type-known length checked at compile time, covering `end > length` and `start > end`?
+- **Options:**
+  - (a) Yes, as a compile error.
+  - (b) No, as a runtime trap.
+- **Recommendation:** (a), for consistency with D-411. Slices of unsized `T[]` parameters remain runtime-checked.
+- **Status:** resolved 2026-11-15 (D-429)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -467,7 +498,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Pending: applied when SP5 drafts its chapter |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
-| 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Pending: applied when SP4 drafts its chapter |
+| 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
@@ -483,3 +514,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
 | 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 (SP2) |
 | 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 (SP3) |
+| 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | CEX-6 (SP4); chapter 9 pending (SP8) |
+| 2026-11-15 | OI-29 | Constant slice endpoints checked at compile time (D-429) | User | Applied in chapter 5: CEX-10 (SP4) |

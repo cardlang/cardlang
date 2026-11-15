@@ -99,11 +99,15 @@ Type ::= Identifier ( '[' Expression? ']' )*
 
 The identifier must denote a type (TYP-3). A suffix with an expression forms a fixed array type, whose length must be a constant expression (TYP-19). An empty suffix `[]` forms an unsized array type, which is allowed only as a `ref`/`inout` parameter type (TYP-21). More than one suffix is rejected by TYP-18. The structure and enum declaration productions are in §A.2.1.
 
+### A.2.3 Constant expressions (chapter 5)
+
+Constant expressions have no grammar of their own. They are `Expression`s (§A.2.4) that satisfy the semantic restrictions of chapter 5 (CEX-3 to CEX-5). A position that requires a constant expression uses the ordinary `Expression` nonterminal. Examples are the initializer of a `const` declaration and an array length in `Type`.
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
 | A.2.2 | Types | SP3 (done) |
-| A.2.3 | Constant expressions (shared with A.2.4) | SP4 |
+| A.2.3 | Constant expressions | SP4 (done; see below) |
 | A.2.4 | Expressions | SP5 |
 | A.2.5 | Statements and blocks | SP6 |
 | A.2.6 | Functions, parameters, arguments and slices | SP7 |

@@ -1,0 +1,8 @@
+// rule: CEX-7, CEX-11
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The division is skipped because the left operand is the constant `false`.
+const ZERO: u32 = 0;
+const ENABLED: bool = false and ((10 / ZERO) == 1);

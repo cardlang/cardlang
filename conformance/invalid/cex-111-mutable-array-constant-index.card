@@ -1,0 +1,12 @@
+// rule: CEX-10
+// source: D-411
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-CEX-4
+// note: A constant index out of range for a mutable session array whose length is known from its type.
+session buffer: u8[128];
+
+function write_far() {
+    buffer[200] = 1;
+    return Ok();
+}

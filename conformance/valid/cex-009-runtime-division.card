@@ -1,0 +1,10 @@
+// rule: CEX-7
+// source: DN §3.10; D-411
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Division by a mutable local whose value happens to be zero. The divisor is runtime-dependent, so the program compiles and the division is checked at runtime.
+function divide() -> u32 {
+    var divisor: u32 = 0;
+    return Ok(10 / divisor);
+}
