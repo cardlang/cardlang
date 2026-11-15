@@ -1,0 +1,9 @@
+// rule: EXP-47
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-16
+// note: A wrapping intrinsic with one argument.
+function check(a: u8) -> u8 {
+    return Ok(wrapping_add(a));
+}

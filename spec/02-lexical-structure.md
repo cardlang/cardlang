@@ -146,11 +146,12 @@ true       var        while
 **LEX-15 [Agreed]** The following identifiers are *reserved*. Lexically they are ordinary identifiers, but chapter 3 forbids declaring or shadowing them:
 
 - the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`;
+- the conversion and byte-order intrinsics `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (added by D-432);
 - the platform names `card` and `CardError`;
 - any further platform names supplied by the platform specification (Annex B).
 
 `length` is not reserved and may be used as a field name.
-*Sources: D-044, D-404 (OI-4); DN §4.2.*
+*Sources: D-044, D-404 (OI-4), D-432 (OI-32); DN §4.2.*
 
 **LEX-16 [Agreed]** The language sets no maximum length for identifiers. A tool may report a limit it cannot support, but it MUST NOT silently truncate or merge identifiers.
 *Sources: D-424 (OI-24).*

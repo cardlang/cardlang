@@ -1,0 +1,14 @@
+// rule: EXP-39
+// source: DN §3.3, §8.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Literal-only, u8 and u16 indices.
+session buffer: u8[16];
+
+function indices(small: u8, medium: u16) -> u8 {
+    var first: u8 = buffer[0];
+    var second: u8 = buffer[1 + 2];
+    var third: u8 = buffer[small];
+    return Ok(buffer[medium]);
+}

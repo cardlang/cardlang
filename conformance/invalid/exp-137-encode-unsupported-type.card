@@ -1,0 +1,10 @@
+// rule: EXP-36
+// source: D-432
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-8
+// note: encode_be of a u8 value.
+function check(small: u8) {
+    var bytes: u8[1] = encode_be(small);
+    return Ok();
+}

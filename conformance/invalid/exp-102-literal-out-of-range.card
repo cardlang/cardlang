@@ -1,0 +1,10 @@
+// rule: EXP-7
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-2
+// note: A literal out of range for u8.
+function check() {
+    var invalid: u8 = 300;
+    return Ok();
+}

@@ -1,0 +1,20 @@
+// rule: EXP-49
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-7
+// note: attempt inside a call argument.
+session counter: u32;
+
+function next_value() -> u32 {
+    return Ok(1);
+}
+
+function process(target: inout u32, value: u32) {
+    return Ok();
+}
+
+function check() {
+    attempt process(inout counter, attempt next_value());
+    return Ok();
+}

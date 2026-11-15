@@ -12,7 +12,7 @@ This chapter defines:
 
 Constant expressions use the ordinary expression grammar (Annex A §A.2.4). This chapter restricts them by meaning, not by syntax.
 
-**Forward references to chapter 6.** The typing and runtime semantics of operators, literals, indexing, constructors, `fill` and `convert` are defined in chapter 6. This chapter refers to chapter 6 by section until that chapter is drafted (SP5). SP14 replaces these references with rule IDs.
+**Relation to chapter 6.** The typing and runtime semantics of operators, literals, indexing, constructors, `fill` and `convert` are defined in chapter 6. This chapter cites those rules by ID.
 
 ## 5.1 Global constants
 
@@ -23,7 +23,7 @@ GlobalValueDeclaration ::= StorageKeyword+ Identifier ':' Type ( '=' Expression 
 **CEX-1 [Agreed]** A declaration `const name: T = e;` declares a *global constant* of value type `T`. Its value is computed during compilation. A `const` declaration without an initializer is **CE-CEX-1**. Chapter 3 governs the storage keyword itself (NAM-9).
 *Sources: D-005, D-129; DN §3.9, §3.10, §5.1.*
 
-**CEX-2 [Agreed]** The initializer of a global constant must be a constant expression (§5.2). Its type must be `T` under the typing rules of chapter 6, including contextual typing of literals. A global constant has:
+**CEX-2 [Agreed]** The initializer of a global constant must be a constant expression (§5.2). Its type must be `T` under the typing rules of chapter 6 (EXP-7 to EXP-12), including contextual typing of literals. A global constant has:
 
 - no lifetime and no writable state;
 - no observable representation;
@@ -59,14 +59,14 @@ const LIMIT: u32;
 | The name of a global constant | Including a constant declared later or in another file |
 | A qualified enum variant, such as `OperationState.Idle` | — |
 | A parenthesized expression | — |
-| A unary or binary operator expression (chapter 6) | Both operands are constant |
+| A unary or binary operator expression (EXP-13 to EXP-19) | Both operands are constant |
 | An explicit array list `[e1, …, en]` | — |
 | A structure constructor `S { f1: e1, … }` | — |
 | `fill(e)` | — |
 | Indexing `a[i]` | `a` is a constant expression of fixed-array type and `i` is constant |
 | Field selection `s.f` | `s` is a constant expression of structure type |
 | `x.length` | Under CEX-4 |
-| `convert<T>(e)` | The conversion is a guaranteed conversion under chapter 6 |
+| `convert<T>(e)` | The conversion is a guaranteed conversion (EXP-32) |
 
 *Sources: D-094, D-095, D-326, D-327; DN §3.10, §3.11.*
 
@@ -75,18 +75,18 @@ const LIMIT: u32;
 - `x` is a *plain path*: a name of a variable, constant, global or parameter, followed by zero or more field selections. This holds whatever the storage class, because only the type of `x` is used and its contents are not read; or
 - `x` is itself a constant expression.
 
-In every other case `x.length` is not a constant expression. An example is a receiver that indexes a mutable array. At runtime its receiver is still evaluated (chapter 6).
+In every other case `x.length` is not a constant expression. An example is a receiver that indexes a mutable array. At runtime its receiver is still evaluated (EXP-40).
 *Sources: D-328; DN §3.10, §8.1.*
 
 **CEX-5 [Agreed]** The following are never constant expressions, even when every operand is constant:
 
 - reading the value of a local variable or parameter, or the contents of persistent or session state, including through indexing or field selection;
 - calls to ordinary functions or platform APIs;
-- the intrinsics `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`;
+- the intrinsics `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`, and the intrinsics `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (added by D-432);
 - `attempt`, references, slices, assignments and transactions.
 
 There are no user-defined compile-time functions.
-*Sources: D-093, D-096, D-326, D-332; DN §3.10, §6.5.*
+*Sources: D-093, D-096, D-326, D-332, D-432 (OI-32); DN §3.10, §6.5.*
 
 **CEX-6 [Agreed]** A constant expression is required in exactly two places:
 
@@ -177,12 +177,12 @@ const W: u8 = wrapping_add(A, B);
 
 *Sources: D-029, D-097, D-411 (OI-11); DN §3.10.*
 
-**CEX-8 [Agreed]** Compile-time evaluation uses exactly the semantics that the same expression would have at runtime (chapter 6). That covers contextual literal types, checked arithmetic on each intermediate result, division truncating toward zero, shifts, `fill`, constructors and conversion. No wider intermediate type is used, and an out-of-range intermediate result is never repaired by a later operation.
+**CEX-8 [Agreed]** Compile-time evaluation uses exactly the semantics that the same expression would have at runtime (EXP-20 to EXP-46). That covers contextual literal types, checked arithmetic on each intermediate result, division truncating toward zero, shifts, `fill`, constructors and conversion. No wider intermediate type is used, and an out-of-range intermediate result is never repaired by a later operation.
 *Sources: D-029, D-087; DN §3.10, §6.5.*
 
 **CEX-9 [Agreed]** A failure during compile-time evaluation is a compilation error, never a runtime trap:
 
-- **CE-CEX-3** covers the arithmetic failures that chapter 6 defines as traps at runtime:
+- **CE-CEX-3** covers the arithmetic failures that chapter 6 defines as traps at runtime (EXP-23 to EXP-26):
   - overflow or underflow;
   - division or remainder by zero;
   - the minimum signed value divided by −1;
@@ -190,7 +190,7 @@ const W: u8 = wrapping_add(A, B);
   - negation of the minimum signed value.
 - **CE-CEX-4** covers an index that is out of range for a constant array.
 
-The minimum signed value remainder −1 is not a failure. Its result is zero (chapter 6).
+The minimum signed value remainder −1 is not a failure. Its result is zero (EXP-24).
 *Sources: D-029, D-088, D-089, D-090; DN §3.5, §3.10, §6.5.*
 
 **CEX-10 [Agreed]** The following must be checked during compilation, even when the array is mutable state:
@@ -204,7 +204,7 @@ This applies when the array being indexed or sliced has a fixed-array type, so i
 - a slice whose end is greater than the length;
 - a slice whose start is greater than its end.
 
-Indexes and slices of unsized `T[]` parameters, whose lengths are known only at runtime, are checked at runtime (chapter 6, chapter 8).
+Indexes and slices of unsized `T[]` parameters, whose lengths are known only at runtime, are checked at runtime (EXP-39, chapter 8).
 *Sources: D-411 (OI-11), D-429 (OI-29); DN §3.10, §8.4.*
 
 **CEX-11 [Agreed]** An operand that is skipped by short-circuiting is not evaluated, but it is still resolved and type-checked (CEX-7 step 1). Name and type errors in it are reported as usual.
@@ -341,7 +341,7 @@ function write_far() {
 
 *Sources: D-098; DN §3.10.*
 
-**CEX-14 [Agreed]** The ban on calls inside call arguments (chapter 6) also applies inside constant expressions. In particular, one `convert` cannot be nested inside another. Each intermediate value must be declared as a separate constant.
+**CEX-14 [Agreed]** The ban on calls inside call arguments (EXP-49) also applies inside constant expressions. In particular, one `convert` cannot be nested inside another. Each intermediate value must be declared as a separate constant.
 *Sources: D-331, D-027; DN §3.7, §3.10.*
 
 ### Examples
@@ -384,6 +384,6 @@ const N: u32 = buffer.length;
 
 These related errors are defined in chapter 6:
 
-- a typed constant used where another integer type is required, for example `const LARGE: u32 = SMALL;` with `SMALL: u8`;
-- `convert` whose source type is unknown;
-- a nested call.
+- a typed constant used where another integer type is required, for example `const LARGE: u32 = SMALL;` with `SMALL: u8` (CE-EXP-1);
+- `convert` whose source type is unknown (CE-EXP-8);
+- a nested call (CE-EXP-7).

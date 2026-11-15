@@ -1,0 +1,9 @@
+// rule: EXP-18
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: A shift count that is not u8.
+function check(flags: u8, count: i8) -> u8 {
+    return Ok(flags << count);
+}

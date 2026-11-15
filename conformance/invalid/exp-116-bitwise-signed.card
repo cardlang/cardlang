@@ -1,0 +1,9 @@
+// rule: EXP-17
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: Bitwise and on signed operands.
+function check(x: i16, y: i16) -> i16 {
+    return Ok(x & y);
+}

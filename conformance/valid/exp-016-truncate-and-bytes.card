@@ -1,0 +1,13 @@
+// rule: EXP-34, EXP-36, EXP-37
+// source: D-432
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: truncate and the byte-order intrinsics.
+function encode_amount(amount: u32, request: ref u8[]) -> u8 {
+    var low: u8 = truncate<u8>(amount);
+    var bytes: u8[4] = encode_be(amount);
+    var parsed: u32 = decode_be<u32>(ref request);
+    var little: u16 = decode_le<u16>(ref request[0..2]);
+    return Ok(low);
+}

@@ -1,0 +1,14 @@
+// rule: EXP-8, EXP-19
+// source: DN §3.0, §6.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The minimum signed value as a literal, and negation of a signed value.
+const MINIMUM: i8 = -128;
+
+function negatives() -> i16 {
+    var small: i16 = -32768;
+    var value: i16 = 10;
+    var negative: i16 = -value;
+    return Ok(negative);
+}

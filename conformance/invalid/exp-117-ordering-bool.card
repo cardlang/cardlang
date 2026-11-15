@@ -1,0 +1,9 @@
+// rule: EXP-14
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: Ordering comparison on bool values.
+function check(ready: bool, blocked: bool) -> bool {
+    return Ok(ready < blocked);
+}

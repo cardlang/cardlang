@@ -1,0 +1,17 @@
+// rule: EXP-6
+// source: D-430
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: A constructor directly in an if condition.
+struct Limits {
+    low: u16;
+    high: u16;
+}
+
+function check() -> bool {
+    if Limits { low: 1, high: 2 }.high == 2 {
+        return Ok(true);
+    }
+    return Ok(false);
+}

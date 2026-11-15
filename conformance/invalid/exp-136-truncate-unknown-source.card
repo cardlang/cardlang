@@ -1,0 +1,9 @@
+// rule: EXP-31, EXP-34
+// source: D-432
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-8
+// note: truncate of a literal has no source type.
+function check() -> u8 {
+    return Ok(truncate<u8>(300));
+}

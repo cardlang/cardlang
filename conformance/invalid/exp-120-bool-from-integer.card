@@ -1,0 +1,10 @@
+// rule: EXP-7
+// source: DN §3.4
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: An integer literal where bool is required.
+function check() {
+    var invalid: bool = 1;
+    return Ok();
+}

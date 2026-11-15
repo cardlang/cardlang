@@ -128,12 +128,12 @@ function outer() {
 **NAM-14 [Agreed]** The following *predeclared names* are part of every application scope, exactly as if they were declared there:
 
 1. the primitive type names `u8`, `u16`, `u32`, `i8`, `i16`, `i32` and `bool` (chapter 4);
-2. the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul` (chapter 6);
+2. the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub`, `wrapping_mul`, `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (chapter 6; the last five added by D-432);
 3. the platform names `card` (the root of platform API paths, NAM-18) and `CardError` (the platform error set, chapter 9);
 4. the configuration structures, algorithm enums and other names the platform specification supplies (Annex B).
 
 Declaring a top-level name that equals a predeclared name is **CE-NAM-5**. Using one as a parameter, local or binding name is shadowing and therefore **CE-NAM-3** (NAM-21). Platform-supplied structures and enums follow all ordinary rules for structures and enums. They introduce no imports, namespaces or hidden fields.
-*Sources: D-044, D-201, D-319, D-404 (OI-4), D-425 (OI-25); DN §4.1, §4.2, §11.1.*
+*Sources: D-044, D-201, D-319, D-404 (OI-4), D-425 (OI-25), D-432 (OI-32); DN §4.1, §4.2, §11.1.*
 
 ### Examples
 

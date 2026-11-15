@@ -1,0 +1,9 @@
+// rule: EXP-40, EXP-41
+// source: DN §8.1
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-13
+// note: .length on an integer.
+function check(count: u32) -> u32 {
+    return Ok(count.length);
+}

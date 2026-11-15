@@ -1,0 +1,19 @@
+// rule: EXP-29, EXP-48
+// source: DN §6.2, §6.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A checked intrinsic consumed by match.
+session balance: u32;
+
+function debit(amount: u32) {
+    match checked_sub(balance, amount) {
+        Ok(value) => {
+            balance = value;
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

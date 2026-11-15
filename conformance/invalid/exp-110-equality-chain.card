@@ -1,0 +1,9 @@
+// rule: EXP-4
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-5
+// note: A chain of equality comparisons on bool values.
+function check(a: bool, b: bool, c: bool) -> bool {
+    return Ok(a == b == c);
+}

@@ -1,0 +1,14 @@
+// rule: EXP-49
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-7
+// note: An intrinsic call inside a call argument.
+function process_value(value: u32) {
+    return Ok();
+}
+
+function check(small: u8) {
+    attempt process_value(convert<u32>(small));
+    return Ok();
+}

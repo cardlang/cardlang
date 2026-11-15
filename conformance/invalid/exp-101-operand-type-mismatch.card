@@ -1,0 +1,9 @@
+// rule: EXP-12
+// source: DN §3.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: Operands of different integer types.
+function check(count: u16, increment: u8) -> u16 {
+    return Ok(count + increment);
+}

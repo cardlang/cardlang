@@ -1,0 +1,13 @@
+// rule: EXP-17, EXP-18
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Bitwise operators and shifts with a u8 count.
+function bits(flags: u8, count: u8) -> u8 {
+    var low: u8 = flags & 0x0F;
+    var shifted: u8 = flags >> 2;
+    var moved: u8 = flags << count;
+    var check: bool = (flags & 0x03) == 0x01;
+    return Ok(~low);
+}

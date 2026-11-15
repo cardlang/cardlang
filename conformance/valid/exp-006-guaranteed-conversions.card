@@ -1,0 +1,12 @@
+// rule: EXP-31, EXP-32
+// source: DN §3.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Guaranteed conversions.
+function widen(small: u8, signed_small: i8) -> u32 {
+    var large: u16 = convert<u16>(small);
+    var signed_value: i16 = convert<i16>(small);
+    var wide: i32 = convert<i32>(signed_small);
+    return Ok(convert<u32>(large));
+}

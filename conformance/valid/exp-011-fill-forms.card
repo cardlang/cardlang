@@ -1,0 +1,18 @@
+// rule: EXP-44
+// source: DN §8.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: fill from a local, and from an element of the destination.
+session buffer: u8[16];
+
+function read_byte() -> u8 {
+    return Ok(0xA5);
+}
+
+function refill() {
+    var next_byte: u8 = attempt read_byte();
+    buffer = fill(next_byte);
+    buffer = fill(buffer[0]);
+    return Ok();
+}

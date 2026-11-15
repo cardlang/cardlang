@@ -1,0 +1,20 @@
+// rule: EXP-12
+// source: DN §9.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: Assignment between distinct structure types with identical fields.
+struct First {
+    value: u32;
+}
+
+struct Second {
+    value: u32;
+}
+
+function check() {
+    var first: First;
+    var second: Second;
+    second = first;
+    return Ok();
+}

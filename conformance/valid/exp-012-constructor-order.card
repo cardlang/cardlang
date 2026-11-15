@@ -1,0 +1,16 @@
+// rule: EXP-45
+// source: DN §9.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Constructor fields in a different order from the declaration.
+struct Account {
+    balance: u32;
+    identifier: u8[4];
+    counters: u32[8];
+}
+
+function build() -> Account {
+    var working: Account = Account { counters: fill(0), balance: 100, identifier: [1, 2, 3, 4] };
+    return Ok(working);
+}

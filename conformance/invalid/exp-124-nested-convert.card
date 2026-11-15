@@ -1,0 +1,8 @@
+// rule: EXP-49
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-7
+// note: A conversion nested in a conversion argument.
+const SMALL: u8 = 32;
+const X: u32 = convert<u32>(convert<u16>(SMALL));

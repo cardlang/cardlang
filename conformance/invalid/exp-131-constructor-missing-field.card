@@ -1,0 +1,15 @@
+// rule: EXP-45
+// source: DN §9.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-12
+// note: A constructor without the balance field.
+struct Account {
+    balance: u32;
+    identifier: u8[4];
+}
+
+function check() {
+    var working: Account = Account { identifier: [1, 2, 3, 4] };
+    return Ok();
+}

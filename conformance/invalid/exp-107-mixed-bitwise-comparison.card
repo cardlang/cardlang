@@ -1,0 +1,9 @@
+// rule: EXP-2, EXP-5
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-4
+// note: Mixed & and == without grouping.
+function check(flags: u8) -> bool {
+    return Ok(flags & 0x03 == 0x01);
+}

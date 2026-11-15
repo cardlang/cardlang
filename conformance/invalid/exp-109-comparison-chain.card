@@ -1,0 +1,9 @@
+// rule: EXP-4
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-5
+// note: A chain of ordering comparisons.
+function check(amount: u32, limit: u32) -> bool {
+    return Ok(0 < amount < limit);
+}

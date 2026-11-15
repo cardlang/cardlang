@@ -1,0 +1,9 @@
+// rule: EXP-19
+// source: DN §6.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: Unary minus on an unsigned value.
+function check(count: u8) -> u8 {
+    return Ok(-count);
+}

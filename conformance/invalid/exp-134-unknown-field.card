@@ -1,0 +1,16 @@
+// rule: EXP-41
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-13
+// note: A field the structure does not declare.
+struct Account {
+    balance: u32;
+    identifier: u8[4];
+}
+
+session account: Account;
+
+function check() -> u32 {
+    return Ok(account.missing);
+}

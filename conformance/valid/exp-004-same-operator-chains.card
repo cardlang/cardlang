@@ -1,0 +1,12 @@
+// rule: EXP-2, EXP-3
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Chains of one operator and explicit grouping.
+function chains(a: u32, b: u32, c: u32) -> u32 {
+    var sum: u32 = a + b + c;
+    var difference: u32 = (a + b) - c;
+    var mixed: u32 = a + (b * c);
+    return Ok(sum);
+}

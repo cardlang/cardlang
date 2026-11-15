@@ -43,6 +43,9 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-27 | Boolean and enum storage representation | Contradiction | SP3 | Resolved |
 | OI-28 | Error-member code expressions | Gap | SP4, SP8 | Resolved |
 | OI-29 | Constant slice endpoints | Gap | SP4 | Resolved |
+| OI-30 | Structure constructor in conditions | Gap | SP5 | Resolved |
+| OI-31 | Overflow versus underflow | Proposal-to-validate | SP5 | Resolved |
+| OI-32 | Integer and byte conversion | Gap | SP5 | Resolved |
 
 ---
 
@@ -163,7 +166,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - The notes use it in local initializers, assignment right-hand sides, `return Ok(attempt …)`, an index expression (`records[attempt choose_index()]`, DN §8.1) and a constructor field (DN §9.3).
   - DN §3.7 forbids calls in arguments.
   - D-014 and D-017 are affected.
-- **Affected rules:** pending (SP5, SP8)
+- **Affected rules:** EXP-51; chapter 9 pending (SP8)
 - **Options:**
   - (a) `attempt call` is allowed in any runtime expression position, except:
     - inside a call argument (the nested-call ban);
@@ -482,6 +485,56 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-429)
 - **Decision:** Option (a).
 
+## OI-30 — Structure constructor in conditions
+
+- **Kind:** gap
+- **Sources:** DN §3.0 (mandatory braces), §3.6, §9.3; D-070
+- **Affected rules:** EXP-6
+- **Question:** `if ready { … }` and a constructor `Point { … }` both have the form `Name {`. How does the grammar tell them apart in condition positions?
+- **Options:**
+  - (a) A constructor directly in an `if`/`while` condition, a `for` range bound or a `match` scrutinee must be parenthesized. This is a grammar rule.
+  - (b) Decide by name resolution: `Name {` is a constructor exactly when `Name` is a structure type.
+- **Recommendation:** (a). Parsing stays independent of name resolution.
+- **Status:** resolved 2026-11-15 (D-430)
+- **Decision:** Option (a).
+
+## OI-31 — Overflow versus underflow
+
+- **Kind:** proposal-to-validate
+- **Sources:** DN §6.2 "Proposed arithmetic failure categories"; DN §6.5; D-058, D-088, D-090, D-091; OI-15 resolution (D-415)
+- **Affected rules:** EXP-23, EXP-24, EXP-25, EXP-29
+- **Question:** How are out-of-range results classified for trap kinds and for `CardError` members?
+- **Options:**
+  - (a) Adopt the DN table:
+    - above the maximum is Overflow;
+    - below the minimum, including unsigned subtraction below zero, is Underflow;
+    - the minimum signed value divided by −1 is Overflow;
+    - negating the minimum is `TRAP-NEGATION`, and `checked_neg` returns `CardError.Overflow`.
+  - (b) A single Overflow kind for everything.
+- **Recommendation:** (a).
+- **Status:** resolved 2026-11-15 (D-431)
+- **Decision:** Option (a).
+
+## OI-32 — Integer and byte conversion
+
+- **Kind:** gap
+- **Sources:** DN §3.4 ("Encoding API names and any future deliberately lossy byte-extraction operations remain open"); D-101, D-342
+- **Affected rules:** EXP-34, EXP-36, EXP-37; LEX-15; NAM-14; CEX-5
+- **Question:** What should Draft 0.1 provide for extracting bytes from integers and assembling integers from bytes?
+- **Options:**
+  - (a) Nothing new.
+  - (b) A truncating intrinsic.
+  - (c) Byte-order intrinsics.
+  - (d) Both (b) and (c).
+- **Recommendation:** none. The notes leave this as a language-design choice.
+- **Status:** resolved 2026-11-15 (D-432)
+- **Decision:** Option (d), with these details:
+  - `truncate<T>(x)` converts any integer type to any integer type. The source type must be known independently. The result is the low bits of `x` reinterpreted as `T`, using two's complement for signed types. It never fails.
+  - `encode_be(x)` and `encode_le(x)` accept `T` in `u16`, `u32`, `i16` and `i32`. Each returns a direct `u8[N]` value.
+  - `decode_be<T>(ref bytes)` and `decode_le<T>(ref bytes)` return a direct `T`. They trap with `TRAP-BOUNDS` when the length is not `N`.
+  - All are direct-value intrinsics, excluded from constant expressions initially.
+  - Their names are reserved.
+
 ---
 
 ## Resolution log
@@ -495,7 +548,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
-| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Pending: applied when SP5 drafts its chapter |
+| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
@@ -516,3 +569,6 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 (SP3) |
 | 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | CEX-6 (SP4); chapter 9 pending (SP8) |
 | 2026-11-15 | OI-29 | Constant slice endpoints checked at compile time (D-429) | User | Applied in chapter 5: CEX-10 (SP4) |
+| 2026-11-15 | OI-30 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized (D-430) | User | Applied in chapter 6 (SP5) |
+| 2026-11-15 | OI-31 | Arithmetic failure classes: above maximum is Overflow (D-431) | User | Applied in chapter 6 (SP5) |
+| 2026-11-15 | OI-32 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> (D-432) | User | Applied in chapter 6 (SP5) |

@@ -1,0 +1,14 @@
+// rule: EXP-15
+// source: DN §9.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: Equality on structures.
+struct Pair {
+    left: u8;
+    right: u8;
+}
+
+function check(first: Pair, second: Pair) -> bool {
+    return Ok(first == second);
+}

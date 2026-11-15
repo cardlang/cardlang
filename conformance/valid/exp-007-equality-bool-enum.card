@@ -1,0 +1,18 @@
+// rule: EXP-15
+// source: DN §3.5, §3.11
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Equality on bool and on an enum.
+enum Mode {
+    Off;
+    On;
+}
+
+session mode: Mode;
+session ready: bool;
+
+function compare() -> bool {
+    var same: bool = ready == true;
+    return Ok(mode != Mode.Off);
+}

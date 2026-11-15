@@ -1,0 +1,16 @@
+// rule: EXP-11, EXP-29
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-3
+// note: A checked intrinsic whose operands are all literals.
+function check() {
+    match checked_add(1, 2) {
+        Ok(value) => {
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+    return Ok();
+}

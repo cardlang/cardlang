@@ -1,0 +1,13 @@
+// rule: EXP-1, EXP-2
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Unary operators next to binary operators need no parentheses.
+session authenticated: bool;
+session blocked: bool;
+
+function unary_mix(x: i16, y: i16) -> bool {
+    var total: i16 = -x + y;
+    return Ok(authenticated and not blocked);
+}

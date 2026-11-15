@@ -1,0 +1,9 @@
+// rule: EXP-31
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-8
+// note: convert of a literal has no source type.
+function check() -> u32 {
+    return Ok(convert<u32>(32));
+}

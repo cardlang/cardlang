@@ -1,0 +1,9 @@
+// rule: EXP-2
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-4
+// note: Mixed + and * without grouping.
+function check(a: u32, b: u32, c: u32) -> u32 {
+    return Ok(a + b * c);
+}

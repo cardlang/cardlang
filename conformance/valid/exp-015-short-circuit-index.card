@@ -1,0 +1,11 @@
+// rule: EXP-21
+// source: DN §3.5
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Short-circuiting guards the index.
+session buffer: u8[16];
+
+function is_free(index: u8) -> bool {
+    return Ok((index < 16) and (buffer[index] == 0));
+}

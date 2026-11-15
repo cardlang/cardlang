@@ -1,0 +1,10 @@
+// rule: EXP-8, EXP-19
+// source: DN §6.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: A negative literal in an unsigned context.
+function check() {
+    var invalid: u8 = -1;
+    return Ok();
+}

@@ -1,0 +1,10 @@
+// rule: EXP-11
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-3
+// note: A comparison of literals has no integer context.
+function check() {
+    var same: bool = 1 == 1;
+    return Ok();
+}

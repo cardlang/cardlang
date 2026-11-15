@@ -103,12 +103,47 @@ The identifier must denote a type (TYP-3). A suffix with an expression forms a f
 
 Constant expressions have no grammar of their own. They are `Expression`s (§A.2.4) that satisfy the semantic restrictions of chapter 5 (CEX-3 to CEX-5). A position that requires a constant expression uses the ordinary `Expression` nonterminal. Examples are the initializer of a `const` declaration and an array length in `Type`.
 
+### A.2.4 Expressions (chapter 6)
+
+```
+Expression        ::= UnaryExpression ( BinaryOperator UnaryExpression )*
+BinaryOperator    ::= '+' | '-' | '*' | '/' | '%' | '==' | '!=' | '<' | '<=' | '>' | '>='
+                    | 'and' | 'or' | '&' | '|' | '^' | '<<' | '>>'
+UnaryExpression   ::= ( '-' | 'not' | '~' ) UnaryExpression
+                    | 'attempt' PostfixExpression
+                    | PostfixExpression
+PostfixExpression ::= PrimaryExpression PostfixPart*
+PostfixPart       ::= '[' Expression ']'
+                    | '[' Expression '..' Expression ']'
+                    | '.' Identifier
+                    | Arguments
+PrimaryExpression ::= IntegerLiteral | BooleanLiteral | Identifier
+                    | '(' Expression ')'
+                    | ArrayList
+                    | StructConstructor
+                    | TypeArgumentCall
+ArrayList         ::= '[' ( Expression ( ',' Expression )* ','? )? ']'
+StructConstructor ::= Identifier '{' ( FieldInit ( ',' FieldInit )* ','? )? '}'
+FieldInit         ::= Identifier ':' Expression
+TypeArgumentCall  ::= TypeArgumentIntrinsic '<' Type '>' Arguments
+TypeArgumentIntrinsic ::= 'convert' | 'checked_convert' | 'truncate' | 'decode_be' | 'decode_le'
+Arguments         ::= '(' ( Argument ( ',' Argument )* ','? )? ')'
+Argument          ::= ( 'ref' | 'inout' )? Expression
+```
+
+Notes on these productions:
+
+- **Flat binary structure.** The binary operators have no precedence. A flat sequence is accepted, and EXP-2 to EXP-5 require a single operator per grouping level and forbid comparison chains (CE-EXP-4, CE-EXP-5).
+- **Type-argument intrinsics.** The names in `TypeArgumentIntrinsic` are reserved identifiers (LEX-15), not keywords. Writing one followed by `<` always begins a type argument.
+- **Constructors in conditions.** A `StructConstructor` must be parenthesized at the outer level of an `if`/`while` condition, a `for` range bound and a `match` scrutinee (EXP-6). In those positions, `Identifier '{'` begins the body.
+- **Parsed but restricted.** Slices (`'..'` in an index bracket) and argument modes are parsed here. Chapter 8 restricts where they may appear.
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
 | A.2.2 | Types | SP3 (done) |
 | A.2.3 | Constant expressions | SP4 (done; see below) |
-| A.2.4 | Expressions | SP5 |
+| A.2.4 | Expressions | SP5 (done) |
 | A.2.5 | Statements and blocks | SP6 |
 | A.2.6 | Functions, parameters, arguments and slices | SP7 |
 | A.2.7 | Outcomes, patterns and error sets | SP8 |

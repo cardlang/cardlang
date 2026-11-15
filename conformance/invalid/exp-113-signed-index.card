@@ -1,0 +1,12 @@
+// rule: EXP-39
+// source: DN §8.1
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-9
+// note: A signed index.
+session buffer: u8[16];
+
+function check(signed_index: i16) {
+    buffer[signed_index] = 3;
+    return Ok();
+}

@@ -1,0 +1,10 @@
+// rule: EXP-44
+// source: DN §8.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-10
+// note: fill with no expected array type.
+function check() {
+    var size: u32 = fill(0).length;
+    return Ok();
+}

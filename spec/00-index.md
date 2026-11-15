@@ -11,7 +11,7 @@ This is the normative specification of the CardLang language. It is being writte
 | [03-program-structure-and-names.md](03-program-structure-and-names.md) | 3 Program structure and names | SP2 | Draft complete |
 | [04-types.md](04-types.md) | 4 Types | SP3 | Draft complete |
 | [05-constant-expressions.md](05-constant-expressions.md) | 5 Constant expressions | SP4 | Draft complete |
-| 06-expressions.md | 6 Expressions | SP5 | Not started |
+| [06-expressions.md](06-expressions.md) | 6 Expressions | SP5 | Draft complete |
 | 07-statements-and-control-flow.md | 7 Statements and control flow | SP6 | Not started |
 | 08-functions-and-references.md | 8 Functions, references and slices | SP7 | Not started |
 | 09-outcomes-and-errors.md | 9 Outcomes and errors | SP8 | Not started |
@@ -19,10 +19,10 @@ This is the normative specification of the CardLang language. It is being writte
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.3 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.4 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-29 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–5 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-32 resolved; OI-22 open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–6 |
 
 Related files:
 
@@ -37,7 +37,8 @@ Related files:
 | 3 Program structure and names | 22 | 22 | 0 | 0 |
 | 4 Types | 23 | 23 | 0 | 0 |
 | 5 Constant expressions | 14 | 14 | 0 | 0 |
-| **Total** | 83 | 83 | 0 | 0 |
+| 6 Expressions | 51 | 51 | 0 | 0 |
+| **Total** | 134 | 134 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -50,6 +51,22 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-CEX-3 | Arithmetic failure during compile-time evaluation | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
 | CE-CEX-4 | Bounds failure during compile-time evaluation | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
 | CE-CEX-5 | Dependency cycle among constants, lengths and types | [5 §5.5](05-constant-expressions.md#55-errors-defined-in-this-chapter) |
+| CE-EXP-1 | Type does not match the required type | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-2 | Integer literal out of range | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-3 | Integer literal has no type context | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-4 | Different binary operators at one grouping level | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-5 | Chain of comparisons | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-6 | Operator applied to a type it does not accept | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-7 | Call or attempt inside a call argument | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-8 | Invalid conversion or byte intrinsic | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-9 | Index type is not u8, u16 or u32 | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-10 | Array list or fill without an expected array type | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-11 | Array list with the wrong number of elements | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-12 | Constructor field missing, undeclared or repeated | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-13 | Field selection the receiver does not have | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-14 | Outcome used where a value is required | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-15 | Call target is not callable | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
+| CE-EXP-16 | Wrong number of arguments | [6 §6.13](06-expressions.md#613-errors-defined-in-this-chapter) |
 | CE-LEX-1 | File is not valid UTF-8 | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |

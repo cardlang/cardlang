@@ -1,0 +1,12 @@
+// rule: EXP-11
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A typed operand on either side gives the literal its type.
+function check() -> bool {
+    var count: u8 = 10;
+    var a: u8 = count + 1;
+    var b: u8 = 1 + count;
+    return Ok(count == 10);
+}

@@ -1,0 +1,22 @@
+// rule: EXP-7, EXP-10
+// source: DN §3.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Literals typed by declarations, assignments, arguments, return Ok and for ranges.
+session total: u16;
+
+function scale(factor: u8) -> u8 {
+    return Ok(factor * 2);
+}
+
+function contexts() -> u32 {
+    var count: u8 = 10;
+    var sum: u16 = 10 + 20;
+    total = 300;
+    var scaled: u8 = attempt scale(4);
+    for index: u16 in 0..1000 {
+        total = index;
+    }
+    return Ok(5);
+}
