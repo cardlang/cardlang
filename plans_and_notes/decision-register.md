@@ -99,25 +99,25 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | pending |
 | D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | pending |
 | D-058 | Explicit handling of overflow and underflow | Required feature | [Agreed] | language | DN §6.2, §6.5 | SP5 |  | pending |
-| D-059 | Global/local arrays of supported fixed-size values | Agreed: integers, bool, structs and enums | [Agreed] | language | DN §8, §8.2 | SP3 |  | pending |
-| D-060 | Array type syntax `T[N]` | Agreed | [Agreed] | language | DN §8 | SP3 |  | pending |
+| D-059 | Global/local arrays of supported fixed-size values | Agreed: integers, bool, structs and enums | [Agreed] | language | DN §8, §8.2 | SP3 |  | TYP-1, TYP-11, TYP-18 |
+| D-060 | Array type syntax `T[N]` | Agreed | [Agreed] | language | DN §8 | SP3 |  | TYP-17 |
 | D-061 | Array `.length` | Read-only element count of type `u32`; compile-time known for fixed arrays | [Agreed] | language | DN §8.1 | SP5 |  | pending |
 | D-062 | Array index types | `u8`, `u16` or `u32`; signed indices forbidden | [Agreed] | language | DN §8.1 | SP5 |  | pending |
 | D-063 | Array initialization with `fill(value)` or an exact-length element list | Agreed | [Agreed] | language | DN §8 | SP5 |  | pending |
 | D-064 | No special `zero` initializer | Agreed | [Agreed] | language | DN §8 | SP5 |  | pending |
-| D-065 | Named structures with typed fields | Agreed; nominal type identity | [Agreed] | language | DN §9, §9.3 | SP3 |  | pending |
-| D-066 | Empty structures | Compilation error initially | [Agreed] | language | DN §9.3 | SP3 |  | pending |
-| D-067 | Enums | Named, nominal, nonempty; no payloads or numeric values | [Agreed] | language | DN §3.11 | SP3 |  | pending |
-| D-068 | Enum defaults | First declared variant | [Agreed] | language | DN §3.11 | SP3 |  | pending |
+| D-065 | Named structures with typed fields | Agreed; nominal type identity | [Agreed] | language | DN §9, §9.3 | SP3 |  | TYP-4, TYP-13 |
+| D-066 | Empty structures | Compilation error initially | [Agreed] | language | DN §9.3 | SP3 |  | TYP-13 |
+| D-067 | Enums | Named, nominal, nonempty; no payloads or numeric values | [Agreed] | language | DN §3.11 | SP3 |  | TYP-4, TYP-10, TYP-11, TYP-12 |
+| D-068 | Enum defaults | First declared variant | [Agreed] | language | DN §3.11 | SP3 |  | TYP-22 |
 | D-069 | Enum matching | All variants explicit, no duplicate or catch-all arms | [Agreed] | language | DN §3.11, §3.6 | SP6 |  | pending |
 | D-070 | Structure constructors | Direct values; every field exactly once; written-order evaluation | [Agreed] | language | DN §9.3 | SP5 |  | pending |
 | D-071 | Structure array fields accept `fill(value)` and explicit lists | Agreed | [Agreed] | language | DN §9 | SP5 |  | pending |
-| D-072 | Structures may contain other structures | Agreed | [Agreed] | language | DN §9.1 | SP3 |  | pending |
-| D-073 | Nested fields inherit instance storage and mutability | Agreed | [Agreed] | language | DN §9.1 | SP3 |  | pending |
-| D-074 | Direct or indirect recursive containment is forbidden | Agreed | [Agreed] | language | DN §9.1, §9.3 | SP3 |  | pending |
-| D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | Agreed | [Agreed] | language | DN §3.1 | SP3 |  | pending |
-| D-076 | Byte arrays as `u8[N]` | Agreed | [Agreed] | language | DN §3.1, §8 | SP3 | OI-12 | pending |
-| D-077 | Zero-length and direct multidimensional arrays | Forbidden/deferred initially | [Agreed] | language | DN §8.2 | SP3 |  | pending |
+| D-072 | Structures may contain other structures | Agreed | [Agreed] | language | DN §9.1 | SP3 |  | TYP-14 |
+| D-073 | Nested fields inherit instance storage and mutability | Agreed | [Agreed] | language | DN §9.1 | SP3 |  | TYP-16 |
+| D-074 | Direct or indirect recursive containment is forbidden | Agreed | [Agreed] | language | DN §9.1, §9.3 | SP3 |  | TYP-15, TYP-23 |
+| D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | Agreed | [Agreed] | language | DN §3.1 | SP3 |  | TYP-1, TYP-6, TYP-7, TYP-8 |
+| D-076 | Byte arrays as `u8[N]` | Agreed | [Agreed] | language | DN §3.1, §8 | SP3 | OI-12 | TYP-20 |
+| D-077 | Zero-length and direct multidimensional arrays | Forbidden/deferred initially | [Agreed] | language | DN §8.2 | SP3 |  | TYP-18, TYP-19 |
 | D-078 | Whole-array assignment | Exact element type and length; independent value copy | [Agreed] | language | DN §8.2 | SP6 |  | pending |
 | D-079 | fill(expression) | Reserved array-construction intrinsic; direct array value, once-and-copy | [Agreed] | language | DN §8.3 | SP5 |  | pending |
 | D-080 | Indexed assignment order | Evaluate/check destination index before right-hand side | [Agreed] | language | DN §8.2 | SP6 | OI-9 | pending |
@@ -139,8 +139,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-096 | checked_convert<T> in constant expressions | Excluded initially; no compile-time outcome handling | [Agreed] | language | DN §3.10 | SP4 |  | pending |
 | D-097 | Constant-evaluation boundary algorithm | Structural policy proposed in section 3.10; detailed acceptance examples pending validation | [Agreed] (via D-411) | language | DN §3.10 | SP4 | OI-11 | pending |
 | D-098 | Constant dependencies | Forward references allowed; cycles are compilation errors | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-099 | Fixed-array lengths | Unsigned constant expressions; literal-only expressions use u32 context | [Agreed] | language | DN §3.10 | SP4 |  | pending |
-| D-100 | No implicit boolean/numeric, array or structure conversions | Agreed | [Agreed] | language | DN §3.4 | SP3 |  | pending |
+| D-099 | Fixed-array lengths | Unsigned constant expressions; literal-only expressions use u32 context | [Agreed] | language | DN §3.10 | SP4 |  | TYP-19 (length type); evaluation pending SP4 |
+| D-100 | No implicit boolean/numeric, array or structure conversions | Agreed | [Agreed] | language | DN §3.4 | SP3 |  | TYP-5, TYP-7 |
 | D-101 | No general truncating cast initially | Agreed | [Agreed] | language | DN §3.2 | SP5 |  | pending |
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | pending |
 | D-103 | Same-operator chains evaluate left to right; comparison chains forbidden | Agreed | [Agreed] | language | DN §3.5 | SP5 |  | pending |
@@ -160,15 +160,15 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-117 | References may target variables, fields and array elements; not temporaries | Agreed | [Agreed] | language | DN §3.8 | SP7 |  | pending |
 | D-118 | Reference and slice overlap | Allowed, including mutable overlap; no overlap checks or overlap traps | [Agreed] | language | DN §3.8, §8.4 | SP7 |  | pending |
 | D-119 | Array slices `array[start..end]` | Agreed; half-open borrowed regions, bounds checked; empty slices allowed | [Agreed] | language | DN §8.4 | SP7 | OI-10 | pending |
-| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | pending |
-| D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | pending |
+| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
+| D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21 (type form); passing pending SP7 |
 | D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | pending |
-| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | pending |
+| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22 (default values); application pending SP9 |
 | D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | pending |
 | D-125 | Runtime resources | Application-chosen u32 identifiers; 0 invalid; runtime-owned objects | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | pending |
+| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22 (default values); application pending SP9 |
 | D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | pending |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | pending |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
@@ -186,7 +186,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces); unknown ID and wrong kind fail recoverably; capacity failure is a defined recoverable error; failed creation exposes no partial object (error names are placeholders) | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 | OI-15 | pending |
 | D-204 | Copying a resource identifier copies only the number; no stale-handle detection; identifier-variable lifetime is independent of resource lifetime | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 |  | pending |
 | D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | pending |
-| D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | pending |
+| D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23; Annex B pending SP12/SP13 |
 | D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | pending |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | pending |
 | D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | pending |
@@ -217,6 +217,11 @@ Sub-plans add rows here as they reach each DN section.
 | D-318 | Enum variants and error members are always qualified (`Owner.Member`) and are never imported as bare names | Agreed (DN body text) | [Agreed] | language | DN §3.11, §4.2, §6.3 | SP2 |  | NAM-16 |
 | D-319 | Platform-supplied configuration structures and algorithm enums use the ordinary naming rules, with no imports, namespaces or private fields | Agreed (DN body text) | [Agreed] | language | DN §11.1 | SP2 |  | NAM-14 |
 | D-320 | Plain `var` and combined qualifiers are forbidden at application scope; there is no `local` keyword | Agreed (DN body text) | [Agreed] | language | DN §5.1 | SP2 |  | NAM-9, NAM-10 |
+| D-321 | Arrays are composite types, not extra primitive scalar types; enums and structures are user-defined types | Agreed (DN body text) | [Agreed] | language | DN §3.1 | SP3 |  | TYP-1 |
+| D-322 | Every array length is a positive unsigned constant expression whose value fits in `u32` | Agreed (DN body text) | [Agreed] | language | DN §8.1, §8.2 | SP3 |  | TYP-19 |
+| D-323 | Unsized array types `T[]` exist only as `ref`/`inout` parameter types; no unsized owned variables, fields or returns | Agreed (DN body text) | [Agreed] | language | DN §8.4 | SP3 |  | TYP-2, TYP-21 |
+| D-324 | Structure field types are integers, booleans, enums, arrays and other structures; no methods, inheritance, field defaults or field-level storage qualifiers | Agreed (DN body text) | [Agreed] | language | DN §9, §9.3 | SP3 |  | TYP-14 |
+| D-325 | A type declaration does not define physical layout, wire encoding or durable encoding; enum representation and variant order are not a stable encoding | Agreed (DN body text) | [Agreed] | language | DN §3.9, §3.11, §9.2, §9.3 | SP3 |  | TYP-9 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -233,7 +238,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | pending |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | pending |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | pending |
-| D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | pending |
+| D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | pending |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19 |
 | D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | pending |
@@ -247,3 +252,4 @@ Sub-plans add rows here as they reach each DN section.
 | D-424 | Longest-match tokens; numeric-run rule for literals; no identifier length limit | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-24 | SP1 | OI-24 | LEX-10, LEX-16, LEX-18 |
 | D-425 | Primitive type names are predeclared names in every application scope, not keywords | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-25 | SP2 | OI-25 | NAM-14 |
 | D-426 | A file listed twice is a build-configuration error; an empty file list is allowed by the language | Resolved by user 2026-11-15 | [Agreed] | tooling | Annex C OI-26 | SP2 | OI-26 | NAM-3 |
+| D-427 | Storage representation of values (Booleans, enums, layouts) is not language-visible; persistent layout across upgrades is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-27 | SP3 | OI-27 | TYP-9 |

@@ -1,0 +1,20 @@
+// rule: TYP-21
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Unsized `ref` and `inout` parameters.
+struct Account {
+    balance: u32;
+}
+
+function inspect(data: ref u8[]) {
+    return Ok();
+}
+
+function clear_balances(accounts: inout Account[]) {
+    for index: u32 in 0..accounts.length {
+        accounts[index].balance = 0;
+    }
+    return Ok();
+}

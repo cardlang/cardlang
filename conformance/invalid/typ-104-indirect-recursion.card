@@ -1,0 +1,13 @@
+// rule: TYP-15
+// source: DN §9.1
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-4
+// note: Two structures that contain each other.
+struct First {
+    second: Second;
+}
+
+struct Second {
+    first: First;
+}

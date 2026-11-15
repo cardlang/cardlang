@@ -24,7 +24,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 01-scope-and-conventions.md | SP0 | DN header, §1, §2, §3 (intro), §12, §13; PN §1 | none (conventions only) |
 | 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-24 |
 | 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §3.7, §3.11, §4.1, §4.2, §5.1, §6.3, §11.1 | NAM-1 … NAM-22 |
-| 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.2, §9–§9.3 | pending |
+| 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.1, §8.2, §8.4, §9–§9.3 | TYP-1 … TYP-23 |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.10 | pending |
 | 06-expressions.md | SP5 | DN §3.2, §3.3, §3.5, §6.2, §6.5, §8.1, §8.3, §9.3 | pending |
 | 07-statements-and-control-flow.md | SP6 | DN §3.6, §3.7 (completion), §8.2 | pending |
@@ -34,7 +34,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 complete; A.2.1 complete (NAM rules); rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1 (NAM) and A.2.2 (TYP) complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -100,25 +100,25 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | — |  | pending |
 | D-057 | Each persistent assignment is atomic | SP9 | — | OI-19 | pending |
 | D-058 | Explicit handling of overflow and underflow | SP5 | — |  | pending |
-| D-059 | Global/local arrays of supported fixed-size values | SP3 | — |  | pending |
-| D-060 | Array type syntax `T[N]` | SP3 | — |  | pending |
+| D-059 | Global/local arrays of supported fixed-size values | SP3 | TYP-1, TYP-11, TYP-18 |  | covered |
+| D-060 | Array type syntax `T[N]` | SP3 | TYP-17 |  | covered |
 | D-061 | Array `.length` | SP5 | — |  | pending |
 | D-062 | Array index types | SP5 | — |  | pending |
 | D-063 | Array initialization with `fill(value)` or an exact-length element list | SP5 | — |  | pending |
 | D-064 | No special `zero` initializer | SP5 | — |  | pending |
-| D-065 | Named structures with typed fields | SP3 | — |  | pending |
-| D-066 | Empty structures | SP3 | — |  | pending |
-| D-067 | Enums | SP3 | — |  | pending |
-| D-068 | Enum defaults | SP3 | — |  | pending |
+| D-065 | Named structures with typed fields | SP3 | TYP-4, TYP-13 |  | covered |
+| D-066 | Empty structures | SP3 | TYP-13 |  | covered |
+| D-067 | Enums | SP3 | TYP-4, TYP-10, TYP-11, TYP-12 |  | covered |
+| D-068 | Enum defaults | SP3 | TYP-22 |  | covered |
 | D-069 | Enum matching | SP6 | — |  | pending |
 | D-070 | Structure constructors | SP5 | — |  | pending |
 | D-071 | Structure array fields accept `fill(value)` and explicit lists | SP5 | — |  | pending |
-| D-072 | Structures may contain other structures | SP3 | — |  | pending |
-| D-073 | Nested fields inherit instance storage and mutability | SP3 | — |  | pending |
-| D-074 | Direct or indirect recursive containment is forbidden | SP3 | — |  | pending |
-| D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | SP3 | — |  | pending |
-| D-076 | Byte arrays as `u8[N]` | SP3 | — | OI-12 | pending |
-| D-077 | Zero-length and direct multidimensional arrays | SP3 | — |  | pending |
+| D-072 | Structures may contain other structures | SP3 | TYP-14 |  | covered |
+| D-073 | Nested fields inherit instance storage and mutability | SP3 | TYP-16 |  | covered |
+| D-074 | Direct or indirect recursive containment is forbidden | SP3 | TYP-15, TYP-23 |  | covered |
+| D-075 | Primitive types: `u8`, `u16`, `u32`, `i8`, `i16`, `i32`, `bool` | SP3 | TYP-1, TYP-6, TYP-7, TYP-8 |  | covered |
+| D-076 | Byte arrays as `u8[N]` | SP3 | TYP-20 | OI-12 | covered |
+| D-077 | Zero-length and direct multidimensional arrays | SP3 | TYP-18, TYP-19 |  | covered |
 | D-078 | Whole-array assignment | SP6 | — |  | pending |
 | D-079 | fill(expression) | SP5 | — |  | pending |
 | D-080 | Indexed assignment order | SP6 | — | OI-9 | pending |
@@ -140,8 +140,8 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-096 | checked_convert<T> in constant expressions | SP4 | — |  | pending |
 | D-097 | Constant-evaluation boundary algorithm | SP4 | — | OI-11 | pending |
 | D-098 | Constant dependencies | SP4 | — |  | pending |
-| D-099 | Fixed-array lengths | SP4 | — |  | pending |
-| D-100 | No implicit boolean/numeric, array or structure conversions | SP3 | — |  | pending |
+| D-099 | Fixed-array lengths | SP4 | TYP-19 (length type); evaluation pending SP4 |  | partial |
+| D-100 | No implicit boolean/numeric, array or structure conversions | SP3 | TYP-5, TYP-7 |  | covered |
 | D-101 | No general truncating cast initially | SP5 | — |  | pending |
 | D-102 | Mixed binary operators require parentheses; no binary precedence hierarchy | SP5 | — |  | pending |
 | D-103 | Same-operator chains evaluate left to right; comparison chains forbidden | SP5 | — |  | pending |
@@ -161,15 +161,15 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-117 | References may target variables, fields and array elements; not temporaries | SP7 | — |  | pending |
 | D-118 | Reference and slice overlap | SP7 | — |  | pending |
 | D-119 | Array slices `array[start..end]` | SP7 | — | OI-10 | pending |
-| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | — |  | pending |
-| D-121 | By-value array parameters | SP7 | — |  | pending |
+| D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
+| D-121 | By-value array parameters | SP7 | TYP-21 (type form); passing pending SP7 |  | partial |
 | D-122 | Mutable global declaration initializers | SP9 | — |  | pending |
-| D-123 | Automatic defaults | SP9 | — |  | pending |
+| D-123 | Automatic defaults | SP9 | TYP-22 (default values); application pending SP9 |  | partial |
 | D-124 | Application-specific global setup | SP9 | — | OI-7 | pending |
 | D-125 | Runtime resources | SP13 | — |  | pending |
 | D-126 | Resource identifier space | SP13 | — |  | pending |
 | D-127 | Resource storage strategy and cleanup | SP13 | — | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | SP9 | — |  | pending |
+| D-128 | Array/structure defaults apply recursively | SP9 | TYP-22 (default values); application pending SP9 |  | partial |
 | D-129 | Global const requires an explicit initializer | SP4 | — |  | pending |
 | D-130 | Explicit array/structure construction remains complete | SP5 | — |  | pending |
 | D-131 | Nested transactions, including through function calls | SP10 | — | OI-3 | pending |
@@ -182,7 +182,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces) | SP13 | — | OI-15 | pending |
 | D-204 | Copying a resource identifier copies only the number | SP13 | — |  | pending |
 | D-205 | Language transactions do not automatically cover resource-API effects | SP13 | — |  | pending |
-| D-206 | Exceeding a runtime stack/execution limit traps | SP12 | — |  | pending |
+| D-206 | Exceeding a runtime stack/execution limit traps | SP12 | TYP-23; Annex B pending SP12/SP13 |  | partial |
 | D-207 | Commit failure never resumes after the block | SP10 | — |  | pending |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | — |  | pending |
 | D-209 | Published application/platform error-code meanings remain stable | SP12 | — | OI-15 | pending |
@@ -197,7 +197,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | — | OI-9 | pending |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | — | OI-10 | pending |
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | — | OI-11 | pending |
-| D-412 | No `byte` alias in Draft 0.1 | SP3 | — | OI-12 | pending |
+| D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | — | OI-13 | pending |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19 | OI-14 | covered |
 | D-415 | Trap-kind and placeholder platform-error names | SP12 | — | OI-15 | pending |
@@ -227,7 +227,13 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-318 | Enum variants and error members are always qualified | SP2 | NAM-16 |  | covered |
 | D-319 | Platform-supplied configuration structures and algorithm enums use the ordinary naming rules, with no imports, namespaces or private fields | SP2 | NAM-14 |  | covered |
 | D-320 | Plain `var` and combined qualifiers are forbidden at application scope | SP2 | NAM-9, NAM-10 |  | covered |
+| D-321 | Arrays are composite types, not extra primitive scalar types | SP3 | TYP-1 |  | covered |
+| D-322 | Every array length is a positive unsigned constant expression whose value fits in `u32` | SP3 | TYP-19 |  | covered |
+| D-323 | Unsized array types `T[]` exist only as `ref`/`inout` parameter types | SP3 | TYP-2, TYP-21 |  | covered |
+| D-324 | Structure field types are integers, booleans, enums, arrays and other structures | SP3 | TYP-14 |  | covered |
+| D-325 | A type declaration does not define physical layout, wire encoding or durable encoding | SP3 | TYP-9 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
 | D-426 | File-list duplicates are a build error; empty list allowed | SP2 | NAM-3 | OI-26 | covered |
+| D-427 | Storage representation is not language-visible | SP3 | TYP-9 | OI-27 | covered |

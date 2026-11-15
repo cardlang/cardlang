@@ -1,0 +1,10 @@
+// rule: TYP-21
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-5
+// note: An unsized local variable.
+function process() {
+    var data: u8[];
+    return Ok();
+}

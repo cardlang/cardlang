@@ -1,0 +1,7 @@
+// rule: TYP-20
+// source: D-412
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-2
+// note: `byte` is not a type name.
+session buffer: byte[4];

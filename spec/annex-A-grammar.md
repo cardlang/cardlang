@@ -91,10 +91,18 @@ Notes on these productions:
 - **Dotted names.** `Owner.Member`, `card.service.operation` and field access all parse as the member-access form of the expression grammar (§A.2.4). Chapter 3 (NAM-17) decides which meaning a dotted form has, from what its first segment resolves to. The grammar does not distinguish them.
 - **Later sections.** `Type` is defined in §A.2.2, `Expression` in §A.2.4, `Block` in §A.2.5, and `ParameterList` and `ReturnType` in §A.2.6.
 
+### A.2.2 Types (chapter 4)
+
+```
+Type ::= Identifier ( '[' Expression? ']' )*
+```
+
+The identifier must denote a type (TYP-3). A suffix with an expression forms a fixed array type, whose length must be a constant expression (TYP-19). An empty suffix `[]` forms an unsized array type, which is allowed only as a `ref`/`inout` parameter type (TYP-21). More than one suffix is rejected by TYP-18. The structure and enum declaration productions are in §A.2.1.
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
-| A.2.2 | Types | SP3 |
+| A.2.2 | Types | SP3 (done) |
 | A.2.3 | Constant expressions (shared with A.2.4) | SP4 |
 | A.2.4 | Expressions | SP5 |
 | A.2.5 | Statements and blocks | SP6 |

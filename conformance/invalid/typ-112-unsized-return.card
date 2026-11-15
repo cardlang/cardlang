@@ -1,0 +1,10 @@
+// rule: TYP-21
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-5
+// note: An unsized return type. The body is an endless loop, so it needs no `return` and the only error is the return type.
+function produce() -> u8[] {
+    while true {
+    }
+}

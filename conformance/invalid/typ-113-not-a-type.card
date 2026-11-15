@@ -1,0 +1,8 @@
+// rule: TYP-3
+// source: DN §4.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-1
+// note: A constant used where a type is required.
+const BASE: u32 = 4;
+session buffer: BASE;

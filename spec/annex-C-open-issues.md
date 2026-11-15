@@ -40,6 +40,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |
 | OI-25 | Primitive type names | Gap | SP2 | Resolved |
 | OI-26 | Build file-list constraints | Gap | SP2 | Resolved |
+| OI-27 | Boolean and enum storage representation | Contradiction | SP3 | Resolved |
 
 ---
 
@@ -228,7 +229,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate
 - **Sources:** DN §8 says "`byte` may be an alias for `u8`" and "The optional byte alias remains a separate naming proposal". D-076 is affected.
-- **Affected rules:** pending (SP3)
+- **Affected rules:** TYP-20
 - **Options:**
   - (a) Adopt `byte` as an exact alias of `u8`.
   - (b) Do not adopt it in Draft 0.1.
@@ -433,6 +434,23 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-426)
 - **Decision:** Recommendation adopted.
 
+## OI-27 — Boolean and enum storage representation
+
+- **Kind:** contradiction
+- **Sources:**
+  - DN §3.1 says "Boolean storage representation and detailed arithmetic rules still require specification".
+  - DN §3.9 says "Semantic defaults do not imply a particular physical boolean or storage representation".
+  - DN §3.11 says enum "Internal storage representation is a compiler/platform detail" and that declaration order is not a stable encoding.
+  - D-075 and D-325 are affected.
+- **Affected rules:** TYP-9
+- **Question:** Must the language fix how Boolean and enum values, and aggregates, are stored?
+- **Options:**
+  - (a) No. Representation is not language-visible. Persistent layout and its preservation across upgrades are platform-defined.
+  - (b) Yes. The language fixes concrete encodings.
+- **Recommendation:** (a). The DN §3.1 sentence is treated as superseded for storage. Its arithmetic part is covered by chapter 6.
+- **Status:** resolved 2026-11-15 (D-427)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -450,7 +468,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Pending: applied when SP4 drafts its chapter |
-| 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Pending: applied when SP3 drafts its chapter |
+| 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
 | 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
@@ -464,3 +482,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 (SP1) |
 | 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
 | 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 (SP2) |
+| 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 (SP3) |

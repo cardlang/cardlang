@@ -1,0 +1,9 @@
+// rule: TYP-14, TYP-21
+// source: DN §8.4
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-5
+// note: A field of unsized array type.
+struct Packet {
+    payload: u8[];
+}

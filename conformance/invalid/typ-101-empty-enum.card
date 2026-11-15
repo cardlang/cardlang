@@ -1,0 +1,8 @@
+// rule: TYP-10
+// source: DN §3.11
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-2
+// note: An enum with no variants.
+enum Empty {
+}

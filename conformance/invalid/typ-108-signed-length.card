@@ -1,0 +1,8 @@
+// rule: TYP-19
+// source: DN §3.10
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TYP-7
+// note: A length of signed type.
+const COUNT: i8 = 4;
+session buffer: u8[COUNT];

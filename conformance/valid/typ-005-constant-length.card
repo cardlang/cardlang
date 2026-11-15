@@ -1,0 +1,10 @@
+// rule: TYP-19
+// source: DN §3.10, §8.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Lengths given by constant expressions, including a typed `u16` constant.
+const BLOCK_SIZE: u32 = 32;
+const SMALL_COUNT: u16 = 4;
+session buffer: u8[BLOCK_SIZE * 4];
+session flags: bool[SMALL_COUNT];

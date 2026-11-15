@@ -1,0 +1,13 @@
+// rule: TYP-6, TYP-7
+// source: DN §3.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Globals of every primitive type.
+persistent small: u8;
+persistent medium: u16;
+persistent large: u32;
+session delta8: i8;
+session delta16: i16;
+session delta32: i32;
+session ready: bool;
