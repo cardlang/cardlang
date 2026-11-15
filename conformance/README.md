@@ -61,6 +61,16 @@ A fragment test must therefore not declare a `command` itself, and must not use 
 
 For `runtime/` tests, the way inputs are supplied is not defined yet. This covers request bytes, initial persistent and session state, and the sequence of commands, power-on events and resets. It depends on the host entry contract (chapter 12) and the runtime failure model (chapter 13), and will be defined in SP11 and SP12. Until then, `runtime/` tests state their scenario in `note` lines.
 
+## Checking the tests
+
+Until a compiler exists, the reference checkers in `tools/checkers/` verify the compile-time tests against the rules of chapters 2–10. Run them all from the repository root:
+
+```bash
+python -I tools/run_checks.py
+```
+
+See `tools/README.md` for details and known limitations.
+
 ## Relation to the specification
 
 - Each example in a spec chapter names its test file, for example *(conformance: `invalid/exp-014-mixed-operators.card`)*.

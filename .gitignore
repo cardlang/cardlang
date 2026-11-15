@@ -40,3 +40,7 @@ Desktop.ini
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# Python bytecode (tools/)
+__pycache__/
+*.pyc
