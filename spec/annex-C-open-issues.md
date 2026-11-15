@@ -1,0 +1,397 @@
+# Annex C — Open issues
+
+This annex records every contradiction, gap and proposal-to-validate found while writing the specification. The rules that depend on an issue are tagged [Proposal] or [Open] and cite it (§1.4). A **recommendation** is the specification authors' suggestion. It is not a decision. An issue is resolved only by a decision recorded in the resolution log at the end of this annex.
+
+**Entry format**
+
+- **Kind:** contradiction, gap, or proposal-to-validate. The kind *qualifier* marks the open part of an otherwise agreed decision, and *platform-deferred* marks an item that probably belongs to the platform layer.
+- **Sources:** DN and PN sections, and decision IDs.
+- **Affected rules:** filled in by sub-plans as they write rules.
+- **Question**, then **Options**, then **Recommendation**.
+- **Status:** open or resolved.
+
+## Summary
+
+| ID | Title | Kind | Owning SP | Status |
+|---|---|---|---|---|
+| OI-1 | Source file extension: fixed or not | Contradiction | SP1 | Resolved |
+| OI-2 | Platform notes still describe typed host commands | Contradiction | SP13 | Resolved |
+| OI-3 | Nested-transaction detection depends on the compiler | Contradiction | SP10 | Resolved |
+| OI-4 | Complete keyword and reserved-name list | Gap | SP1, SP2 | Resolved |
+| OI-5 | How the host entry point is identified | Gap | SP11 | Resolved |
+| OI-6 | Syntax for calling platform APIs | Gap | SP2, SP5 | Resolved |
+| OI-7 | Lifecycle-handler declaration and binding | Gap | SP9 | Resolved |
+| OI-8 | Positions where `attempt` may appear | Gap | SP5, SP8 | Resolved |
+| OI-9 | Evaluation order for compound assignment destinations | Gap | SP6 | Resolved |
+| OI-10 | Remaining slice details | Gap | SP7 | Resolved |
+| OI-11 | Constant-evaluation boundary and constant indices into mutable storage | Proposal-to-validate | SP4 | Resolved |
+| OI-12 | `byte` alias for `u8` | Proposal-to-validate | SP3 | Resolved |
+| OI-13 | Number of error sets, and forwarding intrinsic outcomes | Gap | SP8 | Resolved |
+| OI-14 | Lexical limits of integer literals | Gap | SP1 | Resolved |
+| OI-15 | Placeholder names for platform errors and traps | Gap (platform-deferred) | SP12, SP13 | Resolved |
+| OI-16 | Remaining semantics of explicit persistent state | Qualifier | SP9 | Resolved |
+| OI-17 | Object API for larger persistent data | Qualifier (platform-deferred) | SP13 | Resolved |
+| OI-18 | "Detailed typing open" for function results | Qualifier | SP8 | Resolved |
+| OI-19 | Size limits for atomic aggregate assignment | Qualifier | SP9 | Resolved |
+| OI-20 | Resource storage strategy | Qualifier (platform-deferred) | SP13 | Resolved |
+| OI-21 | Call-frame placement of by-value aggregates | Qualifier (proposal) | SP13 | Resolved |
+| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |
+
+---
+
+## OI-1 — Source file extension: fixed or not
+
+- **Kind:** contradiction
+- **Sources:** DN §1 says "The source extension and compiler executable name are not yet fixed". DN §2 row D-023 and DN §3.0 record `.card` as agreed.
+- **Affected rules:** pending (SP1, SP2)
+- **Question:** Is `.card` the normative source file extension?
+- **Options:**
+  - (a) `.card` is agreed, and the DN §1 sentence is stale for the extension (the compiler executable name stays unfixed).
+  - (b) The extension is not fixed, and the specification states no extension.
+- **Recommendation:** (a). The decision table and §3.0 are later and more specific. The executable name is a tooling matter outside the language in any case.
+- **Status:** resolved 2026-11-15 (D-401)
+- **Decision:** Option (a). `.card` is the normative source file extension. The DN §1 sentence is stale on this point. The compiler executable name stays unfixed (tooling).
+
+## OI-2 — Platform notes still describe typed host commands
+
+- **Kind:** contradiction
+- **Sources:** The PN §1 table says "`command` identifies a host-callable entry point | Dispatch, command identifiers, transport and request/response encoding". DN §4 (2026-11-15) and D-041/D-042 adopted a single byte-oriented entry point with application-side dispatch. D-043 is affected.
+- **Affected rules:** pending (SP11, SP13)
+- **Question:** Does the platform dispatch between commands by identifier?
+- **Options:**
+  - (a) No. The PN §1 row is superseded: the platform delivers every request to the one entry point, and "command identifiers" exist only inside the application's own protocol.
+  - (b) The platform keeps a dispatch layer, for example application selection, in front of the single entry point.
+- **Recommendation:** (a) for dispatch *within* an application. Application selection between isolated applications remains a platform matter (Annex B). The PN §1 table should be updated when you choose.
+- **Status:** resolved 2026-11-15 (D-402)
+- **Decision:** Option (a). The PN §1 "dispatch, command identifiers" row is superseded: there is no platform dispatch within an application, and every request enters the single entry point. Selecting between isolated applications remains a platform matter. The notes themselves are not edited.
+
+## OI-3 — Nested-transaction detection depends on the compiler
+
+- **Kind:** contradiction
+- **Sources:** DN §7.3 says "Reject nesting statically when the compiler can establish it. Otherwise the runtime checks … a violation traps". DN §3.10 states the goal that program acceptance must not depend on optimizer sophistication. D-131 is affected.
+- **Affected rules:** pending (SP10)
+- **Question:** When exactly is a nested transaction a compilation error rather than a trap?
+- **Options:**
+  - (a) **Always static, defined structurally.** It is a compilation error if a `transaction` block can reach a `transaction` statement through the static call graph: lexically, or in any function called, directly or transitively, from inside the block. Call targets are static and the call graph is acyclic (D-031), so this is decidable and independent of the compiler. It is conservative: it also rejects inner transactions on paths that are never taken. The runtime check stays as a VM safety net that a verified program never triggers.
+  - (b) **Always dynamic.** Never reject; the runtime traps when an inner transaction starts.
+  - (c) **As written.** Static rejection where an implementation can prove it, plus a runtime trap. Acceptance then varies between compilers.
+- **Recommendation:** (a).
+- **Status:** resolved 2026-11-15 (D-403)
+- **Decision:** Option (a). Nesting is always detected statically and structurally: it is a compilation error if a `transaction` block can reach a `transaction` statement lexically or through any function it calls, directly or transitively, on the static acyclic call graph. This also rejects paths that are never taken. The runtime check remains only as a VM safety net that a verified program never triggers.
+
+## OI-4 — Complete keyword and reserved-name list
+
+- **Kind:** gap
+- **Sources:** DN §3.0 says keywords cannot be identifiers but gives no list. DN §4.2 says built-ins and platform names are reserved. DN §3.6 says `abort` is reserved. D-044 is affected.
+- **Affected rules:** pending (SP1, SP2)
+- **Question:** Which spellings are keywords, which are reserved built-in names, and which platform names are reserved?
+- **Options:** Keywords, as they appear in the notes' syntax: `persistent session const var function command struct enum errors transaction abort attempt require else if while for in match return break continue true false not and or ref inout`. Then decide:
+  - (a) whether `Ok` and `Err` are keywords or reserved names;
+  - (b) whether the intrinsic names (`fill`, `convert`, `checked_convert`, `checked_add`/`sub`/`mul`/`div`/`rem`/`neg`, `wrapping_add`/`sub`/`mul`) are keywords or reserved identifiers;
+  - (c) which platform names are reserved: `card`, `CardError`, and the set the platform API catalog supplies;
+  - (d) whether to reserve likely future words now.
+- **Recommendation:**
+  - Take the keyword list above as-is.
+  - Make `Ok` and `Err` keywords.
+  - Make the intrinsics reserved identifiers that cannot be declared or shadowed.
+  - Reserve `card` and `CardError`, with the rest of the platform names platform-defined.
+  - Reserve no speculative words.
+  - `length` stays usable as a field name (DN §4.2).
+- **Status:** resolved 2026-11-15 (D-404)
+- **Decision:** Recommendation adopted.
+  - Keywords: `persistent session const var function command struct enum errors transaction abort attempt require else if while for in match return break continue true false not and or ref inout Ok Err`.
+  - The intrinsic names (`fill`, `convert`, `checked_convert`, `checked_add`/`sub`/`mul`/`div`/`rem`/`neg`, `wrapping_add`/`sub`/`mul`) are reserved identifiers that cannot be declared or shadowed.
+  - `card` and `CardError` are reserved; other platform names are platform-defined.
+  - No speculative words are reserved.
+  - `length` remains usable as a field name.
+
+## OI-5 — How the host entry point is identified
+
+- **Kind:** gap
+- **Sources:** DN §4 says "whether that spelling [`process`] is reserved or the sole command declaration identifies the entry remains a specification detail". D-041 is affected.
+- **Affected rules:** pending (SP11)
+- **Options:**
+  - (a) The single `command` declaration is the entry point; its name is chosen by the application.
+  - (b) The entry point must be named `process`.
+- **Recommendation:** (a). The `command` keyword already marks it, and DN §4 calls the parameter names illustrative.
+- **Status:** resolved 2026-11-15 (D-405)
+- **Decision:** Option (a). The single `command` declaration is the host entry point, and its name is chosen by the application.
+
+## OI-6 — Syntax for calling platform APIs
+
+- **Kind:** gap
+- **Sources:** DN §4.1 says a spelling such as `card.crypto...` "may be used without introducing a general application namespace system; the precise spelling is not fixed". DN §4.2 says dot access resolves from the receiver's type. DN §11.2 gives illustrative calls `card.resources.create(…)`.
+- **Affected rules:** pending (SP2, SP5)
+- **Question:** How does the grammar express a platform API call without a namespace system?
+- **Options:**
+  - (a) A distinct syntactic form for platform names: a reserved root `card` followed by `.` segments. It resolves only against the platform API catalog and is never a field access.
+  - (b) Flat reserved identifiers, such as `card_hash_update`.
+  - (c) Leave the call spelling to the platform specification, with a grammar hook only.
+- **Recommendation:** (a). It matches every example in the notes and keeps ordinary dot access type-directed.
+- **Status:** resolved 2026-11-15 (D-406)
+- **Decision:** Option (a). Platform API names use a distinct syntactic form: the reserved root `card` followed by `.` segments. It resolves only against the platform API catalog and is never a field access.
+
+## OI-7 — Lifecycle-handler declaration and binding
+
+- **Kind:** gap
+- **Sources:**
+  - DN §3.9: nondefault setup belongs in lifecycle handlers, but "No lifecycle callback syntax is introduced here".
+  - PN §3: handler names and signatures, registration and order are still to be specified.
+  - D-124 is affected.
+- **Affected rules:** pending (SP9)
+- **Question:** How does an application designate code to run on platform lifecycle events such as installation? Without this, nondefault persistent setup cannot be expressed.
+- **Options:**
+  - (a) Language syntax for handlers, for example a `handler` declaration naming an event.
+  - (b) Reserved function names and signatures supplied by the platform.
+  - (c) No language construct: the build configuration binds ordinary no-payload functions to platform events.
+- **Recommendation:** (c) for Draft 0.1. It needs no new syntax, which matches DN §3.9. The language then only has to state that such functions are ordinary functions, with no special semantics. Whether application code may also call them is to be decided with this issue.
+- **Status:** resolved 2026-11-15 (D-407)
+- **Decision:** Option (b), chosen over the recommendation. Lifecycle handlers are functions with platform-reserved names and signatures. The platform specification supplies the names, signatures and events. The remaining language-side questions are tracked as OI-22.
+
+## OI-8 — Positions where `attempt` may appear
+
+- **Kind:** gap
+- **Sources:**
+  - DN §6.3 says `attempt` is "an expression when a success value is needed".
+  - The notes use it in local initializers, assignment right-hand sides, `return Ok(attempt …)`, an index expression (`records[attempt choose_index()]`, DN §8.1) and a constructor field (DN §9.3).
+  - DN §3.7 forbids calls in arguments.
+  - D-014 and D-017 are affected.
+- **Affected rules:** pending (SP5, SP8)
+- **Options:**
+  - (a) `attempt call` is allowed in any runtime expression position, except:
+    - inside a call argument (the nested-call ban);
+    - in constant expressions;
+    - where its failure return would cross a transaction boundary.
+  - (b) It is allowed only in a whitelist of positions: initializers, assignment right-hand sides, `return Ok(…)`, index expressions and constructor fields.
+- **Recommendation:** (a). Note that in (a), an `attempt` in the right operand of `and`/`or` runs only when that operand is evaluated, under ordinary short-circuiting.
+- **Status:** resolved 2026-11-15 (D-408)
+- **Decision:** Option (a). `attempt call` may appear in any runtime expression position, except inside a call argument, in a constant expression, or where its failure return would cross a transaction boundary. In the right operand of `and`/`or` it runs only if that operand is evaluated.
+
+## OI-9 — Evaluation order for compound assignment destinations
+
+- **Kind:** gap
+- **Sources:** DN §8.2 defines the order for one indexed destination: index, then bounds check, then right-hand side, then store. DN §3.5 gives general left-to-right evaluation. D-080 is affected.
+- **Affected rules:** pending (SP6)
+- **Question:** What is the order for destinations like `a[i].b[j] = rhs` or `s.f[k] = rhs`?
+- **Options:**
+  - (a) Evaluate the whole destination path left to right first, with each index evaluated once and bounds-checked as it is reached. Then evaluate the right-hand side, then store.
+  - (b) Evaluate the right-hand side first.
+- **Recommendation:** (a). It directly generalizes the agreed single-index rule.
+- **Status:** resolved 2026-11-15 (D-409)
+- **Decision:** Option (a). The whole destination path is evaluated left to right first, with each index evaluated once and bounds-checked as it is reached. Then the right-hand side is evaluated, then the value is stored.
+
+## OI-10 — Remaining slice details
+
+- **Kind:** gap
+- **Sources:** DN §8.4 "Remaining slice specification details" lists five items. D-119 and D-120 are affected.
+- **Affected rules:** pending (SP7)
+- **Questions:**
+  1. Endpoint typing: are the allowed endpoint types the same as index types (`u8`/`u16`/`u32`)? Must both endpoints have the same type? Do literal-only endpoints get `u32` context?
+  2. The order in which receiver, start and end are evaluated, and which failed check is reported first.
+  3. Omitted endpoints (`a[..n]`), and slice expressions outside argument and receiver positions.
+  4. Whether a slice of known length can satisfy a fixed-size `T[N]` parameter.
+  5. Whole-region copy or fill assignment through a slice.
+- **Recommendation:** decide in SP7. Proposed defaults:
+  1. Index types, with independent typing of the two endpoints and `u32` context for literals.
+  2. Receiver, then start, then end; then the checks `start ≤ end` and `end ≤ length`.
+  3. No omitted endpoints, and slices only in reference-argument and receiver positions.
+  4. No.
+  5. Not added.
+- **Status:** resolved 2026-11-15 (D-410)
+- **Decision:** All proposed defaults adopted:
+  1. Endpoints use the index types `u8`/`u16`/`u32`, typed independently; literal-only endpoints get `u32` context.
+  2. Evaluation order: receiver, then start, then end; then the checks `start ≤ end` and `end ≤ length`.
+  3. No omitted endpoints; slices appear only as reference arguments and receivers.
+  4. A slice never satisfies a fixed-size `T[N]` parameter.
+  5. No whole-slice copy or fill assignment.
+
+## OI-11 — Constant-evaluation boundary and constant indices into mutable storage
+
+- **Kind:** proposal-to-validate, plus gap
+- **Sources:** DN §3.10 "Structural evaluation boundary (proposal for specification)" and its remaining classification question. D-029 and D-097 are affected.
+- **Affected rules:** pending (SP4)
+- **Questions:**
+  1. Adopt the six-step structural algorithm and the illustrative acceptance table in DN §3.10 as normative?
+  2. If a constant-only index is out of range for an array whose length is known from its type, but the array is in mutable storage (for example `buffer[200]` on a `u8[128]` session array), is that a compilation error or a runtime trap?
+- **Options for question 2:**
+  - (a) A compilation error. The index is constant-only and the length is type-known, so the check is structural.
+  - (b) A runtime trap.
+- **Recommendation:** adopt the algorithm. For question 2, choose (a), which is deterministic and in line with mandatory evaluation of constant-only parts.
+- **Status:** resolved 2026-11-15 (D-411)
+- **Decision:** Adopted. The six-step structural evaluation algorithm in DN §3.10, with its acceptance table, is normative. For question 2, option (a): a constant-only index that is out of range for an array whose length is known from its type is a compilation error, even when the array is in mutable storage.
+
+## OI-12 — `byte` alias for `u8`
+
+- **Kind:** proposal-to-validate
+- **Sources:** DN §8 says "`byte` may be an alias for `u8`" and "The optional byte alias remains a separate naming proposal". D-076 is affected.
+- **Affected rules:** pending (SP3)
+- **Options:**
+  - (a) Adopt `byte` as an exact alias of `u8`.
+  - (b) Do not adopt it in Draft 0.1.
+- **Recommendation:** (b). One spelling per type is simpler, and the alias can be added later without breaking programs.
+- **Status:** resolved 2026-11-15 (D-412)
+- **Decision:** Option (b). `byte` is not adopted in Draft 0.1.
+
+## OI-13 — Number of error sets, and forwarding intrinsic outcomes
+
+- **Kind:** gap
+- **Sources:** DN §6.3 says "One named error set per application initially" and lists the outcome consumption forms. DN §6.5 lists the outcome-producing intrinsics. D-018 and D-091 are affected.
+- **Questions:**
+  1. May an application declare **no** error set?
+  2. Is `return checked_add(a, b);` (whole-outcome forwarding of an intrinsic's outcome) allowed when the payload types match?
+- **Options:**
+  1. (a) At most one error set, zero allowed; or (b) exactly one, required.
+  2. (a) Allowed, because outcome-producing intrinsics follow the same consumption rules as calls (DN §6.3); or (b) forbidden.
+- **Recommendation:** 1(a) and 2(a).
+- **Status:** resolved 2026-11-15 (D-413)
+- **Decision:** 1(a): an application declares at most one error set, and zero are allowed. 2(a): outcome-producing intrinsics follow the same consumption rules as calls, including whole-outcome forwarding when payload types match.
+
+## OI-14 — Lexical limits of integer literals
+
+- **Kind:** gap
+- **Sources:** DN §3.0 (literal forms) and DN §3.3. D-036 and D-084 are affected. Note that a comparison of literal-only operands with no integer context (for example `1 == 1`) is **already settled** by DN §3.3: "missing or ambiguous integer context must not be resolved by guessing a default". It is a compilation error and is not part of this issue.
+- **Affected rules:** pending (SP1)
+- **Questions:**
+  1. Are the prefixes `0X` and `0B` (uppercase) accepted?
+  2. Are hex digits case-insensitive?
+  3. Is a prefix with no digits (`0x`) a lexical error?
+  4. Is a digit outside the base (`0b2`, `0xG`) a lexical error?
+  5. Is a literal whose value exceeds every integer type (more than 2³²−1) a lexical error or a typing error?
+- **Recommendation:**
+  1. Lowercase prefixes only.
+  2. Hex digits case-insensitive.
+  3. Lexical error.
+  4. Lexical error.
+  5. A typing error at the literal's expected type. The lexer does not limit magnitude.
+- **Status:** resolved 2026-11-15 (D-414)
+- **Decision:** Recommendation adopted:
+  - `0x` and `0b` prefixes are lowercase only.
+  - Hex digits are case-insensitive.
+  - A prefix with no digits, or a digit outside the base, is a lexical error.
+  - The lexer does not limit magnitude; range is a typing error at the literal's expected type.
+
+## OI-15 — Placeholder names for platform errors and traps
+
+- **Kind:** gap (platform-deferred)
+- **Sources:**
+  - DN §3.2, §6.2, §6.5: checked arithmetic and conversion errors are "platform-defined".
+  - DN §6.4: the trap list and catalog are platform work.
+  - PN §2: resource error names are placeholders.
+  - D-203 and D-209 are affected.
+- **Affected rules:** pending (SP5, SP12, SP13)
+- **Question:** Which names may chapters use until the platform catalogs exist?
+- **Recommendation:**
+  - Chapters use **language-level trap kinds** (chapter 13): `TRAP-OVERFLOW`, `TRAP-UNDERFLOW`, `TRAP-DIV-ZERO`, `TRAP-BOUNDS`, `TRAP-SHIFT`, `TRAP-NEGATION`, `TRAP-RESPONSE-COUNT`, `TRAP-NESTED-TXN`, `TRAP-COMMIT`, `TRAP-EXHAUSTED` (stack or execution budget) and `TRAP-VM` (invalid instruction or state).
+  - Chapters use **placeholder platform error names**: `CardError.Overflow`, `CardError.Underflow`, `CardError.DivisionByZero`, `CardError.ConversionRange`, `CardError.AlreadyExists`, `CardError.NotFound`, `CardError.WrongResourceType` and `CardError.Capacity`. Each is marked as a placeholder, and all codes are platform-defined.
+  - The final names are confirmed or replaced in SP12 and SP13.
+- **Status:** resolved 2026-11-15 (D-415)
+- **Decision:** Adopted. Chapters use the language-level trap kinds `TRAP-OVERFLOW`, `-UNDERFLOW`, `-DIV-ZERO`, `-BOUNDS`, `-SHIFT`, `-NEGATION`, `-RESPONSE-COUNT`, `-NESTED-TXN`, `-COMMIT`, `-EXHAUSTED` and `-VM`, and the placeholder platform errors `CardError.Overflow`, `.Underflow`, `.DivisionByZero`, `.ConversionRange`, `.AlreadyExists`, `.NotFound`, `.WrongResourceType` and `.Capacity`. All codes are platform-defined. SP12 and SP13 confirm or replace the names.
+
+## OI-16 — Remaining semantics of explicit persistent state
+
+- **Kind:** qualifier
+- **Sources:** D-008 says "Agreed direction; detailed semantics open". The DN §5 table lists "Initialization, updates, deletion, upgrades and transactions" as still to define.
+- **Affected rules:** pending (SP9)
+- **Note:** Initialization (DN §3.9), updates (DN §7.1) and transactions (DN §7.2) have since been specified in the notes. What remains is deletion, upgrades and migration.
+- **Recommendation:** the language covers declaration, defaults, atomic assignment and transactions. Deletion, upgrade and migration become platform-defined items in Annex B. Close this issue after SP9 confirms.
+- **Status:** resolved 2026-11-15 (D-416)
+- **Decision:** Recommendation adopted. The language covers declaration, defaults, atomic assignment and transactions. Persistent-state deletion, upgrade and migration are platform-defined items (Annex B).
+
+## OI-17 — Object API for larger persistent data
+
+- **Kind:** qualifier (platform-deferred)
+- **Sources:** D-009 says "Preferred direction accepted in discussion; API not designed". DN §5 is also relevant.
+- **Affected rules:** pending (SP13)
+- **Options:**
+  - (a) A platform API, outside the language.
+  - (b) A language feature.
+- **Recommendation:** (a), and not part of Draft 0.1. Annex B lists it as future platform work.
+- **Status:** resolved 2026-11-15 (D-417)
+- **Decision:** Recommendation adopted. The object API for larger persistent data is a future platform API, outside Draft 0.1. Annex B lists it as future work.
+
+## OI-18 — "Detailed typing open" for function results
+
+- **Kind:** qualifier
+- **Sources:** D-012 says "Agreed direction; detailed typing open". The typing was later developed in DN §6.3: transient outcomes, no `Result<T>`, and exact `attempt` typing (D-015–D-017).
+- **Affected rules:** pending (SP8)
+- **Recommendation:** treat this as resolved by DN §6.3 once SP8 has formalized the outcome typing rules. Close it at SP8 review.
+- **Status:** resolved 2026-11-15 (D-418)
+- **Decision:** Recommendation adopted. "Detailed typing open" is settled by DN §6.3 (transient outcomes, no `Result<T>`, exact `attempt` typing). SP8 formalizes it.
+
+## OI-19 — Size limits for atomic aggregate assignment
+
+- **Kind:** qualifier
+- **Sources:**
+  - D-057 says "aggregate limits and storage details open".
+  - DN §7.1: the maximum atomic-write size and the behavior for unsupported sizes need specification.
+  - DN §7.4 asks the same questions.
+- **Affected rules:** pending (SP9, SP13)
+- **Question:** What happens when a persistent aggregate assignment exceeds what the platform can update atomically?
+- **Options:**
+  - (a) The application is rejected at build or load time for that target profile.
+  - (b) The assignment traps at runtime.
+  - (c) The assignment silently becomes non-atomic. This is excluded, because limits must not change semantics (D-206).
+- **Recommendation:** (a). The limit values themselves are platform-defined (Annex B).
+- **Status:** resolved 2026-11-15 (D-419)
+- **Decision:** Option (a). A persistent aggregate assignment larger than the target can update atomically causes the application to be rejected at build or load time for that target profile. It never becomes non-atomic. The limit values are platform-defined.
+
+## OI-20 — Resource storage strategy
+
+- **Kind:** qualifier (platform-deferred)
+- **Sources:** D-127 says "Platform decisions; identifier API does not require a heap". DN §11.2 and PN §2 are also relevant.
+- **Affected rules:** pending (SP13)
+- **Recommendation:** close as a platform-defined item in Annex B. It has no language impact.
+- **Status:** resolved 2026-11-15 (D-420)
+- **Decision:** Recommendation adopted. Resource storage strategy is a platform-defined item in Annex B, with no language impact.
+
+## OI-21 — Call-frame placement of by-value aggregates
+
+- **Kind:** qualifier (proposal)
+- **Sources:** D-133 says "Temporary application RAM; call-frame placement proposed". DN §3.8 and PN §4 are also relevant.
+- **Affected rules:** pending (SP7, SP13)
+- **Recommendation:** the language rule stays at value semantics: an independent copy that lives for the call. Frame placement becomes informative VM guidance in Annex B. Close it at SP13.
+- **Status:** resolved 2026-11-15 (D-421)
+- **Decision:** Recommendation adopted. The language rule is value semantics: an independent copy that lives for the call. Call-frame placement is informative VM guidance in Annex B.
+
+## OI-22 — Language rules for lifecycle handler functions
+
+- **Kind:** gap, opened by the OI-7 resolution
+- **Sources:** OI-7 resolution (D-407); DN §3.9; PN §3
+- **Affected rules:** pending (SP9)
+- **Questions:**
+  1. May application code call a lifecycle handler function directly?
+  2. Do handlers follow all ordinary-function rules (always produce an outcome, may not recurse, and so on), with only the name and signature fixed by the platform?
+  3. Are the handler names reserved even when the application does not define them, and is defining a handler optional?
+- **Recommendation:**
+  1. No. This mirrors the rule that application code cannot call the `command`.
+  2. Yes.
+  3. Reserved always; optional unless the platform requires a particular handler.
+- **Status:** open
+
+---
+
+## Resolution log
+
+| Date | ID | Decision | Decided by | Spec changes |
+|---|---|---|---|---|
+| 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Pending: applied when SP10 drafts its chapter |
+| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
+| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Pending: applied when SP2 drafts its chapter |
+| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Pending: applied when SP5 drafts its chapter |
+| 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Pending: applied when SP6 drafts its chapter |
+| 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Pending: applied when SP7 drafts its chapter |
+| 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Pending: applied when SP4 drafts its chapter |
+| 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Pending: applied when SP3 drafts its chapter |
+| 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
+| 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
+| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Pending: applied when SP8 drafts its chapter |
+| 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
