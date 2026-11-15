@@ -63,8 +63,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-020 | Single application or completely isolated applications | Agreed; no cross-application calls/references/shared state | [Agreed] | language | DN §1, §4.1; PN §1 | SP2 |  | pending |
 | D-021 | Multiple source files form one application compilation unit | Agreed; explicit file list and build-supplied identity | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | pending |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | pending |
-| D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | Agreed | [Agreed] | language | DN §1, §3.0 | SP1 | OI-1 | pending |
-| D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | pending |
+| D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | Agreed | [Agreed] | language | DN §1, §3.0 | SP1 | OI-1 | LEX-1, LEX-2, LEX-3, LEX-12 |
+| D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |
 | D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | pending |
 | D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | pending |
@@ -76,15 +76,15 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | pending |
 | D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | pending |
 | D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | pending |
-| D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | pending |
-| D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | pending |
+| D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
+| D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-24 |
 | D-038 | Application declarations and struct fields visible across all source files | Agreed; no per-file privacy | [Agreed] | language | DN §4.1 | SP2 |  | pending |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | Omitted initially | [Agreed] | language | DN §4.1 | SP2 |  | pending |
 | D-040 | File order does not control name resolution or initialization order | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | pending |
 | D-041 | Host entry point | Exactly one command per application; ref u8[] request, inout u8[] response, successful u32 byte count | [Agreed] | language | DN §4 | SP11 | OI-5 | pending |
 | D-042 | Application protocol | Application parses and dispatches request bytes and encodes response bytes; no generated typed-command serialization | [Agreed] | language | DN §4 | SP11 |  | pending |
 | D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | pending |
-| D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | pending |
+| D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | LEX-15 (spellings); declaration ban pending SP2 |
 | D-045 | One shared top-level naming scope for types and values | Agreed; duplicate names forbidden | [Agreed] | language | DN §4.2 | SP2 |  | pending |
 | D-046 | No function overloading or local function/type/error-set definitions | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | pending |
 | D-047 | Fields and error members have owner-specific name scopes | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | pending |
@@ -193,19 +193,31 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 
 ## DN body-only decisions (D-301…)
 
-None registered yet. Sub-plans SP1–SP13 add rows here as they reach each DN section.
+Sub-plans add rows here as they reach each DN section.
 
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|---|
+| D-301 | Identifiers are case-sensitive ASCII: first character a letter or underscore, then letters, digits or underscores | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-12 |
+| D-302 | `_` alone is reserved for an ignored pattern | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-14 |
+| D-303 | No escaped or Unicode identifiers; keywords cannot be identifiers | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-12, LEX-13 |
+| D-304 | Comments may contain Unicode; identifiers and language tokens are ASCII | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-3 |
+| D-305 | Spaces, tabs and line breaks separate tokens; indentation has no semantic meaning | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-6 |
+| D-306 | Line comments `//` and block comments `/* */`; block comments do not nest; an unterminated block comment is a compilation error | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-7, LEX-8, LEX-9 |
+| D-307 | Integer literals are decimal, hexadecimal or binary; a leading zero does not mean octal | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-17 |
+| D-308 | Numeric underscores appear only between digits: no leading, trailing or consecutive underscores, and none directly after a base prefix | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-17, LEX-18 |
+| D-309 | No negative-literal token; negative values use unary `-` | Agreed (DN body text) | [Agreed] | language | DN §3.0, §6.5 | SP1 |  | LEX-20 |
+| D-310 | Boolean literals are exactly `true` and `false`; no string, character, floating-point or null literals | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-21 |
+| D-311 | File and line boundaries are preserved for diagnostics; a trailing comment or token cannot consume the next file's text | Agreed (DN body text) | [Agreed] | language | DN §3.0, §4.1 | SP1 |  | LEX-5, LEX-11 |
+| D-312 | Semicolons are mandatory; there is no automatic semicolon insertion | Agreed (DN body text) | [Agreed] | language | DN §3.0 | SP1 |  | LEX-23 |
 
 ## Open-issue resolutions (D-401…)
 
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|---|
-| D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | pending |
+| D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | LEX-1 |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | pending |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | pending |
-| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | pending |
+| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15; declaration ban pending SP2 |
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | pending |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
@@ -215,7 +227,7 @@ None registered yet. Sub-plans SP1–SP13 add rows here as they reach each DN se
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-11 | SP4 | OI-11 | pending |
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | pending |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | pending |
-| D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | pending |
+| D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19 |
 | D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | pending |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | pending |
 | D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | pending |
@@ -223,3 +235,5 @@ None registered yet. Sub-plans SP1–SP13 add rows here as they reach each DN se
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-19 | SP9 | OI-19 | pending |
 | D-420 | Resource storage strategy is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-20 | SP13 | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | pending |
+| D-423 | Leading UTF-8 byte-order mark ignored; LF, CR and CRLF are line breaks (CRLF counts once) | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-23 | SP1 | OI-23 | LEX-4, LEX-5 |
+| D-424 | Longest-match tokens; numeric-run rule for literals; no identifier length limit | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-24 | SP1 | OI-24 | LEX-10, LEX-16, LEX-18 |

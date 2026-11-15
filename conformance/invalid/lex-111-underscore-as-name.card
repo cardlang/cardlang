@@ -1,0 +1,7 @@
+// rule: LEX-14
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: A lone `_` used as a declaration name.
+const _: u8 = 1;

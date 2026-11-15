@@ -1,0 +1,13 @@
+// rule: LEX-17, LEX-19
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Decimal, hex and binary forms; separators; mixed-case hex; leading zero is decimal.
+const A: u32 = 123;
+const B: u8 = 0xA5;
+const C: u8 = 0b1010;
+const D: u32 = 1_000_000;
+const E: u32 = 0xDEAD_BEEF;
+const F: u32 = 0xdead_beef;
+const G: u8 = 007;

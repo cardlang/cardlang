@@ -1,0 +1,8 @@
+// rule: LEX-5, LEX-7
+// source: D-423
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Lines end with a lone CR, CRLF and LF. The line comment ends at the lone CR, so B is declared.
+const A: u32 = B; // this comment ends at a lone CRconst B: u32 = C;
+const C: u32 = 3;

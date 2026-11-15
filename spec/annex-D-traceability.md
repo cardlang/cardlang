@@ -22,7 +22,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | Spec file | Sub-plan | Design-note and platform-note sources | Rule IDs |
 |---|---|---|---|
 | 01-scope-and-conventions.md | SP0 | DN header, §1, §2, §3 (intro), §12, §13; PN §1 | none (conventions only) |
-| 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §6.5 (negative minimum) | pending |
+| 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-24 |
 | 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §4.1, §4.2, §5.1 | pending |
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.2, §9–§9.3 | pending |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.10 | pending |
@@ -34,7 +34,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 complete (LEX rules); A.2 pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -64,8 +64,8 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-020 | Single application or completely isolated applications | SP2 | — |  | pending |
 | D-021 | Multiple source files form one application compilation unit | SP2 | — |  | pending |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | — |  | pending |
-| D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | SP1 | — | OI-1 | pending |
-| D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | — |  | pending |
+| D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | SP1 | LEX-1, LEX-2, LEX-3, LEX-12 | OI-1 | covered |
+| D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |  | partial |
 | D-025 | No-value ordinary function signature | SP7 | — |  | pending |
 | D-026 | Function arguments | SP7 | — |  | pending |
 | D-027 | Calls inside argument expressions | SP5 | — |  | pending |
@@ -77,15 +77,15 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-033 | Successful function returns | SP7 | — |  | pending |
 | D-034 | Reachable function fall-through | SP6 | — |  | pending |
 | D-035 | Commands called by application code | SP11 | — |  | pending |
-| D-036 | Integer literals | SP1 | — | OI-14 | pending |
-| D-037 | No preprocessor/macros/textual includes | SP1 | — |  | pending |
+| D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
+| D-037 | No preprocessor/macros/textual includes | SP1 | LEX-24 |  | covered |
 | D-038 | Application declarations and struct fields visible across all source files | SP2 | — |  | pending |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | SP2 | — |  | pending |
 | D-040 | File order does not control name resolution or initialization order | SP2 | — |  | pending |
 | D-041 | Host entry point | SP11 | — | OI-5 | pending |
 | D-042 | Application protocol | SP11 | — |  | pending |
 | D-043 | Classical smart-card status | SP13 | — | OI-2 | pending |
-| D-044 | Platform interface names cannot be redefined | SP2 | — | OI-4 | pending |
+| D-044 | Platform interface names cannot be redefined | SP2 | LEX-15 (spellings); declaration ban pending SP2 | OI-4 | partial |
 | D-045 | One shared top-level naming scope for types and values | SP2 | — |  | pending |
 | D-046 | No function overloading or local function/type/error-set definitions | SP2 | — |  | pending |
 | D-047 | Fields and error members have owner-specific name scopes | SP2 | — |  | pending |
@@ -186,10 +186,10 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-207 | Commit failure never resumes after the block | SP10 | — |  | pending |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | — |  | pending |
 | D-209 | Published application/platform error-code meanings remain stable | SP12 | — | OI-15 | pending |
-| D-401 | Source file extension is `.card` | SP1 | — | OI-1 | pending |
+| D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | — | OI-2 | pending |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | — | OI-3 | pending |
-| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | — | OI-4 | pending |
+| D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15; declaration ban pending SP2 | OI-4 | partial |
 | D-405 | Entry point is the single `command` declaration, any name | SP11 | — | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | SP2 | — | OI-6 | pending |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
@@ -199,7 +199,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-411 | Constant-evaluation algorithm normative; constant OOB index is a compile error | SP4 | — | OI-11 | pending |
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | — | OI-12 | pending |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | — | OI-13 | pending |
-| D-414 | Literal prefix, digit and magnitude rules | SP1 | — | OI-14 | pending |
+| D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19 | OI-14 | covered |
 | D-415 | Trap-kind and placeholder platform-error names | SP12 | — | OI-15 | pending |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | — | OI-16 | pending |
 | D-417 | Large-data object API is future platform work | SP13 | — | OI-17 | pending |
@@ -207,3 +207,17 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | SP9 | — | OI-19 | pending |
 | D-420 | Resource storage strategy is platform-defined | SP13 | — | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | SP13 | — | OI-21 | pending |
+| D-301 | Identifiers are case-sensitive ASCII: first character a letter or underscore, then letters, digits or underscores | SP1 | LEX-12 |  | covered |
+| D-302 | `_` alone is reserved for an ignored pattern | SP1 | LEX-14 |  | covered |
+| D-303 | No escaped or Unicode identifiers | SP1 | LEX-12, LEX-13 |  | covered |
+| D-304 | Comments may contain Unicode | SP1 | LEX-3 |  | covered |
+| D-305 | Spaces, tabs and line breaks separate tokens | SP1 | LEX-6 |  | covered |
+| D-306 | Line comments `//` and block comments `/* */` | SP1 | LEX-7, LEX-8, LEX-9 |  | covered |
+| D-307 | Integer literals are decimal, hexadecimal or binary | SP1 | LEX-17 |  | covered |
+| D-308 | Numeric underscores appear only between digits: no leading, trailing or consecutive underscores, and none directly after a base prefix | SP1 | LEX-17, LEX-18 |  | covered |
+| D-309 | No negative-literal token | SP1 | LEX-20 |  | covered |
+| D-310 | Boolean literals are exactly `true` and `false` | SP1 | LEX-21 |  | covered |
+| D-311 | File and line boundaries are preserved for diagnostics | SP1 | LEX-5, LEX-11 |  | covered |
+| D-312 | Semicolons are mandatory | SP1 | LEX-23 |  | covered |
+| D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
+| D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |

@@ -1,0 +1,8 @@
+// rule: LEX-6, LEX-24
+// source: DN §3.0; D-037
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-LEX-2
+// note: There is no preprocessor; `#` cannot begin a token.
+#include "state.card"
+const A: u32 = 1;

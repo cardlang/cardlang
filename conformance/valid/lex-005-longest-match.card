@@ -1,0 +1,11 @@
+// rule: LEX-10, LEX-22
+// source: DN §3.0, §3.6
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Multi-character tokens written without spaces.
+const LIMIT: u32 = 16;
+const SMALL: bool = LIMIT<=32;
+session buffer: u8[16];
+function clear_buffer(){for index: u8 in 0..16{buffer[index]=0;}return Ok();}
+function limit()->u32{return Ok(LIMIT);}

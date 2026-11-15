@@ -36,13 +36,26 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 | `status` | yes | `agreed`, `proposal` or `open`: the strongest tag among the rules tested. A test that depends on a [Proposal] or [Open] rule is not normative until that rule is agreed |
 | `kind` | yes | `application` (a complete application, including its single `command`) or `fragment` (declarations checked on their own; see below) |
 | `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, `trap TRAP-<KIND>`, `outcome Ok`, `outcome Ok(<value>)` or `outcome Err(<ErrorSet.Member>)` |
+| `also` | no | Other compile-error classes an implementation may report in addition to `expect`. Used only when the violation being tested cannot avoid a second one (for example, a stray `*/` after a comment that may not cross files) |
 | `note` | no | One line of explanation |
 
-`expect: compile-error` names one compile-error class. When a test could fail for several reasons, it is rewritten so that only one rule is violated.
+`expect: compile-error` names one compile-error class: the one the test is about. A conforming implementation must report that class. It may also report the classes listed in `also`, and no others. Where possible, a test is written so that only one rule is violated and `also` is not needed.
+
+### Byte-exact files
+
+Some lexical tests depend on exact bytes: a byte-order mark, lone CR and CRLF line breaks, or invalid UTF-8. `.gitattributes` marks `conformance/**/*.card` as `-text`, so Git stores and checks out every test file unchanged. Edit such files with a tool that preserves bytes.
 
 ### Fragments
 
-Many specification examples are fragments: declarations without a host entry point. A `fragment` test is checked as if the harness added a minimal `command` that never uses the fragment's declarations. The harness's addition must not itself cause an error. The exact form of that scaffold depends on how the entry point is identified (OI-5), so it is defined in SP11.
+Many specification examples are fragments: declarations without a host entry point. A `fragment` test is checked as if the harness added the following file to the end of the test's file list. The entry point is the single `command` declaration, whatever its name (D-405).
+
+```text
+command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {
+    return Ok(0);
+}
+```
+
+A fragment test must therefore not declare a `command` itself, and must not use the name `scaffold_entry`. Chapter 12 (SP11) may restate this scaffold in its final syntax. If the syntax changes, this section is updated.
 
 ### Runtime tests [Open]
 

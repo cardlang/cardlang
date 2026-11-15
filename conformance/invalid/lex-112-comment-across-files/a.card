@@ -1,0 +1,9 @@
+// rule: LEX-8, LEX-11
+// source: DN §3.0, §4.1
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-LEX-3
+// also: CE-SYN-1
+// note: A block comment opened in a.card cannot be closed in b.card.
+const A: u32 = 1;
+/* opened in this file

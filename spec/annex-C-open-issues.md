@@ -36,6 +36,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-20 | Resource storage strategy | Qualifier (platform-deferred) | SP13 | Resolved |
 | OI-21 | Call-frame placement of by-value aggregates | Qualifier (proposal) | SP13 | Resolved |
 | OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |
+| OI-23 | Source text details: byte-order mark and line breaks | Gap | SP1 | Resolved |
+| OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |
 
 ---
 
@@ -43,7 +45,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** contradiction
 - **Sources:** DN §1 says "The source extension and compiler executable name are not yet fixed". DN §2 row D-023 and DN §3.0 record `.card` as agreed.
-- **Affected rules:** pending (SP1, SP2)
+- **Affected rules:** LEX-1
 - **Question:** Is `.card` the normative source file extension?
 - **Options:**
   - (a) `.card` is agreed, and the DN §1 sentence is stale for the extension (the compiler executable name stays unfixed).
@@ -83,7 +85,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §3.0 says keywords cannot be identifiers but gives no list. DN §4.2 says built-ins and platform names are reserved. DN §3.6 says `abort` is reserved. D-044 is affected.
-- **Affected rules:** pending (SP1, SP2)
+- **Affected rules:** LEX-13, LEX-15; chapter 3 pending (SP2)
 - **Question:** Which spellings are keywords, which are reserved built-in names, and which platform names are reserved?
 - **Options:** Keywords, as they appear in the notes' syntax: `persistent session const var function command struct enum errors transaction abort attempt require else if while for in match return break continue true false not and or ref inout`. Then decide:
   - (a) whether `Ok` and `Err` are keywords or reserved names;
@@ -250,7 +252,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §3.0 (literal forms) and DN §3.3. D-036 and D-084 are affected. Note that a comparison of literal-only operands with no integer context (for example `1 == 1`) is **already settled** by DN §3.3: "missing or ambiguous integer context must not be resolved by guessing a default". It is a compilation error and is not part of this issue.
-- **Affected rules:** pending (SP1)
+- **Affected rules:** LEX-17, LEX-18, LEX-19
 - **Questions:**
   1. Are the prefixes `0X` and `0B` (uppercase) accepted?
   2. Are hex digits case-insensitive?
@@ -368,16 +370,49 @@ This annex records every contradiction, gap and proposal-to-validate found while
   3. Reserved always; optional unless the platform requires a particular handler.
 - **Status:** open
 
+## OI-23 — Source text details: byte-order mark and line breaks
+
+- **Kind:** gap
+- **Sources:** DN §3.0 ("Source files are UTF-8"; "Spaces, tabs and line breaks separate tokens"); D-023
+- **Affected rules:** LEX-4, LEX-5
+- **Questions:**
+  1. Is a UTF-8 byte-order mark at the start of a file permitted and ignored, or an error?
+  2. Which sequences are line breaks: LF, CR, CRLF?
+- **Options:**
+  1. Ignored or error.
+  2. All three, or LF and CRLF only.
+- **Recommendation:**
+  1. Ignored, because common Windows editors write one.
+  2. All three, with CRLF counting as one line break.
+- **Status:** resolved 2026-11-15 (D-423)
+- **Decision:** Recommendation adopted.
+
+## OI-24 — Token formation and identifier length
+
+- **Kind:** gap
+- **Sources:** DN §3.0; OI-14 resolution (D-414)
+- **Affected rules:** LEX-10, LEX-16, LEX-18
+- **Questions:**
+  1. Is the longest possible token always taken?
+  2. Is a numeric literal the longest run of letters, digits and `_` starting with a digit, which must wholly match a literal form? This is how the OI-14 decision is implemented.
+  3. Is there a maximum identifier length?
+- **Recommendation:**
+  1. Yes.
+  2. Yes.
+  3. No language limit. A tool may report a limit but must not silently truncate.
+- **Status:** resolved 2026-11-15 (D-424)
+- **Decision:** Recommendation adopted.
+
 ---
 
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
 |---|---|---|---|---|
-| 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
 | 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Pending: applied when SP10 drafts its chapter |
-| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied in chapter 2: LEX-13, LEX-15 (SP1); declaration ban in chapter 3 (SP2) |
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Pending: applied when SP2 drafts its chapter |
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
@@ -387,7 +422,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Pending: applied when SP4 drafts its chapter |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Pending: applied when SP3 drafts its chapter |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Pending: applied when SP8 drafts its chapter |
-| 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Pending: applied when SP1 drafts its chapter |
+| 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
 | 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
 | 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
@@ -395,3 +430,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Pending: applied when SP9 drafts its chapter |
 | 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 (SP1) |
+| 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 (SP1) |

@@ -7,7 +7,7 @@ This is the normative specification of the CardLang language. It is being writte
 | File | Chapter | Sub-plan | Status |
 |---|---|---|---|
 | [01-scope-and-conventions.md](01-scope-and-conventions.md) | 1 Scope and conventions | SP0 | Draft complete |
-| 02-lexical-structure.md | 2 Lexical structure | SP1 | Not started |
+| [02-lexical-structure.md](02-lexical-structure.md) | 2 Lexical structure | SP1 | Draft complete |
 | 03-program-structure-and-names.md | 3 Program structure and names | SP2 | Not started |
 | 04-types.md | 4 Types | SP3 | Not started |
 | 05-constant-expressions.md | 5 Constant expressions | SP4 | Not started |
@@ -19,9 +19,9 @@ This is the normative specification of the CardLang language. It is being writte
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| annex-A-grammar.md | A Grammar | SP1–SP14 | Not started |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 lexical complete; A.2 skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21 resolved 2026-11-15; OI-22 open |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23, OI-24 resolved; OI-22 open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Skeleton |
 
 Related files:
@@ -33,7 +33,8 @@ Related files:
 
 | Chapter | Rules | [Agreed] | [Proposal] | [Open] |
 |---|---|---|---|---|
-| — | 0 | 0 | 0 | 0 |
+| 2 Lexical structure | 24 | 24 | 0 | 0 |
+| **Total** | 24 | 24 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -41,7 +42,11 @@ Each sub-plan updates this table when its chapter is drafted.
 
 | Class | Meaning | Defined in |
 |---|---|---|
-| — | None defined yet | — |
+| CE-LEX-1 | File is not valid UTF-8 | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
+| CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
+| CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
+| CE-LEX-4 | Malformed numeric literal | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
+| CE-SYN-1 | No derivation of the grammar exists | [Annex A §A.0](annex-A-grammar.md#a0-syntax-errors) |
 
 ## Index of trap kinds
 

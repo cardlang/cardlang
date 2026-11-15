@@ -77,6 +77,7 @@ Normative rules have stable identifiers with a chapter prefix:
 | `HEP` | 12 Host entry point |
 | `RTF` | 13 Runtime failures |
 | `PLT` | Annex B Platform contract |
+| `SYN` | Annex A Grammar. Used only for the compile-error class `CE-SYN-1`, "no derivation of the grammar exists", for input that violates the syntax without violating a chapter rule |
 
 A rule is written as a heading line followed by its text, then a sources line:
 
@@ -108,6 +109,9 @@ Grammar fragments in chapters, and the complete grammar in Annex A, use W3C-styl
 | `A+` | One or more |
 | `( … )` | Grouping |
 | `[a-z]` | Character class (lexical grammar only) |
+| `[^…]` | Any character not in the class (lexical grammar only) |
+| `#xN` | The character with hexadecimal code point N (lexical grammar only) |
+| `A - B` | Any string matching A that does not match B |
 | `/* … */` | Comment |
 
 Lexical productions (characters to tokens) and syntactic productions (tokens to program structure) are kept in separate sections of Annex A. Whitespace and comments separate tokens and never appear in syntactic productions.

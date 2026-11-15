@@ -1,0 +1,10 @@
+// rule: LEX-12, LEX-14
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Identifier forms, including a leading underscore.
+const counter: u32 = 1;
+const account_balance: u32 = 2;
+const _x: u8 = 3;
+const MAX_ACCOUNTS: u16 = 16;

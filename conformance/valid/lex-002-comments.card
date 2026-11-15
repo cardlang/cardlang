@@ -1,0 +1,10 @@
+// rule: LEX-3, LEX-7, LEX-8, LEX-9
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Comments, Unicode inside comments, comment markers inside comments.
+// Grüße: comments may contain Unicode. /* This does not open a block comment.
+/* A block comment,
+   spanning lines. // This is still inside the block comment. */
+const LIMIT: u32 = 100; // A line comment after a declaration.

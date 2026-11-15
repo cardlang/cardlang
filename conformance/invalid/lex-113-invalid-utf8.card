@@ -1,0 +1,8 @@
+// rule: LEX-2
+// source: DN ยง3.0
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-LEX-1
+// note: A comment contains the byte FF, which is never valid UTF-8.
+// invalid byte: ÿ
+const A: u32 = 1;

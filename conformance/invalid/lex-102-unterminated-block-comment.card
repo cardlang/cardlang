@@ -1,0 +1,9 @@
+// rule: LEX-8
+// source: DN §3.0
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-LEX-3
+// note: A block comment that is never closed.
+const A: u32 = 1;
+/* This comment is never closed.
+const B: u32 = 2;

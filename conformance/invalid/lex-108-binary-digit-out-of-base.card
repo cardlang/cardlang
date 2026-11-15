@@ -1,0 +1,7 @@
+// rule: LEX-17, LEX-18
+// source: DN §3.0; D-414
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-LEX-4
+// note: Digit outside the base.
+const A: u8 = 0b102;
