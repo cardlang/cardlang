@@ -1,0 +1,30 @@
+// rule: STA-11, STA-12
+// source: DN §7.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Persistent assignments to scalars, fields, elements and whole aggregates.
+struct Identity {
+    identifier: u8[4];
+    version: u16;
+}
+
+struct Account {
+    identity: Identity;
+    balance: u32;
+    counters: u32[8];
+}
+
+persistent account: Account;
+persistent replacement: Account;
+persistent balance: u32;
+persistent identifier: u8[4];
+
+function update(amount: u32) {
+    balance = balance - amount;
+    account.identity.version = 2;
+    account.counters[0] = account.counters[0] + 1;
+    account = replacement;
+    identifier = fill(0);
+    return Ok();
+}

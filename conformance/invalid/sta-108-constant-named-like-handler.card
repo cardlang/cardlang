@@ -1,0 +1,7 @@
+// rule: STA-8, NAM-14
+// source: D-422
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-5
+// note: A constant using a handler name.
+const on_install: u32 = 1;

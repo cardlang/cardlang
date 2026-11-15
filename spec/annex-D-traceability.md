@@ -30,11 +30,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-22 |
 | 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-23 |
 | 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
-| 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1 | pending |
+| 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §7.2–§7.4; PN §5 | pending |
 | 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.7 complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.8 complete; rest pending |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -45,11 +45,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-001 | Language name: CardLang | SP0 | 01 §1.1 |  | covered |
 | D-002 | Custom card-oriented language | SP0 | 01 §1.1 |  | covered |
 | D-003 | Global declarations: `persistent`, `session` or `const` | SP2 | NAM-6, NAM-9 |  | covered |
-| D-004 | `persistent` and `session` imply mutable state | SP9 | — |  | pending |
+| D-004 | `persistent` and `session` imply mutable state | SP9 | STA-1 |  | covered |
 | D-005 | Global `const` declares a compile-time constant | SP4 | CEX-1, CEX-2 |  | covered |
 | D-006 | Local value declarations use `var` only | SP6 | NAM-10, STM-4 |  | covered |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
-| D-008 | Explicit persistent state | SP9 | — | OI-16 | pending |
+| D-008 | Explicit persistent state | SP9 | STA-3, STA-11 | OI-16 | covered |
 | D-009 | Simple persistent declarations plus an object API for larger data | SP13 | — | OI-17 | pending |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | SP8 | OUT-1 |  | covered |
 | D-011 | No general-purpose exceptions initially | SP8 | OUT-1 |  | covered |
@@ -91,14 +91,14 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-047 | Fields and error members have owner-specific name scopes | SP2 | NAM-15, NAM-16, NAM-17 |  | covered |
 | D-048 | Local binding visible only after its initializer completes | SP2 | NAM-19, NAM-20, NAM-22 |  | covered |
 | D-049 | Command execution | SP11 | — |  | pending |
-| D-050 | Session state at chip power-on | SP9 | — |  | pending |
-| D-051 | Ordinary traps preserve application session state | SP12 | — |  | pending |
+| D-050 | Session state at chip power-on | SP9 | STA-4 |  | covered |
+| D-051 | Ordinary traps preserve application session state | SP12 | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |  | partial |
 | D-052 | Runtime-owned resources on ordinary trap | SP13 | — |  | pending |
-| D-053 | Session/persistent logical consistency | SP12 | — |  | pending |
-| D-054 | Runtime-issued security reset | SP12 | — |  | pending |
+| D-053 | Session/persistent logical consistency | SP12 | STA-14; pending chapter 13 (SP12) |  | partial |
+| D-054 | Runtime-issued security reset | SP12 | STA-4 (session cleared); reset rules pending chapter 13 (SP12) |  | partial |
 | D-055 | Transactions roll back persistent changes only | SP10 | — |  | pending |
 | D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | — |  | pending |
-| D-057 | Each persistent assignment is atomic | SP9 | — | OI-19 | pending |
+| D-057 | Each persistent assignment is atomic | SP9 | STA-11, STA-12 | OI-19 | covered |
 | D-058 | Explicit handling of overflow and underflow | SP5 | EXP-23 |  | covered |
 | D-059 | Global/local arrays of supported fixed-size values | SP3 | TYP-1, TYP-11, TYP-18 |  | covered |
 | D-060 | Array type syntax `T[N]` | SP3 | TYP-17 |  | covered |
@@ -163,13 +163,13 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-119 | Array slices `array[start..end]` | SP7 | FUN-18, FUN-20 | OI-10 | covered |
 | D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | SP7 | TYP-21, FUN-8, FUN-21 |  | covered |
 | D-121 | By-value array parameters | SP7 | TYP-21, FUN-8 |  | covered |
-| D-122 | Mutable global declaration initializers | SP9 | — |  | pending |
-| D-123 | Automatic defaults | SP9 | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |  | partial |
-| D-124 | Application-specific global setup | SP9 | — | OI-7 | pending |
+| D-122 | Mutable global declaration initializers | SP9 | STA-2 |  | covered |
+| D-123 | Automatic defaults | SP9 | TYP-22, STM-5, STA-3, STA-4 |  | covered |
+| D-124 | Application-specific global setup | SP9 | STA-5 | OI-7 | covered |
 | D-125 | Runtime resources | SP13 | — |  | pending |
 | D-126 | Resource identifier space | SP13 | — |  | pending |
 | D-127 | Resource storage strategy and cleanup | SP13 | — | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | SP9 | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |  | partial |
+| D-128 | Array/structure defaults apply recursively | SP9 | TYP-22, STM-5, STA-3, STA-4 |  | covered |
 | D-129 | Global const requires an explicit initializer | SP4 | CEX-1 |  | covered |
 | D-130 | Explicit array/structure construction remains complete | SP5 | EXP-43, EXP-45 |  | covered |
 | D-131 | Nested transactions, including through function calls | SP10 | — | OI-3 | pending |
@@ -192,7 +192,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15, NAM-14 | OI-4 | covered |
 | D-405 | Entry point is the single `command` declaration, any name | SP11 | — | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | SP2 | NAM-17, NAM-18 | OI-6 | covered |
-| D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | — | OI-7 | pending |
+| D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | STA-5 | OI-7 | covered |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51, OUT-8, OUT-10 | OI-8 | covered |
 | D-409 | Assignment: destination path first, then RHS, then store | SP6 | STM-9 | OI-9 | covered |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | SP7 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 | OI-10 | covered |
@@ -201,10 +201,10 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | OUT-5, OUT-15 | OI-13 | covered |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19, EXP-7 | OI-14 | covered |
 | D-415 | Trap-kind and placeholder platform-error names | SP12 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) | OI-15 | partial |
-| D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | — | OI-16 | pending |
+| D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | STA-3; platform items pending Annex B (SP13) | OI-16 | partial |
 | D-417 | Large-data object API is future platform work | SP13 | — | OI-17 | pending |
 | D-418 | Outcome typing settled by DN §6.3 | SP8 | OUT-1, OUT-2 | OI-18 | covered |
-| D-419 | Oversized atomic aggregate assignment rejected at build/load time | SP9 | — | OI-19 | pending |
+| D-419 | Oversized atomic aggregate assignment rejected at build/load time | SP9 | STA-13 | OI-19 | covered |
 | D-420 | Resource storage strategy is platform-defined | SP13 | — | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | SP13 | — | OI-21 | pending |
 | D-301 | Identifiers are case-sensitive ASCII: first character a letter or underscore, then letters, digits or underscores | SP1 | LEX-12 |  | covered |
@@ -275,6 +275,12 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-366 | Published error codes must not change meaning or be reused after removal | SP8 | OUT-17 |  | covered |
 | D-367 | Platform errors use the reserved `CardError` namespace, which applications cannot impersonate | SP8 | OUT-18, OUT-19 |  | covered |
 | D-368 | Returning or propagating `Err` is not a rollback request | SP8 | OUT-20 |  | covered |
+| D-369 | Persistent defaults apply once, when persistent state is first created | SP9 | STA-3 |  | covered |
+| D-370 | Setup writing persistent values is distinct from volatile setup | SP9 | STA-5 |  | covered |
+| D-371 | A persistent assignment is atomic: after interruption the destination holds its complete old or complete new value | SP9 | STA-11, STA-12 |  | covered |
+| D-372 | Two persistent assignments are not collectively atomic without a transaction | SP9 | STA-12 |  | covered |
+| D-373 | Whole-structure and whole-array assignment, including fill, is atomic for the whole destination | SP9 | STA-11 |  | covered |
+| D-374 | Global means application-wide | SP9 | STA-1 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
@@ -290,3 +296,5 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-435 | for index or pattern binding may be passed as ref | SP7 | FUN-9, FUN-10 | OI-35 | covered |
 | D-436 | An error set must declare at least one member | SP8 | OUT-15 | OI-36 | covered |
 | D-437 | Application code may name `CardError` members only in `Err` patterns | SP8 | OUT-4, OUT-19, STM-19 | OI-37 | covered |
+| D-422 | Lifecycle handlers: not callable from application code | SP9 | STA-7, STA-8, STA-9, STA-10, NAM-14 | OI-22 | covered |
+| D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | SP9 | STA-6, NAM-14 | OI-38 | covered |

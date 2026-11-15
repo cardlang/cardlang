@@ -1,0 +1,22 @@
+// rule: STA-1, STA-2
+// source: DN §3.9, §5.1
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Persistent and session globals without initializers.
+struct Account {
+    balance: u32;
+    identifier: u8[4];
+}
+
+enum Mode {
+    Off;
+    On;
+}
+
+persistent balance: u32;
+persistent account: Account;
+persistent history: u32[8];
+session authenticated: bool;
+session mode: Mode;
+session scratch: u8[128];

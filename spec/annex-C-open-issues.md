@@ -35,7 +35,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-19 | Size limits for atomic aggregate assignment | Qualifier | SP9 | Resolved |
 | OI-20 | Resource storage strategy | Qualifier (platform-deferred) | SP13 | Resolved |
 | OI-21 | Call-frame placement of by-value aggregates | Qualifier (proposal) | SP13 | Resolved |
-| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |
+| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Resolved |
 | OI-23 | Source text details: byte-order mark and line breaks | Gap | SP1 | Resolved |
 | OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |
 | OI-25 | Primitive type names | Gap | SP2 | Resolved |
@@ -51,6 +51,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-35 | `ref` to read-only bindings | Gap | SP7 | Resolved |
 | OI-36 | Empty error set | Gap | SP8 | Resolved |
 | OI-37 | Application use of `CardError` members | Gap | SP8 | Resolved |
+| OI-38 | Placeholder lifecycle handler names | Gap | SP9 | Resolved |
 
 ---
 
@@ -153,7 +154,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - DN §3.9: nondefault setup belongs in lifecycle handlers, but "No lifecycle callback syntax is introduced here".
   - PN §3: handler names and signatures, registration and order are still to be specified.
   - D-124 is affected.
-- **Affected rules:** pending (SP9)
+- **Affected rules:** STA-5 to STA-10
 - **Question:** How does an application designate code to run on platform lifecycle events such as installation? Without this, nondefault persistent setup cannot be expressed.
 - **Options:**
   - (a) Language syntax for handlers, for example a `handler` declaration naming an event.
@@ -306,7 +307,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier
 - **Sources:** D-008 says "Agreed direction; detailed semantics open". The DN §5 table lists "Initialization, updates, deletion, upgrades and transactions" as still to define.
-- **Affected rules:** pending (SP9)
+- **Affected rules:** STA-3
 - **Note:** Initialization (DN §3.9), updates (DN §7.1) and transactions (DN §7.2) have since been specified in the notes. What remains is deletion, upgrades and migration.
 - **Recommendation:** the language covers declaration, defaults, atomic assignment and transactions. Deletion, upgrade and migration become platform-defined items in Annex B. Close this issue after SP9 confirms.
 - **Status:** resolved 2026-11-15 (D-416)
@@ -340,7 +341,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - D-057 says "aggregate limits and storage details open".
   - DN §7.1: the maximum atomic-write size and the behavior for unsupported sizes need specification.
   - DN §7.4 asks the same questions.
-- **Affected rules:** pending (SP9, SP13)
+- **Affected rules:** STA-13
 - **Question:** What happens when a persistent aggregate assignment exceeds what the platform can update atomically?
 - **Options:**
   - (a) The application is rejected at build or load time for that target profile.
@@ -372,7 +373,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap, opened by the OI-7 resolution
 - **Sources:** OI-7 resolution (D-407); DN §3.9; PN §3
-- **Affected rules:** pending (SP9)
+- **Affected rules:** STA-7, STA-8, STA-9, STA-10; NAM-14
 - **Questions:**
   1. May application code call a lifecycle handler function directly?
   2. Do handlers follow all ordinary-function rules (always produce an outcome, may not recurse, and so on), with only the name and signature fixed by the platform?
@@ -381,7 +382,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
   1. No. This mirrors the rule that application code cannot call the `command`.
   2. Yes.
   3. Reserved always; optional unless the platform requires a particular handler.
-- **Status:** open
+- **Status:** resolved 2026-11-15 (D-422)
+- **Decision:** Recommendation adopted for all three questions.
 
 ## OI-23 — Source text details: byte-order mark and line breaks
 
@@ -608,6 +610,19 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-437)
 - **Decision:** Option (a).
 
+## OI-38 — Placeholder lifecycle handler names
+
+- **Kind:** gap, opened by the OI-7 decision
+- **Sources:** D-407 (handlers have platform-reserved names and signatures); D-415 (the precedent of placeholder names); PN §3
+- **Affected rules:** STA-6; NAM-14
+- **Question:** Which handler names and signatures may chapters and tests use before the platform catalog exists?
+- **Recommendation:**
+  - `on_install()`: no parameters and no payload. It runs once, after persistent state is created.
+  - `on_power_on()`: no parameters and no payload. It runs after session defaults are applied at power-on.
+  - Both are marked as placeholders, and Annex B confirms or replaces them.
+- **Status:** resolved 2026-11-15 (D-438)
+- **Decision:** Recommendation adopted.
+
 ---
 
 ## Resolution log
@@ -620,7 +635,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
-| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied in chapter 10: STA-5 to STA-10 (SP9); catalog pending Annex B (SP13) |
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 (SP6) |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 (SP7) |
@@ -629,10 +644,10 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 (SP8) |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
 | 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
-| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied in chapter 10: STA-3 (SP9); platform items pending Annex B (SP13) |
 | 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14 (SP8); closed |
-| 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Pending: applied when SP9 drafts its chapter |
+| 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Applied in chapter 10: STA-13 (SP9) |
 | 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 (SP1) |
@@ -650,3 +665,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-35 | for index or pattern binding may be passed as ref (D-435) | User | Applied in chapter 8: FUN-9 (SP7) |
 | 2026-11-15 | OI-36 | An error set needs at least one member (D-436) | User | Applied in chapter 9: OUT-15 (SP8) |
 | 2026-11-15 | OI-37 | CardError members only in patterns (D-437) | User | Applied in chapter 9: OUT-4, OUT-19; chapter 7: STM-19 (SP8) |
+| 2026-11-15 | OI-22 | Lifecycle handler rules (D-422) | User | Applied in chapter 10: STA-7 to STA-10 (SP9) |
+| 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 (SP9) |

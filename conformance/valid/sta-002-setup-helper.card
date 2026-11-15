@@ -1,0 +1,15 @@
+// rule: STA-4, STA-5
+// source: DN §3.9
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A setup helper that sets session values from constants.
+session retry_limit: u8;
+session scratch: u8[128];
+const DEFAULT_RETRY_LIMIT: u8 = 3;
+
+function example_setup() {
+    retry_limit = DEFAULT_RETRY_LIMIT;
+    scratch = fill(0xFF);
+    return Ok();
+}

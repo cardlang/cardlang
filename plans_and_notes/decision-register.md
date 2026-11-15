@@ -44,11 +44,11 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-001 | Language name: CardLang | Agreed | [Agreed] | language | DN §1 | SP0 |  | 01 §1.1 |
 | D-002 | Custom card-oriented language | Agreed direction | [Agreed] | language | DN §1 | SP0 |  | 01 §1.1 |
 | D-003 | Global declarations: `persistent`, `session` or `const` | Agreed; exactly one keyword | [Agreed] | language | DN §5.1 | SP2 |  | NAM-6, NAM-9 |
-| D-004 | `persistent` and `session` imply mutable state | Agreed | [Agreed] | language | DN §5.1 | SP9 |  | pending |
+| D-004 | `persistent` and `session` imply mutable state | Agreed | [Agreed] | language | DN §5.1 | SP9 |  | STA-1 |
 | D-005 | Global `const` declares a compile-time constant | Agreed | [Agreed] | language | DN §5.1, §3.10 | SP4 |  | CEX-1, CEX-2 |
 | D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | NAM-10, STM-4 |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
-| D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | pending |
+| D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | STA-3, STA-11 |
 | D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | pending |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | Agreed direction | [Agreed] | language | DN §6.1, §6.4 | SP8 |  | OUT-1 |
 | D-011 | No general-purpose exceptions initially | Agreed direction | [Agreed] | language | DN §6.1 | SP8 |  | OUT-1 |
@@ -90,14 +90,14 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-047 | Fields and error members have owner-specific name scopes | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-15, NAM-16, NAM-17 |
 | D-048 | Local binding visible only after its initializer completes | Agreed | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | NAM-19, NAM-20, NAM-22 |
 | D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | pending |
-| D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | pending |
-| D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | pending |
+| D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | STA-4 |
+| D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |
 | D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | pending |
-| D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | pending |
-| D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | pending |
+| D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | STA-14; pending chapter 13 (SP12) |
+| D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session cleared); reset rules pending chapter 13 (SP12) |
 | D-055 | Transactions roll back persistent changes only | Agreed | [Agreed] | language | DN §7.2 | SP10 |  | pending |
 | D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | pending |
-| D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | pending |
+| D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | STA-11, STA-12 |
 | D-058 | Explicit handling of overflow and underflow | Required feature | [Agreed] | language | DN §6.2, §6.5 | SP5 |  | EXP-23 |
 | D-059 | Global/local arrays of supported fixed-size values | Agreed: integers, bool, structs and enums | [Agreed] | language | DN §8, §8.2 | SP3 |  | TYP-1, TYP-11, TYP-18 |
 | D-060 | Array type syntax `T[N]` | Agreed | [Agreed] | language | DN §8 | SP3 |  | TYP-17 |
@@ -162,13 +162,13 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-119 | Array slices `array[start..end]` | Agreed; half-open borrowed regions, bounds checked; empty slices allowed | [Agreed] | language | DN §8.4 | SP7 | OI-10 | FUN-18, FUN-20 |
 | D-120 | Unspecified-size parameters `ref T[]` / `inout T[]` | Agreed; runtime u32 length, exact element type, no backing-array copy | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21, FUN-8, FUN-21 |
 | D-121 | By-value array parameters | Fixed-size T[N] only | [Agreed] | language | DN §8.4 | SP7 |  | TYP-21, FUN-8 |
-| D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | pending |
-| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |
-| D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | pending |
+| D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | STA-2 |
+| D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5, STA-3, STA-4 |
+| D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | STA-5 |
 | D-125 | Runtime resources | Application-chosen u32 identifiers; 0 invalid; runtime-owned objects | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
 | D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | pending |
-| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5 (locals); persistent/session timing pending chapter 10 (SP9) |
+| D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5, STA-3, STA-4 |
 | D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | CEX-1 |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | EXP-43, EXP-45 |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
@@ -265,6 +265,12 @@ Sub-plans add rows here as they reach each DN section.
 | D-366 | Published error codes must not change meaning or be reused after removal | Agreed (DN body text) | [Agreed] | language | DN §6.3; PN §5 | SP8 |  | OUT-17 |
 | D-367 | Platform errors use the reserved `CardError` namespace, which applications cannot impersonate; no application-origin field; propagation preserves category and code | Agreed (DN body text) | [Agreed] | language | DN §6.3 | SP8 |  | OUT-18, OUT-19 |
 | D-368 | Returning or propagating `Err` is not a rollback request; earlier persistent and session changes remain | Agreed (DN body text) | [Agreed] | language | DN §6.3, §7.2 | SP8 |  | OUT-20 |
+| D-369 | Persistent defaults apply once, when persistent state is first created; never reapplied on reset or command | Agreed (DN body text) | [Agreed] | language | DN §3.9 | SP9 |  | STA-3 |
+| D-370 | Setup writing persistent values is distinct from volatile setup; the platform decides when provisioning runs and how interruption and activation are handled | Agreed (DN body text) | [Agreed] | language | DN §3.9; PN §3 | SP9 |  | STA-5 |
+| D-371 | A persistent assignment is atomic: after interruption the destination holds its complete old or complete new value; a failed right-hand side means no update and its side effects are not undone | Agreed (DN body text) | [Agreed] | language | DN §7.1 | SP9 |  | STA-11, STA-12 |
+| D-372 | Two persistent assignments are not collectively atomic without a transaction; atomicity is not a single hardware write and does not make a command atomic | Agreed (DN body text) | [Agreed] | language | DN §7.1 | SP9 |  | STA-12 |
+| D-373 | Whole-structure and whole-array assignment, including fill, is atomic for the whole destination | Agreed (DN body text) | [Agreed] | language | DN §7.1, §8.2, §8.3, §9.3 | SP9 |  | STA-11 |
+| D-374 | Global means application-wide; scope and lifetime are separate; session state is shared within its application | Agreed (DN body text) | [Agreed] | language | DN §5, §5.1 | SP9 |  | STA-1 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -276,7 +282,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15, NAM-14 |
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
-| D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | pending |
+| D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | STA-5 |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51, OUT-8, OUT-10 |
 | D-409 | Assignment: destination path first, then RHS, then store | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-9 | SP6 | OI-9 | STM-9 |
 | D-410 | Slice endpoint typing, order, positions and limits fixed | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-10 | SP7 | OI-10 | EXP-42, FUN-8, FUN-18, FUN-19, FUN-20 |
@@ -285,10 +291,10 @@ Sub-plans add rows here as they reach each DN section.
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | OUT-5, OUT-15 |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19, EXP-7 |
 | D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) |
-| D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | pending |
+| D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | STA-3; platform items pending Annex B (SP13) |
 | D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | pending |
 | D-418 | Outcome typing settled by DN §6.3 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-18 | SP8 | OI-18 | OUT-1, OUT-2 |
-| D-419 | Oversized atomic aggregate assignment rejected at build/load time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-19 | SP9 | OI-19 | pending |
+| D-419 | Oversized atomic aggregate assignment rejected at build/load time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-19 | SP9 | OI-19 | STA-13 |
 | D-420 | Resource storage strategy is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-20 | SP13 | OI-20 | pending |
 | D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | pending |
 | D-423 | Leading UTF-8 byte-order mark ignored; LF, CR and CRLF are line breaks (CRLF counts once) | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-23 | SP1 | OI-23 | LEX-4, LEX-5 |
@@ -306,3 +312,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-435 | A `for` index or pattern binding may be passed as `ref`, never `inout` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-35 | SP7 | OI-35 | FUN-9, FUN-10 |
 | D-436 | An error set must declare at least one member | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-36 | SP8 | OI-36 | OUT-15 |
 | D-437 | Application code may name `CardError` members only in `Err` patterns; it propagates platform errors through bindings and never originates them in return, abort or require | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-37 | SP8 | OI-37 | OUT-4, OUT-19, STM-19 |
+| D-422 | Lifecycle handlers: not callable from application code; otherwise ordinary functions; names always reserved; defining one is optional unless the platform requires it; wrong signature is a compilation error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-22 | SP9 | OI-22 | STA-7, STA-8, STA-9, STA-10, NAM-14 |
+| D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-38 | SP9 | OI-38 | STA-6, NAM-14 |

@@ -15,14 +15,14 @@ This is the normative specification of the CardLang language. It is being writte
 | [07-statements-and-control-flow.md](07-statements-and-control-flow.md) | 7 Statements and control flow | SP6 | Draft complete |
 | [08-functions-and-references.md](08-functions-and-references.md) | 8 Functions, references and slices | SP7 | Draft complete |
 | [09-outcomes-and-errors.md](09-outcomes-and-errors.md) | 9 Outcomes and errors | SP8 | Draft complete |
-| 10-state-and-initialization.md | 10 State and initialization | SP9 | Not started |
+| [10-state-and-initialization.md](10-state-and-initialization.md) | 10 State and initialization | SP9 | Draft complete |
 | 11-transactions.md | 11 Transactions | SP10 | Not started |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.7 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.8 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-21, OI-23…OI-37 resolved; OI-22 open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–9 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-38 all resolved; none open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–10 |
 
 Related files:
 
@@ -41,7 +41,8 @@ Related files:
 | 7 Statements and control flow | 22 | 22 | 0 | 0 |
 | 8 Functions, references and slices | 23 | 23 | 0 | 0 |
 | 9 Outcomes and errors | 20 | 20 | 0 | 0 |
-| **Total** | 199 | 199 | 0 | 0 |
+| 10 State and initialization | 14 | 14 | 0 | 0 |
+| **Total** | 213 | 213 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -103,6 +104,9 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-OUT-5 | Invalid outcome match | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-6 | Error binding used other than in return Err or abort Err | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-7 | Invalid error set | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-STA-1 | persistent or session declaration has an initializer | [10 §10.7](10-state-and-initialization.md#107-errors-defined-in-this-chapter) |
+| CE-STA-2 | Lifecycle-handler function has the wrong signature | [10 §10.7](10-state-and-initialization.md#107-errors-defined-in-this-chapter) |
+| CE-STA-3 | Application code calls a lifecycle handler | [10 §10.7](10-state-and-initialization.md#107-errors-defined-in-this-chapter) |
 | CE-STM-1 | Expression other than an attempt call used as a statement | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
 | CE-STM-2 | Assignment target is not an assignable place | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |
 | CE-STM-3 | break or continue outside a loop | [7 §7.11](07-statements-and-control-flow.md#711-errors-defined-in-this-chapter) |

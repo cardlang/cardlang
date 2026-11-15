@@ -1,0 +1,7 @@
+// rule: STA-2
+// source: DN §3.9
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STA-1
+// note: A persistent global with an initializer.
+persistent balance: u32 = 100;

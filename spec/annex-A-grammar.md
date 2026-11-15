@@ -204,6 +204,13 @@ Chapter 9 restricts these productions as follows:
 - `Ok(…)` and `Err(…)` occur only in returns, `abort` and patterns (OUT-6).
 - Nested patterns such as `Ok(State.Idle)` do not derive (CE-SYN-1).
 
+### A.2.8 State declarations (chapter 10)
+
+This section adds no new productions. `persistent` and `session` globals are `GlobalValueDeclaration`s (§A.2.1). Chapter 10 restricts them:
+
+- they take no initializer (STA-2, CE-STA-1);
+- lifecycle handlers are ordinary `FunctionDeclaration`s with reserved names and signatures (STA-7).
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
@@ -213,6 +220,6 @@ Chapter 9 restricts these productions as follows:
 | A.2.5 | Statements and blocks | SP6 (done) |
 | A.2.6 | Functions, parameters, arguments and slices | SP7 (done) |
 | A.2.7 | Outcomes, patterns and error sets | SP8 (done) |
-| A.2.8 | State declarations | SP9 |
+| A.2.8 | State declarations | SP9 (done) |
 | A.2.9 | Transactions | SP10 |
 | A.2.10 | The host entry point | SP11 |

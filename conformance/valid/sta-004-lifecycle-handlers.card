@@ -1,0 +1,18 @@
+// rule: STA-6, STA-7, STA-10
+// source: D-422, D-438
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The two placeholder handlers.
+persistent installed_version: u16;
+session retry_limit: u8;
+
+function on_install() {
+    installed_version = 1;
+    return Ok();
+}
+
+function on_power_on() {
+    retry_limit = 3;
+    return Ok();
+}
