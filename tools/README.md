@@ -16,7 +16,7 @@ It runs every checker over the conformance tests it covers. It prints one line p
 
 ## `checkers/`: reference checkers
 
-Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `hepcheck.py`, applies every rule implemented so far.
+Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `pltcheck.py`, applies every rule implemented so far.
 
 | Script | Implements | Default tests |
 |---|---|---|
@@ -30,11 +30,12 @@ Each checker is a small implementation of the rules of one chapter. It is writte
 | `stacheck.py` | Chapter 10: initializers and lifecycle handlers | `*/sta-*` |
 | `txncheck.py` | Chapter 11: transaction boundaries, `abort` and nesting | `*/txn-*` |
 | `hepcheck.py` | Chapter 12: the `command` and its signature. Adds the HEP-16 scaffold to `kind: fragment` tests | `*/hep-*` |
+| `pltcheck.py` | Annex B: `card.` paths, platform-call signatures, and APIs not permitted in transactions. Uses the test-only catalog | `*/plt-*` |
 
 Run a single checker as `python -I tools/checkers/<script> . "<glob>"`. For example:
 
 ```bash
-python -I tools/checkers/hepcheck.py . "valid/*"
+python -I tools/checkers/pltcheck.py . "valid/*"
 ```
 
 **Known limitations.**
@@ -48,7 +49,7 @@ python -I tools/checkers/hepcheck.py . "valid/*"
 
 `interp.py` runs the runtime tests in `conformance/runtime/`. For each test it does three things:
 
-1. It compiles the program with the full checker chain (`hepcheck`).
+1. It compiles the program with the full checker chain (`pltcheck`).
 2. It executes the steps in the test's `scenario.txt`.
 3. It compares every host-visible result (response bytes, application or platform error, trap kind, or no outcome) with the `expect` lines.
 
@@ -59,7 +60,8 @@ The interpreter implements the semantics of chapters 6–13:
 - transactions, with in-place rollback;
 - `abort` and `attempt`;
 - the command contract;
-- `install`, `power_on`, `reset`, and power loss during a commit.
+- `install`, `power_on`, `reset`, and power loss during a commit;
+- the fictional behavior of the test-only platform catalog (`conformance/platform/test-catalog.txt`).
 
 ```bash
 python -I tools/interp/interp.py .

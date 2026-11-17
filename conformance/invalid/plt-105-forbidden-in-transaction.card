@@ -1,0 +1,17 @@
+// rule: TXN-17
+// source: D-440
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-4
+// note: An API not permitted in transactions, called inside one.
+function check() {
+    transaction {
+        match card.test.resources.create(1, 1) {
+            Ok() => {
+            }
+            Err(_) => {
+            }
+        }
+    }
+    return Ok();
+}

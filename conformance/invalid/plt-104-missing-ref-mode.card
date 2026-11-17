@@ -1,0 +1,10 @@
+// rule: PLT-25, FUN-7
+// source: D-443
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-2
+// note: A ref parameter of a catalog API given an argument without ref.
+function check(message: ref u8[], signature: inout u8[]) -> u32 {
+    var length: u32 = attempt card.test.sign(1, message, inout signature);
+    return Ok(length);
+}

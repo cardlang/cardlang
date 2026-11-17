@@ -1,0 +1,10 @@
+// rule: PLT-25, EXP-47
+// source: D-443
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: A bool argument where the catalog says u32.
+function check(flag: bool) -> u32 {
+    var value: u32 = attempt card.test.resources.read(flag);
+    return Ok(value);
+}

@@ -1,0 +1,10 @@
+// rule: PLT-25, EXP-47
+// source: D-443
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-16
+// note: A catalog API called with too many arguments.
+function check() -> u32 {
+    var value: u32 = attempt card.test.resources.read(1, 2);
+    return Ok(value);
+}

@@ -1,0 +1,22 @@
+install              # on_install provisions the signing key
+power_on
+command 40 01 02 03
+expect err app 3     # signing needs the PIN
+command 20 09 08 07 00
+expect err app 4
+command 20 09 08 07 06
+expect ok
+command 40 01 02 03  # fictional signature: each byte XOR 0x5A
+expect ok 5b 58 59
+command 41
+expect ok 00 00 00 01
+command 40 01 02 03 capacity 2
+expect err platform Capacity
+command 41           # the failed signature was not counted
+expect ok 00 00 00 01
+reset
+power_on
+command 40 01
+expect err app 3     # authorization was session state
+command 41
+expect ok 00 00 00 01

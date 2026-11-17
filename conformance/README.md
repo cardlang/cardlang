@@ -91,6 +91,10 @@ Every `command` step is followed by exactly one `expect` line:
 
 Blank lines, and anything after `#`, are ignored. Tests observe only what the host can see. State is checked indirectly, through the responses of later commands.
 
+### Platform API catalog for tests
+
+Tests that call platform APIs use the **test-only catalog** in `platform/test-catalog.txt` (Annex B, PLT-26; D-443). Its entries are fictional, and all of them live under `card.test.`. The file states each entry's signature, its transaction behavior and, for the interpreter, its test-only runtime behavior. A real platform supplies its own catalog (PLT-25) and need not provide these entries.
+
 ## Checking the tests
 
 Until a compiler exists, the reference checkers in `tools/checkers/` verify the compile-time tests against the rules of chapters 2–12. The reference interpreter in `tools/interp/` runs the runtime tests. Run them all from the repository root:

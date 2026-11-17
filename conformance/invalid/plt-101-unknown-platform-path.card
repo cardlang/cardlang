@@ -1,0 +1,10 @@
+// rule: NAM-18
+// source: D-406
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-NAM-10
+// note: A card path that is not in the catalog.
+function check() {
+    attempt card.test.missing(1);
+    return Ok();
+}

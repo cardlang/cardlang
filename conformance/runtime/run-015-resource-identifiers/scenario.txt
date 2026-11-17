@@ -1,0 +1,26 @@
+install
+power_on
+command 01 01        # create counter 1
+expect ok
+command 01 01        # never silently replaced
+expect err platform AlreadyExists
+command 03 02        # unknown identifier
+expect err platform NotFound
+command 02 02        # create key 2
+expect ok
+command 03 02        # a key is not a counter
+expect err platform WrongResourceType
+command 04 01 07     # counter 1 := 7
+expect ok
+command 06 01        # a copied identifier names the same resource
+expect ok 00 00 00 07
+command 05 01        # delete counter 1
+expect ok
+command 03 01
+expect err platform NotFound
+command 05 01
+expect err platform NotFound
+command 01 01        # reusing the identifier names a new resource
+expect ok
+command 03 01
+expect ok 00 00 00 00

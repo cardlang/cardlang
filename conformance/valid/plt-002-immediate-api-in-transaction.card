@@ -1,0 +1,20 @@
+// rule: TXN-17, PLT-24
+// source: D-440, D-443
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: An API marked immediate may be called inside a transaction.
+persistent total: u32;
+
+function check() {
+    transaction {
+        match card.test.resources.read(1) {
+            Ok(value) => {
+                total = value;
+            }
+            Err(_) => {
+            }
+        }
+    }
+    return Ok();
+}

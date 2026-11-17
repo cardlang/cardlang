@@ -1,0 +1,22 @@
+// rule: TXN-17
+// source: D-440
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-4
+// note: A forbidden API reached through a helper called in a transaction.
+function provision() {
+    attempt card.test.resources.create(1, 1);
+    return Ok();
+}
+
+function check() {
+    transaction {
+        match provision() {
+            Ok() => {
+            }
+            Err(_) => {
+            }
+        }
+    }
+    return Ok();
+}

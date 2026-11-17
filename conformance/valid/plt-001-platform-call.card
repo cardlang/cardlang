@@ -1,0 +1,10 @@
+// rule: NAM-18, PLT-25
+// source: D-443
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A call to a test-catalog API with matching arguments.
+function check() -> u32 {
+    var value: u32 = attempt card.test.resources.read(1);
+    return Ok(value);
+}

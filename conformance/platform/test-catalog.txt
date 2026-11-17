@@ -1,0 +1,31 @@
+# CardLang conformance: TEST-ONLY platform API catalog (non-normative).
+#
+# These entries are fictional. They exist only so that conformance tests can exercise the
+# language rules that depend on a platform API catalog: NAM-18 (platform paths), EXP-47
+# (argument checking), TXN-17 (APIs not permitted in transactions) and the resource
+# identifier model of Annex B (PLT-20 to PLT-24). A real platform defines its own catalog
+# (Annex B, PLT-25) and need not provide any of these. See D-443.
+#
+# Format: one entry per line, fields separated by " | ":
+#   path | parameters | payload | transactions | may return
+# - parameters: comma-separated "name: [ref|inout] Type", or "-" for none
+# - payload:    the successful payload type, or "-" for none
+# - transactions: "participates", "immediate" (permitted, does not participate) or "forbidden"
+# - may return: CardError members, or "-"
+#
+# Behaviour (used by tools/interp; test-only):
+#   resources.create  creates resource `id` of `kind` (1 = counter, 2 = key) with value 0.
+#                     id already used: AlreadyExists; more than 4 resources: Capacity.
+#   resources.delete  deletes resource `id`; unknown: NotFound.
+#   resources.read    the value of counter `id`; unknown: NotFound; not a counter: WrongResourceType.
+#   resources.write   sets the value of counter `id`; errors as for read.
+#   sign              writes a fictional "signature" of `message` (each byte XOR 0x5A) into
+#                     `signature` and returns its length. Unknown key: NotFound; not a key:
+#                     WrongResourceType; signature region too short: Capacity.
+# Resources survive commands, traps and security resets in this test catalog.
+
+card.test.resources.create | id: u32, kind: u8 | - | forbidden | AlreadyExists, Capacity
+card.test.resources.delete | id: u32 | - | forbidden | NotFound
+card.test.resources.read | id: u32 | u32 | immediate | NotFound, WrongResourceType
+card.test.resources.write | id: u32, value: u32 | - | forbidden | NotFound, WrongResourceType
+card.test.sign | key: u32, message: ref u8[], signature: inout u8[] | u32 | forbidden | NotFound, WrongResourceType, Capacity

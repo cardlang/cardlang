@@ -1,0 +1,69 @@
+// rule: HEP-15, PLT-20, PLT-22, STA-6
+// source: DN §13
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Signer application skeleton up to the API boundary: a provisioned key, PIN-guarded signing, and a reset clearing authorization. The signing API is the fictional test-catalog entry.
+errors SignerError {
+    MalformedRequest = 1;
+    UnsupportedOperation = 2;
+    Unauthorized = 3;
+    WrongPin = 4;
+}
+
+const OP_VERIFY: u8 = 0x20;
+const OP_SIGN: u8 = 0x40;
+const OP_COUNT: u8 = 0x41;
+const SIGNING_KEY: u32 = 1;
+const KIND_KEY: u8 = 2;
+const PIN: u8[4] = [9, 8, 7, 6];
+
+persistent signatures: u32;
+session authenticated: bool;
+
+function on_install() {
+    match card.test.resources.create(SIGNING_KEY, KIND_KEY) {
+        Ok() => {
+        }
+        Err(_) => {
+        }
+    }
+    return Ok();
+}
+
+function verify(input: ref u8[]) {
+    require input.length == 5 else SignerError.MalformedRequest;
+    for index: u32 in 0..4 {
+        if input[index + 1] != PIN[index] {
+            authenticated = false;
+            return Err(SignerError.WrongPin);
+        }
+    }
+    authenticated = true;
+    return Ok();
+}
+
+function encode_count(output: inout u8[]) -> u32 {
+    var bytes: u8[4] = encode_be(signatures);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 1 else SignerError.MalformedRequest;
+    var operation: u8 = request[0];
+    if operation == OP_VERIFY {
+        attempt verify(ref request);
+        return Ok(0);
+    } else if operation == OP_SIGN {
+        require authenticated else SignerError.Unauthorized;
+        var length: u32 = attempt card.test.sign(SIGNING_KEY, ref request[1..request.length], inout response);
+        signatures = signatures + 1;
+        return Ok(length);
+    } else if operation == OP_COUNT {
+        return encode_count(inout response);
+    }
+    return Err(SignerError.UnsupportedOperation);
+}

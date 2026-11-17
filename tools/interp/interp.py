@@ -10,7 +10,7 @@ Usage (from the repository root):
 import copy, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "checkers"))
 from lexcheck import lex, header
-import hepcheck, expcheck, consteval
+import hepcheck, pltcheck, expcheck, consteval
 from expcheck import P, p_expr, p_postfix, p_type, CE
 
 RANGES = consteval.RANGES
@@ -134,8 +134,9 @@ def parse_stmt(p):
 # ------------------------------------------------------------------ the machine
 class Card:
     def __init__(self, toks):
-        self.chk = hepcheck.HepChecker(toks)
+        self.chk = pltcheck.PltChecker(toks)
         self.chk.run()                                   # static checks first
+        self.resources = {}                              # test-catalog resources: id -> [kind, value]
         cp = self.chk.cp
         self.types = lambda ty: cp.resolve_type(ty)
         self.funcs = {n: (params, ret, parse_block(P(body))) for n, (params, ret, body) in self.chk.funcs.items()}
@@ -324,6 +325,9 @@ class Card:
 
     # ---- calls
     def call(self, e, env, T):
+        path = pltcheck.platform_path(e[1])
+        if path is not None:
+            return self.platform_call(path, e[3], env)
         name, tyarg, args = e[1][1], e[2], e[3]
         if name in self.funcs:
             return self.invoke(name, args, env)
@@ -366,6 +370,35 @@ class Card:
                 member = {"OVERFLOW": "Overflow", "UNDERFLOW": "Underflow", "DIV-ZERO": "DivisionByZero", "NEGATION": "Overflow"}[tr.kind]
                 return ("err", ErrVal("platform", member))
         raise RuntimeError("unknown callee " + name)
+
+    def platform_call(self, path, args, env):
+        """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
+        res = self.resources
+        err = lambda member: ("err", ErrVal("platform", member))
+        if path == "card.test.sign":
+            key = self.eval(args[0][1], env).v
+            msg = self.place(args[1][1], env); sig = self.place(args[2][1], env)
+            to_view = lambda x: x if isinstance(x, View) else View(x.get(), 0, len(x.get()))
+            msg, sig = to_view(msg), to_view(sig)
+            if key not in res: return err("NotFound")
+            if res[key][0] != 2: return err("WrongResourceType")
+            if sig.length < msg.length: return err("Capacity")
+            for i in range(msg.length):
+                sig.lst[sig.start + i] = Int(msg.lst[msg.start + i].v ^ 0x5A, "u8")
+            return ("ok", Int(msg.length, "u32"))
+        vals = [self.eval(a, env).v for _, a in args]
+        ident = vals[0]
+        if path == "card.test.resources.create":
+            if ident in res: return err("AlreadyExists")
+            if len(res) >= 4: return err("Capacity")
+            res[ident] = [vals[1], 0]; return ("ok", None)
+        if ident not in res: return err("NotFound")
+        if path == "card.test.resources.delete":
+            del res[ident]; return ("ok", None)
+        if res[ident][0] != 1: return err("WrongResourceType")
+        if path == "card.test.resources.read": return ("ok", Int(res[ident][1], "u32"))
+        if path == "card.test.resources.write": res[ident][1] = vals[1]; return ("ok", None)
+        raise RuntimeError("no test behaviour for " + path)
 
     def invoke(self, name, args, env):
         params, ret, body = self.funcs[name]

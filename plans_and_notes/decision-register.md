@@ -49,7 +49,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-006 | Local value declarations use `var` only | Agreed; local `const` deferred | [Agreed] | language | DN §5.1 | SP6 |  | NAM-10, STM-4 |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | Agreed | [Agreed] | language | DN §5.1 | SP2 |  | NAM-10 |
 | D-008 | Explicit persistent state | Agreed direction; detailed semantics open | [Agreed] | language | DN §5, §5.1 | SP9 | OI-16 | STA-3, STA-11 |
-| D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | pending |
+| D-009 | Simple persistent declarations plus an object API for larger data | Preferred direction accepted in discussion; API not designed | [Agreed] | platform | DN §5 | SP13 | OI-17 | PLT-17 |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | Agreed direction | [Agreed] | language | DN §6.1, §6.4 | SP8 |  | OUT-1 |
 | D-011 | No general-purpose exceptions initially | Agreed direction | [Agreed] | language | DN §6.1 | SP8 |  | OUT-1 |
 | D-012 | Every function returns a success/error result | Agreed direction; detailed typing open | [Agreed] | language | DN §6.1, §6.3 | SP8 | OI-18 | OUT-1, OUT-2 |
@@ -64,7 +64,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-021 | Multiple source files form one application compilation unit | Agreed; explicit file list and build-supplied identity | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1 |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | Agreed | [Agreed] | language | DN §3.0, §4.1 | SP2 |  | NAM-1, NAM-2, NAM-6, NAM-8 |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | Agreed | [Agreed] | language | DN §1, §3.0 | SP1 | OI-1 | LEX-1, LEX-2, LEX-3, LEX-12 |
-| D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |
+| D-024 | Mandatory semicolons, braces and named-declaration type annotations | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-22, LEX-23, NAM-9, TYP-3, STM-1, FUN-1; Annex A §A.2 |
 | D-025 | No-value ordinary function signature | Omit return arrow; the host entry point instead returns a u32 response count | [Agreed] | language | DN §3.0, §3.7, §4 | SP7 |  | FUN-2 |
 | D-026 | Function arguments | Positional only; explicit parameter types and modes; trailing commas allowed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1 |
 | D-027 | Calls inside argument expressions | Forbidden, including intrinsic calls; evaluate into locals first | [Agreed] | language | DN §3.7 | SP5 |  | EXP-49 |
@@ -76,14 +76,14 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | FUN-2 |
 | D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | STM-21 |
 | D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | HEP-3 |
-| D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
+| D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18, EXP-7, EXP-10, EXP-11 |
 | D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-24 |
 | D-038 | Application declarations and struct fields visible across all source files | Agreed; no per-file privacy | [Agreed] | language | DN §4.1 | SP2 |  | NAM-13 |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | Omitted initially | [Agreed] | language | DN §4.1 | SP2 |  | NAM-8 |
 | D-040 | File order does not control name resolution or initialization order | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | NAM-4 |
 | D-041 | Host entry point | Exactly one command per application; ref u8[] request, inout u8[] response, successful u32 byte count | [Agreed] | language | DN §4 | SP11 | OI-5 | HEP-1, HEP-2, HEP-4 |
 | D-042 | Application protocol | Application parses and dispatches request bytes and encodes response bytes; no generated typed-command serialization | [Agreed] | language | DN §4 | SP11 |  | HEP-15 |
-| D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | HEP-12; status-word mapping pending Annex B (SP13) |
+| D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | HEP-12, PLT-9 |
 | D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | LEX-15, NAM-14 |
 | D-045 | One shared top-level naming scope for types and values | Agreed; duplicate names forbidden | [Agreed] | language | DN §4.2 | SP2 |  | NAM-11 |
 | D-046 | No function overloading or local function/type/error-set definitions | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-7, NAM-12 |
@@ -92,11 +92,11 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | HEP-13, TXN-14 |
 | D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | STA-4 |
 | D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | STA-4, RTF-2, RTF-3 |
-| D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | RTF-2; resource lifecycle pending Annex B (SP13) |
+| D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | RTF-2, PLT-23 |
 | D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | STA-14, RTF-12 |
 | D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | STA-4, RTF-9 |
 | D-055 | Transactions roll back persistent changes only | Agreed | [Agreed] | language | DN §7.2 | SP10 |  | TXN-4, TXN-11 |
-| D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | RTF-9; platform failure handling pending Annex B (SP13) |
+| D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | RTF-9, PLT-19 |
 | D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | STA-11, STA-12 |
 | D-058 | Explicit handling of overflow and underflow | Required feature | [Agreed] | language | DN §6.2, §6.5 | SP5 |  | EXP-23 |
 | D-059 | Global/local arrays of supported fixed-size values | Agreed: integers, bool, structs and enums | [Agreed] | language | DN §8, §8.2 | SP3 |  | TYP-1, TYP-11, TYP-18 |
@@ -165,30 +165,30 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-122 | Mutable global declaration initializers | Forbidden for persistent/session state | [Agreed] | language | DN §3.9 | SP9 |  | STA-2 |
 | D-123 | Automatic defaults | New persistent/session state and uninitialized locals: zero/false recursively | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5, STA-3, STA-4 |
 | D-124 | Application-specific global setup | Lifecycle handlers; event API deferred to platform | [Agreed] | language | DN §3.9; PN §3 | SP9 | OI-7 | STA-5 |
-| D-125 | Runtime resources | Application-chosen u32 identifiers; 0 invalid; runtime-owned objects | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
-| D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | pending |
-| D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | pending |
+| D-125 | Runtime resources | Application-chosen u32 identifiers; 0 invalid; runtime-owned objects | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | PLT-20 |
+| D-126 | Resource identifier space | One per isolated application, covering all resource kinds | [Agreed] | platform | DN §11.2; PN §2 | SP13 |  | PLT-2, PLT-20 |
+| D-127 | Resource storage strategy and cleanup | Platform decisions; identifier API does not require a heap | [Agreed] | platform | DN §11.2; PN §2 | SP13 | OI-20 | PLT-24 |
 | D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5, STA-3, STA-4 |
 | D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | CEX-1 |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | EXP-43, EXP-45 |
 | D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | TXN-10 |
 | D-132 | Callee persistent assignments participate in an active transaction | Agreed | [Agreed] | language | DN §7.3 | SP10 |  | TXN-1 |
-| D-133 | By-value aggregate parameters | Temporary application RAM; call-frame placement proposed | [Agreed]; placement informative (D-421) | VM/profile | DN §3.8; PN §4 | SP13 | OI-21 | FUN-17 (value semantics); placement guidance pending Annex B (SP13) |
+| D-133 | By-value aggregate parameters | Temporary application RAM; call-frame placement proposed | [Agreed]; placement informative (D-421) | VM/profile | DN §3.8; PN §4 | SP13 | OI-21 | FUN-17, Annex B §B.11 |
 | D-134 | Familiar imperative syntax, static types | Proposed baseline | [Proposal] | language | DN §3 | SP0 |  | 01 §1.1 (informative) |
-| D-135 | Compact custom VM with single-digit KiB RAM goals | Feasibility direction; unmeasured | [Proposal] | VM/profile | PN §4 | SP13 |  | pending |
+| D-135 | Compact custom VM with single-digit KiB RAM goals | Feasibility direction; unmeasured | [Proposal] | VM/profile | PN §4 | SP13 |  | Annex B §B.11 (informative) |
 
 ## Platform-notes items (D-201…)
 
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|---|
-| D-201 | No opaque platform value types; platform APIs use ordinary value types, with fully visible platform-supplied configuration structures and algorithm enums | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.1 | SP13 |  | pending |
-| D-202 | Every resource operation validates existence, kind, state and permissions in the caller's resource space; wrong kind is a defined recoverable error; identifiers never authorize cross-application access | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.1 | SP13 |  | pending |
-| D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces); unknown ID and wrong kind fail recoverably; capacity failure is a defined recoverable error; failed creation exposes no partial object (error names are placeholders) | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 | OI-15 | pending |
-| D-204 | Copying a resource identifier copies only the number; no stale-handle detection; identifier-variable lifetime is independent of resource lifetime | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 |  | pending |
-| D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | TXN-4, TXN-17; API contracts pending Annex B (SP13) |
+| D-201 | No opaque platform value types; platform APIs use ordinary value types, with fully visible platform-supplied configuration structures and algorithm enums | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.1 | SP13 |  | PLT-21 |
+| D-202 | Every resource operation validates existence, kind, state and permissions in the caller's resource space; wrong kind is a defined recoverable error; identifiers never authorize cross-application access | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.1 | SP13 |  | PLT-20, PLT-22 |
+| D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces); unknown ID and wrong kind fail recoverably; capacity failure is a defined recoverable error; failed creation exposes no partial object (error names are placeholders) | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 | OI-15 | PLT-22 |
+| D-204 | Copying a resource identifier copies only the number; no stale-handle detection; identifier-variable lifetime is independent of resource lifetime | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 |  | PLT-20, PLT-22, PLT-23 |
+| D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | TXN-4, TXN-17, PLT-24 |
 | D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23, STA-13, TXN-16, RTF-6, RTF-7, RTF-8 |
 | D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | TXN-12, TXN-13 |
-| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | TXN-14; platform mechanism pending Annex B (SP13) |
+| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | TXN-14, PLT-5 |
 | D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | OUT-17, RTF-11 |
 
 ## DN body-only decisions (D-301…)
@@ -302,7 +302,7 @@ Sub-plans add rows here as they reach each DN section.
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|---|
 | D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | LEX-1 |
-| D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | HEP-15; PN §1 superseded row pending Annex B (SP13) |
+| D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | HEP-15, PLT-3 |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | TXN-10 |
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15, NAM-14 |
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | HEP-1, HEP-16 |
@@ -315,13 +315,13 @@ Sub-plans add rows here as they reach each DN section.
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | OUT-5, OUT-15 |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19, EXP-7 |
-| D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | RTF-4 (trap kinds), EXP-29, EXP-33; CardError names and codes pending Annex B (SP13) |
-| D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | STA-3; platform items pending Annex B (SP13) |
-| D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | pending |
+| D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | EXP-29, EXP-33, RTF-4, PLT-27, PLT-28 |
+| D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | STA-3, PLT-16 |
+| D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | PLT-17 |
 | D-418 | Outcome typing settled by DN §6.3 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-18 | SP8 | OI-18 | OUT-1, OUT-2 |
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-19 | SP9 | OI-19 | STA-13 |
-| D-420 | Resource storage strategy is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-20 | SP13 | OI-20 | pending |
-| D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | pending |
+| D-420 | Resource storage strategy is platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-20 | SP13 | OI-20 | PLT-24 |
+| D-421 | Call-frame placement is informative VM guidance | Resolved by user 2026-11-15 | [Agreed] | VM/profile | Annex C OI-21 | SP13 | OI-21 | FUN-17, Annex B §B.11 (informative) |
 | D-423 | Leading UTF-8 byte-order mark ignored; LF, CR and CRLF are line breaks (CRLF counts once) | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-23 | SP1 | OI-23 | LEX-4, LEX-5 |
 | D-424 | Longest-match tokens; numeric-run rule for literals; no identifier length limit | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-24 | SP1 | OI-24 | LEX-10, LEX-16, LEX-18 |
 | D-425 | Primitive type names are predeclared names in every application scope, not keywords | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-25 | SP2 | OI-25 | NAM-14 |
@@ -341,5 +341,6 @@ Sub-plans add rows here as they reach each DN section.
 | D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-38 | SP9 | OI-38 | STA-6, NAM-14 |
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY); pending writes roll back; TRAP-TXN-CAPACITY joins the placeholder trap kinds of D-415 | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-39 | SP10 | OI-39 | TXN-16 |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-40 | SP10 | OI-40 | TXN-17 |
-| D-441 | The initial contents of the response region are unspecified for the language; the platform must ensure it never holds data from another application or from the platform | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-41 | SP11 | OI-41 | HEP-8; PLT requirement pending Annex B (SP13) |
+| D-441 | The initial contents of the response region are unspecified for the language; the platform must ensure it never holds data from another application or from the platform | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-41 | SP11 | OI-41 | HEP-8, PLT-7 |
 | D-442 | An application's maximum stack need is computed; exceeding the target's stack is rejected at build or load time; a runtime stack check remains only as a safety net | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-42 | SP12 | OI-42 | RTF-7 |
+| D-443 | Annex B defines only the platform API catalog entry requirements; conformance tests use a test-only, non-normative catalog of fictional `card.test.` entries | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-43 | SP13 | OI-43 | PLT-25, PLT-26 |

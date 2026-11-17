@@ -1,0 +1,47 @@
+// rule: PLT-20, PLT-22
+// source: DN §11.2; PN §2
+// status: agreed
+// kind: application
+// expect: runtime
+// note: The resource identifier model: create, duplicate, unknown, wrong kind, delete, reuse of an identifier.
+errors TestError {
+    UnknownOperation = 1;
+}
+
+const KIND_COUNTER: u8 = 1;
+const KIND_KEY: u8 = 2;
+
+function respond(output: inout u8[], value: u32) -> u32 {
+    var bytes: u8[4] = encode_be(value);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var id: u32 = convert<u32>(request[1]);
+    if operation == 1 {
+        attempt card.test.resources.create(id, KIND_COUNTER);
+        return Ok(0);
+    } else if operation == 2 {
+        attempt card.test.resources.create(id, KIND_KEY);
+        return Ok(0);
+    } else if operation == 3 {
+        var value: u32 = attempt card.test.resources.read(id);
+        return respond(inout response, value);
+    } else if operation == 4 {
+        var value: u32 = convert<u32>(request[2]);
+        attempt card.test.resources.write(id, value);
+        return Ok(0);
+    } else if operation == 5 {
+        attempt card.test.resources.delete(id);
+        return Ok(0);
+    } else if operation == 6 {
+        var copy: u32 = id;
+        var value: u32 = attempt card.test.resources.read(copy);
+        return respond(inout response, value);
+    }
+    return Err(TestError.UnknownOperation);
+}

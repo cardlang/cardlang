@@ -56,6 +56,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-40 | Platform services inside a transaction | Gap | SP10 | Resolved |
 | OI-41 | Initial contents of the response region | Gap | SP11 | Resolved |
 | OI-42 | Stack depth | Gap | SP12 | Resolved |
+| OI-43 | A catalog for testing platform-dependent rules | Gap | SP13 | Resolved |
 
 ---
 
@@ -76,7 +77,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** contradiction
 - **Sources:** The PN §1 table says "`command` identifies a host-callable entry point | Dispatch, command identifiers, transport and request/response encoding". DN §4 (2026-11-15) and D-041/D-042 adopted a single byte-oriented entry point with application-side dispatch. D-043 is affected.
-- **Affected rules:** HEP-15; Annex B pending (SP13)
+- **Affected rules:** HEP-15, PLT-3
 - **Question:** Does the platform dispatch between commands by identifier?
 - **Options:**
   - (a) No. The PN §1 row is superseded: the platform delivers every request to the one entry point, and "command identifiers" exist only inside the application's own protocol.
@@ -141,7 +142,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §4.1 says a spelling such as `card.crypto...` "may be used without introducing a general application namespace system; the precise spelling is not fixed". DN §4.2 says dot access resolves from the receiver's type. DN §11.2 gives illustrative calls `card.resources.create(…)`.
-- **Affected rules:** NAM-17, NAM-18; call syntax pending (SP5)
+- **Affected rules:** NAM-17, NAM-18, EXP-47, PLT-25
 - **Question:** How does the grammar express a platform API call without a namespace system?
 - **Options:**
   - (a) A distinct syntactic form for platform names: a reserved root `card` followed by `.` segments. It resolves only against the platform API catalog and is never a field access.
@@ -158,7 +159,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - DN §3.9: nondefault setup belongs in lifecycle handlers, but "No lifecycle callback syntax is introduced here".
   - PN §3: handler names and signatures, registration and order are still to be specified.
   - D-124 is affected.
-- **Affected rules:** STA-5 to STA-10
+- **Affected rules:** STA-5 to STA-10, PLT-18
 - **Question:** How does an application designate code to run on platform lifecycle events such as installation? Without this, nondefault persistent setup cannot be expressed.
 - **Options:**
   - (a) Language syntax for handlers, for example a `handler` declaration naming an event.
@@ -176,7 +177,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - The notes use it in local initializers, assignment right-hand sides, `return Ok(attempt …)`, an index expression (`records[attempt choose_index()]`, DN §8.1) and a constructor field (DN §9.3).
   - DN §3.7 forbids calls in arguments.
   - D-014 and D-017 are affected.
-- **Affected rules:** EXP-51; chapter 9 pending (SP8)
+- **Affected rules:** EXP-51, OUT-8 to OUT-10
 - **Options:**
   - (a) `attempt call` is allowed in any runtime expression position, except:
     - inside a call argument (the nested-call ban);
@@ -298,7 +299,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - DN §6.4: the trap list and catalog are platform work.
   - PN §2: resource error names are placeholders.
   - D-203 and D-209 are affected.
-- **Affected rules:** RTF-4; EXP-23 to EXP-33; Annex B pending (SP13)
+- **Affected rules:** EXP-29, EXP-33, RTF-4, PLT-27, PLT-28
 - **Question:** Which names may chapters use until the platform catalogs exist?
 - **Recommendation:**
   - Chapters use **language-level trap kinds** (chapter 13): `TRAP-OVERFLOW`, `TRAP-UNDERFLOW`, `TRAP-DIV-ZERO`, `TRAP-BOUNDS`, `TRAP-SHIFT`, `TRAP-NEGATION`, `TRAP-RESPONSE-COUNT`, `TRAP-NESTED-TXN`, `TRAP-COMMIT`, `TRAP-EXHAUSTED` (stack or execution budget) and `TRAP-VM` (invalid instruction or state).
@@ -311,7 +312,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier
 - **Sources:** D-008 says "Agreed direction; detailed semantics open". The DN §5 table lists "Initialization, updates, deletion, upgrades and transactions" as still to define.
-- **Affected rules:** STA-3
+- **Affected rules:** STA-3, PLT-16
 - **Note:** Initialization (DN §3.9), updates (DN §7.1) and transactions (DN §7.2) have since been specified in the notes. What remains is deletion, upgrades and migration.
 - **Recommendation:** the language covers declaration, defaults, atomic assignment and transactions. Deletion, upgrade and migration become platform-defined items in Annex B. Close this issue after SP9 confirms.
 - **Status:** resolved 2026-11-15 (D-416)
@@ -321,7 +322,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier (platform-deferred)
 - **Sources:** D-009 says "Preferred direction accepted in discussion; API not designed". DN §5 is also relevant.
-- **Affected rules:** pending (SP13)
+- **Affected rules:** PLT-17
 - **Options:**
   - (a) A platform API, outside the language.
   - (b) A language feature.
@@ -359,7 +360,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier (platform-deferred)
 - **Sources:** D-127 says "Platform decisions; identifier API does not require a heap". DN §11.2 and PN §2 are also relevant.
-- **Affected rules:** pending (SP13)
+- **Affected rules:** PLT-24
 - **Recommendation:** close as a platform-defined item in Annex B. It has no language impact.
 - **Status:** resolved 2026-11-15 (D-420)
 - **Decision:** Recommendation adopted. Resource storage strategy is a platform-defined item in Annex B, with no language impact.
@@ -368,7 +369,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** qualifier (proposal)
 - **Sources:** D-133 says "Temporary application RAM; call-frame placement proposed". DN §3.8 and PN §4 are also relevant.
-- **Affected rules:** pending (SP7, SP13)
+- **Affected rules:** FUN-17; Annex B §B.11
 - **Recommendation:** the language rule stays at value semantics: an independent copy that lives for the call. Frame placement becomes informative VM guidance in Annex B. Close it at SP13.
 - **Status:** resolved 2026-11-15 (D-421)
 - **Decision:** Recommendation adopted. The language rule is value semantics: an independent copy that lives for the call. Call-frame placement is informative VM guidance in Annex B.
@@ -659,7 +660,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §4 ("no initial response-buffer contents are promised by this contract"); D-386
-- **Affected rules:** HEP-8; Annex B (pending SP13)
+- **Affected rules:** HEP-8, PLT-7
 - **Question:** What may the response region contain when the command starts? Unspecified bytes could leak stale data if an application forgets to write them.
 - **Options:**
   - (a) Zero-filled, promised by the language.
@@ -682,6 +683,19 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-17 (D-442)
 - **Decision:** Option (a). Exhausting the execution budget still traps at runtime.
 
+## OI-43 — A catalog for testing platform-dependent rules
+
+- **Kind:** gap
+- **Sources:** DN §4.1 (the precise platform API spelling is not fixed); DN §11.2 and PN §2 (illustrative APIs; "configuration types, names, signatures and error codes are TBD"); NAM-18; TXN-17
+- **Affected rules:** Annex B §B.8; NAM-18; TXN-17
+- **Question:** Rules that depend on the platform API catalog cannot be tested without one, but the notes' APIs are illustrative only. How are these rules made testable without inventing platform APIs?
+- **Options:**
+  - (a) Annex B defines what every catalog entry must state, and the conformance suite uses a test-only, clearly fictional catalog under `card.test.`.
+  - (b) Defer all platform-dependent tests.
+- **Recommendation:** (a).
+- **Status:** resolved 2026-11-17 (D-443)
+- **Decision:** Option (a). The test catalog is non-normative and defines no real platform API.
+
 ---
 
 ## Resolution log
@@ -689,26 +703,26 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | Date | ID | Decision | Decided by | Spec changes |
 |---|---|---|---|---|
 | 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
-| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Applied in chapter 12: HEP-15 (SP11); Annex B pending (SP13) |
+| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Applied: HEP-15 (SP11); PLT-3 (SP13) |
 | 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Applied in chapter 11: TXN-10 (SP10) |
 | 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Applied in chapter 12: HEP-1 (SP11) |
-| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
-| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied in chapter 10: STA-5 to STA-10 (SP9); catalog pending Annex B (SP13) |
-| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
+| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); EXP-47 (SP5); PLT-25 (SP13) |
+| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied: STA-5 to STA-10 (SP9); PLT-18 (SP13) |
+| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied: EXP-51 (SP5); OUT-8 to OUT-10 (SP8) |
 | 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 (SP6) |
 | 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 (SP7) |
 | 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 (SP8) |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
-| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Applied in chapter 13: RTF-4 trap catalog (SP12); CardError names pending Annex B (SP13) |
-| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied in chapter 10: STA-3 (SP9); platform items pending Annex B (SP13) |
-| 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Applied: RTF-4 (SP12); PLT-27, PLT-28 (SP13) |
+| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied: STA-3 (SP9); PLT-16 (SP13) |
+| 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Applied: PLT-17 (SP13) |
 | 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14 (SP8); closed |
 | 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Applied in chapter 10: STA-13 (SP9) |
-| 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Pending: applied when SP13 drafts its chapter |
-| 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Applied: PLT-24 (SP13) |
+| 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Applied: FUN-17 (SP7); Annex B §B.11 (SP13) |
 | 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 (SP1) |
 | 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 (SP1) |
 | 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
@@ -728,5 +742,6 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 (SP9) |
 | 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 (SP10) |
 | 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 (SP10) |
-| 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied in chapter 12: HEP-8 (SP11); PLT requirement pending Annex B (SP13) |
+| 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied: HEP-8 (SP11); PLT-7 (SP13) |
 | 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 (SP12) |
+| 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ (SP13) |

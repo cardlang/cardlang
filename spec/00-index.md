@@ -20,9 +20,9 @@ This is the normative specification of the CardLang language. It is being writte
 | [12-host-entry-point.md](12-host-entry-point.md) | 12 Host entry point | SP11 | Draft complete |
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.10 complete; consolidation in SP14 |
-| annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-42 all resolved; none open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–13 |
+| [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | SP13 | Draft complete |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-43 all resolved; none open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Complete: every decision covered (D-134 informative) |
 
 Related files:
 
@@ -45,7 +45,8 @@ Related files:
 | 11 Transactions | 17 | 17 | 0 | 0 |
 | 12 Host entry point | 16 | 16 | 0 | 0 |
 | 13 Runtime failures | 12 | 12 | 0 | 0 |
-| **Total** | 258 | 258 | 0 | 0 |
+| Annex B Platform contract | 29 | 29 | 0 | 0 |
+| **Total** | 287 | 287 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 

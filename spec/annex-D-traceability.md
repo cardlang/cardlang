@@ -35,7 +35,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | SP12 | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
 | annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.10 complete; consolidation pending (SP14) |
-| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
+| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-29 |
 | annex-C-open-issues.md | all | see each issue | — |
 
 ## D.2 Decisions → rules
@@ -50,7 +50,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-006 | Local value declarations use `var` only | SP6 | NAM-10, STM-4 |  | covered |
 | D-007 | Storage qualifiers inside functions/commands are forbidden | SP2 | NAM-10 |  | covered |
 | D-008 | Explicit persistent state | SP9 | STA-3, STA-11 | OI-16 | covered |
-| D-009 | Simple persistent declarations plus an object API for larger data | SP13 | — | OI-17 | pending |
+| D-009 | Simple persistent declarations plus an object API for larger data | SP13 | PLT-17 | OI-17 | covered |
 | D-010 | Recoverable errors through explicit results, execution faults through traps | SP8 | OUT-1 |  | covered |
 | D-011 | No general-purpose exceptions initially | SP8 | OUT-1 |  | covered |
 | D-012 | Every function returns a success/error result | SP8 | OUT-1, OUT-2 | OI-18 | covered |
@@ -65,7 +65,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-021 | Multiple source files form one application compilation unit | SP2 | NAM-1 |  | covered |
 | D-022 | Source files contain complete top-level declarations; no application wrapper | SP2 | NAM-1, NAM-2, NAM-6, NAM-8 |  | covered |
 | D-023 | Source extension `.card`; UTF-8 source, ASCII identifiers | SP1 | LEX-1, LEX-2, LEX-3, LEX-12 | OI-1 | covered |
-| D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | LEX-22, LEX-23 (tokens); syntax side pending SP2–SP11 |  | partial |
+| D-024 | Mandatory semicolons, braces and named-declaration type annotations | SP1 | LEX-22, LEX-23, NAM-9, TYP-3, STM-1, FUN-1; Annex A §A.2 |  | covered |
 | D-025 | No-value ordinary function signature | SP7 | FUN-2 |  | covered |
 | D-026 | Function arguments | SP7 | FUN-1 |  | covered |
 | D-027 | Calls inside argument expressions | SP5 | EXP-49 |  | covered |
@@ -77,14 +77,14 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-033 | Successful function returns | SP7 | FUN-2 |  | covered |
 | D-034 | Reachable function fall-through | SP6 | STM-21 |  | covered |
 | D-035 | Commands called by application code | SP11 | HEP-3 |  | covered |
-| D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
+| D-036 | Integer literals | SP1 | LEX-17, LEX-18, EXP-7, EXP-10, EXP-11 | OI-14 | covered |
 | D-037 | No preprocessor/macros/textual includes | SP1 | LEX-24 |  | covered |
 | D-038 | Application declarations and struct fields visible across all source files | SP2 | NAM-13 |  | covered |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | SP2 | NAM-8 |  | covered |
 | D-040 | File order does not control name resolution or initialization order | SP2 | NAM-4 |  | covered |
 | D-041 | Host entry point | SP11 | HEP-1, HEP-2, HEP-4 | OI-5 | covered |
 | D-042 | Application protocol | SP11 | HEP-15 |  | covered |
-| D-043 | Classical smart-card status | SP13 | HEP-12; status-word mapping pending Annex B (SP13) | OI-2 | partial |
+| D-043 | Classical smart-card status | SP13 | HEP-12, PLT-9 | OI-2 | covered |
 | D-044 | Platform interface names cannot be redefined | SP2 | LEX-15, NAM-14 | OI-4 | covered |
 | D-045 | One shared top-level naming scope for types and values | SP2 | NAM-11 |  | covered |
 | D-046 | No function overloading or local function/type/error-set definitions | SP2 | NAM-7, NAM-12 |  | covered |
@@ -93,11 +93,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-049 | Command execution | SP11 | HEP-13, TXN-14 |  | covered |
 | D-050 | Session state at chip power-on | SP9 | STA-4 |  | covered |
 | D-051 | Ordinary traps preserve application session state | SP12 | STA-4, RTF-2, RTF-3 |  | covered |
-| D-052 | Runtime-owned resources on ordinary trap | SP13 | RTF-2; resource lifecycle pending Annex B (SP13) |  | partial |
+| D-052 | Runtime-owned resources on ordinary trap | SP13 | RTF-2, PLT-23 |  | covered |
 | D-053 | Session/persistent logical consistency | SP12 | STA-14, RTF-12 |  | covered |
 | D-054 | Runtime-issued security reset | SP12 | STA-4, RTF-9 |  | covered |
 | D-055 | Transactions roll back persistent changes only | SP10 | TXN-4, TXN-11 |  | covered |
-| D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | RTF-9; platform failure handling pending Annex B (SP13) |  | partial |
+| D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | RTF-9, PLT-19 |  | covered |
 | D-057 | Each persistent assignment is atomic | SP9 | STA-11, STA-12 | OI-19 | covered |
 | D-058 | Explicit handling of overflow and underflow | SP5 | EXP-23 |  | covered |
 | D-059 | Global/local arrays of supported fixed-size values | SP3 | TYP-1, TYP-11, TYP-18 |  | covered |
@@ -166,28 +166,28 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-122 | Mutable global declaration initializers | SP9 | STA-2 |  | covered |
 | D-123 | Automatic defaults | SP9 | TYP-22, STM-5, STA-3, STA-4 |  | covered |
 | D-124 | Application-specific global setup | SP9 | STA-5 | OI-7 | covered |
-| D-125 | Runtime resources | SP13 | — |  | pending |
-| D-126 | Resource identifier space | SP13 | — |  | pending |
-| D-127 | Resource storage strategy and cleanup | SP13 | — | OI-20 | pending |
+| D-125 | Runtime resources | SP13 | PLT-20 |  | covered |
+| D-126 | Resource identifier space | SP13 | PLT-2, PLT-20 |  | covered |
+| D-127 | Resource storage strategy and cleanup | SP13 | PLT-24 | OI-20 | covered |
 | D-128 | Array/structure defaults apply recursively | SP9 | TYP-22, STM-5, STA-3, STA-4 |  | covered |
 | D-129 | Global const requires an explicit initializer | SP4 | CEX-1 |  | covered |
 | D-130 | Explicit array/structure construction remains complete | SP5 | EXP-43, EXP-45 |  | covered |
 | D-131 | Nested transactions, including through function calls | SP10 | TXN-10 | OI-3 | covered |
 | D-132 | Callee persistent assignments participate in an active transaction | SP10 | TXN-1 |  | covered |
-| D-133 | By-value aggregate parameters | SP13 | FUN-17 (value semantics); placement guidance pending Annex B (SP13) | OI-21 | partial |
+| D-133 | By-value aggregate parameters | SP13 | FUN-17, Annex B §B.11 | OI-21 | covered |
 | D-134 | Familiar imperative syntax, static types | SP0 | 01 §1.1 |  | deferred |
-| D-135 | Compact custom VM with single-digit KiB RAM goals | SP13 | — |  | pending |
-| D-201 | No opaque platform value types | SP13 | — |  | pending |
-| D-202 | Every resource operation validates existence, kind, state and permissions in the caller's resource space | SP13 | — |  | pending |
-| D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces) | SP13 | — | OI-15 | pending |
-| D-204 | Copying a resource identifier copies only the number | SP13 | — |  | pending |
-| D-205 | Language transactions do not automatically cover resource-API effects | SP13 | TXN-4, TXN-17; API contracts pending Annex B (SP13) |  | partial |
+| D-135 | Compact custom VM with single-digit KiB RAM goals | SP13 | Annex B §B.11 (informative) |  | covered |
+| D-201 | No opaque platform value types | SP13 | PLT-21 |  | covered |
+| D-202 | Every resource operation validates existence, kind, state and permissions in the caller's resource space | SP13 | PLT-20, PLT-22 |  | covered |
+| D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces) | SP13 | PLT-22 | OI-15 | covered |
+| D-204 | Copying a resource identifier copies only the number | SP13 | PLT-20, PLT-22, PLT-23 |  | covered |
+| D-205 | Language transactions do not automatically cover resource-API effects | SP13 | TXN-4, TXN-17, PLT-24 |  | covered |
 | D-206 | Exceeding a runtime stack/execution limit traps | SP12 | TYP-23, STA-13, TXN-16, RTF-6, RTF-7, RTF-8 |  | covered |
 | D-207 | Commit failure never resumes after the block | SP10 | TXN-12, TXN-13 |  | covered |
-| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | TXN-14; platform mechanism pending Annex B (SP13) |  | partial |
+| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | TXN-14, PLT-5 |  | covered |
 | D-209 | Published application/platform error-code meanings remain stable | SP12 | OUT-17, RTF-11 | OI-15 | covered |
 | D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
-| D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | HEP-15; PN §1 superseded row pending Annex B (SP13) | OI-2 | partial |
+| D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | HEP-15, PLT-3 | OI-2 | covered |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | TXN-10 | OI-3 | covered |
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15, NAM-14 | OI-4 | covered |
 | D-405 | Entry point is the single `command` declaration, any name | SP11 | HEP-1, HEP-16 | OI-5 | covered |
@@ -200,13 +200,13 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | OUT-5, OUT-15 | OI-13 | covered |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19, EXP-7 | OI-14 | covered |
-| D-415 | Trap-kind and placeholder platform-error names | SP12 | RTF-4 (trap kinds), EXP-29, EXP-33; CardError names and codes pending Annex B (SP13) | OI-15 | partial |
-| D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | STA-3; platform items pending Annex B (SP13) | OI-16 | partial |
-| D-417 | Large-data object API is future platform work | SP13 | — | OI-17 | pending |
+| D-415 | Trap-kind and placeholder platform-error names | SP12 | EXP-29, EXP-33, RTF-4, PLT-27, PLT-28 | OI-15 | covered |
+| D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | STA-3, PLT-16 | OI-16 | covered |
+| D-417 | Large-data object API is future platform work | SP13 | PLT-17 | OI-17 | covered |
 | D-418 | Outcome typing settled by DN §6.3 | SP8 | OUT-1, OUT-2 | OI-18 | covered |
 | D-419 | Oversized atomic aggregate assignment rejected at build/load time | SP9 | STA-13 | OI-19 | covered |
-| D-420 | Resource storage strategy is platform-defined | SP13 | — | OI-20 | pending |
-| D-421 | Call-frame placement is informative VM guidance | SP13 | — | OI-21 | pending |
+| D-420 | Resource storage strategy is platform-defined | SP13 | PLT-24 | OI-20 | covered |
+| D-421 | Call-frame placement is informative VM guidance | SP13 | FUN-17, Annex B §B.11 (informative) | OI-21 | covered |
 | D-301 | Identifiers are case-sensitive ASCII: first character a letter or underscore, then letters, digits or underscores | SP1 | LEX-12 |  | covered |
 | D-302 | `_` alone is reserved for an ignored pattern | SP1 | LEX-14 |  | covered |
 | D-303 | No escaped or Unicode identifiers | SP1 | LEX-12, LEX-13 |  | covered |
@@ -325,5 +325,6 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | SP9 | STA-6, NAM-14 | OI-38 | covered |
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY) | SP10 | TXN-16 | OI-39 | covered |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | SP10 | TXN-17 | OI-40 | covered |
-| D-441 | Response region contents unspecified; no foreign data | SP11 | HEP-8; PLT requirement pending Annex B (SP13) | OI-41 | partial |
+| D-441 | Response region contents unspecified; no foreign data | SP11 | HEP-8, PLT-7 | OI-41 | covered |
 | D-442 | Maximum stack need computed; excess rejected at build or load | SP12 | RTF-7 | OI-42 | covered |
+| D-443 | Catalog entry requirements; test-only catalog for conformance | SP13 | PLT-25, PLT-26 | OI-43 | covered |

@@ -22,17 +22,18 @@ RUNS = [
     ("stacheck.py", None, "chapter 10 state on sta-* tests"),
     ("txncheck.py", None, "chapter 11 transactions on txn-* tests"),
     ("hepcheck.py", None, "chapter 12 host entry point on hep-* tests"),
-    # The full checker chain (hepcheck builds on all the others and adds the HEP-16 scaffold
-    # to fragments) must accept every valid test and give the expected error for the
+    ("pltcheck.py", None, "Annex B catalog-dependent rules on plt-* tests"),
+    # The full checker chain (pltcheck builds on all the others, adds the HEP-16 scaffold to
+    # fragments and loads the test-only platform catalog) must accept every valid test and give the expected error for the
     # invalid tests of chapters 6 to 11.
-    ("hepcheck.py", "valid/*", "full checker on every valid test"),
-    ("hepcheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
-    ("hepcheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
-    ("hepcheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
-    ("hepcheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
-    ("hepcheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
-    ("hepcheck.py", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
-    # The reference interpreter compiles each runtime test with hepcheck, then runs its scenario.
+    ("pltcheck.py", "valid/*", "full checker on every valid test"),
+    ("pltcheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
+    ("pltcheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
+    ("pltcheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
+    ("pltcheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
+    ("pltcheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
+    ("pltcheck.py", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
+    # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("../interp/interp.py", None, "runtime scenarios in conformance/runtime/"),
 ]
 
