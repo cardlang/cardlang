@@ -431,8 +431,8 @@ expect ok 05 01 03
 """)
 
 # ---------------------------------------------------------------- run-009
-add("run-009-transactions", "TXN-2, TXN-3, TXN-8, TXN-11", "DN §7.2",
-"Commit, read-your-writes, abort and trap rollback, and session changes surviving rollback.", """errors AppError {
+add("run-009-transactions", "TXN-2, TXN-3, TXN-8, TXN-11, TXN-18", "DN §7.2",
+"Commit, read-your-writes, abort and trap rollback, session changes surviving rollback, and attempt and require aborting a transaction.", """errors AppError {
     Refused = 1;
 }
 
@@ -442,6 +442,13 @@ session notes: u8;
 
 function refuse() {
     return Err(AppError.Refused);
+}
+
+function amount_of(flag: u8) -> u32 {
+    if flag == 0 {
+        return Err(AppError.Refused);
+    }
+    return Ok(convert<u32>(flag));
 }
 
 command process(request: ref u8[], response: inout u8[]) -> u32 {
@@ -469,6 +476,18 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
             var divisor: u32 = convert<u32>(request[1]);
             var quotient: u32 = 1 / divisor;
         }
+    } else if operation == 5 {
+        transaction {
+            a = a + 7;
+            var amount: u32 = attempt amount_of(request[1]);
+            b = amount;
+        }
+    } else if operation == 6 {
+        transaction {
+            a = a + 9;
+            require request[1] == 1 else AppError.Refused;
+            b = 99;
+        }
     }
     response[0] = truncate<u8>(a);
     response[1] = truncate<u8>(b);
@@ -487,6 +506,16 @@ command 04 00
 expect trap DIV-ZERO
 command 03           # the trap rolled back the pending write
 expect ok 01 0b 01
+command 05 00        # attempt fails inside the transaction: it aborts (TXN-18)
+expect err app 1
+command 03           # a + 7 was rolled back
+expect ok 01 0b 01
+command 05 04        # attempt succeeds: the transaction commits
+expect ok 08 04 01
+command 06 00        # require fails inside the transaction: it aborts
+expect err app 1
+command 03
+expect ok 08 04 01
 """)
 
 # ---------------------------------------------------------------- run-010

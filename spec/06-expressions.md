@@ -705,8 +705,9 @@ Anywhere else it is **CE-EXP-14**: for example as an operand, an initializer, an
 **EXP-51 [Agreed]** `attempt e` may appear as an expression in any runtime expression position, except:
 
 - inside a call argument (EXP-49);
-- in a constant expression (CEX-5);
-- where its failure path would return across a transaction boundary (chapter 11).
+- in a constant expression (CEX-5).
+
+Inside a transaction, its failure path aborts the transaction (TXN-18).
 
 When `attempt` is in the right operand of `and` or `or`, it is evaluated only if that operand is evaluated (EXP-21). The typing and behavior of `attempt`, and its statement form for calls with no payload, are defined in chapter 9.
 *Sources: D-014, D-408 (OI-8); DN §6.3, §8.1, §9.3.*

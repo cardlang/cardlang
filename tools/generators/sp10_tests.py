@@ -50,9 +50,9 @@ add(I+"txn-101-return-inside.card", "TXN-6", "DN §3.6", "compile-error CE-TXN-1
 P + fn(txn(["balance = 0;", "return Ok();"])))
 add(I+"txn-102-forwarding-return-inside.card", "TXN-6", "DN §3.6", "compile-error CE-TXN-1", "A forwarding return inside a transaction.",
 P + HELPER + fn(txn(["return helper();"])))
-add(I+"txn-103-attempt-inside.card", "TXN-6", "DN §6.3", "compile-error CE-TXN-1", "attempt inside a transaction.",
+add("valid/txn-012-attempt-inside.card", "TXN-18", "D-445; DN §6.3", "ok", "attempt inside a transaction: its error path aborts the transaction.",
 P + READ + fn(txn(["var amount: u32 = attempt read_amount();", "balance = amount;"])))
-add(I+"txn-104-require-inside.card", "TXN-6", "DN §3.6", "compile-error CE-TXN-1", "require inside a transaction.",
+add("valid/txn-013-require-inside.card", "TXN-18", "D-445; DN §3.6", "ok", "require inside a transaction: a false condition aborts the transaction.",
 P + WALLET + fn(txn(["require ready else WalletError.Unauthorized;", "balance = 0;"]), None, "ready: bool"))
 add(I+"txn-105-break-to-outer-loop.card", "TXN-6", "DN §3.6", "compile-error CE-TXN-1", "break targeting a loop around the transaction.",
 P + fn(["while true {"] + ["    " + l for l in txn(["balance = 0;", "break;"], after=())] + ["}", "return Ok();"]))

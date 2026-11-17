@@ -10,3 +10,13 @@ command 04 00
 expect trap DIV-ZERO
 command 03           # the trap rolled back the pending write
 expect ok 01 0b 01
+command 05 00        # attempt fails inside the transaction: it aborts (TXN-18)
+expect err app 1
+command 03           # a + 7 was rolled back
+expect ok 01 0b 01
+command 05 04        # attempt succeeds: the transaction commits
+expect ok 08 04 01
+command 06 00        # require fails inside the transaction: it aborts
+expect err app 1
+command 03
+expect ok 08 04 01

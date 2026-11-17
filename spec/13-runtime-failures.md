@@ -122,7 +122,7 @@ The behaviour in this chapter, and the runtime behaviour of earlier chapters, is
 | `runtime/run-006-aliasing-and-slices/` | FUN-12, FUN-14, FUN-20 |
 | `runtime/run-007-outcomes/` | OUT-10, OUT-18, OUT-20 |
 | `runtime/run-008-state-lifecycle/` | STA-3, STA-4, STA-6, RTF-2, RTF-9 |
-| `runtime/run-009-transactions/` | TXN-2, TXN-3, TXN-8, TXN-11 |
+| `runtime/run-009-transactions/` | TXN-2, TXN-3, TXN-8, TXN-11, TXN-18 |
 | `runtime/run-010-response-contract/` | HEP-9 |
 | `runtime/run-011-counter-application/` | HEP-15; OUT-20 (DN §13 counter) |
 | `runtime/run-012-wallet-application/` | DN §13 wallet: authorization, transactions, `abort`, reset |

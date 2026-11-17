@@ -1,9 +1,9 @@
-// rule: TXN-2, TXN-3, TXN-8, TXN-11
+// rule: TXN-2, TXN-3, TXN-8, TXN-11, TXN-18
 // source: DN §7.2
 // status: agreed
 // kind: application
 // expect: runtime
-// note: Commit, read-your-writes, abort and trap rollback, and session changes surviving rollback.
+// note: Commit, read-your-writes, abort and trap rollback, session changes surviving rollback, and attempt and require aborting a transaction.
 errors AppError {
     Refused = 1;
 }
@@ -14,6 +14,13 @@ session notes: u8;
 
 function refuse() {
     return Err(AppError.Refused);
+}
+
+function amount_of(flag: u8) -> u32 {
+    if flag == 0 {
+        return Err(AppError.Refused);
+    }
+    return Ok(convert<u32>(flag));
 }
 
 command process(request: ref u8[], response: inout u8[]) -> u32 {
@@ -40,6 +47,18 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
             a = a + 50;
             var divisor: u32 = convert<u32>(request[1]);
             var quotient: u32 = 1 / divisor;
+        }
+    } else if operation == 5 {
+        transaction {
+            a = a + 7;
+            var amount: u32 = attempt amount_of(request[1]);
+            b = amount;
+        }
+    } else if operation == 6 {
+        transaction {
+            a = a + 9;
+            require request[1] == 1 else AppError.Refused;
+            b = 99;
         }
     }
     response[0] = truncate<u8>(a);

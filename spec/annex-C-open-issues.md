@@ -58,6 +58,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-42 | Stack depth | Gap | SP12 | Resolved |
 | OI-43 | A catalog for testing platform-dependent rules | Gap | SP13 | Resolved |
 | OI-44 | EXP-6 and the written grammar | Contradiction | SP14 | Resolved |
+| OI-45 | attempt and require inside a transaction | Proposal-to-validate | Draft 0.2 | Resolved |
 
 ---
 
@@ -712,6 +713,21 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-45 — attempt and require inside a transaction
+
+- **Kind:** proposal-to-validate (raised after Draft 0.1, from the review of application code)
+- **Sources:** D-109; DN §3.6 ("no implicit rollback is added to them"), §7.2; TXN-6 as drafted in SP10
+- **Affected rules:** TXN-6, STM-19, OUT-10, EXP-51; new TXN-18
+- **Question:** D-109 forbids `return`, `break` and `continue` across a transaction boundary. As a consequence, Draft 0.1 also forbade `attempt` and `require` inside a transaction, because their error path is a return. Handling every fallible call in a transaction then needs a `match` whose error arm is `abort Err(e)`. Should the error path of `attempt` and `require` abort the transaction instead?
+- **Options:**
+  - (a) Inside a transaction in the same function, the error path of `attempt` and `require` behaves as `abort Err(e)`. `return`, `break` and `continue` keep their restriction.
+  - (b) Keep the Draft 0.1 rule.
+- **Recommendation:** (a). The concern behind D-109 is that a return leaves it unclear whether the work commits. For an error path that is not unclear: committing and then returning `Err` is never wanted, and rolling back is exactly `abort`. The rollback is explicit in the keyword that propagates the error.
+- **Status:** resolved 2026-11-17 (D-445)
+- **Decision:** Option (a).
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -760,3 +776,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 (SP12) |
 | 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ (SP13) |
 | 2026-11-17 | OI-44 | EXP-6 encoded in the grammar (D-444) | User | Applied in Annex A §A.2.4 and §A.2.5, EXP-6, and the fragments of chapters 6, 7 and 9 (SP14) |
+| 2026-11-17 | OI-45 | attempt and require abort a transaction on their error path (D-445) | User | New TXN-18; TXN-6, STM-19, OUT-10, EXP-51 and Annex A notes amended; txn-103 and txn-104 became valid txn-012 and txn-013; run-009 extended (Draft 0.2) |

@@ -114,10 +114,8 @@ function credit_and_record(amount: u32) {
 
 - `return …;` in any form, including a forwarding `return`;
 - `break;` or `continue;` whose target loop encloses the transaction;
-- `attempt …`, in either form, because its `Err` path returns (OUT-10);
-- `require …;`, because it is equivalent to an `if` containing `return` (STM-19).
 
-Transfers that stay inside the block are valid. Examples are a `break` or `continue` targeting a loop that is itself inside the transaction, and a `return` inside a called function: that `return` leaves only the callee. The caller then handles the callee's outcome without leaving its transaction, for example with `match` or `abort`. The only ways to leave a transaction are to reach its closing brace, `abort Err(…)`, or a trap.
+Transfers that stay inside the block are valid. Examples are a `break` or `continue` targeting a loop that is itself inside the transaction, and a `return` inside a called function: that `return` leaves only the callee. The caller then handles the callee's outcome without leaving its transaction, for example with `match` or `abort`. `attempt` and `require` are not boundary-crossing transfers: inside a transaction, their error path aborts the transaction (TXN-18). The only ways to leave a transaction are to reach its closing brace, `abort Err(…)`, the error path of `attempt` or `require`, or a trap.
 *Sources: D-109, D-381; DN §3.6, §6.3, §7.2.*
 
 **TXN-7 [Agreed]** `abort Err(x);` is valid only lexically inside the block of a transaction in the same function or command. Anywhere else it is **CE-TXN-2**. That includes a function called from within a transaction, which returns `Err` instead and lets the transaction's owner decide. The operand `x` must be either:
@@ -136,6 +134,14 @@ Any other operand is **CE-OUT-3**, including a `CardError` member (OUT-19). `abo
 
 Session changes made during the transaction remain. Local variables end as for any return. Persistent changes committed earlier stay committed. `abort` is not a trap: a caller receives an ordinary `Err` and may handle it. There are no savepoints, and there is no form that rolls back and then continues.
 *Sources: D-110, D-379; DN §6.4, §7.2.*
+
+**TXN-18 [Agreed]** Lexically inside the block of a transaction in the same function or command, the error path of `attempt` and of `require` aborts the transaction:
+
+- `attempt c`, in either form, whose call produces `Err(e)`, behaves as `abort Err(e);`;
+- `require c else M;` whose condition is `false` behaves as `abort Err(M);`.
+
+Each is executed by the steps of TXN-8: the block stops, the pending persistent writes roll back, and the error is returned unchanged. Unlike an `abort` operand, `e` may be a platform error, because `attempt` propagates an error and does not originate one (OUT-18, OUT-19). Inside a function called from the transaction, `attempt` and `require` return from that function as usual, and the caller's transaction stays active (TXN-9).
+*Sources: D-445 (OI-45), D-109, D-110; DN §3.6, §6.3, §7.2.*
 
 **TXN-9 [Agreed]** A callee that returns `Err` does not end or abort the caller's transaction. The callee's pending writes remain pending. The transaction's owner either handles the error and continues, so the writes commit at the closing brace, or uses `abort` to roll them back.
 *Sources: D-378, D-368; DN §6.3, §7.2.*
@@ -215,14 +221,16 @@ function debit(amount: u32) -> u32 {
 
 *Valid:* a helper that uses `attempt`, called from a transaction whose owner handles its outcome. (conformance: `valid/txn-011-helper-with-attempt.card`)
 
+*Valid:* `attempt` inside a transaction; its error path aborts the transaction (TXN-18). (conformance: `valid/txn-012-attempt-inside.card`)
+
+*Valid:* `require` inside a transaction; a false condition aborts the transaction (TXN-18, DN §3.6). (conformance: `valid/txn-013-require-inside.card`)
+
 *Invalid:* each of these is in its own test.
 
 | Code inside a transaction block | Class | Conformance |
 |---|---|---|
 | `return Ok();` | CE-TXN-1 | `invalid/txn-101-return-inside.card` |
 | `return helper();` | CE-TXN-1 | `invalid/txn-102-forwarding-return-inside.card` |
-| `var amount: u32 = attempt read_amount();` | CE-TXN-1 | `invalid/txn-103-attempt-inside.card` |
-| `require ready else WalletError.Unauthorized;` (DN §3.6) | CE-TXN-1 | `invalid/txn-104-require-inside.card` |
 | `break;` targeting a loop around the transaction | CE-TXN-1 | `invalid/txn-105-break-to-outer-loop.card` |
 | `continue;` targeting a loop around the transaction | CE-TXN-1 | `invalid/txn-106-continue-to-outer-loop.card` |
 | `return Err(error);` in a match arm | CE-TXN-1 | `invalid/txn-107-return-in-match-arm.card` |

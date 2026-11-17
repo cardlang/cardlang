@@ -229,7 +229,7 @@ AbortStatement       ::= 'abort' 'Err' '(' Expression ')' ';'
 
 Both productions are alternatives of `Statement` (§A.2.5). Chapter 11 restricts them by meaning, not by grammar:
 
-- `return`, `attempt`, `require`, and loop exits must not leave a transaction (TXN-6, CE-TXN-1);
+- `return` and loop exits must not leave a transaction (TXN-6, CE-TXN-1); the error path of `attempt` and `require` aborts it (TXN-18);
 - `abort` is valid only lexically inside a transaction (TXN-7, CE-TXN-2);
 - transactions do not nest (TXN-10, CE-TXN-3).
 

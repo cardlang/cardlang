@@ -1,9 +1,9 @@
-// rule: TXN-6
-// source: DN §6.3
+// rule: TXN-18
+// source: D-445; DN §6.3
 // status: agreed
 // kind: fragment
-// expect: compile-error CE-TXN-1
-// note: attempt inside a transaction.
+// expect: ok
+// note: attempt inside a transaction: its error path aborts the transaction.
 persistent balance: u32;
 
 function read_amount() -> u32 {

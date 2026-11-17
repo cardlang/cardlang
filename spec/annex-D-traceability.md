@@ -32,7 +32,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-23 |
 | 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
-| 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-17 |
+| 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-18 |
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | SP12 | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
 | annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1–A.2.10, A.3; consolidated and checked mechanically (SP14) |
@@ -151,8 +151,8 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | SP6 | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15, STM-18 |  | covered |
 | D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | SP8 | OUT-3, OUT-4, STM-18 |  | covered |
 | D-108 | Exhaustive result matching; read-only loop and pattern bindings | SP8 | OUT-12, OUT-13, STM-7 |  | covered |
-| D-109 | No `return`, `break` or `continue` across transaction boundaries | SP10 | TXN-6 |  | covered |
-| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | SP10 | TXN-7, TXN-8 |  | covered |
+| D-109 | No `return`, `break` or `continue` across transaction boundaries | SP10 | TXN-6, TXN-18 |  | covered |
+| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | SP10 | TXN-7, TXN-8, TXN-18 |  | covered |
 | D-111 | `abort` scope | SP10 | TXN-7 |  | covered |
 | D-112 | Parameters: by value, read-only `ref`, mutable `inout` | SP7 | FUN-1, FUN-6, STM-7 |  | covered |
 | D-113 | Reference modes explicit at declaration and call site | SP7 | FUN-7 |  | covered |
@@ -330,6 +330,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-442 | Maximum stack need computed; excess rejected at build or load | SP12 | RTF-7, PLT-28, PLT-29 | OI-42 | covered |
 | D-443 | Catalog entry requirements; test-only catalog for conformance | SP13 | PLT-25, PLT-26 | OI-43 | covered |
 | D-444 | EXP-6 encoded in Annex A with a condition-expression nonterminal | SP14 | EXP-6 | OI-44 | covered |
+| D-445 | attempt and require inside a transaction abort it on their error path | Draft 0.2 | TXN-18, TXN-6, STM-19, OUT-10, EXP-51 | OI-45 | covered |
 
 ## D.3 Rules → conformance tests
 
@@ -343,7 +344,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 287 rules: 211 cited, 47 exercised, 29 not testable.
+**Totals:** 288 rules: 212 cited, 47 exercised, 29 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -565,7 +566,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | TXN-3 | cited | hep-005-counter-application, run-009-transactions, run-011-counter-application, txn-001-basic, txn-003-empty |
 | TXN-4 | exercised | run-009-transactions |
 | TXN-5 | cited | run-017-evaluation-and-copies |
-| TXN-6 | cited | txn-008-loop-inside, txn-009-validate-then-transact, txn-011-helper-with-attempt, txn-101-return-inside, txn-102-forwarding-return-inside, txn-103-attempt-inside, txn-104-require-inside, txn-105-break-to-outer-loop, txn-106-continue-to-outer-loop, txn-107-return-in-match-arm |
+| TXN-6 | cited | txn-008-loop-inside, txn-009-validate-then-transact, txn-011-helper-with-attempt, txn-101-return-inside, txn-102-forwarding-return-inside, txn-105-break-to-outer-loop, txn-106-continue-to-outer-loop, txn-107-return-in-match-arm |
 | TXN-7 | cited | txn-006-abort-binding, txn-007-abort-member, txn-108-abort-outside, txn-109-abort-in-helper, txn-110-abort-card-error, txn-111-abort-integer, txn-112-bare-abort, txn-113-abort-ok |
 | TXN-8 | cited | run-009-transactions, run-012-wallet-application, txn-006-abort-binding |
 | TXN-9 | cited | txn-005-err-handled-locally |
@@ -577,6 +578,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | TXN-15 | cited | txn-010-ends-with-abort |
 | TXN-16 | not testable | Transaction capacity is platform-defined; the suite has no target profile |
 | TXN-17 | cited | plt-002-immediate-api-in-transaction, plt-105-forbidden-in-transaction, plt-106-forbidden-through-helper |
+| TXN-18 | cited | run-009-transactions, txn-012-attempt-inside, txn-013-require-inside |
 | HEP-1 | cited | hep-001-minimal, hep-002-any-names, hep-005-counter-application, hep-101-no-command, hep-102-two-commands |
 | HEP-2 | cited | hep-001-minimal, hep-002-any-names, hep-103-wrong-return-type, hep-104-no-return-type, hep-105-inout-request, hep-106-fixed-size-request, hep-107-extra-parameter |
 | HEP-3 | cited | hep-108-call-command |

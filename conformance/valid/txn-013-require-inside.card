@@ -1,9 +1,9 @@
-// rule: TXN-6
-// source: DN §3.6
+// rule: TXN-18
+// source: D-445; DN §3.6
 // status: agreed
 // kind: fragment
-// expect: compile-error CE-TXN-1
-// note: require inside a transaction.
+// expect: ok
+// note: require inside a transaction: a false condition aborts the transaction.
 persistent balance: u32;
 
 errors WalletError {

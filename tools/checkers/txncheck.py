@@ -40,10 +40,6 @@ class TxnChecker(stacheck.StaChecker):
                 if any(v2 == "transaction" for _, v2 in inner): raise CE("CE-TXN-3")
                 if any(has_txn(g) for g in self.calls_in(inner)): raise CE("CE-TXN-3")
 
-    def synth(self, e, L, value=True):
-        if e[0] == "attempt" and self._txn is not None: raise CE("CE-TXN-1")
-        return super().synth(e, L, value)
-
     def sstmt(self, p, L, ret, ro, loops):
         v = p.peek()
         if v == "transaction":
@@ -60,7 +56,7 @@ class TxnChecker(stacheck.StaChecker):
             if not (self.app_member(x) or (x[0] == "name" and x[1] in self._bindings)): raise CE("CE-OUT-3")
             return False
         if self._txn is not None:
-            if v in ("return", "require", "attempt"): raise CE("CE-TXN-1")
+            if v == "return": raise CE("CE-TXN-1")   # attempt and require abort instead (TXN-18)
             if v in ("break", "continue") and len(loops) <= self._txn: raise CE("CE-TXN-1")
         return super().sstmt(p, L, ret, ro, loops)
 

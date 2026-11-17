@@ -17,7 +17,7 @@ Related topics are covered in other chapters:
 | Topic | Chapter |
 |---|---|
 | Traps, the execution faults that are never outcomes | 13 |
-| `abort Err(…)` and the transaction-boundary restrictions on `return`, `attempt` and `require` | 11 |
+| `abort Err(…)` and the transaction-boundary rules for `return`, `attempt` and `require` | 11 |
 | How the host sees each outcome category | 12, and Annex B |
 
 ## 9.1 Outcomes
@@ -154,7 +154,7 @@ Using the statement form with a call that has a payload is **CE-OUT-4**: a paylo
 2. If its outcome is `Ok(v)`, the result of `attempt` is `v`, as an independent copy (FUN-17). For `Ok()`, the statement simply completes.
 3. If its outcome is `Err(e)`, the enclosing function or command immediately returns `Err(e)`. The category and code are unchanged. This happens whatever the enclosing function's payload type, and the rest of the enclosing expression and statement is not evaluated.
 
-`attempt` never catches traps. Chapter 11 forbids an `attempt` whose `Err` return would leave a transaction opened in the same function.
+`attempt` never catches traps. Inside a transaction opened in the same function, step 3 aborts the transaction instead of returning directly (TXN-18).
 *Sources: D-014, D-017, D-364; DN §6.3.*
 
 ### Examples

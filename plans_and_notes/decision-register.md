@@ -149,8 +149,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | Agreed | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15, STM-18 |
 | D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | Agreed | [Agreed] | language | DN §3.6, §3.7 | SP8 |  | OUT-3, OUT-4, STM-18 |
 | D-108 | Exhaustive result matching; read-only loop and pattern bindings | Agreed | [Agreed] | language | DN §3.6 | SP8 |  | OUT-12, OUT-13, STM-7 |
-| D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | TXN-6 |
-| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7, TXN-8 |
+| D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | TXN-6, TXN-18 |
+| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7, TXN-8, TXN-18 |
 | D-111 | `abort` scope | Lexically inside a transaction only; helpers return Err for the transaction owner to handle | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7 |
 | D-112 | Parameters: by value, read-only `ref`, mutable `inout` | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1, FUN-6, STM-7 |
 | D-113 | Reference modes explicit at declaration and call site | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-7 |
@@ -345,3 +345,4 @@ Sub-plans add rows here as they reach each DN section.
 | D-442 | An application's maximum stack need is computed; exceeding the target's stack is rejected at build or load time; a runtime stack check remains only as a safety net | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-42 | SP12 | OI-42 | RTF-7, PLT-28, PLT-29 |
 | D-443 | Annex B defines only the platform API catalog entry requirements; conformance tests use a test-only, non-normative catalog of fictional `card.test.` entries | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-43 | SP13 | OI-43 | PLT-25, PLT-26 |
 | D-444 | EXP-6 is encoded in Annex A: condition positions use a restricted expression nonterminal without an unparenthesized structure constructor | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-44 | SP14 | OI-44 | EXP-6 |
+| D-445 | Inside a transaction, the error path of attempt and require aborts the transaction (rollback, then the error is returned unchanged); return, break and continue still may not cross the boundary | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-45 | Draft 0.2 | OI-45 | TXN-18, TXN-6, STM-19, OUT-10, EXP-51 |
