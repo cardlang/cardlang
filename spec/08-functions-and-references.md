@@ -423,8 +423,8 @@ A view has the permissions of the path it was taken from: read-only through `ref
   2. Evaluate the right side. A slice's region is checked as in FUN-20.
   3. If the two lengths differ, the result is `trap(BOUNDS)`, and nothing is stored.
   4. Copy the elements as if through a temporary: when the regions overlap, every element receives the source's original value.
-- **Persistence.** A slice assignment into persistent storage is one persistent assignment. It is atomic for the whole region (STA-11), its logical size counts for STA-13, and it participates in an active transaction.
-*Sources: D-447 (OI-47); DN §8.4.*
+- **Persistence.** A slice assignment into persistent storage is one persistent assignment. It is atomic for the whole region (STA-11), the region is its destination for STA-13, and it participates in an active transaction. When the region's size is known only at runtime, STA-13 applies at runtime instead (D-451).
+*Sources: D-447 (OI-47), D-451 (OI-51); DN §8.4.*
 
 *Valid:* slice assignments from a list, `fill`, another slice and a view. (conformance: `valid/fun-011-slice-assignment.card`)
 

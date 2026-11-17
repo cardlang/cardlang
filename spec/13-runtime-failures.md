@@ -55,14 +55,14 @@ Keeping session state consistent with persistent state after a trap is the appli
 | `SHIFT` | A shift count is at least the width of the left operand | EXP-26 |
 | `BOUNDS` | An index, a slice, an element reference, or the argument length of `decode_be`/`decode_le` is out of range | EXP-37, EXP-39, STM-9, FUN-11, FUN-20 |
 | `RESPONSE-COUNT` | The command returns a count larger than `response.length` | HEP-9 |
-| `TXN-CAPACITY` | A transaction exceeds the target's transaction capacity | TXN-16 |
+| `TXN-CAPACITY` | A capacity of the target is exceeded at runtime: a transaction's capacity, or the atomic-update capacity for a destination whose size is known only at runtime | TXN-16, STA-13 |
 | `COMMIT` | A commit fails in a way the platform contains | TXN-12 |
 | `NESTED-TXN` | A runtime nesting check fails. Accepted programs never reach this (TXN-10) | TXN-10 |
 | `EXHAUSTED` | The command exhausts its execution budget, or a runtime stack check fails. Accepted programs never reach the stack case (RTF-7) | RTF-6, RTF-7 |
 | `VM` | The VM finds an invalid instruction or invalid state. Verified programs never reach this | — |
 
 These names are language-level placeholders. Annex B confirms them. The numeric codes for each kind, and how a kind is reported to the host if it is reported at all, are platform-defined (Annex B).
-*Sources: D-396, D-415 (OI-15), D-439 (OI-39); DN §6.4, §6.5.*
+*Sources: D-396, D-415 (OI-15), D-439 (OI-39), D-451 (OI-51); DN §6.4, §6.5.*
 
 **RTF-5 [Agreed]** Traps are deterministic. Given the same program, the same state and the same request, a trap of the same kind occurs at the same point in evaluation order. An implementation may not move, add, remove or reclassify a trap, except by proving that the operation cannot fail (EXP-22). This holds in every build mode.
 *Sources: D-338; DN §3.5, §6.5.*

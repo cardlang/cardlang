@@ -142,8 +142,8 @@ WipeStatement ::= 'wipe' Expression ';'
 
 - **Evaluation.** As for an assignment (STM-9): the place's path, and a slice's endpoints and region, are evaluated and checked first, and then the store happens.
 - **The stores are always performed.** They are never removed, merged or postponed past the end of the place's lifetime, even when nothing later reads the place. This is the one exception to EXP-22, so that secrets can be erased reliably (PLT-34).
-- **Persistence.** A `wipe` of persistent storage is a persistent assignment. It is atomic for its whole destination (STA-11), and it participates in an active transaction.
-*Sources: D-449 (OI-49); DN §3.9.*
+- **Persistence.** A `wipe` of persistent storage is a persistent assignment. It is atomic for its whole destination (STA-11), STA-13 applies to that destination, and it participates in an active transaction.
+*Sources: D-449 (OI-49), D-451 (OI-51); DN §3.9.*
 
 *Valid:* `wipe` of a local, a session global and an `inout` view. (conformance: `valid/stm-013-wipe.card`)
 

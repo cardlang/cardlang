@@ -23,7 +23,7 @@ This is the normative specification of the CardLang language.
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | Complete and consolidated; checked mechanically (SP14) |
 | [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | SP13 | Draft complete |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-50 all resolved; none open |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-51 all resolved; none open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Complete: every decision covered (D-134 informative); rule coverage matrix in §D.3 |
 
 Related files:
@@ -142,7 +142,7 @@ Related files:
 | TRAP-SHIFT | Shift count ≥ width | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 | TRAP-BOUNDS | Index, slice, element reference or decode length out of range | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 | TRAP-RESPONSE-COUNT | Returned count > response.length | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
-| TRAP-TXN-CAPACITY | Transaction capacity exceeded | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-TXN-CAPACITY | Transaction or atomic-update capacity exceeded | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 | TRAP-COMMIT | Contained commit failure | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 | TRAP-NESTED-TXN | Runtime nesting check (unreachable in accepted programs) | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 | TRAP-EXHAUSTED | Execution budget exhausted; runtime stack check (unreachable) | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |

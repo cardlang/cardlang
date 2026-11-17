@@ -1,6 +1,6 @@
 # Base platform API and intrinsics — design plan
 
-Status: B1–B9 decided 2026-11-17 (§6, "Decided"). Where §2–§5 differ from the decisions, the decisions win; the sections are updated when each work package is drafted.
+Status: B1–B8 decided 2026-11-17; B9 withdrawn except for feature profiles (§6, "Decided"). Where §2–§5 differ from the decisions, the decisions win; the sections are updated when each work package is drafted.
 
 ## 1. Goal
 
@@ -252,7 +252,7 @@ These decisions take precedence over the proposals in §2–§5.
   - `platform/base-catalog.txt` for its machine-readable catalog.
 
   Feature profiles and capacity classes (B9) are documented there.
-- **B9: profiles and the capacity model.** This decision was added during the discussion.
+- **B9: profiles and the capacity model.** **Withdrawn 2026-11-17, except for feature profiles (OI-51, D-451).** The real commit cost cannot be known at compile time, so capacity classes, logical sizes and the footprint analysis were dropped, and the Draft 0.1 capacity model stays. Feature profiles (sets of APIs and algorithms) remain. A runtime capacity query may be considered as a platform API in WP2. The original text follows for the record. This decision was added during the discussion.
   - **Two kinds of profile.**
     - A *feature profile* says which APIs and algorithms exist, for example a base profile with P-256 only.
     - A *capacity class* states guaranteed minimums.

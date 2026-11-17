@@ -1,7 +1,7 @@
 # WP1 — Language changes for the base API: detailed sub-plan
 
 Parent: `plans_and_notes/base-api-plan.md` (decisions B1 and B9).
-Status: decisions D1–D5 taken 2026-11-17 (§4). **Phase A drafted 2026-11-17**: items 1–5 (EXP-52 to EXP-54, STM-23, FUN-24, PLT-30 to PLT-34, OI-46 to OI-50). **Phase B, item 6 (the capacity model, §2.6), is not drafted yet.**
+Status: decisions D1–D5 taken 2026-11-17 (§4). **Phase A drafted 2026-11-17**: items 1–5 (EXP-52 to EXP-54, STM-23, FUN-24, PLT-30 to PLT-34, OI-46 to OI-50). **Item 6 (the capacity model, §2.6) was withdrawn on 2026-11-17 (OI-51, D-451).** Only a small amendment to STA-13, FUN-24, STM-23 and RTF-4 was made instead. WP1 is complete.
 
 ## 1. Scope
 

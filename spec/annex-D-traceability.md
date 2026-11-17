@@ -336,6 +336,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-448 | Comparing arrays | WP1 | EXP-53, EXP-54, LEX-15, NAM-14 | OI-48 | covered |
 | D-449 | Wiping secrets | WP1 | STM-23, EXP-22, LEX-13, PLT-34 | OI-49 | covered |
 | D-450 | Security expectations for platforms | WP1 | PLT-31 to PLT-34, PLT-32, PLT-33 | OI-50 | covered |
+| D-451 | Capacity model withdrawn; runtime-sized atomic overflow traps | WP1 | STA-13, FUN-24, STM-23, RTF-4 | OI-51 | covered |
 
 ## D.3 Rules → conformance tests
 

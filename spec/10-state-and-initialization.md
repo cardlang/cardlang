@@ -197,8 +197,8 @@ If execution is interrupted and the platform then recovers, the destination hold
 
 *Sources: D-371, D-372; DN §7.1.*
 
-**STA-13 [Agreed]** A target profile may support atomic updates only up to some size. An application containing a persistent assignment whose destination exceeds what its target can update atomically is rejected for that target at build or load time. It is never run with a non-atomic update. The limit values, and how the rejection is reported, are platform-defined (Annex B).
-*Sources: D-419 (OI-19), D-206; DN §7.1, §7.4.*
+**STA-13 [Agreed]** A target profile may support atomic updates only up to some size. An application containing a persistent assignment whose destination exceeds what its target can update atomically is rejected for that target at build or load time. It is never run with a non-atomic update. A destination whose size is known only at runtime is possible, for example a slice with runtime endpoints or a view (FUN-24, STM-23). If such a destination exceeds what the target can update atomically, the result is `trap(TXN-CAPACITY)`, and nothing is stored. The limit values, and how the rejection is reported, are platform-defined (Annex B).
+*Sources: D-419 (OI-19), D-206, D-451 (OI-51); DN §7.1, §7.4.*
 
 ### Examples
 

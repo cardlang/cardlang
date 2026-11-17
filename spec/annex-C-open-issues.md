@@ -64,6 +64,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-48 | Comparing arrays | Gap | WP1 | Resolved |
 | OI-49 | Wiping secrets | Gap | WP1 | Resolved |
 | OI-50 | Security expectations for platforms | Gap | WP1 | Resolved |
+| OI-51 | The capacity model (withdrawn) | Proposal-to-validate | WP1 | Resolved |
 
 ---
 
@@ -788,6 +789,21 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-51 — The capacity model (withdrawn)
+
+- **Kind:** proposal-to-validate (base API plan B9; WP1 item 6)
+- **Sources:** STA-13, TXN-16; base API plan B9
+- **Affected rules:** STA-13, FUN-24, STM-23, RTF-4
+- **Question:** Should capacity classes guarantee minimum transaction and atomic-update capacities in logical units, checked by a compile-time footprint analysis?
+- **Options:**
+  - (a) Yes, as B9 proposed.
+  - (b) No. Keep the Draft 0.1 model, and close the one gap that slice assignment and `wipe` opened: destinations whose size is known only at runtime.
+- **Discussion:** The real commit cost depends on page size, journal format, metadata and key storage, so it cannot be known at compile time. A guarantee in logical units is either too small to be useful or one nobody can check. Static bounds become unbounded as soon as views or runtime loops are involved.
+- **Status:** resolved 2026-11-17 (D-451)
+- **Decision:** Option (b). No capacity classes, logical sizes or footprint analysis (B9 withdrawn). The Draft 0.1 model stays: STA-13 rejects at build or load time a destination whose size is known and too large; a destination whose size is known only at runtime that exceeds the atomic capacity is trap(TXN-CAPACITY); TXN-16 is unchanged. Limit values stay platform-defined.
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -842,3 +858,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-48 | Comparing arrays (D-448) | User | EXP-53, EXP-54, LEX-15, NAM-14 (WP1) |
 | 2026-11-17 | OI-49 | Wiping secrets (D-449) | User | STM-23, EXP-22, LEX-13, PLT-34 (WP1) |
 | 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 (WP1) |
+| 2026-11-17 | OI-51 | The capacity model (withdrawn) (D-451) | User | STA-13, FUN-24, STM-23, RTF-4 (WP1) |
