@@ -16,3 +16,43 @@
 # Every field is required. Types are primitive types, array and view types, or types declared in
 # platform/base-types.card. The entries are added by WP3 (card.key), WP4 (card.crypto, card.random),
 # WP5 (card.cbor) and WP6 (card.der, card.tlv).
+
+api card.key.generate
+    params      id: u32, spec: KeySpec
+    payload     -
+    transaction participates
+    errors      AlreadyExists, Unsupported, Malformed, Capacity
+    resources   creates Key(id)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Create key id with fresh random material; for EcP256Private, a key pair (BP-20).
+
+api card.key.import
+    params      id: u32, spec: KeySpec, material: ref u8[]
+    payload     -
+    transaction participates
+    errors      AlreadyExists, Malformed, Capacity
+    resources   creates Key(id)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Create key id from raw AES bytes, a P-256 private scalar or an uncompressed P-256 point (BP-21).
+
+api card.key.export_public
+    params      id: u32, output: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Capacity
+    resources   uses Key(id)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 65-byte uncompressed public point of a P-256 key and return 65 (BP-22).
+
+api card.key.delete
+    params      id: u32
+    payload     -
+    transaction participates
+    errors      NotFound, WrongResourceType
+    resources   deletes Key(id)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Delete key id and erase its material (BP-23).

@@ -1,0 +1,14 @@
+// rule: NAM-18, PLT-25
+// source: platform/base-profile.md BP-18 to BP-25
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Every card.key API, called with matching arguments.
+function provision(material: ref u8[], output: inout u8[]) -> u32 {
+    var spec: KeySpec = KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent };
+    attempt card.key.import(1, spec, ref material);
+    attempt card.key.generate(2, KeySpec { type: KeyType.Aes256, storage: KeyStorage.Volatile });
+    var length: u32 = attempt card.key.export_public(1, inout output);
+    attempt card.key.delete(2);
+    return Ok(length);
+}

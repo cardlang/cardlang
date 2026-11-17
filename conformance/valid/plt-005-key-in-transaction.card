@@ -1,0 +1,13 @@
+// rule: TXN-17, PLT-24
+// source: platform/base-profile.md BP-18 to BP-25
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Persistent key changes participate in transactions, so they are permitted inside one.
+function rotate() {
+    transaction {
+        attempt card.key.delete(1);
+        attempt card.key.generate(1, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent });
+    }
+    return Ok();
+}

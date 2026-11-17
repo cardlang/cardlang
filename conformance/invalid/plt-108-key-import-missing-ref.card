@@ -1,0 +1,10 @@
+// rule: PLT-25, FUN-7
+// source: platform/base-profile.md BP-18 to BP-25
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-2
+// note: The material of card.key.import is a ref parameter.
+function provision(material: ref u8[]) {
+    attempt card.key.import(1, KeySpec { type: KeyType.Aes128, storage: KeyStorage.Volatile }, material);
+    return Ok();
+}

@@ -391,11 +391,11 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | NAM-11 | cited | nam-001-shared-scope-forward-use, nam-002-multi-file-any-order, nam-101-duplicate-across-kinds, nam-102-duplicate-across-files |
 | NAM-12 | cited | nam-103-overloading |
 | NAM-13 | cited | nam-001-shared-scope-forward-use, nam-002-multi-file-any-order |
-| NAM-14 | cited | nam-116-redeclare-intrinsic, nam-117-redeclare-card, nam-118-redeclare-primitive, nam-121-parameter-shadows-primitive, plt-003-base-types, plt-107-redeclare-base-type, sta-108-constant-named-like-handler |
+| NAM-14 | cited | nam-116-redeclare-intrinsic, nam-117-redeclare-card, nam-118-redeclare-primitive, nam-121-parameter-shadows-primitive, plt-003-base-types, plt-107-redeclare-base-type, plt-110-redeclare-key-type, sta-108-constant-named-like-handler |
 | NAM-15 | cited | nam-003-member-scopes, nam-005-qualified-members, nam-113-duplicate-field |
 | NAM-16 | cited | nam-005-qualified-members, nam-114-bare-variant, nam-115-unknown-member |
 | NAM-17 | cited | nam-003-member-scopes |
-| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-101-unknown-platform-path |
+| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-004-key-apis, plt-101-unknown-platform-path |
 | NAM-19 | cited | nam-004-sibling-scopes, nam-112-use-outside-scope |
 | NAM-20 | cited | nam-111-self-reference |
 | NAM-21 | cited | nam-004-sibling-scopes, nam-109-parameter-shadows-global, nam-110-local-shadows-local, nam-119-same-scope-duplicate, nam-121-parameter-shadows-primitive |
@@ -483,7 +483,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-44 | cited | exp-011-fill-forms, exp-130-fill-without-context |
 | EXP-45 | cited | exp-012-constructor-order, exp-131-constructor-missing-field, exp-132-constructor-unknown-field, exp-133-constructor-duplicate-field |
 | EXP-46 | cited | run-017-evaluation-and-copies |
-| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count |
+| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type |
 | EXP-48 | cited | exp-014-checked-in-match, exp-127-outcome-as-value |
 | EXP-49 | cited | exp-124-nested-convert, exp-125-intrinsic-in-argument, exp-126-attempt-in-argument |
 | EXP-50 | cited | run-017-evaluation-and-copies |
@@ -520,7 +520,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | FUN-4 | cited | fun-001-forward-call-across-files |
 | FUN-5 | cited | fun-101-direct-recursion, fun-102-indirect-recursion, fun-103-recursion-across-files |
 | FUN-6 | cited | fun-003-ref-and-inout-field |
-| FUN-7 | cited | fun-104-missing-ref-mode, fun-105-missing-inout-mode, fun-106-ref-for-by-value, fun-107-inout-for-ref, plt-104-missing-ref-mode |
+| FUN-7 | cited | fun-104-missing-ref-mode, fun-105-missing-inout-mode, fun-106-ref-for-by-value, fun-107-inout-for-ref, plt-104-missing-ref-mode, plt-108-key-import-missing-ref |
 | FUN-8 | cited | fun-117-slice-to-fixed-parameter, fun-118-element-type-mismatch |
 | FUN-9 | cited | fun-003-ref-and-inout-field, fun-009-constant-and-bindings-by-ref, fun-108-temporary-reference, fun-109-reference-to-literal, fun-110-reference-to-arithmetic |
 | FUN-10 | cited | fun-111-constant-as-inout, fun-113-by-value-as-inout |
@@ -582,13 +582,13 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | TXN-8 | cited | run-009-transactions, run-012-wallet-application, txn-006-abort-binding |
 | TXN-9 | cited | txn-005-err-handled-locally |
 | TXN-10 | cited | txn-114-lexical-nesting, txn-115-nesting-through-call, txn-116-nesting-two-step, txn-117-nesting-untaken-path |
-| TXN-11 | cited | run-009-transactions |
+| TXN-11 | cited | run-009-transactions, run-019-keys |
 | TXN-12 | not testable | The scenario format cannot inject a contained commit failure |
 | TXN-13 | cited | run-014-recovery-after-interrupt |
 | TXN-14 | not testable | Not observable: commands never interleave, so no other context runs during a transaction |
 | TXN-15 | cited | txn-010-ends-with-abort |
 | TXN-16 | not testable | Transaction capacity is platform-defined; the suite has no target profile |
-| TXN-17 | cited | plt-002-immediate-api-in-transaction, plt-105-forbidden-in-transaction, plt-106-forbidden-through-helper |
+| TXN-17 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, plt-105-forbidden-in-transaction, plt-106-forbidden-through-helper |
 | TXN-18 | cited | run-009-transactions, txn-012-attempt-inside, txn-013-require-inside |
 | HEP-1 | cited | hep-001-minimal, hep-002-any-names, hep-005-counter-application, hep-101-no-command, hep-102-two-commands |
 | HEP-2 | cited | hep-001-minimal, hep-002-any-names, hep-103-wrong-return-type, hep-104-no-return-type, hep-105-inout-request, hep-106-fixed-size-request, hep-107-extra-parameter |
@@ -639,10 +639,10 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-19 | exercised | run-008-state-lifecycle |
 | PLT-20 | cited | run-015-resource-identifiers, run-016-signer-application |
 | PLT-21 | cited | plt-003-base-types |
-| PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application |
+| PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys |
 | PLT-23 | cited | run-015-resource-identifiers |
-| PLT-24 | cited | plt-002-immediate-api-in-transaction |
-| PLT-25 | cited | plt-001-platform-call, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode |
+| PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys |
+| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type |
 | PLT-26 | exercised | plt-001-platform-call and every test that uses the test-only catalog |
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |

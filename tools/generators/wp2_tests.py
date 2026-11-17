@@ -11,7 +11,7 @@ T = {
         """session spec: KeySpec;
 
 function choose() -> KeySpec {
-    var chosen: KeySpec = KeySpec { kind: KeyKind.EcPrivate, curve: Curve.P256, bits: 256, storage: KeyStorage.Persistent };
+    var chosen: KeySpec = KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent };
     var lifetime: OperationLifetime = OperationLifetime.Command;
     return Ok(chosen);
 }

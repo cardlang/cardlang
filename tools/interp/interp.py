@@ -7,11 +7,13 @@ full static checker (hepcheck). When this interpreter and spec/ disagree, the sp
 Usage (from the repository root):
     python -I tools/interp/interp.py . ["runtime/run-*"]
 """
-import copy, sys, pathlib
+import copy, sys, pathlib, hashlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "checkers"))
 from lexcheck import lex, header
 import hepcheck, pltcheck, expcheck, consteval
 from expcheck import P, p_expr, p_postfix, p_type, CE
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+import p256                                              # test-only P-256 (WP3)
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
@@ -56,6 +58,10 @@ def copy_value(v):
 
 def restore(live, snap):
     """Roll back a container in place, keeping object identity (references into it stay valid)."""
+    if isinstance(live, dict):                                # entries may have been added or removed (keys)
+        for k in [k for k in live if k not in snap]: del live[k]
+        for k in snap:
+            if k not in live: live[k] = copy_value(snap[k])
     keys = range(len(live)) if isinstance(live, list) else list(live.keys())
     for k in keys:
         if isinstance(live[k], (list, dict)) and isinstance(snap[k], (list, dict)) and type(live[k]) is type(snap[k]):
@@ -139,6 +145,8 @@ class Card:
         self.chk = pltcheck.PltChecker(toks)
         self.chk.run()                                   # static checks first
         self.resources = {}                              # test-catalog resources: id -> [kind, value]
+        self.volatile_keys = {}                          # Base Profile keys with Volatile storage (BP-24)
+        self.seed(b"cardlang-test-drbg")
         cp = self.chk.cp
         self.types = lambda ty: cp.resolve_type(ty)
         self.funcs = {n: (params, ret, parse_block(P(body))) for n, (params, ret, body) in self.chk.funcs.items()}
@@ -390,8 +398,68 @@ class Card:
                 return ("err", ErrVal("platform", member))
         raise RuntimeError("unknown callee " + name)
 
+    # ---- Base Profile 1 (platform/base-profile.md), test implementation
+    def seed(self, data):
+        """Deterministic random generator for tests (WP3 K4): SHA-256 of seed and counter."""
+        self.drbg = (bytes(data), 0)
+
+    def random_bytes(self, n):
+        seed, counter = self.drbg; out = b""
+        while len(out) < n:
+            out += hashlib.sha256(seed + counter.to_bytes(8, "big")).digest(); counter += 1
+        self.drbg = (seed, counter)
+        return list(out[:n])
+
+    def key_call(self, path, args, env):
+        err = lambda member: ("err", ErrVal("platform", member))
+        def view(a):
+            x = self.place(a, env)
+            return x if isinstance(x, View) else View(x.get(), 0, len(x.get()))
+        ident = self.eval(args[0][1], env).v
+        pkeys, vkeys = self.persistent["#keys"], self.volatile_keys
+        key = pkeys.get(ident, vkeys.get(ident))
+        in_use = key is not None or ident in self.resources
+        if path in ("card.key.generate", "card.key.import"):          # BP-20, BP-21
+            spec = self.eval(args[1][1], env)
+            ktype, storage = spec["type"][2], spec["storage"][2]
+            if in_use: return err("AlreadyExists")
+            if path == "card.key.generate" and ktype == "EcP256Public": return err("Unsupported")
+            if ident == 0: return err("Malformed")
+            if path == "card.key.generate":
+                if ktype.startswith("Aes"): material = tuple(self.random_bytes(16 if ktype == "Aes128" else 32))
+                else: material = 1 + int.from_bytes(bytes(self.random_bytes(40)), "big") % (p256.N - 1)
+            else:
+                src = view(args[2][1]); data = [src.lst[src.start + i].v for i in range(src.length)]
+                if ktype.startswith("Aes"):
+                    if len(data) != (16 if ktype == "Aes128" else 32): return err("Malformed")
+                    material = tuple(data)
+                elif ktype == "EcP256Private":
+                    d = int.from_bytes(bytes(data), "big")
+                    if len(data) != 32 or not 1 <= d < p256.N: return err("Malformed")
+                    material = d
+                else:
+                    pt = p256.decode_point(data)
+                    if pt is None: return err("Malformed")
+                    material = pt
+            store = pkeys if storage == "Persistent" else vkeys
+            if len(store) >= (8 if storage == "Persistent" else 4): return err("Capacity")
+            store[ident] = (ktype, material); return ("ok", None)
+        if key is None:
+            return err("WrongResourceType") if ident in self.resources else err("NotFound")
+        if path == "card.key.export_public":                              # BP-22
+            if key[0].startswith("Aes"): return err("WrongResourceType")
+            out = view(args[1][1])
+            if out.length < 65: return err("Capacity")
+            pt = p256.mul(key[1]) if key[0] == "EcP256Private" else key[1]
+            for i, b in enumerate(p256.encode_point(pt)): out.lst[out.start + i] = Int(b, "u8")
+            return ("ok", Int(65, "u32"))
+        if path == "card.key.delete":                                     # BP-23
+            (pkeys if ident in pkeys else vkeys).pop(ident); return ("ok", None)
+        raise RuntimeError("no behaviour for " + path)
+
     def platform_call(self, path, args, env):
         """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
+        if path.startswith("card.key."): return self.key_call(path, args, env)
         res = self.resources
         err = lambda member: ("err", ErrVal("platform", member))
         if path == "card.test.sign":
@@ -556,14 +624,17 @@ class Card:
 
     def install(self):
         self.persistent = {n: self.default(t) for n, t in self.persistent_types.items()}
+        self.persistent["#keys"] = {}                                   # persistent keys roll back with transactions
         self.run_handler("on_install")
 
     def power_on(self):
         self.session = {n: self.default(t) for n, t in self.session_types.items()}
+        self.volatile_keys = {}
         self.run_handler("on_power_on")
 
     def reset(self):
         self.session = None
+        self.volatile_keys = {}
 
     def command(self, request, capacity):
         if self.persistent is None or self.session is None: raise RuntimeError("command before install/power_on")
@@ -607,6 +678,7 @@ def run_scenario(card, text):
         elif step == "power_on": card.power_on()
         elif step == "reset": card.reset()
         elif step == "interrupt": card.interrupt_next_commit = True
+        elif step == "seed": card.seed(bytes.fromhex("".join(line[1:])))
         elif step == "command":
             words = line[1:]; capacity = 256
             if "capacity" in words:

@@ -1,6 +1,6 @@
 # CardLang Base Profile 1
 
-Status: skeleton (WP2, 2026-11-17). Sections 7–11 are filled in by WP3–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
+Status: draft (2026-11-17). §1–§7 are written (WP2, WP3); §8–§11 are filled in by WP4–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
 
 This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
@@ -56,11 +56,10 @@ The application can therefore retry, or handle the error, without cleaning up.
 
 | Type | Purpose | Defined by |
 |---|---|---|
-| `KeyKind` | `Aes`, `EcPrivate`, `EcPublic` | WP2; used in WP3 |
-| `Curve` | `P256` (B4(a): P-256 only in this version) | WP2 |
-| `KeyStorage` | `Persistent`, `Volatile` | WP2 |
-| `KeySpec` | The kind, curve, size in bits and storage of a key | WP2; semantics in WP3 |
-| `OperationLifetime` | `Command`, `Session` (B5) | WP2; semantics in WP4 |
+| `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`: every valid key type (WP3, K1) | §7 |
+| `KeyStorage` | `Persistent`, `Volatile` | §7 |
+| `KeySpec` | A key's type and storage | §7 |
+| `OperationLifetime` | `Command`, `Session` (B5) | §8 (WP4) |
 
 Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` and `TlvHead`.
 
@@ -119,7 +118,46 @@ Beyond these minimums, running out of capacity is `Err(CardError.Capacity)`.
 
 ## 7. Keys (`card.key`)
 
-To be written in WP3.
+**BP-18 Key types.** A key is a resource of kind *Key* (BP-13). Its `KeySpec` gives its type and its storage:
+
+| `KeyType` | Material | Can be exported |
+|---|---|---|
+| `Aes128` | A 16-byte AES key | Nothing |
+| `Aes256` | A 32-byte AES key | Nothing |
+| `EcP256Private` | A P-256 key pair: the private scalar `d`, and its public point `Q = d·G` | The public point |
+| `EcP256Public` | A P-256 public point `Q` only | The public point |
+
+There are no usage restrictions (B4(b)). Any key may be used by any operation that accepts its type (§8). Secret and private material can never be exported (PLT-33).
+
+**BP-19 Identifiers.** Using identifier 0, or any identifier that names no key, is `Err(CardError.NotFound)`. Creating a key with identifier 0 is `Err(CardError.Malformed)`, because 0 never names a resource (PLT-20). Using a resource that is not a key, or a key of a type the API does not accept, is `Err(CardError.WrongResourceType)`.
+
+**BP-20 `card.key.generate(id, spec)`** creates the key `id` with fresh material from the platform's random generator. For `EcP256Private`, it generates a key pair. Generating an `EcP256Public` key is `Err(CardError.Unsupported)`. An identifier already in use is `Err(CardError.AlreadyExists)`, and the existing resource is unchanged (PLT-22).
+
+**BP-21 `card.key.import(id, spec, ref material)`** creates the key `id` from bytes:
+
+| `KeyType` | `material` |
+|---|---|
+| `Aes128`, `Aes256` | The raw key: exactly 16 or 32 bytes |
+| `EcP256Private` | The private scalar `d`: 32 bytes, big-endian, with `1 ≤ d < n` (the order of the curve). The public point is derived |
+| `EcP256Public` | An uncompressed SEC 1 point: 65 bytes, `04 ‖ X ‖ Y`, with `X` and `Y` big-endian. The point must lie on the curve, and must not be the point at infinity |
+
+Material of the wrong length, or with an invalid value, is `Err(CardError.Malformed)`. The platform keeps no reference to `material` after the call.
+
+**BP-22 `card.key.export_public(id, inout output) -> u32`** writes the public point of an `EcP256Private` or `EcP256Public` key, as a 65-byte uncompressed SEC 1 point (BP-21), and returns 65. An AES key is `Err(CardError.WrongResourceType)`. An output view shorter than 65 bytes is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
+
+**BP-23 `card.key.delete(id)`** deletes the key. Its material is erased, and no copy remains that an application or the host could recover (PLT-33). Afterwards, the identifier names nothing (PLT-22).
+
+**BP-24 Storage and transactions.**
+
+- A `Persistent` key survives commands, traps, power loss and security reset. A `Volatile` key disappears at the next power-on or security reset (BP-14).
+- `generate`, `import` and `delete` of a persistent key take part in an active transaction (BP-15):
+  - inside the transaction, the change is visible at once (TXN-2);
+  - it commits or rolls back with the transaction. After a rollback, a deleted key exists again with the same material, and a created key does not exist;
+  - after an interruption, the keys reflect all of the transaction or none of it (TXN-13);
+  - each change counts against the platform's transaction capacity. Exceeding it is `trap(TXN-CAPACITY)` (TXN-16).
+- The same operations on a volatile key take effect immediately, even inside a transaction (TXN-4).
+
+**BP-25 Capacity.** Creating a key beyond what the platform can hold is `Err(CardError.Capacity)`. A platform holds at least 8 persistent and 4 volatile keys (BP-16).
 
 ## 8. Cryptographic operations and randomness (`card.crypto`, `card.random`)
 

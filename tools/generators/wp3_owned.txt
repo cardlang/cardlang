@@ -1,0 +1,6 @@
+invalid/plt-108-key-import-missing-ref.card
+invalid/plt-109-key-spec-wrong-type.card
+invalid/plt-110-redeclare-key-type.card
+valid/plt-004-key-apis.card
+valid/plt-005-key-in-transaction.card
+runtime/run-019-keys/
