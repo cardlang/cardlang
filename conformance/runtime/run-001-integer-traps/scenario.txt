@@ -1,0 +1,28 @@
+install
+power_on
+command 01 05
+expect ok 06
+command 01 ff        # 255 + 1
+expect trap OVERFLOW
+command 02 00        # 0 - 1 (unsigned)
+expect trap UNDERFLOW
+command 03 07        # 100 / 7
+expect ok 0e
+command 03 00
+expect trap DIV-ZERO
+command 04 80        # -128 / -1
+expect trap OVERFLOW
+command 05 80        # -128 % -1 is 0
+expect ok 00
+command 06 03
+expect ok 08
+command 06 08        # shift count equals the width
+expect trap SHIFT
+command 07 80        # -(-128)
+expect trap NEGATION
+command 08 fa        # wrapping 250 + 10
+expect ok 04
+command 09 f9        # -7 / 2 = -3, -7 % 2 = -1 (truncation toward zero)
+expect ok fd ff
+command 0a 00
+expect err app 1

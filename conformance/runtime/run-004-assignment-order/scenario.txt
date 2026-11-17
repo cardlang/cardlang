@@ -1,0 +1,10 @@
+install
+power_on
+command 02 09        # bounds failure before the right-hand side runs
+expect trap BOUNDS
+command 03
+expect ok 00 00      # advance() never ran
+command 01           # values[0] chosen before advance() moves position to 1
+expect ok 07 00 01
+command 03
+expect ok 01 01

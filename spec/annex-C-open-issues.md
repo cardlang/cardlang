@@ -55,6 +55,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-39 | Exceeding transaction capacity at runtime | Gap | SP10 | Resolved |
 | OI-40 | Platform services inside a transaction | Gap | SP10 | Resolved |
 | OI-41 | Initial contents of the response region | Gap | SP11 | Resolved |
+| OI-42 | Stack depth | Gap | SP12 | Resolved |
 
 ---
 
@@ -297,7 +298,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   - DN §6.4: the trap list and catalog are platform work.
   - PN §2: resource error names are placeholders.
   - D-203 and D-209 are affected.
-- **Affected rules:** pending (SP5, SP12, SP13)
+- **Affected rules:** RTF-4; EXP-23 to EXP-33; Annex B pending (SP13)
 - **Question:** Which names may chapters use until the platform catalogs exist?
 - **Recommendation:**
   - Chapters use **language-level trap kinds** (chapter 13): `TRAP-OVERFLOW`, `TRAP-UNDERFLOW`, `TRAP-DIV-ZERO`, `TRAP-BOUNDS`, `TRAP-SHIFT`, `TRAP-NEGATION`, `TRAP-RESPONSE-COUNT`, `TRAP-NESTED-TXN`, `TRAP-COMMIT`, `TRAP-EXHAUSTED` (stack or execution budget) and `TRAP-VM` (invalid instruction or state).
@@ -668,6 +669,19 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-17 (D-441)
 - **Decision:** Option (b). Zero-filling is one way for a platform to comply.
 
+## OI-42 — Stack depth
+
+- **Kind:** gap
+- **Sources:** PN §4 ("Exceeding a runtime stack/execution limit traps"); D-206; FUN-5 (the static acyclic call graph); TYP-23 (finite sizes)
+- **Affected rules:** RTF-7
+- **Question:** The maximum stack need of an application is computable exactly. Must an implementation reject an application whose need exceeds the target, or check the stack only at runtime?
+- **Options:**
+  - (a) Compute the need and reject at build or load time, keeping a runtime check only as a safety net.
+  - (b) Check only at runtime, with `trap(EXHAUSTED)`.
+- **Recommendation:** (a). It is deterministic, consistent with D-206, and catches the problem before deployment.
+- **Status:** resolved 2026-11-17 (D-442)
+- **Decision:** Option (a). Exhausting the execution budget still traps at runtime.
+
 ---
 
 ## Resolution log
@@ -688,7 +702,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
 | 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 (SP8) |
 | 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
-| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Pending: applied when SP12 drafts its chapter |
+| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Applied in chapter 13: RTF-4 trap catalog (SP12); CardError names pending Annex B (SP13) |
 | 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied in chapter 10: STA-3 (SP9); platform items pending Annex B (SP13) |
 | 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Pending: applied when SP13 drafts its chapter |
 | 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14 (SP8); closed |
@@ -715,3 +729,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 (SP10) |
 | 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 (SP10) |
 | 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied in chapter 12: HEP-8 (SP11); PLT requirement pending Annex B (SP13) |
+| 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 (SP12) |

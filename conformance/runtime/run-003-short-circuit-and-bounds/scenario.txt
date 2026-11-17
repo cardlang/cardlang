@@ -1,0 +1,10 @@
+install
+power_on
+command 01 02
+expect ok 01
+command 01 09        # out of range, but the index is never evaluated
+expect ok 00
+command 02 02
+expect ok 00
+command 02 09
+expect trap BOUNDS

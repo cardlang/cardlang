@@ -1,0 +1,6 @@
+install
+power_on
+command
+expect trap EXHAUSTED
+command 01
+expect ok

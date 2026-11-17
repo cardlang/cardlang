@@ -1,0 +1,49 @@
+// rule: TXN-2, TXN-3, TXN-8, TXN-11
+// source: DN §7.2
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Commit, read-your-writes, abort and trap rollback, and session changes surviving rollback.
+errors AppError {
+    Refused = 1;
+}
+
+persistent a: u32;
+persistent b: u32;
+session notes: u8;
+
+function refuse() {
+    return Err(AppError.Refused);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        transaction {
+            a = a + 1;
+            b = a + 10;
+        }
+    } else if operation == 2 {
+        transaction {
+            a = a + 100;
+            notes = notes + 1;
+            match refuse() {
+                Ok() => {
+                }
+                Err(error) => {
+                    abort Err(error);
+                }
+            }
+        }
+    } else if operation == 4 {
+        transaction {
+            a = a + 50;
+            var divisor: u32 = convert<u32>(request[1]);
+            var quotient: u32 = 1 / divisor;
+        }
+    }
+    response[0] = truncate<u8>(a);
+    response[1] = truncate<u8>(b);
+    response[2] = notes;
+    return Ok(3);
+}

@@ -1,0 +1,116 @@
+// rule: HEP-15, TXN-8, OUT-20, STA-4, RTF-9
+// source: DN §13
+// status: agreed
+// kind: application
+// expect: runtime
+// note: The wallet application: PIN authorization, credit and debit, abort rollback and a security reset.
+errors WalletError {
+    MalformedRequest = 1;
+    UnsupportedOperation = 2;
+    Unauthorized = 3;
+    InsufficientFunds = 4;
+    WrongPin = 5;
+    LimitExceeded = 6;
+    ResponseTooSmall = 7;
+}
+
+const OP_VERIFY: u8 = 0x20;
+const OP_BALANCE: u8 = 0x30;
+const OP_CREDIT: u8 = 0x31;
+const OP_DEBIT: u8 = 0x32;
+const PIN: u8[4] = [1, 2, 3, 4];
+const MAX_BALANCE: u32 = 100000;
+const MAX_DEBIT: u32 = 500;
+
+persistent balance: u32;
+persistent sequence: u32;
+session authenticated: bool;
+
+function verify(input: ref u8[]) {
+    require input.length == 5 else WalletError.MalformedRequest;
+    for index: u32 in 0..4 {
+        if input[index + 1] != PIN[index] {
+            authenticated = false;
+            return Err(WalletError.WrongPin);
+        }
+    }
+    authenticated = true;
+    return Ok();
+}
+
+function read_amount(input: ref u8[]) -> u32 {
+    require input.length == 5 else WalletError.MalformedRequest;
+    return Ok(decode_be<u32>(ref input[1..5]));
+}
+
+function encode_balance(output: inout u8[]) -> u32 {
+    require output.length >= 4 else WalletError.ResponseTooSmall;
+    var bytes: u8[4] = encode_be(balance);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+function credit(amount: u32) {
+    require authenticated else WalletError.Unauthorized;
+    var updated: u32 = 0;
+    match checked_add(balance, amount) {
+        Ok(value) => {
+            updated = value;
+        }
+        Err(_) => {
+            return Err(WalletError.LimitExceeded);
+        }
+    }
+    require updated <= MAX_BALANCE else WalletError.LimitExceeded;
+    transaction {
+        balance = updated;
+        sequence = sequence + 1;
+    }
+    return Ok();
+}
+
+function record_debit(amount: u32) {
+    sequence = sequence + 1;
+    if amount > MAX_DEBIT {
+        return Err(WalletError.LimitExceeded);
+    }
+    return Ok();
+}
+
+function debit(amount: u32) {
+    require authenticated else WalletError.Unauthorized;
+    require amount <= balance else WalletError.InsufficientFunds;
+    transaction {
+        balance = balance - amount;
+        match record_debit(amount) {
+            Ok() => {
+            }
+            Err(error) => {
+                abort Err(error);
+            }
+        }
+    }
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 1 else WalletError.MalformedRequest;
+    var operation: u8 = request[0];
+    if operation == OP_VERIFY {
+        attempt verify(ref request);
+        return Ok(0);
+    } else if operation == OP_BALANCE {
+        require authenticated else WalletError.Unauthorized;
+    } else if operation == OP_CREDIT {
+        var amount: u32 = attempt read_amount(ref request);
+        attempt credit(amount);
+    } else if operation == OP_DEBIT {
+        var amount: u32 = attempt read_amount(ref request);
+        attempt debit(amount);
+    } else {
+        return Err(WalletError.UnsupportedOperation);
+    }
+    return encode_balance(inout response);
+}

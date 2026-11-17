@@ -1,0 +1,10 @@
+install
+power_on
+command 01
+expect ok aa bb
+command 02 03 capacity 4
+expect ok 11 11 11
+command 02 05 capacity 4
+expect trap RESPONSE-COUNT
+command 03
+expect err app 1

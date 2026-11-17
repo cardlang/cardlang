@@ -1,0 +1,13 @@
+// rule: RTF-6, RTF-3
+// source: DN §3.6
+// status: agreed
+// kind: application
+// expect: runtime
+// note: An endless loop exhausts the execution budget; the next command still runs.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    if request.length == 0 {
+        while true {
+        }
+    }
+    return Ok(0);
+}

@@ -33,7 +33,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-17 |
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
-| 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
+| 13-runtime-failures.md | SP12 | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
 | annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.10 complete; consolidation pending (SP14) |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
@@ -92,12 +92,12 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-048 | Local binding visible only after its initializer completes | SP2 | NAM-19, NAM-20, NAM-22 |  | covered |
 | D-049 | Command execution | SP11 | HEP-13, TXN-14 |  | covered |
 | D-050 | Session state at chip power-on | SP9 | STA-4 |  | covered |
-| D-051 | Ordinary traps preserve application session state | SP12 | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |  | partial |
-| D-052 | Runtime-owned resources on ordinary trap | SP13 | — |  | pending |
-| D-053 | Session/persistent logical consistency | SP12 | STA-14; pending chapter 13 (SP12) |  | partial |
-| D-054 | Runtime-issued security reset | SP12 | STA-4 (session cleared); reset rules pending chapter 13 (SP12) |  | partial |
+| D-051 | Ordinary traps preserve application session state | SP12 | STA-4, RTF-2, RTF-3 |  | covered |
+| D-052 | Runtime-owned resources on ordinary trap | SP13 | RTF-2; resource lifecycle pending Annex B (SP13) |  | partial |
+| D-053 | Session/persistent logical consistency | SP12 | STA-14, RTF-12 |  | covered |
+| D-054 | Runtime-issued security reset | SP12 | STA-4, RTF-9 |  | covered |
 | D-055 | Transactions roll back persistent changes only | SP10 | TXN-4, TXN-11 |  | covered |
-| D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | — |  | pending |
+| D-056 | Fatal platform failure triggers whole-chip security reset | SP13 | RTF-9; platform failure handling pending Annex B (SP13) |  | partial |
 | D-057 | Each persistent assignment is atomic | SP9 | STA-11, STA-12 | OI-19 | covered |
 | D-058 | Explicit handling of overflow and underflow | SP5 | EXP-23 |  | covered |
 | D-059 | Global/local arrays of supported fixed-size values | SP3 | TYP-1, TYP-11, TYP-18 |  | covered |
@@ -182,10 +182,10 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces) | SP13 | — | OI-15 | pending |
 | D-204 | Copying a resource identifier copies only the number | SP13 | — |  | pending |
 | D-205 | Language transactions do not automatically cover resource-API effects | SP13 | TXN-4, TXN-17; API contracts pending Annex B (SP13) |  | partial |
-| D-206 | Exceeding a runtime stack/execution limit traps | SP12 | TYP-23; Annex B pending SP12/SP13 |  | partial |
+| D-206 | Exceeding a runtime stack/execution limit traps | SP12 | TYP-23, STA-13, TXN-16, RTF-6, RTF-7, RTF-8 |  | covered |
 | D-207 | Commit failure never resumes after the block | SP10 | TXN-12, TXN-13 |  | covered |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | TXN-14; platform mechanism pending Annex B (SP13) |  | partial |
-| D-209 | Published application/platform error-code meanings remain stable | SP12 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) | OI-15 | partial |
+| D-209 | Published application/platform error-code meanings remain stable | SP12 | OUT-17, RTF-11 | OI-15 | covered |
 | D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | HEP-15; PN §1 superseded row pending Annex B (SP13) | OI-2 | partial |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | TXN-10 | OI-3 | covered |
@@ -200,7 +200,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-412 | No `byte` alias in Draft 0.1 | SP3 | TYP-20 | OI-12 | covered |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | SP8 | OUT-5, OUT-15 | OI-13 | covered |
 | D-414 | Literal prefix, digit and magnitude rules | SP1 | LEX-17, LEX-18, LEX-19, EXP-7 | OI-14 | covered |
-| D-415 | Trap-kind and placeholder platform-error names | SP12 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) | OI-15 | partial |
+| D-415 | Trap-kind and placeholder platform-error names | SP12 | RTF-4 (trap kinds), EXP-29, EXP-33; CardError names and codes pending Annex B (SP13) | OI-15 | partial |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | SP9 | STA-3; platform items pending Annex B (SP13) | OI-16 | partial |
 | D-417 | Large-data object API is future platform work | SP13 | — | OI-17 | pending |
 | D-418 | Outcome typing settled by DN §6.3 | SP8 | OUT-1, OUT-2 | OI-18 | covered |
@@ -300,6 +300,12 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-391 | A reset or power loss may prevent any response | SP11 | HEP-12 |  | covered |
 | D-392 | A trap ends only the current command | SP11 | HEP-14 |  | covered |
 | D-393 | Response transmission never happens inside a transaction | SP11 | HEP-10 |  | covered |
+| D-394 | A trap aborts the current command and cannot be caught by application `match` or `attempt` | SP12 | RTF-1 |  | covered |
+| D-395 | Session state may be partially updated when a command traps | SP12 | RTF-2 |  | covered |
+| D-396 | Defined trap cases: arithmetic failures, out-of-bounds access, invalid shift counts, stack or execution-budget exhaustion, attempted nested transactions, invalid VM instructions or state | SP12 | RTF-4 |  | covered |
+| D-397 | A security reset clears volatile state across all applications and is never returned as a `CardError` | SP12 | RTF-9 |  | covered |
+| D-398 | Failures may terminate execution without an outcome while the persistent atomicity guarantees still hold | SP12 | RTF-10 |  | covered |
+| D-399 | An ordinary trap does not trigger a lifecycle reset | SP12 | RTF-3 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
@@ -320,3 +326,4 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY) | SP10 | TXN-16 | OI-39 | covered |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | SP10 | TXN-17 | OI-40 | covered |
 | D-441 | Response region contents unspecified; no foreign data | SP11 | HEP-8; PLT requirement pending Annex B (SP13) | OI-41 | partial |
+| D-442 | Maximum stack need computed; excess rejected at build or load | SP12 | RTF-7 | OI-42 | covered |

@@ -1,0 +1,31 @@
+// rule: OUT-10, OUT-18, OUT-20
+// source: DN §6.3
+// status: agreed
+// kind: application
+// expect: runtime
+// note: attempt propagates errors unchanged, and Err does not roll back.
+errors AppError {
+    Rejected = 7;
+}
+
+persistent marker: u8;
+
+function failing() -> u8 {
+    marker = marker + 1;
+    return Err(AppError.Rejected);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        var value: u8 = attempt failing();
+        response[0] = value;
+        return Ok(1);
+    } else if operation == 2 {
+        var sum: u8 = attempt checked_add(request[1], 255);
+        response[0] = sum;
+        return Ok(1);
+    }
+    response[0] = marker;
+    return Ok(1);
+}

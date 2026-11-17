@@ -1,0 +1,16 @@
+install
+power_on
+command 01
+expect ok 05 00 03
+command 02
+expect ok
+command 01
+expect ok 05 01 04
+command 03 00        # increments level, then traps
+expect trap DIV-ZERO
+command 01           # the session change survived the trap
+expect ok 05 01 05
+reset
+power_on
+command 01           # session back to default plus on_power_on; persistent kept
+expect ok 05 01 03

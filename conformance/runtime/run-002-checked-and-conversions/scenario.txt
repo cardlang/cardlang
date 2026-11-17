@@ -1,0 +1,20 @@
+install
+power_on
+command 01 05
+expect ok ff
+command 01 0a        # 10 + 250 overflows u8
+expect err platform Overflow
+command 02 80        # checked_rem(-128, -1) is Ok(0)
+expect ok 00
+command 03 00 2a
+expect ok 2a
+command 03 01 2c     # 300 does not fit u8
+expect err platform ConversionRange
+command 04 12 34
+expect ok 34
+command 05 01 02 03 04
+expect ok 01 02 03 04
+command 06 01 02 03 04
+expect ok 04 03 02 01
+command 07 01 02     # two bytes for a u32
+expect trap BOUNDS

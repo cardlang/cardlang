@@ -1,0 +1,10 @@
+install
+power_on
+command 01           # step restarts at its default each iteration
+expect ok 03
+command 02 03        # 5..3 is empty
+expect ok 00
+command 02 08
+expect ok 03
+command 03 07        # 2, 4, 6
+expect ok 03

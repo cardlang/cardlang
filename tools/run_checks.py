@@ -32,6 +32,8 @@ RUNS = [
     ("hepcheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
     ("hepcheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
     ("hepcheck.py", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
+    # The reference interpreter compiles each runtime test with hepcheck, then runs its scenario.
+    ("../interp/interp.py", None, "runtime scenarios in conformance/runtime/"),
 ]
 
 def main():

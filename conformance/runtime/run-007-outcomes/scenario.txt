@@ -1,0 +1,10 @@
+install
+power_on
+command 01
+expect err app 7
+command 03           # the write before Err was kept
+expect ok 01
+command 02 01        # a platform error keeps its category
+expect err platform Overflow
+command 02 00
+expect ok ff

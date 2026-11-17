@@ -1,0 +1,37 @@
+// rule: STM-9, STM-10
+// source: DN §8.2; D-409
+// status: agreed
+// kind: application
+// expect: runtime
+// note: The destination path is evaluated and checked before the right-hand side.
+session values: u8[4];
+session position: u32;
+session touched: bool;
+
+function advance() -> u8 {
+    position = position + 1;
+    touched = true;
+    return Ok(7);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        values[position] = attempt advance();
+        response[0] = values[0];
+        response[1] = values[1];
+        response[2] = truncate<u8>(position);
+        return Ok(3);
+    } else if operation == 2 {
+        var index: u32 = convert<u32>(request[1]);
+        values[index] = attempt advance();
+        return Ok(0);
+    }
+    if touched {
+        response[0] = 1;
+    } else {
+        response[0] = 0;
+    }
+    response[1] = truncate<u8>(position);
+    return Ok(2);
+}

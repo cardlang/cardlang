@@ -18,11 +18,11 @@ This is the normative specification of the CardLang language. It is being writte
 | [10-state-and-initialization.md](10-state-and-initialization.md) | 10 State and initialization | SP9 | Draft complete |
 | [11-transactions.md](11-transactions.md) | 11 Transactions | SP10 | Draft complete |
 | [12-host-entry-point.md](12-host-entry-point.md) | 12 Host entry point | SP11 | Draft complete |
-| 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
+| [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.10 complete; consolidation in SP14 |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-41 all resolved; none open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–12 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-42 all resolved; none open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–13 |
 
 Related files:
 
@@ -44,7 +44,8 @@ Related files:
 | 10 State and initialization | 14 | 14 | 0 | 0 |
 | 11 Transactions | 17 | 17 | 0 | 0 |
 | 12 Host entry point | 16 | 16 | 0 | 0 |
-| **Total** | 246 | 246 | 0 | 0 |
+| 13 Runtime failures | 12 | 12 | 0 | 0 |
+| **Total** | 258 | 258 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -129,7 +130,18 @@ Each sub-plan updates this table when its chapter is drafted.
 
 | Kind | Meaning | Defined in |
 |---|---|---|
-| — | None defined yet; chapter 13 owns the catalog | — |
+| TRAP-OVERFLOW | Result above the maximum; signed minimum ÷ −1 | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-UNDERFLOW | Result below the minimum | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-DIV-ZERO | Zero divisor | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-NEGATION | Negation of the signed minimum | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-SHIFT | Shift count ≥ width | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-BOUNDS | Index, slice, element reference or decode length out of range | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-RESPONSE-COUNT | Returned count > response.length | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-TXN-CAPACITY | Transaction capacity exceeded | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-COMMIT | Contained commit failure | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-NESTED-TXN | Runtime nesting check (unreachable in accepted programs) | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-EXHAUSTED | Execution budget exhausted; runtime stack check (unreachable) | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
+| TRAP-VM | Invalid instruction or VM state (unreachable in verified programs) | [13 §13.2](13-runtime-failures.md#132-trap-kinds) |
 
 ## Index of rules
 

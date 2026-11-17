@@ -1,0 +1,10 @@
+install
+power_on
+command 01
+expect ok 01 01
+interrupt during-commit
+command 01
+expect none
+power_on
+command 01           # the interrupted transaction left no trace
+expect ok 02 02

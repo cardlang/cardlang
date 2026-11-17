@@ -66,7 +66,7 @@ if __name__ == "__main__":
     ok = True
     tests = sorted(p for p in conf.glob("*/[a-z][a-z][a-z]-*") )
     for t in tests:
-        files = [t / f for f in (t / "files.txt").read_text().split()] if t.is_dir() else [t]
+        files = ([t / f for f in (t / "files.txt").read_text().split()] if (t / "files.txt").exists() else sorted(t.glob("*.card"))) if t.is_dir() else [t]
         meta = header(files[0].read_bytes())
         got = "ok"
         for f in files:

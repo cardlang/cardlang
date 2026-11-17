@@ -1,0 +1,20 @@
+install
+power_on
+command 01
+expect ok 00 00 00 00
+command 02
+expect ok 00 00 00 01
+command 02
+expect ok 00 00 00 02
+command 01
+expect ok 00 00 00 02
+command
+expect err app 1
+command 01 02
+expect err app 1
+command 07
+expect err app 2
+command 02 capacity 2  # the increment commits before the response check fails
+expect err app 3
+command 01             # Err did not undo the committed increment
+expect ok 00 00 00 03

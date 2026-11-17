@@ -91,12 +91,12 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-048 | Local binding visible only after its initializer completes | Agreed | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | NAM-19, NAM-20, NAM-22 |
 | D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | HEP-13, TXN-14 |
 | D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | STA-4 |
-| D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |
-| D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | pending |
-| D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | STA-14; pending chapter 13 (SP12) |
-| D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session cleared); reset rules pending chapter 13 (SP12) |
+| D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | STA-4, RTF-2, RTF-3 |
+| D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | RTF-2; resource lifecycle pending Annex B (SP13) |
+| D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | STA-14, RTF-12 |
+| D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | STA-4, RTF-9 |
 | D-055 | Transactions roll back persistent changes only | Agreed | [Agreed] | language | DN §7.2 | SP10 |  | TXN-4, TXN-11 |
-| D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | pending |
+| D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | RTF-9; platform failure handling pending Annex B (SP13) |
 | D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | STA-11, STA-12 |
 | D-058 | Explicit handling of overflow and underflow | Required feature | [Agreed] | language | DN §6.2, §6.5 | SP5 |  | EXP-23 |
 | D-059 | Global/local arrays of supported fixed-size values | Agreed: integers, bool, structs and enums | [Agreed] | language | DN §8, §8.2 | SP3 |  | TYP-1, TYP-11, TYP-18 |
@@ -186,10 +186,10 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces); unknown ID and wrong kind fail recoverably; capacity failure is a defined recoverable error; failed creation exposes no partial object (error names are placeholders) | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 | OI-15 | pending |
 | D-204 | Copying a resource identifier copies only the number; no stale-handle detection; identifier-variable lifetime is independent of resource lifetime | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 |  | pending |
 | D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | TXN-4, TXN-17; API contracts pending Annex B (SP13) |
-| D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23; Annex B pending SP12/SP13 |
+| D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23, STA-13, TXN-16, RTF-6, RTF-7, RTF-8 |
 | D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | TXN-12, TXN-13 |
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | TXN-14; platform mechanism pending Annex B (SP13) |
-| D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) |
+| D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | OUT-17, RTF-11 |
 
 ## DN body-only decisions (D-301…)
 
@@ -290,6 +290,12 @@ Sub-plans add rows here as they reach each DN section.
 | D-391 | A reset or power loss may prevent any response; no internal VM details are disclosed to the host | Agreed (DN body text) | [Agreed] | language | DN §4, §6.3 | SP11 |  | HEP-12 |
 | D-392 | A trap ends only the current command; subsequent commands may run; serial execution does not make a command an implicit transaction | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-14 |
 | D-393 | Response transmission never happens inside a transaction; response-buffer writes are ordinary volatile writes | Agreed (DN body text) | [Agreed] | language | DN §7.4 | SP11 |  | HEP-10 |
+| D-394 | A trap aborts the current command and cannot be caught by application `match` or `attempt` | Agreed (DN body text) | [Agreed] | language | DN §6.4 | SP12 |  | RTF-1 |
+| D-395 | Session state may be partially updated when a command traps; this is intentional and visible in the specification | Agreed (DN body text) | [Agreed] | language | DN §6.4 | SP12 |  | RTF-2 |
+| D-396 | Defined trap cases: arithmetic failures, out-of-bounds access, invalid shift counts, stack or execution-budget exhaustion, attempted nested transactions, invalid VM instructions or state | Agreed (DN body text) | [Agreed] | language | DN §6.4 | SP12 |  | RTF-4 |
+| D-397 | A security reset clears volatile state across all applications and is never returned as a `CardError` | Agreed (DN body text) | [Agreed] | language | DN §6.4 | SP12 |  | RTF-9 |
+| D-398 | Failures may terminate execution without an outcome while the persistent atomicity guarantees still hold | Agreed (DN body text) | [Agreed] | language | DN §6.4 | SP12 |  | RTF-10 |
+| D-399 | An ordinary trap does not trigger a lifecycle reset | Agreed (DN body text) | [Agreed] | language | DN §6.4; PN §3 | SP12 |  | RTF-3 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -309,7 +315,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-412 | No `byte` alias in Draft 0.1 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-12 | SP3 | OI-12 | TYP-20 |
 | D-413 | Zero or one error set; intrinsic outcomes may be forwarded | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-13 | SP8 | OI-13 | OUT-5, OUT-15 |
 | D-414 | Literal prefix, digit and magnitude rules | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-14 | SP1 | OI-14 | LEX-17, LEX-18, LEX-19, EXP-7 |
-| D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | EXP-23–EXP-29 (names used); catalog pending chapter 13 (SP12) |
+| D-415 | Trap-kind and placeholder platform-error names | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-15 | SP12 | OI-15 | RTF-4 (trap kinds), EXP-29, EXP-33; CardError names and codes pending Annex B (SP13) |
 | D-416 | Persistent deletion/upgrade/migration are platform-defined | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-16 | SP9 | OI-16 | STA-3; platform items pending Annex B (SP13) |
 | D-417 | Large-data object API is future platform work | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-17 | SP13 | OI-17 | pending |
 | D-418 | Outcome typing settled by DN §6.3 | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-18 | SP8 | OI-18 | OUT-1, OUT-2 |
@@ -336,3 +342,4 @@ Sub-plans add rows here as they reach each DN section.
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY); pending writes roll back; TRAP-TXN-CAPACITY joins the placeholder trap kinds of D-415 | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-39 | SP10 | OI-39 | TXN-16 |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-40 | SP10 | OI-40 | TXN-17 |
 | D-441 | The initial contents of the response region are unspecified for the language; the platform must ensure it never holds data from another application or from the platform | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-41 | SP11 | OI-41 | HEP-8; PLT requirement pending Annex B (SP13) |
+| D-442 | An application's maximum stack need is computed; exceeding the target's stack is rejected at build or load time; a runtime stack check remains only as a safety net | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-42 | SP12 | OI-42 | RTF-7 |

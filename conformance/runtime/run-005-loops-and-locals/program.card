@@ -1,0 +1,38 @@
+// rule: STM-5, STM-14, STM-15
+// source: DN §3.6, §3.9
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Locals are re-initialized each time they are reached; empty ranges run zero times.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        var total: u8 = 0;
+        for index: u8 in 0..3 {
+            var step: u8;
+            step = step + 1;
+            total = total + step;
+        }
+        response[0] = total;
+        return Ok(1);
+    } else if operation == 2 {
+        var count: u8 = 0;
+        var limit: u8 = request[1];
+        for index: u8 in 5..limit {
+            count = count + 1;
+        }
+        response[0] = count;
+        return Ok(1);
+    }
+    var evens: u8 = 0;
+    var current: u8 = 0;
+    while current < request[1] {
+        current = current + 1;
+        if (current % 2) == 1 {
+            continue;
+        }
+        evens = evens + 1;
+    }
+    response[0] = evens;
+    return Ok(1);
+}

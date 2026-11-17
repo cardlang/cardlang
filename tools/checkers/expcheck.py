@@ -83,7 +83,7 @@ def p_type(p):
 def p_primary(p, ns):
     k = p.kind(); v = p.take()
     if k == "int": return ("int", consteval.primary(consteval.P([("int", v)]))[1])
-    if v in ("true", "false"): return ("bool",)
+    if v in ("true", "false"): return ("bool", v == "true")
     if v == "(":
         e = p_expr(p); p.expect(")"); return e
     if v == "[":

@@ -1,0 +1,43 @@
+// rule: FUN-12, FUN-14, FUN-20
+// source: DN §3.8, §8.4
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Observable aliasing through references, and slice bounds at runtime.
+session buffer: u8[16];
+
+function update(target: inout u8, index: u32) {
+    target = 1;
+    buffer[index] = 2;
+    return Ok();
+}
+
+function observe(source: ref u8, target: inout u8) -> u8 {
+    target = 9;
+    return Ok(source);
+}
+
+function total(data: ref u8[]) -> u32 {
+    var sum: u32 = 0;
+    for index: u32 in 0..data.length {
+        sum = sum + convert<u32>(data[index]);
+    }
+    return Ok(sum + data.length);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        attempt update(inout buffer[0], 0);
+        response[0] = buffer[0];
+        return Ok(1);
+    } else if operation == 2 {
+        response[0] = attempt observe(ref buffer[1], inout buffer[1]);
+        return Ok(1);
+    }
+    var start: u32 = convert<u32>(request[1]);
+    var end: u32 = convert<u32>(request[2]);
+    var sum: u32 = attempt total(ref buffer[start..end]);
+    response[0] = truncate<u8>(sum);
+    return Ok(1);
+}

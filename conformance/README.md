@@ -8,7 +8,7 @@ Each test in this folder is a CardLang example from the specification, plus meta
 |---|---|---|
 | `valid/` | Applications or fragments that must compile | `ok` |
 | `invalid/` | Programs that must be rejected | `compile-error CE-…` |
-| `runtime/` | Programs that must compile and then behave as stated when run | `trap …` or `outcome …` |
+| `runtime/` | Complete applications that must compile, then behave as their scenario states when run | `runtime` |
 
 ## Naming
 
@@ -35,7 +35,8 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 | `source` | yes | DN/PN sections or `D-` IDs that the example comes from |
 | `status` | yes | `agreed`, `proposal` or `open`: the strongest tag among the rules tested. A test that depends on a [Proposal] or [Open] rule is not normative until that rule is agreed |
 | `kind` | yes | `application` (a complete application, including its single `command`) or `fragment` (declarations checked on their own; see below) |
-| `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, `trap TRAP-<KIND>`, `outcome Ok`, `outcome Ok(<value>)` or `outcome Err(<ErrorSet.Member>)` |
+| `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, or `runtime` for a runtime test, whose expected results are in its `scenario.txt` |
+| `requires` | no | `fault-injection`, for runtime tests that need a harness able to inject faults |
 | `also` | no | Other compile-error classes an implementation may report in addition to `expect`. Used only when the violation being tested cannot avoid a second one (for example, a stray `*/` after a comment that may not cross files) |
 | `note` | no | One line of explanation |
 
@@ -57,13 +58,42 @@ command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {
 
 A fragment test must therefore not declare a `command` itself, and must not use the name `scaffold_entry`. The scaffold is defined normatively in chapter 12 (HEP-16). If it changes there, this section changes with it.
 
-### Runtime tests [Open]
+### Runtime tests
 
-For `runtime/` tests, the way inputs are supplied is not defined yet. This covers request bytes, initial persistent and session state, and the sequence of commands, power-on events and resets. It depends on the host entry contract (chapter 12) and the runtime failure model (chapter 13), and will be defined in SP11 and SP12. Until then, `runtime/` tests state their scenario in `note` lines.
+A runtime test is a directory in `runtime/`. It contains:
+
+- `program.card`, or several `.card` files plus `files.txt`. This is a complete application (`kind: application`).
+- `scenario.txt`, which lists the steps to run, one per line.
+
+The program's header uses `expect: runtime`. It may also carry `requires: fault-injection`, for tests that only a harness able to inject faults can run. A harness without fault injection reports such tests as skipped.
+
+The application must first compile without errors. The harness then runs the scenario's steps in order, starting from a fresh card where nothing is installed:
+
+| Step | Meaning |
+|---|---|
+| `install` | Create the application's persistent state with defaults (STA-3). Then run `on_install`, if the application defines it (STA-6) |
+| `power_on` | Apply session defaults (STA-4). Then run `on_power_on`, if the application defines it |
+| `command <hex bytes>` | Invoke the command with these request bytes, for example `command 01 ff`. With no bytes, the request is empty. The response capacity is 256 bytes |
+| `command <hex bytes> capacity <n>` | The same, with a response capacity of `n` bytes |
+| `reset` | A security reset: all session state is cleared (RTF-9). A `power_on` step is needed before the next command |
+| `interrupt during-commit` | Fault injection. The next commit is interrupted by power loss, so the command produces no outcome. Persistent state recovers to all-or-nothing (TXN-13), and the session is lost. Needs `requires: fault-injection` |
+
+Every `command` step is followed by exactly one `expect` line:
+
+| Line | The command must… |
+|---|---|
+| `expect ok` | Succeed with an empty response |
+| `expect ok <hex bytes>` | Succeed with exactly these response bytes |
+| `expect err app <code>` | Return an application error with this decimal code |
+| `expect err platform <Member>` | Return this `CardError` member. The names are the placeholders of D-415 |
+| `expect trap <KIND>` | Trap with this kind, for example `expect trap OVERFLOW` |
+| `expect none` | Produce no outcome, after an `interrupt` |
+
+Blank lines, and anything after `#`, are ignored. Tests observe only what the host can see. State is checked indirectly, through the responses of later commands.
 
 ## Checking the tests
 
-Until a compiler exists, the reference checkers in `tools/checkers/` verify the compile-time tests against the rules of chapters 2–10. Run them all from the repository root:
+Until a compiler exists, the reference checkers in `tools/checkers/` verify the compile-time tests against the rules of chapters 2–12. The reference interpreter in `tools/interp/` runs the runtime tests. Run them all from the repository root:
 
 ```bash
 python -I tools/run_checks.py

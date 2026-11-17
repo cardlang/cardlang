@@ -1,0 +1,25 @@
+// rule: HEP-9
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Only the counted bytes are sent; an oversized count traps; Err sends no payload.
+errors AppError {
+    Failed = 1;
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    for index: u32 in 0..response.length {
+        response[index] = 0x11;
+    }
+    var operation: u8 = request[0];
+    if operation == 1 {
+        response[0] = 0xAA;
+        response[1] = 0xBB;
+        response[2] = 0xCC;
+        return Ok(2);
+    } else if operation == 2 {
+        return Ok(convert<u32>(request[1]));
+    }
+    return Err(AppError.Failed);
+}

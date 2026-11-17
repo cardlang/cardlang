@@ -40,9 +40,32 @@ python -I tools/checkers/hepcheck.py . "valid/*"
 **Known limitations.**
 
 - The checkers stop at the first error they find.
-- They only check compile-time results. The runtime tests and their harness are defined in SP12.
+- They only check compile-time results. Runtime behaviour is checked by `interp/` (below).
 - They do not implement every rule. For example, scope and shadowing rules (NAM-19 to NAM-21) are checked by review. The naming tests that depend on them are listed as "by review" in the SP2 notes.
 - Fragments in the design notes that use undeclared names are reported as name errors. That is expected.
+
+## `interp/`: reference interpreter
+
+`interp.py` runs the runtime tests in `conformance/runtime/`. For each test it does three things:
+
+1. It compiles the program with the full checker chain (`hepcheck`).
+2. It executes the steps in the test's `scenario.txt`.
+3. It compares every host-visible result (response bytes, application or platform error, trap kind, or no outcome) with the `expect` lines.
+
+The interpreter implements the semantics of chapters 6–13:
+
+- typed integers with checked arithmetic and the trap kinds of RTF-4;
+- references, views and slices;
+- transactions, with in-place rollback;
+- `abort` and `attempt`;
+- the command contract;
+- `install`, `power_on`, `reset`, and power loss during a commit.
+
+```bash
+python -I tools/interp/interp.py .
+```
+
+It is not normative and not optimized. Its execution budget is a fixed number of statements, enough for the tests. A deliberately wrong expectation makes it fail, which was checked when it was written: a missing rollback, a reversed assignment order and a cleared session each made their test fail.
 
 ## `generators/`: conformance-test generators
 

@@ -1,0 +1,37 @@
+// rule: STA-3, STA-4, STA-6, RTF-2, RTF-9
+// source: DN §3.9, §6.4
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Persistent defaults once, session defaults at power-on, session kept by traps and cleared by reset.
+persistent installed: u8;
+persistent counter: u8;
+session level: u8;
+
+function on_install() {
+    installed = 5;
+    return Ok();
+}
+
+function on_power_on() {
+    level = 3;
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 2 {
+        counter = counter + 1;
+        level = level + 1;
+        return Ok(0);
+    } else if operation == 3 {
+        level = level + 1;
+        var divisor: u8 = request[1];
+        var quotient: u8 = 1 / divisor;
+        return Ok(0);
+    }
+    response[0] = installed;
+    response[1] = counter;
+    response[2] = level;
+    return Ok(3);
+}

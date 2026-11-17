@@ -90,7 +90,7 @@ class StmChecker(expcheck.Checker):
             if v == "while":
                 frame = {"broken": False}
                 self.sblock(p, L, ret, ro, loops + [frame])
-                is_true = cond == ("bool",) and self._last_bool_true(p, save)
+                is_true = cond == ("bool", True)   # only the literal `true` (STM-20)
                 return (not is_true) or frame["broken"]
             any_completes = self.sblock(p, L, ret, ro, loops); has_else = False
             while p.peek() == "else":

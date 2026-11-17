@@ -1,0 +1,12 @@
+install
+power_on
+command 01           # b reads the pending value of a
+expect ok 01 0b 00
+command 02
+expect err app 1
+command 03           # a rolled back; the session change survived
+expect ok 01 0b 01
+command 04 00
+expect trap DIV-ZERO
+command 03           # the trap rolled back the pending write
+expect ok 01 0b 01

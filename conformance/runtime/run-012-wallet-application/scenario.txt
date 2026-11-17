@@ -1,0 +1,36 @@
+install
+power_on
+command 30
+expect err app 3                 # not authenticated
+command 20 01 02 03 05
+expect err app 5                 # wrong PIN
+command 20 01 02 03 04
+expect ok
+command 30
+expect ok 00 00 00 00
+command 31 00 00 03 e8           # credit 1000
+expect ok 00 00 03 e8
+command 32 00 00 01 2c           # debit 300
+expect ok 00 00 02 bc
+command 32 00 00 02 58           # debit 600: record_debit fails, the transaction is aborted
+expect err app 6
+command 30                       # balance rolled back to 700
+expect ok 00 00 02 bc
+command 32 00 00 03 20           # debit 800
+expect err app 4
+command 31 00 01 86 a0           # 700 + 100000 exceeds MAX_BALANCE
+expect err app 6
+command 31 ff ff ff ff           # checked_add overflow
+expect err app 6
+command 31 00 00 01
+expect err app 1
+command 40
+expect err app 2
+reset
+power_on
+command 32 00 00 00 64           # the session (authentication) was cleared
+expect err app 3
+command 20 01 02 03 04
+expect ok
+command 30                       # persistent balance kept across the reset
+expect ok 00 00 02 bc
