@@ -1,0 +1,12 @@
+// rule: STM-23
+// source: D-449
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: wipe of a constant.
+const LIMIT: u8 = 4;
+
+function check() {
+    wipe LIMIT;
+    return Ok();
+}

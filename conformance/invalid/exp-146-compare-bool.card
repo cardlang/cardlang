@@ -1,0 +1,12 @@
+// rule: EXP-54
+// source: D-448
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-6
+// note: compare on bool elements.
+session flags: bool[2];
+
+function check() {
+    var order: i8 = compare(ref flags, ref flags);
+    return Ok();
+}

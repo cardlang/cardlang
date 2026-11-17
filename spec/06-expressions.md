@@ -320,7 +320,7 @@ function check(flags: u8) -> bool {
 **EXP-21 [Agreed]** `a and b` evaluates `b` only if `a` is `true`. `a or b` evaluates `b` only if `a` is `false`. An operand that is not evaluated has no effects and cannot fail at runtime, although it is still type-checked.
 *Sources: D-104; DN §3.5.*
 
-**EXP-22 [Agreed]** The semantics in this chapter do not depend on build mode or optimization level. An implementation may reorder or remove operations, or omit a check, only if it has proved that doing so changes nothing observable, including which failure occurs and when.
+**EXP-22 [Agreed]** The semantics in this chapter do not depend on build mode or optimization level. An implementation may reorder or remove operations, or omit a check, only if it has proved that doing so changes nothing observable, including which failure occurs and when. The stores of a `wipe` statement are the one exception: they are never removed (STM-23).
 *Sources: D-338; DN §3.5, §6.5.*
 
 ### Examples
@@ -425,6 +425,40 @@ function debit(amount: u32) {
 *Invalid:* a checked intrinsic whose operands are all literals has no integer context. **CE-EXP-3**. (conformance: `invalid/exp-142-checked-no-context.card`)
 
 *Invalid:* a wrapping intrinsic with too few arguments. **CE-EXP-16**. (conformance: `invalid/exp-138-argument-count.card`)
+
+### Intrinsics and array comparison
+
+**EXP-52 [Agreed]** An *intrinsic* is an operation that this specification defines completely in terms of language values. The intrinsics are `fill`, `convert`, `checked_convert`, the `checked_*` and `wrapping_*` operations, `truncate`, `encode_be`, `encode_le`, `decode_be`, `decode_le`, `equal` and `compare`. Every intrinsic:
+
+- behaves identically on every conforming platform;
+- fails only as this specification says: by a compile error, a trap, or an `Err` defined for it here (such as the `checked_*` operations);
+- is reached by its predeclared name (NAM-14), never through a `card.` path.
+
+An operation that depends on platform state or hardware is a platform API instead (PLT-30).
+*Sources: D-446 (OI-46); DN §3.2.*
+
+**EXP-53 [Agreed]** `equal(ref a, ref b)` compares two arrays element by element:
+
+- **Arguments.** Exactly two arguments (otherwise **CE-EXP-16**), each passed with `ref` (otherwise **CE-FUN-2**). Each is a fixed array, a view or a slice (FUN-18). Their element types must be identical, otherwise **CE-EXP-1**. The element type must be one that `==` accepts: an integer type, `bool` or an enum. An aggregate element type is **CE-EXP-6**.
+- **Result.** It synthesizes `bool`. The result is `true` exactly when the two lengths are equal and each pair of elements is equal under `==`.
+- **Failure.** It never fails and never traps.
+- **Timing.** Its execution time depends only on the two lengths, never on the contents (PLT-31).
+*Sources: D-448 (OI-48); DN §3.2.*
+
+**EXP-54 [Agreed]** `compare(ref a, ref b)` orders two arrays lexicographically:
+
+- **Arguments.** As for `equal` (EXP-53), except that the element type must be an integer type. Any other element type is **CE-EXP-6**.
+- **Result.** It synthesizes `i8`: `-1` if `a` sorts before `b`, `0` if they are equal, and `1` if `a` sorts after `b`. Elements are compared by their mathematical values from index 0. When one array is a proper prefix of the other, the shorter one sorts first.
+- **Failure.** It never fails and never traps. It has no timing requirement.
+*Sources: D-448 (OI-48); DN §3.2.*
+
+*Valid:* `equal` and `compare` on whole arrays. (conformance: `valid/exp-019-equal-and-compare.card`)
+
+*Invalid:* `equal` on arrays with different element types. **CE-EXP-1**. (conformance: `invalid/exp-145-equal-element-types.card`)
+
+*Invalid:* `compare` on `bool` elements. **CE-EXP-6**. (conformance: `invalid/exp-146-compare-bool.card`)
+
+*Invalid:* `equal` with by-value arguments. **CE-FUN-2**. (conformance: `invalid/exp-147-equal-by-value.card`)
 
 ## 6.7 Conversions
 
@@ -716,21 +750,21 @@ When `attempt` is in the right operand of `and` or `or`, it is evaluated only if
 
 | Class | Meaning | Rules |
 |---|---|---|
-| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18, STM-8, STM-11, FUN-8 |
+| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18, EXP-53, STM-8, STM-11, FUN-8, FUN-24 |
 | **CE-EXP-2** | An integer literal is out of range for its expected type | EXP-7, STM-13 |
 | **CE-EXP-3** | An integer literal has no type context | EXP-11, EXP-29 |
 | **CE-EXP-4** | Different binary operators at one grouping level | EXP-2, EXP-5 |
 | **CE-EXP-5** | A chain of comparisons | EXP-4 |
-| **CE-EXP-6** | An operator applied to a type it does not accept | EXP-8, EXP-13–EXP-15, EXP-17–EXP-19 |
+| **CE-EXP-6** | An operator applied to a type it does not accept | EXP-8, EXP-13–EXP-15, EXP-17–EXP-19, EXP-53, EXP-54 |
 | **CE-EXP-7** | A call or `attempt` inside a call argument | EXP-49 |
 | **CE-EXP-8** | An invalid conversion or byte intrinsic: unknown source type, non-integer type, conversion not guaranteed, or unsupported width | EXP-31, EXP-32, EXP-36, EXP-37 |
 | **CE-EXP-9** | An index whose type is not `u8`, `u16` or `u32` | EXP-39, FUN-19 |
-| **CE-EXP-10** | An array list or `fill` with no expected array type | EXP-43, EXP-44 |
+| **CE-EXP-10** | An array list or `fill` with no expected array type | EXP-43, EXP-44, FUN-24 |
 | **CE-EXP-11** | An array list with the wrong number of elements | EXP-43 |
 | **CE-EXP-12** | A constructor field that is missing, undeclared or repeated | EXP-45 |
 | **CE-EXP-13** | A field selection the receiver does not have | EXP-41 |
 | **CE-EXP-14** | An outcome used where a value is required | EXP-48 |
 | **CE-EXP-15** | A call whose target is not callable | EXP-47, HEP-3 |
-| **CE-EXP-16** | A call with the wrong number of arguments | EXP-47 |
+| **CE-EXP-16** | A call with the wrong number of arguments | EXP-47, EXP-53 |
 
 The trap kinds `OVERFLOW`, `UNDERFLOW`, `DIV-ZERO`, `NEGATION`, `SHIFT` and `BOUNDS` used in this chapter are the agreed placeholder names (D-415). Chapter 13 catalogs them.

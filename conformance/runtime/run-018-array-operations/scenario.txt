@@ -1,0 +1,22 @@
+install
+power_on
+command 01           # overlapping copy to the right: every element gets the original value
+expect ok 01 01 02 03 04 05 06 07
+command 02           # overlapping copy to the left
+expect ok 02 03 04 05 06 07 08 08
+command 03 03        # lengths differ at runtime
+expect trap BOUNDS
+command 03 04
+expect ok
+command 04           # compare: -1, 1, prefix -1; equal: false
+expect ok ff 01 ff 00
+command 05           # slice assignment into persistent storage, then abort
+expect err app 2
+command 06           # rolled back
+expect ok 00 00 00 00
+command 08           # committed
+expect ok
+command 06
+expect ok 05 06 00 00
+command 07           # wipe stores the default
+expect ok 00 00

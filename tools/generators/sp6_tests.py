@@ -1,4 +1,6 @@
 import re, sys, pathlib
+# Tests written by later generators (sp14_tests.py, wp1_tests.py) are referenced in this chapter but owned by them.
+SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "07-statements-and-control-flow.md").read_text(encoding="utf-8")
 
@@ -114,6 +116,6 @@ add(I+"stm-127-assign-function.card", "STM-7", "DN §3.7", "compile-error CE-STM
 for path, (rule, src, exp, note, code) in T.items():
     hdr = f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: fragment\n// expect: {exp}\n// note: {note}\n"
     (conf / path).write_text(hdr + code, encoding="utf-8", newline="\n")
-refs = set(re.findall(r"`((?:valid|invalid)/stm-[\w-]+\.card)`", ch))
+refs = set(re.findall(r"`((?:valid|invalid)/stm-[\w-]+\.card)`", ch)) - SP14_OWNED
 assert refs == set(T), sorted(refs ^ set(T))
 print("tests:", len(T))

@@ -127,18 +127,18 @@ const B: u32 = 2;
 **LEX-12 [Agreed]** An *identifier* is an ASCII letter (`A`–`Z`, `a`–`z`) or underscore, followed by zero or more ASCII letters, digits and underscores. The exceptions are a keyword (LEX-13) and a lone `_` (LEX-14). Identifiers are case-sensitive: `Account` and `account` are different identifiers. Escape sequences and non-ASCII letters are not part of identifiers (LEX-3). Naming conventions, such as capitalized type names, are style only.
 *Sources: D-023, D-301, D-303; DN §3.0.*
 
-**LEX-13 [Agreed]** The following 31 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
+**LEX-13 [Agreed]** The following 32 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
 
 ```text
 abort      and        attempt    break      command    const      continue
 else       enum       Err        errors     false      for        function
 if         in         inout      match      not        Ok         or
 persistent ref        require    return     session    struct     transaction
-true       var        while
+true       var        while      wipe
 ```
 
 `true` and `false` are also the Boolean literals (LEX-21). Using a keyword where the grammar requires an identifier is **CE-SYN-1**.
-*Sources: D-303, D-404 (OI-4); DN §3.0, §3.6.*
+*Sources: D-303, D-404 (OI-4), D-449 (OI-49); DN §3.0, §3.6.*
 
 **LEX-14 [Agreed]** A lone underscore `_` is a token of its own, not an identifier. The syntax permits it only as the ignored pattern (chapter 9). Identifiers that merely contain or start with an underscore, such as `_x` or `__count`, are ordinary identifiers.
 *Sources: D-302; DN §3.0.*
@@ -147,12 +147,13 @@ true       var        while
 
 - the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`;
 - the conversion and byte-order intrinsics `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (added by D-432);
+- the array intrinsics `equal` and `compare` (added by D-448);
 - the platform names `card` and `CardError`;
 - any further platform names supplied by the platform specification (Annex B);
 - the lifecycle-handler names `on_install` and `on_power_on` (added by D-422 and D-438). An application may declare a function with one of these names, which defines the handler (NAM-14, STA-7, STA-8).
 
 `length` is not reserved and may be used as a field name.
-*Sources: D-044, D-404 (OI-4), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38); DN §4.2.*
+*Sources: D-044, D-404 (OI-4), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38), D-448 (OI-48); DN §4.2.*
 
 **LEX-16 [Agreed]** The language sets no maximum length for identifiers. A tool may report a limit it cannot support, but it MUST NOT silently truncate or merge identifiers.
 *Sources: D-424 (OI-24).*

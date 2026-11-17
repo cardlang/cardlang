@@ -1,0 +1,12 @@
+// rule: FUN-24
+// source: D-447
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-8
+// note: Slice lengths known to differ.
+session buffer: u8[8];
+
+function check() {
+    buffer[0..4] = buffer[0..3];
+    return Ok();
+}

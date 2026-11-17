@@ -40,6 +40,7 @@ Keyword         ::= 'abort' | 'and' | 'attempt' | 'break' | 'command' | 'const'
                   | 'for' | 'function' | 'if' | 'in' | 'inout' | 'match' | 'not'
                   | 'Ok' | 'or' | 'persistent' | 'ref' | 'require' | 'return'
                   | 'session' | 'struct' | 'transaction' | 'true' | 'var' | 'while'
+                  | 'wipe'
 
 /* A.1.5 Integer and Boolean literals (LEX-17 to LEX-21) */
 IntegerLiteral  ::= DecimalLiteral | HexLiteral | BinaryLiteral
@@ -155,8 +156,10 @@ Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
                       | IfStatement | WhileStatement | ForStatement | MatchStatement
                       | BreakStatement | ContinueStatement | ReturnStatement | RequireStatement
                       | TransactionStatement | AbortStatement        /* A.2.9 */
+                      | WipeStatement
 VarStatement        ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
 AssignmentStatement ::= Expression '=' Expression ';'
+WipeStatement       ::= 'wipe' Expression ';'
 ExpressionStatement ::= Expression ';'
 IfStatement         ::= 'if' ConditionExpression Block ( 'else' 'if' ConditionExpression Block )* ( 'else' Block )?
 WhileStatement      ::= 'while' ConditionExpression Block
@@ -321,6 +324,7 @@ Every nonterminal of this annex, with the section that defines it. Each is defin
 | `VarStatement` | §A.2.5 |
 | `WhileStatement` | §A.2.5 |
 | `Whitespace` | §A.1.1 |
+| `WipeStatement` | §A.2.5 |
 
 ### A.3.2 Mechanical check
 

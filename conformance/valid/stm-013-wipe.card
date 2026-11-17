@@ -1,0 +1,15 @@
+// rule: STM-23
+// source: D-449
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: wipe of a local, a session global and an inout view.
+session key: u8[16];
+
+function check(secret: inout u8[]) {
+    var scratch: u8[4] = [1, 2, 3, 4];
+    wipe scratch;
+    wipe key;
+    wipe secret;
+    return Ok();
+}

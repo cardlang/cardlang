@@ -1,7 +1,7 @@
 """Write the SP12 runtime conformance tests (conformance/runtime/*) and cross-check them with chapter 13."""
 import re, sys, pathlib
-# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
-SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
+# Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
+SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance" / "runtime"
 ch13 = (repo / "spec" / "13-runtime-failures.md").read_text(encoding="utf-8")
 ch12 = (repo / "spec" / "12-host-entry-point.md").read_text(encoding="utf-8")

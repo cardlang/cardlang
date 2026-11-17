@@ -27,16 +27,16 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §3.7, §3.11, §4.1, §4.2, §5.1, §6.3, §11.1 | NAM-1 … NAM-22 |
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.1, §8.2, §8.4, §9–§9.3 | TYP-1 … TYP-23 |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.8, §3.10, §3.11, §5.1, §6.5 | CEX-1 … CEX-14 |
-| 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-51 |
-| 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-22 |
-| 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-23 |
+| 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-54 |
+| 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-23 |
+| 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-24 |
 | 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-18 |
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | SP12 | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
 | annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1–A.2.10, A.3; consolidated and checked mechanically (SP14) |
-| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-29 |
+| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-34 |
 | annex-C-open-issues.md | all | see each issue | — |
 
 ## D.2 Decisions → rules
@@ -331,6 +331,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-443 | Catalog entry requirements; test-only catalog for conformance | SP13 | PLT-25, PLT-26 | OI-43 | covered |
 | D-444 | EXP-6 encoded in Annex A with a condition-expression nonterminal | SP14 | EXP-6 | OI-44 | covered |
 | D-445 | attempt and require inside a transaction abort it on their error path | Draft 0.2 | TXN-18, TXN-6, STM-19, OUT-10, EXP-51 | OI-45 | covered |
+| D-446 | The line between intrinsics and platform APIs | WP1 | EXP-52, PLT-30 | OI-46 | covered |
+| D-447 | Moving array data | WP1 | FUN-24, FUN-18, STM-7 | OI-47 | covered |
+| D-448 | Comparing arrays | WP1 | EXP-53, EXP-54, LEX-15, NAM-14 | OI-48 | covered |
+| D-449 | Wiping secrets | WP1 | STM-23, EXP-22, LEX-13, PLT-34 | OI-49 | covered |
+| D-450 | Security expectations for platforms | WP1 | PLT-31 to PLT-34, PLT-32, PLT-33 | OI-50 | covered |
 
 ## D.3 Rules → conformance tests
 
@@ -344,7 +349,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 288 rules: 212 cited, 47 exercised, 29 not testable.
+**Totals:** 298 rules: 216 cited, 48 exercised, 34 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -360,7 +365,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | LEX-10 | cited | lex-005-longest-match |
 | LEX-11 | cited | lex-006-two-files, lex-112-comment-across-files |
 | LEX-12 | cited | lex-001-identifiers, lex-101-non-ascii-identifier |
-| LEX-13 | cited | lex-110-keyword-as-identifier |
+| LEX-13 | cited | lex-110-keyword-as-identifier, lex-116-wipe-is-keyword |
 | LEX-14 | cited | lex-001-identifiers, lex-111-underscore-as-name |
 | LEX-15 | exercised | nam-116-redeclare-intrinsic, nam-117-redeclare-card, sta-108-constant-named-like-handler |
 | LEX-16 | cited | lex-009-long-identifier |
@@ -482,6 +487,9 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-49 | cited | exp-124-nested-convert, exp-125-intrinsic-in-argument, exp-126-attempt-in-argument |
 | EXP-50 | cited | run-017-evaluation-and-copies |
 | EXP-51 | exercised | out-004-attempt-forms, fun-009-constant-and-bindings-by-ref, run-017-evaluation-and-copies |
+| EXP-52 | exercised | exp-013-wrapping, exp-017-checked-convert, exp-019-equal-and-compare |
+| EXP-53 | cited | exp-019-equal-and-compare, exp-145-equal-element-types, exp-147-equal-by-value, fun-012-views-equal-and-wipe, run-018-array-operations |
+| EXP-54 | cited | exp-019-equal-and-compare, exp-146-compare-bool, fun-012-views-equal-and-wipe, run-018-array-operations |
 | STM-1 | exercised | stm-004-if-chain, stm-126-standalone-block |
 | STM-2 | cited | stm-125-expression-statement |
 | STM-3 | cited | stm-126-standalone-block |
@@ -504,6 +512,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STM-20 | cited | stm-004-if-chain, stm-007-enum-match, stm-009-while-true-no-return, stm-011-while-true-with-return-inside, stm-012-match-arms-may-complete, stm-119-if-without-else-return, stm-120-while-true-with-break |
 | STM-21 | cited | stm-009-while-true-no-return, stm-118-missing-return, stm-119-if-without-else-return, stm-120-while-true-with-break |
 | STM-22 | cited | stm-010-statements-after-return |
+| STM-23 | cited | fun-012-views-equal-and-wipe, run-018-array-operations, stm-013-wipe, stm-128-wipe-constant |
 | FUN-1 | exercised | fun-001-forward-call-across-files, fun-010-no-payload-function |
 | FUN-2 | cited | fun-002-structure-return, fun-010-no-payload-function |
 | FUN-3 | cited | fun-001-forward-call-across-files |
@@ -527,6 +536,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | FUN-21 | cited | fun-007-slices-and-views, fun-008-narrowing-views |
 | FUN-22 | exercised | sta-002-setup-helper, txn-004-callee-writes |
 | FUN-23 | cited | run-017-evaluation-and-copies |
+| FUN-24 | cited | fun-011-slice-assignment, fun-123-slice-assignment-length, fun-124-slice-assignment-into-ref, fun-125-slice-assignment-element-type, run-018-array-operations |
 | OUT-1 | exercised | out-001-match-ok-err, out-002-no-payload-match |
 | OUT-2 | cited | out-124-outcome-in-initializer |
 | OUT-3 | cited | out-103-ok-value-in-no-payload, out-104-ok-empty-in-payload |
@@ -636,3 +646,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |
 | PLT-29 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-30 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-31 | not testable | Timing is not observable by a conforming program; checked by platform evaluation |
+| PLT-32 | not testable | Side-channel and fault resistance is not observable by a conforming program; checked by platform evaluation |
+| PLT-33 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-34 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |

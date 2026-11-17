@@ -1,0 +1,10 @@
+// rule: FUN-24
+// source: D-447
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: A slice assignment into a ref parameter.
+function check(data: ref u8[]) {
+    data[0..2] = [1, 2];
+    return Ok();
+}

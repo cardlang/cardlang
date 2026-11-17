@@ -1,0 +1,12 @@
+// rule: EXP-53, EXP-54, STM-23
+// source: D-448, D-449
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: equal and compare on views and slices, and wipe of a slice.
+function check(a: ref u8[], b: ref u8[], secret: inout u8[]) -> bool {
+    var same: bool = equal(ref a[0..2], ref b);
+    var order: i8 = compare(ref a, ref b[0..1]);
+    wipe secret[0..4];
+    return Ok(same);
+}

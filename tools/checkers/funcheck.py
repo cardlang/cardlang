@@ -3,7 +3,7 @@ import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
 import stmcheck, expcheck, consteval
-from expcheck import CE, UNS
+from expcheck import CE, UNS, p_expr
 
 class FunChecker(stmcheck.StmChecker):
     _slice_ok = False
@@ -55,6 +55,29 @@ class FunChecker(stmcheck.StmChecker):
             s, t = e[2][1], e[3][1]
             if s > t or t > rt[2]: raise CE("CE-CEX-4")
         return ("arr", rt[1], None)
+
+    @staticmethod
+    def const_len(e):
+        """Length of a slice whose endpoints are both literals, else None."""
+        return e[3][1] - e[2][1] if e[2][0] == "int" and e[3][0] == "int" else None
+
+    def slice_place(self, e, L, ro):
+        self.place(self.root(e), L, ro)
+        return self.slice_type(e, L)
+
+    def slice_assign(self, e, p, L, ro):
+        """FUN-24: place[s..e] = source;"""
+        dt = self.slice_place(e, L, ro); dlen = self.const_len(e)
+        src = p_expr(p); p.expect(";")
+        if src[0] == "slice":
+            st = self.slice_type(src, L); slen = self.const_len(src)
+        elif src[0] == "list" or (src[0] == "call" and src[1] == ("name", "fill")):
+            if dlen is None: raise CE("CE-EXP-10")
+            self.check(src, ("arr", dt[1], dlen), L); return
+        else:
+            st = self.synth(src, L); slen = st[2] if isinstance(st, tuple) and st[0] == "arr" else None
+        if not (isinstance(st, tuple) and st[0] == "arr" and st[1] == dt[1]): raise CE("CE-EXP-1")
+        if dlen is not None and slen is not None and dlen != slen: raise CE("CE-STM-8")
 
     def synth(self, e, L, value=True):
         k = e[0]
@@ -113,6 +136,15 @@ class FunChecker(stmcheck.StmChecker):
                 else:
                     self.check(a, pt, L)
             return ("outcome", ret)
+        if target[0] == "name" and target[1] in ("equal", "compare"):
+            self.nested(args)
+            if len(args) != 2: raise CE("CE-EXP-16")
+            ts = []
+            for mode, a in args:
+                if mode != "ref": raise CE("CE-FUN-2")
+                self.storage(a, L); self._slice_ok = True
+                ts.append(self.synth(a, L)); self._slice_ok = False
+            return self.compare_intrinsic(target[1], ts)
         if target[0] == "name" and target[1] in ("decode_be", "decode_le"):
             if len(args) == 1 and args[0][0] != "ref": raise CE("CE-FUN-2")
             self._slice_ok = True

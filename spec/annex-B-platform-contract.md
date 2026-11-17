@@ -185,6 +185,16 @@ These tests use the test-only catalog (PLT-26):
 | `runtime/run-015-resource-identifiers/` | PLT-20, PLT-22 | scenario |
 | `runtime/run-016-signer-application/` | DN §13 signer (skeleton to the API boundary) | scenario |
 
+**PLT-30 [Agreed]** A *platform API* is an operation that depends on platform state or hardware, such as keys, randomness, cryptographic engines, runtime-owned resources or lifecycle. Every platform API:
+
+- is reached only through a `card.` path listed in the catalog (PLT-25);
+- may be absent from a platform;
+- fails with `CardError` members;
+- states its transaction behaviour (PLT-24).
+
+An operation that the language provides as an intrinsic (EXP-52) is never also offered as a platform API.
+*Sources: D-446 (OI-46); PN §1.*
+
 ## B.9 `CardError` and trap catalogs
 
 **PLT-27 [Agreed]** A platform's `CardError` set includes at least the members this specification names:
@@ -281,3 +291,20 @@ A platform specification must document a choice for every item below. Each row p
 | 29 | [PLT-23](annex-B-platform-contract.md) | What happens to resources at power-on, at security reset and when an application is deleted is platform-defined. |
 | 30 | [PLT-24](annex-B-platform-contract.md) | Resource storage strategy, such as fixed slots, bounded pools or a heap, is platform-defined and needs no dynamic allocation in the language. |
 | 31 | [PLT-28](annex-B-platform-contract.md) | How trap kinds are reported, if at all, is platform-defined (PLT-10). |
+| 32 | [PLT-32](annex-B-platform-contract.md) | The level, and how it is evaluated, are platform-defined. |
+
+## B.13 Security expectations
+
+These rules are obligations on a platform. They are not language rules, because time, power and faults are not observable in the language.
+
+**PLT-31 [Agreed]** `equal` (EXP-53) and every cryptographic platform API execute in time that does not depend on secret data: key material, plaintext, MAC values, and the contents compared by `equal`. Time may depend on lengths and on public parameters.
+*Sources: D-450 (OI-50).*
+
+**PLT-32 [Agreed]** A platform protects application secrets against side-channel and fault-injection attacks, at the level stated in its target profile. The level, and how it is evaluated, are platform-defined.
+*Sources: D-450 (OI-50).*
+
+**PLT-33 [Agreed]** Secret and private key material never appears in memory that an application can read, nor in any output. The only key material an application can obtain is a public key, through an API that exports it explicitly.
+*Sources: D-450 (OI-50).*
+
+**PLT-34 [Agreed]** A platform performs every store of a `wipe` statement (STM-23), including on volatile memory about to be released. It keeps no other copy of the wiped values that an application or the host could recover.
+*Sources: D-450 (OI-50), D-449 (OI-49).*

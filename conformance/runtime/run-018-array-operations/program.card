@@ -1,0 +1,65 @@
+// rule: FUN-24, EXP-53, EXP-54, STM-23
+// source: D-447, D-448, D-449
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Overlapping slice copies, a runtime length mismatch, compare and equal, persistent slice copies under abort and commit, and wipe.
+errors AppError {
+    UnknownOperation = 1;
+    Refused = 2;
+}
+
+persistent stored: u8[4];
+session scratch: u8[2];
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var buffer: u8[8] = [1, 2, 3, 4, 5, 6, 7, 8];
+    if operation == 1 {
+        buffer[1..8] = buffer[0..7];
+        response[0..8] = buffer;
+        return Ok(8);
+    } else if operation == 2 {
+        buffer[0..7] = buffer[1..8];
+        response[0..8] = buffer;
+        return Ok(8);
+    } else if operation == 3 {
+        var count: u32 = convert<u32>(request[1]);
+        buffer[0..count] = buffer[4..8];
+        return Ok(0);
+    } else if operation == 4 {
+        var a: u8[3] = [1, 2, 3];
+        var b: u8[3] = [1, 2, 4];
+        var first: i8 = compare(ref a, ref b);
+        var second: i8 = compare(ref b, ref a);
+        var prefix: i8 = compare(ref a[0..2], ref a);
+        response[0] = truncate<u8>(first);
+        response[1] = truncate<u8>(second);
+        response[2] = truncate<u8>(prefix);
+        if equal(ref a, ref b) {
+            response[3] = 1;
+        } else {
+            response[3] = 0;
+        }
+        return Ok(4);
+    } else if operation == 5 {
+        transaction {
+            stored[0..4] = [9, 9, 9, 9];
+            abort Err(AppError.Refused);
+        }
+    } else if operation == 6 {
+        response[0..4] = stored;
+        return Ok(4);
+    } else if operation == 7 {
+        scratch = [7, 8];
+        wipe scratch;
+        response[0..2] = scratch;
+        return Ok(2);
+    } else if operation == 8 {
+        transaction {
+            stored[0..2] = [5, 6];
+        }
+        return Ok(0);
+    }
+    return Err(AppError.UnknownOperation);
+}

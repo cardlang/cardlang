@@ -1,0 +1,14 @@
+// rule: EXP-53, EXP-54
+// source: D-448
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: equal and compare on whole arrays.
+session x: u8[4];
+session y: u8[4];
+
+function check() -> bool {
+    var same: bool = equal(ref x, ref y);
+    var order: i8 = compare(ref x, ref y);
+    return Ok(same and (order == 0));
+}

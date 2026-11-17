@@ -127,6 +127,8 @@ def parse_stmt(p):
         p.take(); e = p_postfix(p, False); p.expect(";"); return ("attempt", e)
     if v == "transaction":
         p.take(); return ("transaction", parse_block(p))
+    if v == "wipe":
+        p.take(); e = p_expr(p); p.expect(";"); return ("wipe", e)
     if v == "abort":
         p.take(); p.expect("Err"); p.expect("("); e = p_expr(p); p.expect(")"); p.expect(";"); return ("abort", e)
     dest = p_expr(p); p.expect("="); e = p_expr(p); p.expect(";"); return ("assign", dest, e)
@@ -167,6 +169,17 @@ class Card:
         return codes
 
     # ---- types and defaults
+    def zero_like(self, v):
+        if isinstance(v, Int): return Int(0, v.t)
+        if isinstance(v, bool): return False
+        if isinstance(v, tuple) and v[0] == "enum": return self.default(v[1])
+        if isinstance(v, list): return [self.zero_like(x) for x in v]
+        return dict({f: self.zero_like(x) for f, x in v.items() if f != "#"}, **{"#": v["#"]})
+
+    def elements(self, a, env):
+        src = self.place(a, env)
+        return [src.lst[src.start + i] for i in range(src.length)] if isinstance(src, View) else list(src.get())
+
     def default(self, T):
         if T in RANGES: return Int(0, T)
         if T == "bool": return False
@@ -337,6 +350,12 @@ class Card:
         if name == "checked_convert":
             t = self.types(tyarg); v = self.eval(args[0][1], env).v; lo, hi = RANGES[t]
             return ("ok", Int(v, t)) if lo <= v <= hi else ("err", ErrVal("platform", "ConversionRange"))
+        if name in ("equal", "compare"):                    # EXP-53, EXP-54
+            xs, ys = (self.elements(a, env) for _, a in args)
+            key = lambda v: v.v if isinstance(v, Int) else v
+            if name == "equal": return len(xs) == len(ys) and all(key(x) == key(y) for x, y in zip(xs, ys))
+            a_, b_ = [key(x) for x in xs], [key(y) for y in ys]
+            return Int((a_ > b_) - (a_ < b_), "i8")
         if name in ("encode_be", "encode_le"):
             v = self.eval(args[0][1], env); n = WIDTH[v.t] // 8; u = v.v & ((1 << WIDTH[v.t]) - 1)
             bs = [Int((u >> (8 * (n - 1 - i))) & 0xFF, "u8") for i in range(n)]
@@ -442,6 +461,20 @@ class Card:
             t = self.types(s[2])
             v = self.default(t) if s[3] is None else self.coerce(copy_value(self.eval(s[3], env, t)), t)
             env["scopes"][-1][s[1]] = v
+        elif k == "assign" and s[1][0] == "slice":           # FUN-24: copy as if through a temporary
+            dest = self.place(s[1], env)
+            if s[2][0] == "slice":
+                sv = self.place(s[2], env); src = [copy_value(sv.lst[sv.start + i]) for i in range(sv.length)]
+            else:
+                et = self.type_of(dest.lst[dest.start]) if dest.length else None
+                src = [copy_value(x) for x in self.eval(s[2], env, ("arr", et, dest.length))]
+            if len(src) != dest.length: raise Trap("BOUNDS")
+            for i, x in enumerate(src): dest.lst[dest.start + i] = x
+        elif k == "wipe":                                    # STM-23
+            dest = self.place(s[1], env)
+            if isinstance(dest, View):
+                for i in range(dest.length): dest.lst[dest.start + i] = self.zero_like(dest.lst[dest.start + i])
+            else: dest.set(self.zero_like(dest.get()))
         elif k == "assign":
             dest = self.place(s[1], env)                       # destination path first (STM-9)
             t = self.type_of(dest.get())

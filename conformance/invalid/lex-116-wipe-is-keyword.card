@@ -1,0 +1,7 @@
+// rule: LEX-13
+// source: D-449
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: wipe is a keyword and cannot be a name.
+session wipe: u8;

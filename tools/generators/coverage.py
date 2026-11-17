@@ -59,6 +59,7 @@ EXERCISED = {
     "PLT-26": "plt-001-platform-call and every test that uses the test-only catalog",
     "PLT-27": "run-002-checked-and-conversions, run-015-resource-identifiers",
     "PLT-28": "run-001-integer-traps, run-013-execution-budget",
+    "EXP-52": "exp-013-wrapping, exp-017-checked-convert, exp-019-equal-and-compare",
 }
 
 PLATFORM = "A platform obligation: it is checked by a platform's own conformance, not by language tests"
@@ -79,8 +80,10 @@ NOT_TESTABLE = {
     "RTF-7": "Stack limits are per target profile and platform-defined",
     "RTF-8": "A rule about how limits are enforced; the suite has no target profile",
     "PLT-17": "Informative: future platform work",
+    "PLT-31": "Timing is not observable by a conforming program; checked by platform evaluation",
+    "PLT-32": "Side-channel and fault resistance is not observable by a conforming program; checked by platform evaluation",
 }
-for r in "PLT-1 PLT-2 PLT-4 PLT-5 PLT-6 PLT-7 PLT-10 PLT-11 PLT-14 PLT-15 PLT-16 PLT-21 PLT-29".split():
+for r in "PLT-1 PLT-2 PLT-4 PLT-5 PLT-6 PLT-7 PLT-10 PLT-11 PLT-14 PLT-15 PLT-16 PLT-21 PLT-29 PLT-30 PLT-33 PLT-34".split():
     NOT_TESTABLE[r] = PLATFORM
 
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()

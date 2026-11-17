@@ -208,4 +208,5 @@ def main(repo):
     print("ALL PASS" if all(results) else "FAILURES")
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
     main(pathlib.Path(sys.argv[1]).resolve())

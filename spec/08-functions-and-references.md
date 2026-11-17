@@ -384,10 +384,11 @@ PostfixPart ::= … | '[' Expression '..' Expression ']'      /* §A.2.4 */
 
 **FUN-18 [Agreed]** A slice `a[s..e]`, where `a` has type `T[N]` or `T[]`, has the view type `T[]`. A slice may appear only:
 
-- as a `ref` or `inout` argument whose parameter type is `T[]`, including the argument of `decode_be` and `decode_le`; or
-- as the receiver of an index operation, of `.length`, or of another slice.
+- as a `ref` or `inout` argument whose parameter type is `T[]`, including the argument of `decode_be` and `decode_le` and the arguments of `equal` and `compare`;
+- as the receiver of an index operation, of `.length`, or of another slice;
+- as either side of a slice assignment (FUN-24), or as the operand of `wipe` (STM-23).
 
-A slice in any other position is **CE-FUN-5**: for example in an initializer, either side of an assignment, an operand, a by-value argument or a return payload. STM-7 also rejects a slice on the left of an assignment. There is no whole-slice assignment or `fill`, and there are no local slice variables.
+A slice in any other position is **CE-FUN-5**: for example in an initializer, either side of an assignment, an operand, a by-value argument or a return payload. A slice assignment is defined by FUN-24. There are no local slice variables.
 *Sources: D-119, D-410 (OI-10); DN §8.4.*
 
 **FUN-19 [Agreed]** Both endpoints are required. Each endpoint is typed separately: it must synthesize `u8`, `u16` or `u32`, and an endpoint containing no typed operand is typed `u32` (as for indices, EXP-39). A signed or non-integer endpoint is **CE-EXP-9**.
@@ -411,6 +412,29 @@ When `a` has a fixed array type and both endpoints are constant-only, the check 
 
 A view has the permissions of the path it was taken from: read-only through `ref`, read-write through `inout` (FUN-12). A callee cannot resize or rebind its view, and cannot change the length of the caller's array. It may pass on a narrower slice of its view under FUN-15. The same applies to a whole fixed array passed to a `T[]` parameter: index 0 is its first element, and `.length` is its length `N`.
 *Sources: D-120, D-359; DN §8.4.*
+
+**FUN-24 [Agreed]** A *slice assignment* `p[s..e] = x;` copies elements into an existing region:
+
+- **Left side.** A slice of an assignable place (STM-7), of type `T[N]` or an `inout` view `T[]`. A slice rooted in a `ref` parameter or a constant is **CE-STM-2**.
+- **Right side.** Any expression of type `T[M]` or of a view `T[]`: an array place, an array list, `fill`, a call's payload, or a slice. Its element type must be `T`, otherwise **CE-EXP-1**. An array list or `fill` takes its expected type `T[e − s]` from the left side, so both endpoints must then be constant-only, otherwise **CE-EXP-10**.
+- **Lengths.** When both lengths are known at compile time, from constant-only endpoints or a fixed array type, and they differ, that is **CE-STM-8**.
+- **Evaluation.**
+  1. Evaluate the left side's path and endpoints, and check its region (FUN-20).
+  2. Evaluate the right side. A slice's region is checked as in FUN-20.
+  3. If the two lengths differ, the result is `trap(BOUNDS)`, and nothing is stored.
+  4. Copy the elements as if through a temporary: when the regions overlap, every element receives the source's original value.
+- **Persistence.** A slice assignment into persistent storage is one persistent assignment. It is atomic for the whole region (STA-11), its logical size counts for STA-13, and it participates in an active transaction.
+*Sources: D-447 (OI-47); DN §8.4.*
+
+*Valid:* slice assignments from a list, `fill`, another slice and a view. (conformance: `valid/fun-011-slice-assignment.card`)
+
+*Valid:* `equal` and `compare` on views and slices, and `wipe` of a slice. (conformance: `valid/fun-012-views-equal-and-wipe.card`)
+
+*Invalid:* slice lengths known to differ. **CE-STM-8**. (conformance: `invalid/fun-123-slice-assignment-length.card`)
+
+*Invalid:* a slice assignment into a `ref` parameter. **CE-STM-2**. (conformance: `invalid/fun-124-slice-assignment-into-ref.card`)
+
+*Invalid:* a slice assignment between different element types. **CE-EXP-1**. (conformance: `invalid/fun-125-slice-assignment-element-type.card`)
 
 ### Examples
 
@@ -474,7 +498,7 @@ function narrow(data: inout u8[]) -> u32 {
 | Class | Meaning | Rules |
 |---|---|---|
 | **CE-FUN-1** | The call graph contains a cycle (recursion) | FUN-5 |
-| **CE-FUN-2** | An argument's mode does not match its parameter's mode | FUN-7 |
+| **CE-FUN-2** | An argument's mode does not match its parameter's mode | EXP-53, FUN-7 |
 | **CE-FUN-3** | A `ref` or `inout` argument does not identify existing storage | FUN-9 |
 | **CE-FUN-4** | An `inout` argument is not mutable through its path | FUN-10, FUN-15 |
 | **CE-FUN-5** | A slice in a position where slices are not allowed | FUN-18 |

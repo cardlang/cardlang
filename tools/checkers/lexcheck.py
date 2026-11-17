@@ -4,7 +4,7 @@ import re, sys, pathlib
 PUNCT2 = ["..", "->", "=>", "==", "!=", "<=", ">=", "<<", ">>"]
 PUNCT1 = list("{}()[];:,.=<>+-*/%~&|^")
 KEYWORDS = set("""abort and attempt break command const continue else enum Err errors false for function
-if in inout match not Ok or persistent ref require return session struct transaction true var while""".split())
+if in inout match not Ok or persistent ref require return session struct transaction true var while wipe""".split())
 LIT = re.compile(r"(?:[0-9](?:_?[0-9])*|0x[0-9a-fA-F](?:_?[0-9a-fA-F])*|0b[01](?:_?[01])*)\Z")
 
 class LexError(Exception):

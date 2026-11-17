@@ -28,7 +28,7 @@ Block               ::= '{' Statement* '}'
 Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
                       | IfStatement | WhileStatement | ForStatement | MatchStatement
                       | BreakStatement | ContinueStatement | ReturnStatement | RequireStatement
-                      | TransactionStatement | AbortStatement
+                      | TransactionStatement | AbortStatement | WipeStatement
 ExpressionStatement ::= Expression ';'
 ```
 
@@ -107,7 +107,7 @@ Any other left side is **CE-STM-2**. That includes:
 - a `ref` parameter, or a path rooted in one (chapter 8);
 - a `for` index or pattern binding;
 - `.length`;
-- a slice;
+- a slice, except as the left side of a slice assignment (FUN-24);
 - a function, type, enum variant or error member;
 - any other expression.
 
@@ -133,6 +133,21 @@ Index expressions are never re-evaluated after the right side, even if the right
 
 **STM-10 [Agreed]** If evaluating the right side fails, through `attempt` propagation or a trap, the store does not happen. Effects that happened earlier, while evaluating the path or the right side, are not undone. Chapter 10 defines the atomicity of stores into persistent places.
 *Sources: D-080, D-057; DN §7.1, §8.2.*
+
+```
+WipeStatement ::= 'wipe' Expression ';'
+```
+
+**STM-23 [Agreed]** `wipe p;` stores `default(T)` (TYP-22) into every element of `p`. The operand `p` must be an assignable place (STM-7), or a slice of one (FUN-24). Any other operand is **CE-STM-2**.
+
+- **Evaluation.** As for an assignment (STM-9): the place's path, and a slice's endpoints and region, are evaluated and checked first, and then the store happens.
+- **The stores are always performed.** They are never removed, merged or postponed past the end of the place's lifetime, even when nothing later reads the place. This is the one exception to EXP-22, so that secrets can be erased reliably (PLT-34).
+- **Persistence.** A `wipe` of persistent storage is a persistent assignment. It is atomic for its whole destination (STA-11), and it participates in an active transaction.
+*Sources: D-449 (OI-49); DN §3.9.*
+
+*Valid:* `wipe` of a local, a session global and an `inout` view. (conformance: `valid/stm-013-wipe.card`)
+
+*Invalid:* `wipe` of a constant. **CE-STM-2**. (conformance: `invalid/stm-128-wipe-constant.card`)
 
 ### Examples
 
@@ -490,9 +505,10 @@ function early() -> u32 {
 | Class | Meaning | Rules |
 |---|---|---|
 | **CE-STM-1** | An expression other than an `attempt` call used as a statement | STM-2 |
-| **CE-STM-2** | The left side of an assignment is not an assignable place | STM-7 |
+| **CE-STM-2** | The left side of an assignment is not an assignable place | STM-7, STM-23, FUN-24 |
 | **CE-STM-3** | `break` or `continue` outside a loop | STM-15 |
 | **CE-STM-4** | An invalid `match`: missing, repeated or foreign variant; wildcard arm; or a scrutinee that cannot be matched | STM-16, STM-17 |
 | **CE-STM-5** | A function or command body may complete normally | STM-21 |
 | **CE-STM-6** | A `for` index type that is not an integer type | STM-13 |
 | **CE-STM-7** | A `require` operand that is not a qualified error member | STM-19 |
+| **CE-STM-8** | The two lengths of a slice assignment differ, and both are known at compile time | FUN-24 |

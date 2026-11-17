@@ -1,0 +1,12 @@
+// rule: EXP-53
+// source: D-448
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-FUN-2
+// note: equal with by-value arguments.
+session x: u8[4];
+session y: u8[4];
+
+function check() -> bool {
+    return Ok(equal(x, y));
+}

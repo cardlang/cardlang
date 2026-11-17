@@ -85,7 +85,7 @@ class OutChecker(funcheck.FunChecker):
             if not (isinstance(st, tuple) and st[0] == "outcome"):
                 p.i = save; return super().sstmt(p, L, ret, ro, loops)
             return self.outcome_match(p, st[1], L, ret, ro, loops)
-        if v not in ("var", "if", "while", "for", "break", "continue", "{") and v not in ("persistent", "session", "const"):
+        if v not in ("var", "if", "while", "for", "break", "continue", "{", "wipe") and v not in ("persistent", "session", "const"):
             save = p.i; e = p_expr(p)
             if p.peek() == ";" and e[0] == "call":
                 t = self.synth(e, L)

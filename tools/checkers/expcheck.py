@@ -294,6 +294,16 @@ class Checker:
         for _, a in args:
             if has_call(a): raise CE("CE-EXP-7")
 
+    def compare_intrinsic(self, name, ts):
+        if not all(isinstance(t, tuple) and t[0] == "arr" for t in ts): raise CE("CE-EXP-1")
+        if ts[0][1] != ts[1][1]: raise CE("CE-EXP-1")
+        el = ts[0][1]
+        if name == "compare":
+            if el not in INT: raise CE("CE-EXP-6")
+            return "i8"
+        if isinstance(el, tuple) or el in self.structs: raise CE("CE-EXP-6")   # == is not defined on aggregates
+        return "bool"
+
     def call(self, e, L, T):
         target, tyarg, args = e[1], e[2], e[3]
         if target[0] != "name": raise CE("CE-EXP-15")
@@ -316,6 +326,10 @@ class Checker:
                 return ty
             if name == "truncate": return ty
             return ("outcome", ty)
+        if name in ("equal", "compare"):                 # EXP-53, EXP-54 (whole arrays; views in funcheck)
+            if len(args) != 2: raise CE("CE-EXP-16")
+            if any(m != "ref" for m, _ in args): raise CE("CE-FUN-2")
+            return self.compare_intrinsic(name, [self.synth(a, L) for _, a in args])
         if name in ("encode_be", "encode_le"):
             if len(args) != 1: raise CE("CE-EXP-16")
             st = self.synth(args[0][1], L)

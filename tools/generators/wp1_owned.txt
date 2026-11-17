@@ -1,0 +1,13 @@
+invalid/exp-145-equal-element-types.card
+invalid/exp-146-compare-bool.card
+invalid/exp-147-equal-by-value.card
+invalid/fun-123-slice-assignment-length.card
+invalid/fun-124-slice-assignment-into-ref.card
+invalid/fun-125-slice-assignment-element-type.card
+invalid/lex-116-wipe-is-keyword.card
+invalid/stm-128-wipe-constant.card
+valid/exp-019-equal-and-compare.card
+valid/fun-011-slice-assignment.card
+valid/fun-012-views-equal-and-wipe.card
+valid/stm-013-wipe.card
+runtime/run-018-array-operations/

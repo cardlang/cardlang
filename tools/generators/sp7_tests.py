@@ -1,6 +1,6 @@
 import re, sys, pathlib
-# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
-SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
+# Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
+SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "08-functions-and-references.md").read_text(encoding="utf-8")
 

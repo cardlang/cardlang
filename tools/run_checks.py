@@ -46,7 +46,7 @@ def main():
     failures = 0
     for script, glob, what in RUNS:
         cmd = [sys.executable, "-I", str(CHECKERS / script), str(ROOT)] + ([glob] if glob else [])
-        out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+        out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         lines = out.stdout.splitlines()
         passed = sum(1 for l in lines if l.startswith("PASS"))
         failed = [l for l in lines if l.startswith("FAIL")]

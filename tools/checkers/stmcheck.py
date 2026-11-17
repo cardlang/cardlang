@@ -47,6 +47,12 @@ class StmChecker(expcheck.Checker):
             return self.place(e[1], L, ro)
         raise CE("CE-STM-2")
 
+    def slice_place(self, e, L, ro):
+        raise CE("CE-STM-2")                              # chapter 7 alone: slices are chapter 8
+
+    def slice_assign(self, e, p, L, ro):
+        raise CE("CE-STM-2")
+
     def sstmt(self, p, L, ret, ro, loops):
         v = p.peek()
         if v == "{": raise CE("CE-SYN-1")                       # STM-3
@@ -140,8 +146,15 @@ class StmChecker(expcheck.Checker):
             p.expect("}")
             if is_enum and set(seen) != self.enums[st]: raise CE("CE-STM-4")
             return any_completes
+        if v == "wipe":                                  # STM-23
+            p.take(); e = p_expr(p); p.expect(";")
+            if e[0] == "slice": self.slice_place(e, L, ro)
+            else: self.place(e, L, ro); self.synth(e, L)
+            return True
         # assignment or expression statement
         e = p_expr(p)
+        if p.peek() == "=" and e[0] == "slice":           # FUN-24, checked by funcheck
+            p.take(); self.slice_assign(e, p, L, ro); return True
         if p.peek() == "=":
             p.take(); self.place(e, L, ro); dt = self.synth(e, L)
             self.check(p_expr(p), dt, L); p.expect(";"); return True

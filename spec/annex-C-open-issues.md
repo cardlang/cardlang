@@ -59,6 +59,11 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-43 | A catalog for testing platform-dependent rules | Gap | SP13 | Resolved |
 | OI-44 | EXP-6 and the written grammar | Contradiction | SP14 | Resolved |
 | OI-45 | attempt and require inside a transaction | Proposal-to-validate | Draft 0.2 | Resolved |
+| OI-46 | The line between intrinsics and platform APIs | Gap | WP1 | Resolved |
+| OI-47 | Moving array data | Gap | WP1 | Resolved |
+| OI-48 | Comparing arrays | Gap | WP1 | Resolved |
+| OI-49 | Wiping secrets | Gap | WP1 | Resolved |
+| OI-50 | Security expectations for platforms | Gap | WP1 | Resolved |
 
 ---
 
@@ -728,6 +733,61 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-46 — The line between intrinsics and platform APIs
+
+- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Sources:** Draft 0.1 never stated when an operation is an intrinsic and when it is a platform API.
+- **Affected rules:** EXP-52, PLT-30
+- **Decision basis:** the intrinsic/API boundary rule (base API plan §2)
+- **Status:** resolved 2026-11-17 (D-446)
+- **Decision:** An intrinsic is defined completely over language values, is identical on every platform, and fails only as the specification says. A platform API depends on platform state or hardware, may be absent, fails with CardError and states its transaction behaviour. Nothing is both.
+
+---
+
+## OI-47 — Moving array data
+
+- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Sources:** Draft 0.1 had no way to copy part of an array except an element loop, because FUN-18 forbade slice assignment.
+- **Affected rules:** FUN-24, FUN-18, STM-7
+- **Decision basis:** B1(a), B1(c); WP1 D1
+- **Status:** resolved 2026-11-17 (D-447)
+- **Decision:** Slice assignment `p[s..e] = x;`. The source is any array value or view, a length mismatch known at compile time is CE-STM-8, otherwise trap(BOUNDS); overlap behaves like memmove; into persistent storage it is one atomic assignment.
+
+---
+
+## OI-48 — Comparing arrays
+
+- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Sources:** Draft 0.1 had no array comparison.
+- **Affected rules:** EXP-53, EXP-54, LEX-15, NAM-14
+- **Decision basis:** B1(b); WP1 D2
+- **Status:** resolved 2026-11-17 (D-448)
+- **Decision:** Intrinsics `equal` (bool; element types accepted by ==; constant-time by PLT-31) and `compare` (i8; integer element types; lexicographic, a proper prefix sorts first).
+
+---
+
+## OI-49 — Wiping secrets
+
+- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Sources:** EXP-22 lets an implementation remove a store that nothing reads, which includes a zeroizing fill of a secret about to go out of scope.
+- **Affected rules:** STM-23, EXP-22, LEX-13, PLT-34
+- **Decision basis:** WP1 D3
+- **Status:** resolved 2026-11-17 (D-449)
+- **Decision:** A `wipe p;` statement (new keyword) stores default(T) into the place, and its stores are never removed (an explicit exception to EXP-22).
+
+---
+
+## OI-50 — Security expectations for platforms
+
+- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Sources:** The specification stated no constant-time, side-channel or key-material obligations.
+- **Affected rules:** PLT-31 to PLT-34
+- **Decision basis:** base API plan §3.3
+- **Status:** resolved 2026-11-17 (D-450)
+- **Decision:** Annex B §B.13: constant time for `equal` and crypto APIs; side-channel and fault protection at a platform-defined level; secret and private key material never visible; wipe stores performed.
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -777,3 +837,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ (SP13) |
 | 2026-11-17 | OI-44 | EXP-6 encoded in the grammar (D-444) | User | Applied in Annex A §A.2.4 and §A.2.5, EXP-6, and the fragments of chapters 6, 7 and 9 (SP14) |
 | 2026-11-17 | OI-45 | attempt and require abort a transaction on their error path (D-445) | User | New TXN-18; TXN-6, STM-19, OUT-10, EXP-51 and Annex A notes amended; txn-103 and txn-104 became valid txn-012 and txn-013; run-009 extended (Draft 0.2) |
+| 2026-11-17 | OI-46 | The line between intrinsics and platform APIs (D-446) | User | EXP-52, PLT-30 (WP1) |
+| 2026-11-17 | OI-47 | Moving array data (D-447) | User | FUN-24, FUN-18, STM-7 (WP1) |
+| 2026-11-17 | OI-48 | Comparing arrays (D-448) | User | EXP-53, EXP-54, LEX-15, NAM-14 (WP1) |
+| 2026-11-17 | OI-49 | Wiping secrets (D-449) | User | STM-23, EXP-22, LEX-13, PLT-34 (WP1) |
+| 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 (WP1) |
