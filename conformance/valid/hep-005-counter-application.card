@@ -1,0 +1,45 @@
+// rule: HEP-1, HEP-9, HEP-15, TXN-3
+// source: DN §13
+// status: agreed
+// kind: application
+// expect: ok
+// note: The counter application, the first representative application.
+errors CounterError {
+    MalformedRequest = 1;
+    UnsupportedOperation = 2;
+    ResponseTooSmall = 3;
+}
+
+const OP_READ: u8 = 0x01;
+const OP_INCREMENT: u8 = 0x02;
+
+persistent counter: u32;
+persistent increments: u32;
+
+function encode_counter(output: inout u8[]) -> u32 {
+    require output.length >= 4 else CounterError.ResponseTooSmall;
+    var bytes: u8[4] = encode_be(counter);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+function increment() {
+    transaction {
+        counter = counter + 1;
+        increments = increments + 1;
+    }
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length == 1 else CounterError.MalformedRequest;
+    var operation: u8 = request[0];
+    if operation == OP_INCREMENT {
+        attempt increment();
+    } else if operation != OP_READ {
+        return Err(CounterError.UnsupportedOperation);
+    }
+    return encode_counter(inout response);
+}

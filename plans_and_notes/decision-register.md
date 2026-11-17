@@ -75,21 +75,21 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-032 | Function prototypes | Not supported; definitions are visible regardless of source order | [Agreed] | language | DN §3.7 | SP7 |  | FUN-3 |
 | D-033 | Successful function returns | One supported value or no payload; no tuples or returned references | [Agreed] | language | DN §3.7 | SP7 |  | FUN-2 |
 | D-034 | Reachable function fall-through | Compilation error; no implicit success | [Agreed] | language | DN §3.6, §3.7 | SP6 |  | STM-21 |
-| D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | pending |
+| D-035 | Commands called by application code | Forbidden; shared logic belongs in ordinary functions | [Agreed] | language | DN §3.7, §4.1 | SP11 |  | HEP-3 |
 | D-036 | Integer literals | Decimal, hexadecimal, binary; contextual types; no suffixes | [Agreed] | language | DN §3.0, §3.3 | SP1 | OI-14 | LEX-17, LEX-18; contextual typing pending SP5 |
 | D-037 | No preprocessor/macros/textual includes | Agreed | [Agreed] | language | DN §3.0 | SP1 |  | LEX-24 |
 | D-038 | Application declarations and struct fields visible across all source files | Agreed; no per-file privacy | [Agreed] | language | DN §4.1 | SP2 |  | NAM-13 |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | Omitted initially | [Agreed] | language | DN §4.1 | SP2 |  | NAM-8 |
 | D-040 | File order does not control name resolution or initialization order | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 |  | NAM-4 |
-| D-041 | Host entry point | Exactly one command per application; ref u8[] request, inout u8[] response, successful u32 byte count | [Agreed] | language | DN §4 | SP11 | OI-5 | pending |
-| D-042 | Application protocol | Application parses and dispatches request bytes and encodes response bytes; no generated typed-command serialization | [Agreed] | language | DN §4 | SP11 |  | pending |
-| D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | pending |
+| D-041 | Host entry point | Exactly one command per application; ref u8[] request, inout u8[] response, successful u32 byte count | [Agreed] | language | DN §4 | SP11 | OI-5 | HEP-1, HEP-2, HEP-4 |
+| D-042 | Application protocol | Application parses and dispatches request bytes and encodes response bytes; no generated typed-command serialization | [Agreed] | language | DN §4 | SP11 |  | HEP-15 |
+| D-043 | Classical smart-card status | Platform reports success/errors/traps through response SW mapping; exact mapping remains platform-defined | [Agreed] | platform | DN §4, §6.3; PN §5 | SP13 | OI-2 | HEP-12; status-word mapping pending Annex B (SP13) |
 | D-044 | Platform interface names cannot be redefined | Agreed | [Agreed] | language | DN §4.1, §4.2 | SP2 | OI-4 | LEX-15, NAM-14 |
 | D-045 | One shared top-level naming scope for types and values | Agreed; duplicate names forbidden | [Agreed] | language | DN §4.2 | SP2 |  | NAM-11 |
 | D-046 | No function overloading or local function/type/error-set definitions | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-7, NAM-12 |
 | D-047 | Fields and error members have owner-specific name scopes | Agreed | [Agreed] | language | DN §4.2 | SP2 |  | NAM-15, NAM-16, NAM-17 |
 | D-048 | Local binding visible only after its initializer completes | Agreed | [Agreed] | language | DN §3.6, §4.2 | SP2 |  | NAM-19, NAM-20, NAM-22 |
-| D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | pending |
+| D-049 | Command execution | Agreed; commands never interleave; each finishes or fails before another starts | [Agreed] | language | DN §4 | SP11 |  | HEP-13, TXN-14 |
 | D-050 | Session state at chip power-on | Agreed; initialize to recursive type defaults | [Agreed] | language | DN §3.9, §6.4 | SP9 |  | STA-4 |
 | D-051 | Ordinary traps preserve application session state | Agreed; terminated call frames discarded; subsequent commands may execute | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |
 | D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | pending |
@@ -280,16 +280,26 @@ Sub-plans add rows here as they reach each DN section.
 | D-381 | break/continue targeting a loop entirely inside the transaction is valid; returning from a called function does not exit the caller's transaction | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP10 |  | TXN-6 |
 | D-382 | A trap inside a transaction rolls back its pending persistent writes and aborts the command | Agreed (DN body text) | [Agreed] | language | DN §6.4, §7.2 | SP10 |  | TXN-11 |
 | D-383 | A command is not implicitly a transaction | Agreed (DN body text) | [Agreed] | language | DN §4, §7.2 | SP10 |  | TXN-5 |
+| D-384 | `request.length` is the number of bytes received; `response.length` is the output capacity | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-5, HEP-6 |
+| D-385 | The platform supplies separate, non-overlapping request and response regions valid only for the invocation; the application cannot resize them; the host cannot pass references into card memory | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-7 |
+| D-386 | The application must write every response byte it includes in the count; no initial response contents are promised | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-8 |
+| D-387 | Response data is transmitted only after successful completion and count validation; a count above `response.length` traps with no payload; Err or a trap suppresses any partial payload; bytes beyond the count are never sent | Agreed (DN body text) | [Agreed] | language | DN §4, §6.3 | SP11 |  | HEP-9 |
+| D-388 | Ok means a response was produced, not that the business operation succeeded; protocol failures may be encoded in the payload | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-11 |
+| D-389 | No automatic serialization of language values and no automatic dispatch of operation identifiers | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-15 |
+| D-390 | The returned u32 is a byte count, not a status word; errors keep category and code and the platform maps them to the wire status | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-9, HEP-12 |
+| D-391 | A reset or power loss may prevent any response; no internal VM details are disclosed to the host | Agreed (DN body text) | [Agreed] | language | DN §4, §6.3 | SP11 |  | HEP-12 |
+| D-392 | A trap ends only the current command; subsequent commands may run; serial execution does not make a command an implicit transaction | Agreed (DN body text) | [Agreed] | language | DN §4 | SP11 |  | HEP-14 |
+| D-393 | Response transmission never happens inside a transaction; response-buffer writes are ordinary volatile writes | Agreed (DN body text) | [Agreed] | language | DN §7.4 | SP11 |  | HEP-10 |
 
 ## Open-issue resolutions (D-401…)
 
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|---|
 | D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | LEX-1 |
-| D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | pending |
+| D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | HEP-15; PN §1 superseded row pending Annex B (SP13) |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | TXN-10 |
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15, NAM-14 |
-| D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
+| D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | HEP-1, HEP-16 |
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-7 | SP9 | OI-7 | STA-5 |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-8 | SP5 | OI-8 | EXP-51, OUT-8, OUT-10 |
@@ -325,3 +335,4 @@ Sub-plans add rows here as they reach each DN section.
 | D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-38 | SP9 | OI-38 | STA-6, NAM-14 |
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY); pending writes roll back; TRAP-TXN-CAPACITY joins the placeholder trap kinds of D-415 | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-39 | SP10 | OI-39 | TXN-16 |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-40 | SP10 | OI-40 | TXN-17 |
+| D-441 | The initial contents of the response region are unspecified for the language; the platform must ensure it never holds data from another application or from the platform | Resolved by user 2026-11-17 | [Agreed] | platform | Annex C OI-41 | SP11 | OI-41 | HEP-8; PLT requirement pending Annex B (SP13) |

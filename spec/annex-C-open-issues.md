@@ -54,6 +54,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-38 | Placeholder lifecycle handler names | Gap | SP9 | Resolved |
 | OI-39 | Exceeding transaction capacity at runtime | Gap | SP10 | Resolved |
 | OI-40 | Platform services inside a transaction | Gap | SP10 | Resolved |
+| OI-41 | Initial contents of the response region | Gap | SP11 | Resolved |
 
 ---
 
@@ -74,7 +75,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** contradiction
 - **Sources:** The PN §1 table says "`command` identifies a host-callable entry point | Dispatch, command identifiers, transport and request/response encoding". DN §4 (2026-11-15) and D-041/D-042 adopted a single byte-oriented entry point with application-side dispatch. D-043 is affected.
-- **Affected rules:** pending (SP11, SP13)
+- **Affected rules:** HEP-15; Annex B pending (SP13)
 - **Question:** Does the platform dispatch between commands by identifier?
 - **Options:**
   - (a) No. The PN §1 row is superseded: the platform delivers every request to the one entry point, and "command identifiers" exist only inside the application's own protocol.
@@ -127,7 +128,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** gap
 - **Sources:** DN §4 says "whether that spelling [`process`] is reserved or the sole command declaration identifies the entry remains a specification detail". D-041 is affected.
-- **Affected rules:** pending (SP11)
+- **Affected rules:** HEP-1
 - **Options:**
   - (a) The single `command` declaration is the entry point; its name is chosen by the application.
   - (b) The entry point must be named `process`.
@@ -653,6 +654,20 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-17 (D-440)
 - **Decision:** Option (a). Each API's catalog entry says whether it is permitted inside a transaction (Annex B).
 
+## OI-41 — Initial contents of the response region
+
+- **Kind:** gap
+- **Sources:** DN §4 ("no initial response-buffer contents are promised by this contract"); D-386
+- **Affected rules:** HEP-8; Annex B (pending SP13)
+- **Question:** What may the response region contain when the command starts? Unspecified bytes could leak stale data if an application forgets to write them.
+- **Options:**
+  - (a) Zero-filled, promised by the language.
+  - (b) Unspecified for the language, but the platform must ensure the region never holds data from another application or from the platform.
+  - (c) Unspecified, with no requirement.
+- **Recommendation:** (b).
+- **Status:** resolved 2026-11-17 (D-441)
+- **Decision:** Option (b). Zero-filling is one way for a platform to comply.
+
 ---
 
 ## Resolution log
@@ -660,10 +675,10 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | Date | ID | Decision | Decided by | Spec changes |
 |---|---|---|---|---|
 | 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
-| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Pending: applied when SP13 drafts its chapter |
+| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Applied in chapter 12: HEP-15 (SP11); Annex B pending (SP13) |
 | 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Applied in chapter 11: TXN-10 (SP10) |
 | 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
-| 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
+| 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Applied in chapter 12: HEP-1 (SP11) |
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
 | 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied in chapter 10: STA-5 to STA-10 (SP9); catalog pending Annex B (SP13) |
 | 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied in chapter 6: EXP-51 (SP5); meaning in chapter 9 (SP8) |
@@ -699,3 +714,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 (SP9) |
 | 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 (SP10) |
 | 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 (SP10) |
+| 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied in chapter 12: HEP-8 (SP11); PLT requirement pending Annex B (SP13) |

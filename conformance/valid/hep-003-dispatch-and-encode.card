@@ -1,0 +1,36 @@
+// rule: HEP-15, HEP-9
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: ok
+// note: Dispatch on the first byte; a u32 encoded big-endian.
+errors AppError {
+    UnsupportedOperation = 1;
+    MalformedRequest = 2;
+    ResponseTooSmall = 3;
+}
+
+persistent counter: u32;
+
+function read_counter() -> u32 {
+    return Ok(counter);
+}
+
+function write_u32(output: inout u8[], value: u32) -> u32 {
+    require output.length >= 4 else AppError.ResponseTooSmall;
+    var bytes: u8[4] = encode_be(value);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 1 else AppError.MalformedRequest;
+    var operation: u8 = request[0];
+    if operation == 0x01 {
+        var value: u32 = attempt read_counter();
+        return write_u32(inout response, value);
+    }
+    return Err(AppError.UnsupportedOperation);
+}

@@ -3,7 +3,7 @@
 CardLang Language Specification, Draft 0.1. Annex status:
 
 - **A.1 lexical grammar:** complete (SP1).
-- **A.2 syntactic grammar:** skeleton, filled in by SP2–SP11 and completed in SP14.
+- **A.2 syntactic grammar:** complete for chapters 3–12 (SP2–SP11); consolidated in SP14.
 
 The notation is defined in chapter 1 §1.7.1. This annex is normative for the *form* of programs. The chapters are normative for their meaning and for every restriction the grammar does not express. The grammar fragments in the chapters are copies of the productions here. If a fragment and this annex disagree, that is a specification error to be reported, not a choice between the two.
 
@@ -224,6 +224,14 @@ Both productions are alternatives of `Statement` (§A.2.5). Chapter 11 restricts
 - `abort` is valid only lexically inside a transaction (TXN-7, CE-TXN-2);
 - transactions do not nest (TXN-10, CE-TXN-3).
 
+### A.2.10 The host entry point (chapter 12)
+
+This section adds no new productions. `CommandDeclaration` is in §A.2.1. Chapter 12 restricts it as follows:
+
+- an application declares exactly one `command` (HEP-1, CE-HEP-1 and CE-HEP-2);
+- its signature must be `(ref u8[], inout u8[]) -> u32` (HEP-2, CE-HEP-3);
+- application code never calls it (HEP-3, CE-EXP-15).
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
@@ -235,4 +243,4 @@ Both productions are alternatives of `Statement` (§A.2.5). Chapter 11 restricts
 | A.2.7 | Outcomes, patterns and error sets | SP8 (done) |
 | A.2.8 | State declarations | SP9 (done) |
 | A.2.9 | Transactions | SP10 (done) |
-| A.2.10 | The host entry point | SP11 |
+| A.2.10 | The host entry point | SP11 (done) |

@@ -55,7 +55,7 @@ command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-A fragment test must therefore not declare a `command` itself, and must not use the name `scaffold_entry`. Chapter 12 (SP11) may restate this scaffold in its final syntax. If the syntax changes, this section is updated.
+A fragment test must therefore not declare a `command` itself, and must not use the name `scaffold_entry`. The scaffold is defined normatively in chapter 12 (HEP-16). If it changes there, this section changes with it.
 
 ### Runtime tests [Open]
 

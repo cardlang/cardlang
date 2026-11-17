@@ -1,0 +1,13 @@
+// rule: HEP-3, EXP-47
+// source: DN §3.7
+// status: agreed
+// kind: application
+// expect: compile-error CE-EXP-15
+// note: A function that calls the command.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    return Ok(0);
+}
+
+function reenter(request: ref u8[], response: inout u8[]) -> u32 {
+    return process(ref request, inout response);
+}

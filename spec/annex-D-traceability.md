@@ -32,9 +32,9 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-17 |
-| 12-host-entry-point.md | SP11 | DN §4, §6.3 (host reporting) | pending |
+| 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | SP12 | DN §6.4, §6.5, §12; PN §3, §5 | pending |
-| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.9 complete; rest pending |
+| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 and A.2.1–A.2.10 complete; consolidation pending (SP14) |
 | annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4 (transport), §11, §12 | pending |
 | annex-C-open-issues.md | all | see each issue | — |
 
@@ -76,21 +76,21 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-032 | Function prototypes | SP7 | FUN-3 |  | covered |
 | D-033 | Successful function returns | SP7 | FUN-2 |  | covered |
 | D-034 | Reachable function fall-through | SP6 | STM-21 |  | covered |
-| D-035 | Commands called by application code | SP11 | — |  | pending |
+| D-035 | Commands called by application code | SP11 | HEP-3 |  | covered |
 | D-036 | Integer literals | SP1 | LEX-17, LEX-18; contextual typing pending SP5 | OI-14 | partial |
 | D-037 | No preprocessor/macros/textual includes | SP1 | LEX-24 |  | covered |
 | D-038 | Application declarations and struct fields visible across all source files | SP2 | NAM-13 |  | covered |
 | D-039 | User modules/namespaces/imports/exports/classes/access modifiers | SP2 | NAM-8 |  | covered |
 | D-040 | File order does not control name resolution or initialization order | SP2 | NAM-4 |  | covered |
-| D-041 | Host entry point | SP11 | — | OI-5 | pending |
-| D-042 | Application protocol | SP11 | — |  | pending |
-| D-043 | Classical smart-card status | SP13 | — | OI-2 | pending |
+| D-041 | Host entry point | SP11 | HEP-1, HEP-2, HEP-4 | OI-5 | covered |
+| D-042 | Application protocol | SP11 | HEP-15 |  | covered |
+| D-043 | Classical smart-card status | SP13 | HEP-12; status-word mapping pending Annex B (SP13) | OI-2 | partial |
 | D-044 | Platform interface names cannot be redefined | SP2 | LEX-15, NAM-14 | OI-4 | covered |
 | D-045 | One shared top-level naming scope for types and values | SP2 | NAM-11 |  | covered |
 | D-046 | No function overloading or local function/type/error-set definitions | SP2 | NAM-7, NAM-12 |  | covered |
 | D-047 | Fields and error members have owner-specific name scopes | SP2 | NAM-15, NAM-16, NAM-17 |  | covered |
 | D-048 | Local binding visible only after its initializer completes | SP2 | NAM-19, NAM-20, NAM-22 |  | covered |
-| D-049 | Command execution | SP11 | — |  | pending |
+| D-049 | Command execution | SP11 | HEP-13, TXN-14 |  | covered |
 | D-050 | Session state at chip power-on | SP9 | STA-4 |  | covered |
 | D-051 | Ordinary traps preserve application session state | SP12 | STA-4 (session preserved); trap rules pending chapter 13 (SP12) |  | partial |
 | D-052 | Runtime-owned resources on ordinary trap | SP13 | — |  | pending |
@@ -187,10 +187,10 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | SP13 | TXN-14; platform mechanism pending Annex B (SP13) |  | partial |
 | D-209 | Published application/platform error-code meanings remain stable | SP12 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) | OI-15 | partial |
 | D-401 | Source file extension is `.card` | SP1 | LEX-1 | OI-1 | covered |
-| D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | — | OI-2 | pending |
+| D-402 | No platform dispatch within an application; PN §1 row superseded | SP13 | HEP-15; PN §1 superseded row pending Annex B (SP13) | OI-2 | partial |
 | D-403 | Nested transactions rejected statically by a structural call-graph rule | SP10 | TXN-10 | OI-3 | covered |
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | SP1 | LEX-13, LEX-15, NAM-14 | OI-4 | covered |
-| D-405 | Entry point is the single `command` declaration, any name | SP11 | — | OI-5 | pending |
+| D-405 | Entry point is the single `command` declaration, any name | SP11 | HEP-1, HEP-16 | OI-5 | covered |
 | D-406 | Platform API calls use the reserved `card.` path form | SP2 | NAM-17, NAM-18 | OI-6 | covered |
 | D-407 | Lifecycle handlers use platform-reserved function names/signatures | SP9 | STA-5 | OI-7 | covered |
 | D-408 | `attempt` allowed in any runtime expression position, with three exclusions | SP5 | EXP-51, OUT-8, OUT-10 | OI-8 | covered |
@@ -290,6 +290,16 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-381 | break/continue targeting a loop entirely inside the transaction is valid | SP10 | TXN-6 |  | covered |
 | D-382 | A trap inside a transaction rolls back its pending persistent writes and aborts the command | SP10 | TXN-11 |  | covered |
 | D-383 | A command is not implicitly a transaction | SP10 | TXN-5 |  | covered |
+| D-384 | `request.length` is the number of bytes received | SP11 | HEP-5, HEP-6 |  | covered |
+| D-385 | The platform supplies separate, non-overlapping request and response regions valid only for the invocation | SP11 | HEP-7 |  | covered |
+| D-386 | The application must write every response byte it includes in the count | SP11 | HEP-8 |  | covered |
+| D-387 | Response data is transmitted only after successful completion and count validation | SP11 | HEP-9 |  | covered |
+| D-388 | Ok means a response was produced, not that the business operation succeeded | SP11 | HEP-11 |  | covered |
+| D-389 | No automatic serialization of language values and no automatic dispatch of operation identifiers | SP11 | HEP-15 |  | covered |
+| D-390 | The returned u32 is a byte count, not a status word | SP11 | HEP-9, HEP-12 |  | covered |
+| D-391 | A reset or power loss may prevent any response | SP11 | HEP-12 |  | covered |
+| D-392 | A trap ends only the current command | SP11 | HEP-14 |  | covered |
+| D-393 | Response transmission never happens inside a transaction | SP11 | HEP-10 |  | covered |
 | D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | LEX-4, LEX-5 | OI-23 | covered |
 | D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | LEX-10, LEX-16, LEX-18 | OI-24 | covered |
 | D-425 | Primitive type names are predeclared | SP2 | NAM-14 | OI-25 | covered |
@@ -309,3 +319,4 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Each sub-pla
 | D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | SP9 | STA-6, NAM-14 | OI-38 | covered |
 | D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY) | SP10 | TXN-16 | OI-39 | covered |
 | D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | SP10 | TXN-17 | OI-40 | covered |
+| D-441 | Response region contents unspecified; no foreign data | SP11 | HEP-8; PLT requirement pending Annex B (SP13) | OI-41 | partial |

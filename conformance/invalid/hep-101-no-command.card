@@ -1,0 +1,9 @@
+// rule: HEP-1
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: compile-error CE-HEP-1
+// note: An application with no command.
+function helper() {
+    return Ok();
+}

@@ -1,0 +1,9 @@
+// rule: HEP-2
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: compile-error CE-HEP-3
+// note: The request declared inout.
+command process(request: inout u8[], response: inout u8[]) -> u32 {
+    return Ok(0);
+}

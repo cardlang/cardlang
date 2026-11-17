@@ -1,0 +1,13 @@
+// rule: HEP-1, HEP-2
+// source: D-405
+// status: agreed
+// kind: application
+// expect: ok
+// note: Application-chosen command and parameter names.
+command handle_apdu(input: ref u8[], output: inout u8[]) -> u32 {
+    if input.length == 0 {
+        return Ok(0);
+    }
+    output[0] = input[0];
+    return Ok(1);
+}

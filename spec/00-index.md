@@ -17,12 +17,12 @@ This is the normative specification of the CardLang language. It is being writte
 | [09-outcomes-and-errors.md](09-outcomes-and-errors.md) | 9 Outcomes and errors | SP8 | Draft complete |
 | [10-state-and-initialization.md](10-state-and-initialization.md) | 10 State and initialization | SP9 | Draft complete |
 | [11-transactions.md](11-transactions.md) | 11 Transactions | SP10 | Draft complete |
-| 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
+| [12-host-entry-point.md](12-host-entry-point.md) | 12 Host entry point | SP11 | Draft complete |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.9 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.10 complete; consolidation in SP14 |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-40 all resolved; none open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–11 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-41 all resolved; none open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–12 |
 
 Related files:
 
@@ -43,7 +43,8 @@ Related files:
 | 9 Outcomes and errors | 20 | 20 | 0 | 0 |
 | 10 State and initialization | 14 | 14 | 0 | 0 |
 | 11 Transactions | 17 | 17 | 0 | 0 |
-| **Total** | 230 | 230 | 0 | 0 |
+| 12 Host entry point | 16 | 16 | 0 | 0 |
+| **Total** | 246 | 246 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -77,6 +78,9 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-FUN-3 | ref or inout argument does not identify existing storage | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
 | CE-FUN-4 | inout argument is not mutable through its path | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
 | CE-FUN-5 | Slice in a position where slices are not allowed | [8 §8.12](08-functions-and-references.md#812-errors-defined-in-this-chapter) |
+| CE-HEP-1 | The application declares no command | [12 §12.8](12-host-entry-point.md#128-errors-defined-in-this-chapter) |
+| CE-HEP-2 | The application declares more than one command | [12 §12.8](12-host-entry-point.md#128-errors-defined-in-this-chapter) |
+| CE-HEP-3 | The command signature is not (ref u8[], inout u8[]) -> u32 | [12 §12.8](12-host-entry-point.md#128-errors-defined-in-this-chapter) |
 | CE-LEX-1 | File is not valid UTF-8 | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |

@@ -1,0 +1,9 @@
+// rule: HEP-2
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: compile-error CE-HEP-3
+// note: A command returning u16.
+command process(request: ref u8[], response: inout u8[]) -> u16 {
+    return Ok(0);
+}

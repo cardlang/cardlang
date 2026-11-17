@@ -16,7 +16,7 @@ It runs every checker over the conformance tests it covers. It prints one line p
 
 ## `checkers/`: reference checkers
 
-Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `txncheck.py`, applies every rule implemented so far.
+Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `hepcheck.py`, applies every rule implemented so far.
 
 | Script | Implements | Default tests |
 |---|---|---|
@@ -29,11 +29,12 @@ Each checker is a small implementation of the rules of one chapter. It is writte
 | `outcheck.py` | Chapter 9: outcomes, `attempt`, outcome `match`, error sets | `*/out-*` |
 | `stacheck.py` | Chapter 10: initializers and lifecycle handlers | `*/sta-*` |
 | `txncheck.py` | Chapter 11: transaction boundaries, `abort` and nesting | `*/txn-*` |
+| `hepcheck.py` | Chapter 12: the `command` and its signature. Adds the HEP-16 scaffold to `kind: fragment` tests | `*/hep-*` |
 
 Run a single checker as `python -I tools/checkers/<script> . "<glob>"`. For example:
 
 ```bash
-python -I tools/checkers/txncheck.py . "valid/*"
+python -I tools/checkers/hepcheck.py . "valid/*"
 ```
 
 **Known limitations.**

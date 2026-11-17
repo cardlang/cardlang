@@ -21,14 +21,17 @@ RUNS = [
     ("outcheck.py", None, "chapter 9 outcomes and errors on out-* tests"),
     ("stacheck.py", None, "chapter 10 state on sta-* tests"),
     ("txncheck.py", None, "chapter 11 transactions on txn-* tests"),
-    # The full checker chain (txncheck builds on all the others) must still accept every
-    # valid test and give the expected error for the invalid tests of chapters 6 to 11.
-    ("txncheck.py", "valid/*", "full checker on every valid test"),
-    ("txncheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
-    ("txncheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
-    ("txncheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
-    ("txncheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
-    ("txncheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
+    ("hepcheck.py", None, "chapter 12 host entry point on hep-* tests"),
+    # The full checker chain (hepcheck builds on all the others and adds the HEP-16 scaffold
+    # to fragments) must accept every valid test and give the expected error for the
+    # invalid tests of chapters 6 to 11.
+    ("hepcheck.py", "valid/*", "full checker on every valid test"),
+    ("hepcheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
+    ("hepcheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
+    ("hepcheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
+    ("hepcheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
+    ("hepcheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
+    ("hepcheck.py", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
 ]
 
 def main():

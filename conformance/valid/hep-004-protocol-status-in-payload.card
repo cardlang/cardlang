@@ -1,0 +1,24 @@
+// rule: HEP-11
+// source: DN §4
+// status: agreed
+// kind: application
+// expect: ok
+// note: A protocol status in the payload and an Err.
+errors AppError {
+    UnsupportedOperation = 1;
+}
+
+const STATUS_OK: u8 = 0x00;
+const STATUS_REJECTED: u8 = 0x01;
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    if request.length == 0 {
+        return Err(AppError.UnsupportedOperation);
+    }
+    if request[0] == 0xFF {
+        response[0] = STATUS_REJECTED;
+        return Ok(1);
+    }
+    response[0] = STATUS_OK;
+    return Ok(1);
+}
