@@ -1,0 +1,19 @@
+// rule: TXN-6
+// source: DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-1
+// note: attempt inside a transaction.
+persistent balance: u32;
+
+function read_amount() -> u32 {
+    return Ok(5);
+}
+
+function check() {
+    transaction {
+        var amount: u32 = attempt read_amount();
+        balance = amount;
+    }
+    return Ok();
+}

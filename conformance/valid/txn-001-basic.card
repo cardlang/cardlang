@@ -1,0 +1,16 @@
+// rule: TXN-1, TXN-3
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Two persistent writes that commit together.
+persistent balance: u32;
+persistent sequence: u32;
+
+function pay(amount: u32) {
+    transaction {
+        balance = balance - amount;
+        sequence = sequence + 1;
+    }
+    return Ok();
+}

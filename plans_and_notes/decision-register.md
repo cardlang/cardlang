@@ -95,7 +95,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-052 | Runtime-owned resources on ordinary trap | Agreed; no automatic cleanup, deletion or invalidation caused by the trap | [Agreed] | platform | DN §6.4, §11.2; PN §2 | SP13 |  | pending |
 | D-053 | Session/persistent logical consistency | Application programmer responsibility; no automatic synchronization or repair | [Agreed] | language | DN §6.4 | SP12 |  | STA-14; pending chapter 13 (SP12) |
 | D-054 | Runtime-issued security reset | Clears session state; subsequent initialization restores type defaults | [Agreed] | language | DN §6.4 | SP12 |  | STA-4 (session cleared); reset rules pending chapter 13 (SP12) |
-| D-055 | Transactions roll back persistent changes only | Agreed | [Agreed] | language | DN §7.2 | SP10 |  | pending |
+| D-055 | Transactions roll back persistent changes only | Agreed | [Agreed] | language | DN §7.2 | SP10 |  | TXN-4, TXN-11 |
 | D-056 | Fatal platform failure triggers whole-chip security reset | Platform requirement; clears volatile state | [Agreed] | platform | DN §6.4; PN §3 | SP13 |  | pending |
 | D-057 | Each persistent assignment is atomic | Agreed direction; aggregate limits and storage details open | [Agreed] | language | DN §7.1, §7.4 | SP9 | OI-19 | STA-11, STA-12 |
 | D-058 | Explicit handling of overflow and underflow | Required feature | [Agreed] | language | DN §6.2, §6.5 | SP5 |  | EXP-23 |
@@ -149,9 +149,9 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-106 | Control flow: `if`, `while`, range `for`, `match`, `break`, `continue`, `return` | Agreed | [Agreed] | language | DN §3.6 | SP6 |  | STM-1, STM-11, STM-12, STM-13, STM-14, STM-15 |
 | D-107 | Explicit `return Ok(value)` / `return Err(error)`; no implicit success | Agreed | [Agreed] | language | DN §3.6, §3.7 | SP8 |  | OUT-3, OUT-4 |
 | D-108 | Exhaustive result matching; read-only loop and pattern bindings | Agreed | [Agreed] | language | DN §3.6 | SP8 |  | OUT-12, OUT-13 |
-| D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | pending |
-| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | pending |
-| D-111 | `abort` scope | Lexically inside a transaction only; helpers return Err for the transaction owner to handle | [Agreed] | language | DN §7.2 | SP10 |  | pending |
+| D-109 | No `return`, `break` or `continue` across transaction boundaries | Agreed | [Agreed] | language | DN §3.6, §7.2 | SP10 |  | TXN-6 |
+| D-110 | Explicit recoverable transaction exit: `abort Err(error);` | Agreed; roll back persistent changes and return Err from the enclosing function/command | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7, TXN-8 |
+| D-111 | `abort` scope | Lexically inside a transaction only; helpers return Err for the transaction owner to handle | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7 |
 | D-112 | Parameters: by value, read-only `ref`, mutable `inout` | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-1, FUN-6 |
 | D-113 | Reference modes explicit at declaration and call site | Agreed | [Agreed] | language | DN §3.7 | SP7 |  | FUN-7 |
 | D-114 | References are call-scoped; no raw pointers or escaping references | Agreed | [Agreed] | language | DN §3.7, §3.8 | SP7 |  | FUN-6, FUN-16 |
@@ -171,8 +171,8 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-128 | Array/structure defaults apply recursively | Agreed | [Agreed] | language | DN §3.9 | SP9 |  | TYP-22, STM-5, STA-3, STA-4 |
 | D-129 | Global const requires an explicit initializer | Agreed | [Agreed] | language | DN §3.9, §3.10 | SP4 |  | CEX-1 |
 | D-130 | Explicit array/structure construction remains complete | Agreed for constants, local initializers and assignments | [Agreed] | language | DN §3.9, §9.3 | SP5 |  | EXP-43, EXP-45 |
-| D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | pending |
-| D-132 | Callee persistent assignments participate in an active transaction | Agreed | [Agreed] | language | DN §7.3 | SP10 |  | pending |
+| D-131 | Nested transactions, including through function calls | Forbidden initially | [Agreed] | language | DN §7.3 | SP10 | OI-3 | TXN-10 |
+| D-132 | Callee persistent assignments participate in an active transaction | Agreed | [Agreed] | language | DN §7.3 | SP10 |  | TXN-1 |
 | D-133 | By-value aggregate parameters | Temporary application RAM; call-frame placement proposed | [Agreed]; placement informative (D-421) | VM/profile | DN §3.8; PN §4 | SP13 | OI-21 | FUN-17 (value semantics); placement guidance pending Annex B (SP13) |
 | D-134 | Familiar imperative syntax, static types | Proposed baseline | [Proposal] | language | DN §3 | SP0 |  | 01 §1.1 (informative) |
 | D-135 | Compact custom VM with single-digit KiB RAM goals | Feasibility direction; unmeasured | [Proposal] | VM/profile | PN §4 | SP13 |  | pending |
@@ -185,10 +185,10 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 | D-202 | Every resource operation validates existence, kind, state and permissions in the caller's resource space; wrong kind is a defined recoverable error; identifiers never authorize cross-application access | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.1 | SP13 |  | pending |
 | D-203 | Resource operation outcomes: create on existing ID fails recoverably (never replaces); unknown ID and wrong kind fail recoverably; capacity failure is a defined recoverable error; failed creation exposes no partial object (error names are placeholders) | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 | OI-15 | pending |
 | D-204 | Copying a resource identifier copies only the number; no stale-handle detection; identifier-variable lifetime is independent of resource lifetime | (summary; see sources) | [Agreed] | platform | PN §2; DN §11.2 | SP13 |  | pending |
-| D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | pending |
+| D-205 | Language transactions do not automatically cover resource-API effects; each API must define its transaction participation or prohibit use during a transaction | (summary; see sources) | [Agreed] | platform | PN §2, §5; DN §7.2 | SP13 |  | TXN-4, TXN-17; API contracts pending Annex B (SP13) |
 | D-206 | Exceeding a runtime stack/execution limit traps; exceeding build/load capacity may reject the application; limits must not silently change language semantics | (summary; see sources) | [Agreed] | language | PN §4; DN §12 | SP12 |  | TYP-23; Annex B pending SP12/SP13 |
-| D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | pending |
-| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | pending |
+| D-207 | Commit failure never resumes after the block; a contained failure traps, an integrity failure triggers security reset; recovery exposes all or none of a transaction and fails closed | (summary; see sources) | [Agreed] | language | PN §5; DN §7.2 | SP10 |  | TXN-12, TXN-13 |
+| D-208 | The platform must prevent any other execution context (callbacks, reentrant commands) from observing partially updated transactional state | (summary; see sources) | [Agreed] | platform | PN §5 | SP13 |  | TXN-14; platform mechanism pending Annex B (SP13) |
 | D-209 | Published application/platform error-code meanings remain stable; codes are nonzero u16 values in separate categories | (summary; see sources) | [Agreed] | language | PN §5; DN §6.3 | SP12 | OI-15 | OUT-17 (code stability); host reporting pending chapter 13 (SP12) |
 
 ## DN body-only decisions (D-301…)
@@ -271,6 +271,15 @@ Sub-plans add rows here as they reach each DN section.
 | D-372 | Two persistent assignments are not collectively atomic without a transaction; atomicity is not a single hardware write and does not make a command atomic | Agreed (DN body text) | [Agreed] | language | DN §7.1 | SP9 |  | STA-12 |
 | D-373 | Whole-structure and whole-array assignment, including fill, is atomic for the whole destination | Agreed (DN body text) | [Agreed] | language | DN §7.1, §8.2, §8.3, §9.3 | SP9 |  | STA-11 |
 | D-374 | Global means application-wide; scope and lifetime are separate; session state is shared within its application | Agreed (DN body text) | [Agreed] | language | DN §5, §5.1 | SP9 |  | STA-1 |
+| D-375 | Reaching the closing brace commits; execution continues after the block only after a successful commit; an empty transaction is valid | Agreed (DN body text) | [Agreed] | language | DN §7.2 | SP10 |  | TXN-3 |
+| D-376 | Reads within a transaction see earlier writes, including through references and called functions | Agreed (DN body text) | [Agreed] | language | DN §7.2 | SP10 |  | TXN-2 |
+| D-377 | Only persistent state participates; session state and locals are not restored; resource-API effects participate only where their API says so | Agreed (DN body text) | [Agreed] | language | DN §7.2; PN §5 | SP10 |  | TXN-4 |
+| D-378 | A callee's Err is not an abort request; pending changes remain and commit if the closing brace is reached | Agreed (DN body text) | [Agreed] | language | DN §7.2 | SP10 |  | TXN-9 |
+| D-379 | abort stops the body, rolls back pending persistent writes and returns the error unchanged from the enclosing function or command; session changes and earlier commits remain; no savepoints | Agreed (DN body text) | [Agreed] | language | DN §7.2 | SP10 |  | TXN-8 |
+| D-380 | The abort operand is a named error member or an in-scope error binding; abort is a statement; bare abort, abort error and abort Ok are invalid | Agreed (DN body text) | [Agreed] | language | DN §7.2 | SP10 |  | TXN-7 |
+| D-381 | break/continue targeting a loop entirely inside the transaction is valid; returning from a called function does not exit the caller's transaction | Agreed (DN body text) | [Agreed] | language | DN §3.6 | SP10 |  | TXN-6 |
+| D-382 | A trap inside a transaction rolls back its pending persistent writes and aborts the command | Agreed (DN body text) | [Agreed] | language | DN §6.4, §7.2 | SP10 |  | TXN-11 |
+| D-383 | A command is not implicitly a transaction | Agreed (DN body text) | [Agreed] | language | DN §4, §7.2 | SP10 |  | TXN-5 |
 
 ## Open-issue resolutions (D-401…)
 
@@ -278,7 +287,7 @@ Sub-plans add rows here as they reach each DN section.
 |---|---|---|---|---|---|---|---|---|
 | D-401 | Source file extension is `.card` | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-1 | SP1 | OI-1 | LEX-1 |
 | D-402 | No platform dispatch within an application; PN §1 row superseded | Resolved by user 2026-11-15 | [Agreed] | platform | Annex C OI-2 | SP13 | OI-2 | pending |
-| D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | pending |
+| D-403 | Nested transactions rejected statically by a structural call-graph rule | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-3 | SP10 | OI-3 | TXN-10 |
 | D-404 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-4 | SP1 | OI-4 | LEX-13, LEX-15, NAM-14 |
 | D-405 | Entry point is the single `command` declaration, any name | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-5 | SP11 | OI-5 | pending |
 | D-406 | Platform API calls use the reserved `card.` path form | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-6 | SP2 | OI-6 | NAM-17, NAM-18 |
@@ -314,3 +323,5 @@ Sub-plans add rows here as they reach each DN section.
 | D-437 | Application code may name `CardError` members only in `Err` patterns; it propagates platform errors through bindings and never originates them in return, abort or require | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-37 | SP8 | OI-37 | OUT-4, OUT-19, STM-19 |
 | D-422 | Lifecycle handlers: not callable from application code; otherwise ordinary functions; names always reserved; defining one is optional unless the platform requires it; wrong signature is a compilation error | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-22 | SP9 | OI-22 | STA-7, STA-8, STA-9, STA-10, NAM-14 |
 | D-438 | Placeholder lifecycle handlers on_install() and on_power_on(), no parameters and no payload, until the platform catalog exists | Resolved by user 2026-11-15 | [Agreed] | language | Annex C OI-38 | SP9 | OI-38 | STA-6, NAM-14 |
+| D-439 | Exceeding transaction capacity at runtime is trap(TXN-CAPACITY); pending writes roll back; TRAP-TXN-CAPACITY joins the placeholder trap kinds of D-415 | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-39 | SP10 | OI-39 | TXN-16 |
+| D-440 | A call to a platform API marked not-in-transactions, lexically inside a transaction or reachable from one through the call graph, is a compilation error (CE-TXN-4) | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-40 | SP10 | OI-40 | TXN-17 |

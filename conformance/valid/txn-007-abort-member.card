@@ -1,0 +1,21 @@
+// rule: TXN-7
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: abort with an application error member.
+errors WalletError {
+    InsufficientFunds = 1;
+}
+
+persistent balance: u32;
+
+function debit(amount: u32) {
+    transaction {
+        if amount > balance {
+            abort Err(WalletError.InsufficientFunds);
+        }
+        balance = balance - amount;
+    }
+    return Ok();
+}

@@ -1,0 +1,16 @@
+// rule: TXN-2
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A read sees an earlier pending write.
+persistent counter: u32;
+persistent last_counter: u32;
+
+function bump() {
+    transaction {
+        counter = counter + 1;
+        last_counter = counter;
+    }
+    return Ok();
+}

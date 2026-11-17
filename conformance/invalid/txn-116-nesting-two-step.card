@@ -1,0 +1,31 @@
+// rule: TXN-10
+// source: DN §7.3; D-403
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-3
+// note: Nesting through a chain of two calls.
+persistent balance: u32;
+
+function update() {
+    transaction {
+        balance = 1;
+    }
+    return Ok();
+}
+
+function middle() {
+    attempt update();
+    return Ok();
+}
+
+function check() {
+    transaction {
+        match middle() {
+            Ok() => {
+            }
+            Err(error) => {
+            }
+        }
+    }
+    return Ok();
+}

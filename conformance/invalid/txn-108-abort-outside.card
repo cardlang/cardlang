@@ -1,0 +1,14 @@
+// rule: TXN-7
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-2
+// note: abort in a function with no transaction.
+errors WalletError {
+    InsufficientFunds = 1;
+    Unauthorized = 2;
+}
+
+function check() {
+    abort Err(WalletError.InsufficientFunds);
+}

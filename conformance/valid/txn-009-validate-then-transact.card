@@ -1,0 +1,22 @@
+// rule: TXN-6
+// source: DN §10
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Validation before the transaction; return after it.
+errors WalletError {
+    InsufficientFunds = 1;
+    Unauthorized = 2;
+}
+
+persistent balance: u32;
+session authenticated: bool;
+
+function debit(amount: u32) -> u32 {
+    require authenticated else WalletError.Unauthorized;
+    require amount <= balance else WalletError.InsufficientFunds;
+    transaction {
+        balance = balance - amount;
+    }
+    return Ok(balance);
+}

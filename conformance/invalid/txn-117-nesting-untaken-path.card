@@ -1,0 +1,28 @@
+// rule: TXN-10
+// source: D-403
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-3
+// note: A nesting call inside if false still counts.
+persistent balance: u32;
+
+function update() {
+    transaction {
+        balance = 1;
+    }
+    return Ok();
+}
+
+function check() {
+    transaction {
+        if false {
+            match update() {
+                Ok() => {
+                }
+                Err(error) => {
+                }
+            }
+        }
+    }
+    return Ok();
+}

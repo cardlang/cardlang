@@ -1,0 +1,29 @@
+// rule: TXN-7
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-2
+// note: abort in a helper called from a transaction.
+persistent balance: u32;
+
+errors WalletError {
+    InsufficientFunds = 1;
+    Unauthorized = 2;
+}
+
+function helper() {
+    abort Err(WalletError.InsufficientFunds);
+}
+
+function check() {
+    transaction {
+        match helper() {
+            Ok() => {
+            }
+            Err(error) => {
+                abort Err(error);
+            }
+        }
+    }
+    return Ok();
+}

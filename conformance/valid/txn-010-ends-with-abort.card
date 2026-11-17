@@ -1,0 +1,18 @@
+// rule: TXN-15
+// source: DN §3.7
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A transaction ending with abort needs no return after it.
+errors WalletError {
+    AccountBlocked = 1;
+}
+
+persistent blocked_attempts: u32;
+
+function refuse() {
+    transaction {
+        blocked_attempts = blocked_attempts + 1;
+        abort Err(WalletError.AccountBlocked);
+    }
+}

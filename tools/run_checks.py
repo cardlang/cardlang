@@ -20,13 +20,15 @@ RUNS = [
     ("funcheck.py", None, "chapter 8 functions and references on fun-* tests"),
     ("outcheck.py", None, "chapter 9 outcomes and errors on out-* tests"),
     ("stacheck.py", None, "chapter 10 state on sta-* tests"),
-    # The full checker chain (stacheck builds on all the others) must still accept every
-    # valid test and give the expected error for the invalid tests of chapters 6 to 10.
-    ("stacheck.py", "valid/*", "full checker on every valid test"),
-    ("stacheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
-    ("stacheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
-    ("stacheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
-    ("stacheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
+    ("txncheck.py", None, "chapter 11 transactions on txn-* tests"),
+    # The full checker chain (txncheck builds on all the others) must still accept every
+    # valid test and give the expected error for the invalid tests of chapters 6 to 11.
+    ("txncheck.py", "valid/*", "full checker on every valid test"),
+    ("txncheck.py", "invalid/exp-*", "full checker on chapter 6 invalid tests"),
+    ("txncheck.py", "invalid/stm-*", "full checker on chapter 7 invalid tests"),
+    ("txncheck.py", "invalid/fun-*", "full checker on chapter 8 invalid tests"),
+    ("txncheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
+    ("txncheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
 ]
 
 def main():

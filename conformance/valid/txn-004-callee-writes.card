@@ -1,0 +1,26 @@
+// rule: TXN-1, TXN-2
+// source: DN §7.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A callee's write takes part in the caller's transaction.
+persistent balance: u32;
+persistent snapshot: u32;
+
+function credit(amount: u32) {
+    balance = balance + amount;
+    return Ok();
+}
+
+function credit_and_record(amount: u32) {
+    transaction {
+        match credit(amount) {
+            Ok() => {
+                snapshot = balance;
+            }
+            Err(_) => {
+            }
+        }
+    }
+    return Ok();
+}

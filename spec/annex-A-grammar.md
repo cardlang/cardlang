@@ -211,6 +211,19 @@ This section adds no new productions. `persistent` and `session` globals are `Gl
 - they take no initializer (STA-2, CE-STA-1);
 - lifecycle handlers are ordinary `FunctionDeclaration`s with reserved names and signatures (STA-7).
 
+### A.2.9 Transactions (chapter 11)
+
+```
+TransactionStatement ::= 'transaction' Block
+AbortStatement       ::= 'abort' 'Err' '(' Expression ')' ';'
+```
+
+Both productions are alternatives of `Statement` (§A.2.5). Chapter 11 restricts them by meaning, not by grammar:
+
+- `return`, `attempt`, `require`, and loop exits must not leave a transaction (TXN-6, CE-TXN-1);
+- `abort` is valid only lexically inside a transaction (TXN-7, CE-TXN-2);
+- transactions do not nest (TXN-10, CE-TXN-3).
+
 | Section | Content | Filled in by |
 |---|---|---|
 | A.2.1 | Source files and top-level declarations | SP2 (done) |
@@ -221,5 +234,5 @@ This section adds no new productions. `persistent` and `session` globals are `Gl
 | A.2.6 | Functions, parameters, arguments and slices | SP7 (done) |
 | A.2.7 | Outcomes, patterns and error sets | SP8 (done) |
 | A.2.8 | State declarations | SP9 (done) |
-| A.2.9 | Transactions | SP10 |
+| A.2.9 | Transactions | SP10 (done) |
 | A.2.10 | The host entry point | SP11 |

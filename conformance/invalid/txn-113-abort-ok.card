@@ -1,0 +1,14 @@
+// rule: TXN-7
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: abort with Ok.
+persistent balance: u32;
+
+function check() {
+    transaction {
+        balance = 0;
+        abort Ok();
+    }
+}

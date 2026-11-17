@@ -1,0 +1,22 @@
+// rule: TXN-6
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: break and continue targeting a loop inside the transaction.
+persistent counters: u32[8];
+
+function check(limit: u32) {
+    transaction {
+        for index: u32 in 0..8 {
+            if index == limit {
+                break;
+            }
+            if counters[index] == 0 {
+                continue;
+            }
+            counters[index] = 0;
+        }
+    }
+    return Ok();
+}

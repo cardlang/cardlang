@@ -1,0 +1,24 @@
+// rule: TXN-9
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A callee error handled locally; the transaction commits.
+persistent attempts: u32;
+
+function perform_update() {
+    attempts = attempts + 1;
+    return Ok();
+}
+
+function check() {
+    transaction {
+        match perform_update() {
+            Ok() => {
+            }
+            Err(error) => {
+            }
+        }
+    }
+    return Ok();
+}

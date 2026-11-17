@@ -1,0 +1,30 @@
+// rule: TXN-6
+// source: DN §3.6, §6.3
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: A helper using attempt, called from a transaction.
+persistent total: u32;
+
+function read_amount() -> u32 {
+    return Ok(5);
+}
+
+function add_amount() {
+    var amount: u32 = attempt read_amount();
+    total = total + amount;
+    return Ok();
+}
+
+function check() {
+    transaction {
+        match add_amount() {
+            Ok() => {
+            }
+            Err(error) => {
+                abort Err(error);
+            }
+        }
+    }
+    return Ok();
+}

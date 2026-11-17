@@ -1,0 +1,27 @@
+// rule: TXN-7, TXN-8
+// source: DN §7.2
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: abort with an error binding.
+persistent balance: u32;
+persistent last_payment: u32;
+
+function record_payment(amount: u32) {
+    last_payment = amount;
+    return Ok();
+}
+
+function pay(amount: u32) {
+    transaction {
+        balance = balance - amount;
+        match record_payment(amount) {
+            Ok() => {
+            }
+            Err(error) => {
+                abort Err(error);
+            }
+        }
+    }
+    return Ok();
+}

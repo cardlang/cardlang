@@ -52,6 +52,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-36 | Empty error set | Gap | SP8 | Resolved |
 | OI-37 | Application use of `CardError` members | Gap | SP8 | Resolved |
 | OI-38 | Placeholder lifecycle handler names | Gap | SP9 | Resolved |
+| OI-39 | Exceeding transaction capacity at runtime | Gap | SP10 | Resolved |
+| OI-40 | Platform services inside a transaction | Gap | SP10 | Resolved |
 
 ---
 
@@ -85,7 +87,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** contradiction
 - **Sources:** DN §7.3 says "Reject nesting statically when the compiler can establish it. Otherwise the runtime checks … a violation traps". DN §3.10 states the goal that program acceptance must not depend on optimizer sophistication. D-131 is affected.
-- **Affected rules:** pending (SP10)
+- **Affected rules:** TXN-10
 - **Question:** When exactly is a nested transaction a compilation error rather than a trap?
 - **Options:**
   - (a) **Always static, defined structurally.** It is a compilation error if a `transaction` block can reach a `transaction` statement through the static call graph: lexically, or in any function called, directly or transitively, from inside the block. Call targets are static and the call graph is acyclic (D-031), so this is decidable and independent of the compiler. It is conservative: it also rejects inner transactions on paths that are never taken. The runtime check stays as a VM safety net that a verified program never triggers.
@@ -623,6 +625,34 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-15 (D-438)
 - **Decision:** Recommendation adopted.
 
+## OI-39 — Exceeding transaction capacity at runtime
+
+- **Kind:** gap
+- **Sources:** DN §7.4 ("What limits apply to transaction size?"); D-206
+- **Affected rules:** TXN-16
+- **Question:** Loops make the number of pending writes unknowable at compile time. What happens when a running transaction exceeds the target's capacity?
+- **Options:**
+  - (a) A dedicated trap kind, `TRAP-TXN-CAPACITY`.
+  - (b) Treat it as a commit failure, `TRAP-COMMIT`.
+  - (c) Reject at build or load time when a bound is computable, and trap otherwise.
+- **Recommendation:** (a). Option (c) would make acceptance depend on how sophisticated the analysis is.
+- **Status:** resolved 2026-11-17 (D-439)
+- **Decision:** Option (a). Pending writes roll back, as for any trap. `TRAP-TXN-CAPACITY` joins the placeholder trap kinds of D-415.
+
+## OI-40 — Platform services inside a transaction
+
+- **Kind:** gap
+- **Sources:** DN §7.2, §7.4; PN §2, §5 (each API must define its transaction behaviour or prohibit use during a transaction); D-205
+- **Affected rules:** TXN-17
+- **Question:** How is a call to a prohibited API inside a transaction detected?
+- **Options:**
+  - (a) Statically, with the same structural call-graph rule as nesting (D-403).
+  - (b) At runtime, as a recoverable error.
+  - (c) At runtime, as a trap.
+- **Recommendation:** (a).
+- **Status:** resolved 2026-11-17 (D-440)
+- **Decision:** Option (a). Each API's catalog entry says whether it is permitted inside a transaction (Annex B).
+
 ---
 
 ## Resolution log
@@ -631,7 +661,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 |---|---|---|---|---|
 | 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
 | 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Pending: applied when SP13 drafts its chapter |
-| 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Pending: applied when SP10 drafts its chapter |
+| 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Applied in chapter 11: TXN-10 (SP10) |
 | 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
 | 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Pending: applied when SP11 drafts its chapter |
 | 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); call syntax in chapter 6 (SP5) |
@@ -667,3 +697,5 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-15 | OI-37 | CardError members only in patterns (D-437) | User | Applied in chapter 9: OUT-4, OUT-19; chapter 7: STM-19 (SP8) |
 | 2026-11-15 | OI-22 | Lifecycle handler rules (D-422) | User | Applied in chapter 10: STA-7 to STA-10 (SP9) |
 | 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 (SP9) |
+| 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 (SP10) |
+| 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 (SP10) |

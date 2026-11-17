@@ -1,0 +1,20 @@
+// rule: TXN-6
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-1
+// note: require inside a transaction.
+persistent balance: u32;
+
+errors WalletError {
+    InsufficientFunds = 1;
+    Unauthorized = 2;
+}
+
+function check(ready: bool) {
+    transaction {
+        require ready else WalletError.Unauthorized;
+        balance = 0;
+    }
+    return Ok();
+}

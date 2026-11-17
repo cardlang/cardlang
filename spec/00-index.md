@@ -16,13 +16,13 @@ This is the normative specification of the CardLang language. It is being writte
 | [08-functions-and-references.md](08-functions-and-references.md) | 8 Functions, references and slices | SP7 | Draft complete |
 | [09-outcomes-and-errors.md](09-outcomes-and-errors.md) | 9 Outcomes and errors | SP8 | Draft complete |
 | [10-state-and-initialization.md](10-state-and-initialization.md) | 10 State and initialization | SP9 | Draft complete |
-| 11-transactions.md | 11 Transactions | SP10 | Not started |
+| [11-transactions.md](11-transactions.md) | 11 Transactions | SP10 | Draft complete |
 | 12-host-entry-point.md | 12 Host entry point | SP11 | Not started |
 | 13-runtime-failures.md | 13 Runtime failures | SP12 | Not started |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.8 complete; rest skeleton |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | A.1 and A.2.1–A.2.9 complete; rest skeleton |
 | annex-B-platform-contract.md | B Platform contract | SP13 | Not started |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-38 all resolved; none open |
-| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–10 |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | OI-1…OI-40 all resolved; none open |
+| [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Filled for chapters 1–11 |
 
 Related files:
 
@@ -42,7 +42,8 @@ Related files:
 | 8 Functions, references and slices | 23 | 23 | 0 | 0 |
 | 9 Outcomes and errors | 20 | 20 | 0 | 0 |
 | 10 State and initialization | 14 | 14 | 0 | 0 |
-| **Total** | 213 | 213 | 0 | 0 |
+| 11 Transactions | 17 | 17 | 0 | 0 |
+| **Total** | 230 | 230 | 0 | 0 |
 
 Each sub-plan updates this table when its chapter is drafted.
 
@@ -90,6 +91,10 @@ Each sub-plan updates this table when its chapter is drafted.
 | CE-NAM-8 | Duplicate member in a structure, enum or error set | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
 | CE-NAM-9 | Unknown qualified member | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
 | CE-NAM-10 | Unknown platform path | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
+| CE-TXN-1 | Control transfer would leave an active transaction | [11 §11.7](11-transactions.md#117-errors-defined-in-this-chapter) |
+| CE-TXN-2 | abort not lexically inside a transaction in the same function | [11 §11.7](11-transactions.md#117-errors-defined-in-this-chapter) |
+| CE-TXN-3 | Nested transaction, lexically or through the call graph | [11 §11.7](11-transactions.md#117-errors-defined-in-this-chapter) |
+| CE-TXN-4 | Call to a platform API not permitted inside transactions | [11 §11.7](11-transactions.md#117-errors-defined-in-this-chapter) |
 | CE-TYP-1 | Name in a type position is not a type | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-2 | Enum with no variants | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |
 | CE-TYP-3 | Structure with no fields | [4 §4.10](04-types.md#410-errors-defined-in-this-chapter) |

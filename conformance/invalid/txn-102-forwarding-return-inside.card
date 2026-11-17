@@ -1,0 +1,19 @@
+// rule: TXN-6
+// source: DN §3.6
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-TXN-1
+// note: A forwarding return inside a transaction.
+persistent balance: u32;
+
+function helper() {
+    balance = 0;
+    return Ok();
+}
+
+function check() {
+    transaction {
+        return helper();
+    }
+    return Ok();
+}
