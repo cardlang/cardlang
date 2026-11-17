@@ -30,13 +30,14 @@ Each checker is a small implementation of the rules of one chapter. It is writte
 | `stacheck.py` | Chapter 10: initializers and lifecycle handlers | `*/sta-*` |
 | `txncheck.py` | Chapter 11: transaction boundaries, `abort` and nesting | `*/txn-*` |
 | `hepcheck.py` | Chapter 12: the `command` and its signature. Adds the HEP-16 scaffold to `kind: fragment` tests | `*/hep-*` |
-| `pltcheck.py` | Annex B: `card.` paths, platform-call signatures, and APIs not permitted in transactions. Uses the test-only catalog | `*/plt-*` |
+| `pltcheck.py` | Annex B: `card.` paths, platform-call signatures, and APIs not permitted in transactions. Uses the test-only catalog plus the Base Profile catalog, and adds `platform/base-types.card` to every build (its names are predeclared) | `*/plt-*` |
 
 Two further checkers check the specification itself rather than one chapter:
 
 | Script | Checks | Default |
 |---|---|---|
 | `grammar.py` | Annex A, mechanically. It reads the EBNF from the annex, converts it to BNF and runs an Earley recognizer. Every test must derive `SourceFile`, except tests expecting CE-SYN-1, which must not, and lexical-error tests, which are skipped. With `--notes`, every design-note code block that the full checker accepts must derive | every test |
+| `profilecheck.py` | The Base Profile in `platform/`: BP rule numbering, the `CardError` table and the error precedence, `base-types.card` compiling, and every catalog block's fields, types and errors | `platform/` |
 | `speccheck.py` | Consistency of `spec/`: rule tags and Sources lines, references, compile-error classes and their tables, trap kinds, table shapes, chapter grammar fragments against Annex A, the B.12 checklist, the D.2 reverse links, the D.3 coverage matrix and the 00-index counts | the specification |
 
 Run a single checker as `python -I tools/checkers/<script> . "<glob>"`. For example:

@@ -83,7 +83,7 @@ NOT_TESTABLE = {
     "PLT-31": "Timing is not observable by a conforming program; checked by platform evaluation",
     "PLT-32": "Side-channel and fault resistance is not observable by a conforming program; checked by platform evaluation",
 }
-for r in "PLT-1 PLT-2 PLT-4 PLT-5 PLT-6 PLT-7 PLT-10 PLT-11 PLT-14 PLT-15 PLT-16 PLT-21 PLT-29 PLT-30 PLT-33 PLT-34".split():
+for r in "PLT-1 PLT-2 PLT-4 PLT-5 PLT-6 PLT-7 PLT-10 PLT-11 PLT-14 PLT-15 PLT-16 PLT-29 PLT-30 PLT-33 PLT-34".split():
     NOT_TESTABLE[r] = PLATFORM
 
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()

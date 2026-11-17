@@ -1,0 +1,31 @@
+// CardLang Base Profile 1: platform-supplied declarations (platform/base-profile.md §3).
+// This file is implicitly part of every build for the profile. Its names are predeclared (NAM-14 item 4):
+// an application that declares one of them is rejected (CE-NAM-5).
+// The families add their own declarations in WP3 (keys), WP4 (crypto), WP5 (CBOR) and WP6 (DER/TLV).
+
+enum KeyKind {
+    Aes;
+    EcPrivate;
+    EcPublic;
+}
+
+enum Curve {
+    P256;
+}
+
+enum KeyStorage {
+    Persistent;
+    Volatile;
+}
+
+struct KeySpec {
+    kind: KeyKind;
+    curve: Curve;
+    bits: u16;
+    storage: KeyStorage;
+}
+
+enum OperationLifetime {
+    Command;
+    Session;
+}

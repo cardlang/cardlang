@@ -1,0 +1,13 @@
+// rule: NAM-14, PLT-21
+// source: D-446; platform/base-profile.md BP-11
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: The Base Profile types are predeclared and usable like ordinary enums and structures.
+session spec: KeySpec;
+
+function choose() -> KeySpec {
+    var chosen: KeySpec = KeySpec { kind: KeyKind.EcPrivate, curve: Curve.P256, bits: 256, storage: KeyStorage.Persistent };
+    var lifetime: OperationLifetime = OperationLifetime.Command;
+    return Ok(chosen);
+}

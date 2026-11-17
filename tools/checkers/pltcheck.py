@@ -8,7 +8,51 @@ from lexcheck import lex, header
 import hepcheck, expcheck, consteval
 from expcheck import CE
 
-CATALOG_FILE = pathlib.Path(__file__).resolve().parents[2] / "conformance" / "platform" / "test-catalog.txt"
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+CATALOG_FILE = ROOT / "conformance" / "platform" / "test-catalog.txt"
+BASE_CATALOG = ROOT / "platform" / "base-catalog.txt"            # Base Profile 1 (platform/base-profile.md)
+BASE_TYPES = ROOT / "platform" / "base-types.card"
+DECL_KEYWORDS = {"struct", "enum", "function", "persistent", "session", "const", "command", "errors"}
+
+def declared_names(toks):
+    """Names introduced by top-level-style declarations in a token list."""
+    return {toks[i + 1][1] for i, (_, v) in enumerate(toks[:-1]) if v in DECL_KEYWORDS and toks[i + 1][0] == "id"}
+
+PRELUDE = lex(BASE_TYPES.read_bytes()) if BASE_TYPES.exists() else []
+PRELUDE_NAMES = declared_names(PRELUDE)
+
+def parse_params(params):
+    plist = []
+    if params != "-":
+        for item in params.split(","):
+            name, rest = [x.strip() for x in item.split(":", 1)]
+            mode = None
+            for m in ("ref", "inout"):
+                if rest.startswith(m + " "): mode, rest = m, rest[len(m) + 1:]
+            plist.append((name, mode, parse_type(rest)))
+    return plist
+
+def load_block_catalog(path=BASE_CATALOG):
+    """The Base Profile catalog: blocks of "api <path>" followed by indented "<field> <value>" lines."""
+    blocks, cur = [], None
+    if not path.exists(): return {}, blocks
+    for n, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.split("#")[0].rstrip()
+        if not line.strip(): continue
+        if not raw[0].isspace():
+            key, _, value = line.partition(" ")
+            assert key == "api", f"{path.name}:{n}: a block must start with 'api'"
+            cur = {"api": value.strip(), "line": n, "fields": []}; blocks.append(cur)
+        else:
+            key, _, value = line.strip().partition(" ")
+            cur["fields"].append((key, value.strip()))
+    catalog = {}
+    for b in blocks:
+        f = dict(b["fields"])
+        catalog[b["api"]] = {"params": parse_params(f.get("params", "-")),
+                             "ret": "none" if f.get("payload", "-") == "-" else parse_type(f["payload"]),
+                             "tx": f.get("transaction"), "errors": [] if f.get("errors", "-") == "-" else [x.strip() for x in f["errors"].split(",")]}
+    return catalog, blocks
 
 def parse_type(text):
     text = text.strip()
@@ -22,16 +66,9 @@ def load_catalog(path=CATALOG_FILE):
         if not line: continue
         fields = [f.strip() for f in line.split("|")]
         entry_path, params, payload, tx, errors = fields
-        plist = []
-        if params != "-":
-            for item in params.split(","):
-                name, rest = [x.strip() for x in item.split(":", 1)]
-                mode = None
-                for m in ("ref", "inout"):
-                    if rest.startswith(m + " "): mode, rest = m, rest[len(m) + 1:]
-                plist.append((name, mode, parse_type(rest)))
-        catalog[entry_path] = {"params": plist, "ret": "none" if payload == "-" else parse_type(payload),
+        catalog[entry_path] = {"params": parse_params(params), "ret": "none" if payload == "-" else parse_type(payload),
                                "tx": tx, "errors": [] if errors == "-" else [x.strip() for x in errors.split(",")]}
+    catalog.update(load_block_catalog()[0])
     return catalog
 
 def platform_path(node):
@@ -57,7 +94,8 @@ def token_paths(toks):
 class PltChecker(hepcheck.HepChecker):
     def __init__(self, toks, catalog=None):
         self.catalog = catalog if catalog is not None else load_catalog()
-        super().__init__(toks)
+        if declared_names(toks) & PRELUDE_NAMES: raise CE("CE-NAM-5")       # base types are predeclared (BP-11)
+        super().__init__(PRELUDE + toks)
 
     def run(self):
         self.check_forbidden_in_transactions()

@@ -350,7 +350,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 298 rules: 216 cited, 48 exercised, 34 not testable.
+**Totals:** 298 rules: 217 cited, 48 exercised, 33 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -391,7 +391,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | NAM-11 | cited | nam-001-shared-scope-forward-use, nam-002-multi-file-any-order, nam-101-duplicate-across-kinds, nam-102-duplicate-across-files |
 | NAM-12 | cited | nam-103-overloading |
 | NAM-13 | cited | nam-001-shared-scope-forward-use, nam-002-multi-file-any-order |
-| NAM-14 | cited | nam-116-redeclare-intrinsic, nam-117-redeclare-card, nam-118-redeclare-primitive, nam-121-parameter-shadows-primitive, sta-108-constant-named-like-handler |
+| NAM-14 | cited | nam-116-redeclare-intrinsic, nam-117-redeclare-card, nam-118-redeclare-primitive, nam-121-parameter-shadows-primitive, plt-003-base-types, plt-107-redeclare-base-type, sta-108-constant-named-like-handler |
 | NAM-15 | cited | nam-003-member-scopes, nam-005-qualified-members, nam-113-duplicate-field |
 | NAM-16 | cited | nam-005-qualified-members, nam-114-bare-variant, nam-115-unknown-member |
 | NAM-17 | cited | nam-003-member-scopes |
@@ -638,7 +638,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-18 | exercised | sta-004-lifecycle-handlers, run-008-state-lifecycle |
 | PLT-19 | exercised | run-008-state-lifecycle |
 | PLT-20 | cited | run-015-resource-identifiers, run-016-signer-application |
-| PLT-21 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-21 | cited | plt-003-base-types |
 | PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application |
 | PLT-23 | cited | run-015-resource-identifiers |
 | PLT-24 | cited | plt-002-immediate-api-in-transaction |

@@ -1,0 +1,18 @@
+# CardLang Base Profile 1: API catalog (platform/base-profile.md §6).
+#
+# One block per API. A block starts with "api <path>" and continues with indented field lines,
+# "<field> <value>". Comments start with "#". Fields, in this order:
+#
+#   api          card.<family>.<action>
+#   params       comma-separated "name: [ref|inout] Type", or "-"
+#   payload      the successful payload type, or "-"
+#   transaction  participates | immediate | forbidden (PLT-24)
+#   errors       CardError members, in precedence order (profile §4), or "-"
+#   resources    "creates Kind(param)", "uses Kind(param)", "deletes Kind(param)", comma-separated, or "-"
+#   on-failure   the state left on failure (profile §2.4 makes "nothing changes" the default)
+#   permission   any permission required, or "-"
+#   summary      one sentence
+#
+# Every field is required. Types are primitive types, array and view types, or types declared in
+# platform/base-types.card. The entries are added by WP3 (card.key), WP4 (card.crypto, card.random),
+# WP5 (card.cbor) and WP6 (card.der, card.tlv).

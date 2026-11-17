@@ -61,6 +61,7 @@ This is a shortened version of the counter, one of the representative applicatio
 |---|---|
 | [`spec/`](spec/00-index.md) | The specification: chapters 1–13, plus Annex A (grammar), B (platform contract), C (open issues) and D (traceability). Start at [`spec/00-index.md`](spec/00-index.md) |
 | [`conformance/`](conformance/README.md) | 350 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
+| [`platform/`](platform/base-profile.md) | The CardLang Base Profile, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes and the API catalog (`base-catalog.txt`). Work in progress |
 | [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
 | [`plans_and_notes/`](plans_and_notes/) | The source design notes, the decision register, the plan of plans with one sub-plan per chapter, and the SP14 consolidation report |
 

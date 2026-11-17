@@ -1,0 +1,2 @@
+invalid/plt-107-redeclare-base-type.card
+valid/plt-003-base-types.card
