@@ -1,4 +1,6 @@
 import re, sys, pathlib
+# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
+SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "09-outcomes-and-errors.md").read_text(encoding="utf-8")
 
@@ -104,6 +106,6 @@ add(I+"out-130-code-out-of-range.card", "OUT-16", "DN §6.3", "compile-error CE-
 for path, (rule, src, exp, note, code) in T.items():
     hdr = f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: fragment\n// expect: {exp}\n// note: {note}\n"
     (conf / path).write_text(hdr + code, encoding="utf-8", newline="\n")
-refs = set(re.findall(r"`((?:valid|invalid)/out-[\w-]+\.card)`", ch))
+refs = set(re.findall(r"`((?:valid|invalid)/out-[\w-]+\.card)`", ch)) - SP14_OWNED
 assert refs == set(T), sorted(refs ^ set(T))
 print("tests:", len(T))

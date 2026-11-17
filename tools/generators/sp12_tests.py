@@ -1,5 +1,7 @@
 """Write the SP12 runtime conformance tests (conformance/runtime/*) and cross-check them with chapter 13."""
 import re, sys, pathlib
+# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
+SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance" / "runtime"
 ch13 = (repo / "spec" / "13-runtime-failures.md").read_text(encoding="utf-8")
 ch12 = (repo / "spec" / "12-host-entry-point.md").read_text(encoding="utf-8")
@@ -745,7 +747,7 @@ for name, (rule, src, note, program, scenario, requires) in T.items():
     hdr += f"// note: {note}\n"
     (d / "program.card").write_text(hdr + program, encoding="utf-8", newline="\n")
     (d / "scenario.txt").write_text(scenario, encoding="utf-8", newline="\n")
-refs = set(re.findall(r"`runtime/(run-[\w-]+)/`", ch13))
+refs = set(re.findall(r"`runtime/(run-[\w-]+)/`", ch13)) - {p.split("/")[1] for p in SP14_OWNED if p.startswith("runtime/")}
 assert refs == set(T), sorted(refs ^ set(T))
 gk = conf / ".gitkeep"
 if gk.exists(): gk.unlink()

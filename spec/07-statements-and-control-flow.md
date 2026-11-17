@@ -194,7 +194,7 @@ function copy() {
 ## 7.4 `if`
 
 ```
-IfStatement ::= 'if' Expression Block ( 'else' 'if' Expression Block )* ( 'else' Block )?
+IfStatement ::= 'if' ConditionExpression Block ( 'else' 'if' ConditionExpression Block )* ( 'else' Block )?
 ```
 
 **STM-11 [Agreed]** Each condition checks against `bool` (EXP-10): a condition of any other type is **CE-EXP-1**. There is no numeric truthiness. The conditions are evaluated in order, and the block of the first one that is `true` runs. If none is `true`, the final `else` block runs, if there is one. At most one block runs. Parentheses around a whole condition are optional. Mixed binary operators still need grouping (EXP-2), and a structure constructor in a condition needs parentheses (EXP-6).
@@ -221,7 +221,7 @@ function classify(amount: u32, balance: u32) -> u8 {
 ## 7.5 `while`
 
 ```
-WhileStatement ::= 'while' Expression Block
+WhileStatement ::= 'while' ConditionExpression Block
 ```
 
 **STM-12 [Agreed]** The condition checks against `bool`. It is evaluated before each iteration, and the block runs while it is `true`, so the block may run zero times. `while true { … }` expresses a loop that ends only through `break`, `return`, `abort` or a trap. The language does not require termination to be proved. A command that runs out of the execution budget of its target is `trap(EXHAUSTED)` (chapter 13).
@@ -230,7 +230,7 @@ WhileStatement ::= 'while' Expression Block
 ## 7.6 `for`
 
 ```
-ForStatement ::= 'for' Identifier ':' Type 'in' Expression '..' Expression Block
+ForStatement ::= 'for' Identifier ':' Type 'in' ConditionExpression '..' ConditionExpression Block
 ```
 
 **STM-13 [Agreed]** In `for name: T in a..b { … }`, the index type `T` must be an integer type. Any other type is **CE-STM-6**. Both bounds `a` and `b` check against `T` (EXP-10), so each must fit `T`. For example, `for index: u8 in 0..256` is **CE-EXP-2**: use a wider index type.
@@ -319,7 +319,7 @@ function scan() -> u8 {
 ## 7.8 `match` on enums
 
 ```
-MatchStatement ::= 'match' Expression '{' MatchArm* '}'
+MatchStatement ::= 'match' ConditionExpression '{' MatchArm* '}'
 MatchArm       ::= Pattern '=>' Block
 Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
                  | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'

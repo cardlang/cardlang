@@ -431,6 +431,9 @@ class Checker:
             if v == "{":
                 self._skip_block(p); continue
             at_statement_start = p.t[p.i - 1][1] in ("{", ";", "}")
+            if (p.t[p.i - 1][1] == "{" and p.t[p.i - 2][0] == "id" and p.t[p.i - 2][1][:1].isupper()
+                    and p.t[p.i - 3][1] in ("=", "(", ",", ":", "[")):
+                at_statement_start = False   # the first field of a constructor in a value position, as in `= Pair { left: 1 }`
             if at_statement_start and p.kind() == "id" and p.peek(1) == ":":
                 raise CE("CE-SYN-1")  # e.g. `low: 1` is not a statement
             p.take()

@@ -1,0 +1,10 @@
+// rule: FUN-16
+// source: D-114, D-355; DN §3.7, §3.8
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: There are no reference variables: ref is not a type.
+function check(value: ref u8) {
+    var alias: ref u8 = value;
+    return Ok();
+}

@@ -107,6 +107,15 @@ function safe_sum(a: u32, b: u32) -> u32 {
 | `return Err(Mode.Off);` with `Mode` an enum | CE-OUT-3 | `invalid/out-107-err-enum-variant.card` |
 | `return Err(CardError.NotFound);` | CE-OUT-3 | `invalid/out-108-originate-card-error.card` |
 
+*Invalid:* `Ok` is not a constructor of a storable value (OUT-6). **CE-SYN-1**. (conformance: `invalid/out-131-ok-as-value.card`)
+
+```text
+function check() {
+    var result: u32 = Ok(1);
+    return Ok();
+}
+```
+
 ## 9.3 Consuming outcomes
 
 **OUT-7 [Agreed]** Every outcome must be consumed by exactly one of:
@@ -188,7 +197,7 @@ function narrow(incoming: u16) -> u8 {
 ## 9.5 Outcome `match` and error bindings
 
 ```
-MatchStatement ::= 'match' Expression '{' MatchArm* '}'      /* §A.2.5 */
+MatchStatement ::= 'match' ConditionExpression '{' MatchArm* '}'      /* §A.2.5 */
 Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
                  | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
                  | …
@@ -428,7 +437,7 @@ An error carries nothing else: no message, no payload and no field naming its so
 |---|---|---|
 | **CE-OUT-1** | An outcome is discarded by a call used as a statement | OUT-7 |
 | **CE-OUT-2** | A `return` form does not match the function's payload, or a forwarded outcome has a different payload type | OUT-3, OUT-5 |
-| **CE-OUT-3** | An `Err` or `require` operand that is not an application error member or error binding, including any `CardError` member | OUT-4, OUT-19 |
+| **CE-OUT-3** | An `Err` or `require` operand that is not an application error member or error binding, including any `CardError` member | STM-19, OUT-4, OUT-19, TXN-7 |
 | **CE-OUT-4** | An invalid `attempt`: its operand is not an outcome-producing call, or its form does not match the payload | OUT-8, OUT-9 |
 | **CE-OUT-5** | An invalid outcome `match`: incompatible pattern, missing or repeated success arm, missing catch-all, repeated specific error, or an arm after the catch-all | OUT-11, OUT-12 |
 | **CE-OUT-6** | An error binding used other than in `return Err(…)` or `abort Err(…)` | OUT-14 |

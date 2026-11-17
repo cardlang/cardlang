@@ -30,8 +30,8 @@ add("invalid/plt-106-forbidden-through-helper.card", "TXN-17", "D-440", "compile
 + fn(["transaction {", "    match provision() {", "        Ok() => {", "        }", "        Err(_) => {", "        }", "    }", "}", "return Ok();"]))
 
 R = {}
-R["run-015-resource-identifiers"] = ("PLT-20, PLT-22", "DN §11.2; PN §2",
-"The resource identifier model: create, duplicate, unknown, wrong kind, delete, reuse of an identifier.", """errors TestError {
+R["run-015-resource-identifiers"] = ("PLT-20, PLT-22, PLT-23", "DN §11.2; PN §2",
+"The resource identifier model: create, duplicate, unknown, wrong kind, delete, reuse of an identifier; a trap does not delete a resource.", """errors TestError {
     UnknownOperation = 1;
 }
 
@@ -69,6 +69,10 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
         var copy: u32 = id;
         var value: u32 = attempt card.test.resources.read(copy);
         return respond(inout response, value);
+    } else if operation == 7 {
+        attempt card.test.resources.create(id, KIND_COUNTER);
+        var missing: u8 = request[200];
+        return Ok(0);
     }
     return Err(TestError.UnknownOperation);
 }
@@ -97,6 +101,10 @@ expect err platform NotFound
 command 01 01        # reusing the identifier names a new resource
 expect ok
 command 03 01
+expect ok 00 00 00 00
+command 07 03        # create counter 3, then trap
+expect trap BOUNDS
+command 03 03        # the trap did not delete the resource (PLT-23)
 expect ok 00 00 00 00
 """)
 

@@ -335,6 +335,15 @@ function process(target: inout Account) {
 A by-value use, such as `return Ok(source.balance)` or `var copy: Account = source;`, produces an independent copy, not a reference. CardLang has no reference variables, arrays of references, null references, raw pointers or pointer arithmetic.
 *Sources: D-114, D-355; DN §3.7, §3.8.*
 
+*Invalid:* there are no reference variables, because `ref` is not part of a type (FUN-16). **CE-SYN-1**. (conformance: `invalid/fun-122-reference-variable.card`)
+
+```text
+function check(value: ref u8) {
+    var alias: ref u8 = value;
+    return Ok();
+}
+```
+
 ## 8.9 Value semantics
 
 **FUN-17 [Agreed]** By-value arguments and successful return payloads are complete, independent copies, including every nested field and element. Changing a copy never changes its source, and changing the source never changes a copy. An implementation may avoid a physical copy only when no program can observe the difference. It must never substitute sharing for copying, even to save memory. A program whose copies exceed the capacity of the target profile is rejected (TYP-23). Passing a large aggregate with `ref` or `inout` avoids the copy.

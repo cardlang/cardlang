@@ -114,6 +114,14 @@ function outer() {
 }
 ```
 
+*Invalid:* there is no import or module syntax (NAM-8). **CE-SYN-1**. (conformance: `invalid/nam-122-application-wrapper.card`)
+
+```text
+import card;
+
+const A: u32 = 1;
+```
+
 ## 3.3 The application scope
 
 **NAM-11 [Agreed]** All top-level declarations of an application share one *application scope*, regardless of kind or source file. Two declarations with the same name in the application scope are **CE-NAM-1**, even if they are of different kinds or in different files. A later declaration never replaces an earlier one. Names are case-sensitive.
@@ -470,7 +478,7 @@ function duplicate() {
 | **CE-NAM-2** | A name does not resolve | NAM-16, NAM-20, NAM-22 |
 | **CE-NAM-3** | A parameter, local, `for` index or pattern binding shadows a visible name | NAM-14, NAM-21 |
 | **CE-NAM-4** | Two parameters, locals or bindings in one scope have the same name | NAM-21 |
-| **CE-NAM-5** | A top-level declaration uses a predeclared name | NAM-14 |
+| **CE-NAM-5** | A top-level declaration uses a predeclared name | NAM-14, STA-8 |
 | **CE-NAM-6** | A top-level value declaration does not have exactly one of `persistent`, `session` or `const` | NAM-9 |
 | **CE-NAM-7** | A value declaration inside a body has a keyword other than `var` | NAM-10 |
 | **CE-NAM-8** | Two members of one structure, enum or error set have the same name | NAM-15 |

@@ -148,10 +148,11 @@ true       var        while
 - the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`;
 - the conversion and byte-order intrinsics `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (added by D-432);
 - the platform names `card` and `CardError`;
-- any further platform names supplied by the platform specification (Annex B).
+- any further platform names supplied by the platform specification (Annex B);
+- the lifecycle-handler names `on_install` and `on_power_on` (added by D-422 and D-438). An application may declare a function with one of these names, which defines the handler (NAM-14, STA-7, STA-8).
 
 `length` is not reserved and may be used as a field name.
-*Sources: D-044, D-404 (OI-4), D-432 (OI-32); DN §4.2.*
+*Sources: D-044, D-404 (OI-4), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38); DN §4.2.*
 
 **LEX-16 [Agreed]** The language sets no maximum length for identifiers. A tool may report a limit it cannot support, but it MUST NOT silently truncate or merge identifiers.
 *Sources: D-424 (OI-24).*
@@ -191,6 +192,8 @@ const match: u8 = 1;
 ```text
 const _: u8 = 1;
 ```
+
+*Valid:* an identifier 333 characters long is accepted and is not truncated (LEX-16). (conformance: `valid/lex-009-long-identifier.card`)
 
 ## 2.5 Literals
 
@@ -304,6 +307,13 @@ Punctuator ::= '{' | '}' | '(' | ')' | '[' | ']' | ';' | ':' | ',' | '.' | '..'
 ```text
 #include "state.card"
 const A: u32 = 1;
+```
+
+*Invalid:* a line break does not end a declaration, because no semicolon is ever inserted (LEX-23). **CE-SYN-1**. (conformance: `invalid/lex-115-missing-semicolon.card`)
+
+```text
+const A: u32 = 1
+const B: u32 = 2;
 ```
 
 ## 2.7 Byte-level examples

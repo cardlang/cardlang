@@ -1,0 +1,28 @@
+install
+power_on
+command 01           # attempt first() + attempt second(): operands left to right
+expect ok 00 00 00 06
+command 02           # copies are independent of their sources
+expect ok 01 09 03 00 09
+command 03 c5 3c     # & | ^ ~ << >> on u8 at runtime
+expect ok 04 fd f9 3a 28 31
+command 04 07        # a valid element reference: the callee runs
+expect ok
+command 05
+expect ok 01
+command 04           # request[1] is out of range: trap before the callee starts
+expect trap BOUNDS
+command 05           # mark never ran
+expect ok 00
+command 07           # bump(inout total) inside a committed transaction
+expect ok
+command 06           # bump(inout total), then abort: the write through inout rolls back
+expect err app 2
+command 08
+expect ok 00 00 00 01
+command 09           # no implicit command transaction: the write before the trap stays
+expect trap BOUNDS
+command 08
+expect ok 00 00 00 0b
+command 0a           # writing the response does not change the request
+expect ok ff 0a

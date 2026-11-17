@@ -1,4 +1,6 @@
 import re, sys, pathlib
+# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
+SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "03-program-structure-and-names.md").read_text(encoding="utf-8")
 
@@ -37,7 +39,7 @@ def hdr(rule, source, expect, note):
 pat = re.compile(r"\*(Valid|Invalid)[^*]*:\*(.*?)\(conformance: `([^`]+)`\)\n(?:\n```text\n(.*?)```)?", re.S)
 done = set()
 for kind, text, path, code in pat.findall(ch):
-    if path.endswith("/"):
+    if path.endswith("/") or path in SP14_OWNED:
         continue
     rule, src = RULES[path]
     m = re.search(r"\*\*(CE-[A-Z]+-\d+)\*\*", text)

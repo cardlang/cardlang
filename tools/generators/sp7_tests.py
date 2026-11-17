@@ -1,4 +1,6 @@
 import re, sys, pathlib
+# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
+SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "08-functions-and-references.md").read_text(encoding="utf-8")
 
@@ -86,7 +88,7 @@ for path, (rule, src, exp, note, files) in MULTI.items():
     (d / "files.txt").write_text("".join(n + "\n" for n, _ in files), encoding="utf-8", newline="\n")
     for k, (n, body) in enumerate(files):
         (d / n).write_text((hdr(rule, src, exp, note) if k == 0 else "") + body, encoding="utf-8", newline="\n")
-refs = set(re.findall(r"`((?:valid|invalid)/fun-[\w-]+(?:\.card|/))`", ch))
+refs = set(re.findall(r"`((?:valid|invalid)/fun-[\w-]+(?:\.card|/))`", ch)) - SP14_OWNED
 have = set(T) | {p + "/" for p in MULTI}
 assert refs == have, sorted(refs ^ have)
 print("tests:", len(have))

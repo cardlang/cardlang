@@ -1,0 +1,9 @@
+// rule: EXP-16
+// source: D-100; DN §3.4, §3.5
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: An integer operand of and: there is no numeric truthiness.
+function check(flags: u8) -> bool {
+    return Ok(flags and true);
+}

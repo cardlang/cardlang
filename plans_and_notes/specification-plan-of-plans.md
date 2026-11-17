@@ -1,5 +1,7 @@
 # CardLang Language Specification — Plan of Plans
 
+**Status: complete (2026-11-17).** SP0–SP14 are done, and the specification is Draft 0.1. The results are in `plans_and_notes/SP14-consolidation-report.md`.
+
 ## Context
 
 `plans_and_notes/` holds two documents:

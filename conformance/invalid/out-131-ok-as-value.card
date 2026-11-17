@@ -1,0 +1,10 @@
+// rule: OUT-6
+// source: D-363; DN §6.3
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: Ok is not a constructor of a storable value.
+function check() {
+    var result: u32 = Ok(1);
+    return Ok();
+}

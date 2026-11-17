@@ -1,4 +1,6 @@
 import re, sys, pathlib
+# Tests written by sp14_tests.py are referenced in this chapter but owned by that generator.
+SP14_OWNED = set((pathlib.Path(__file__).parent / "sp14_owned.txt").read_text().split())
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
 ch = (repo / "spec" / "06-expressions.md").read_text(encoding="utf-8")
 
@@ -294,11 +296,12 @@ for path, (rule, src, exp, note, code) in T.items():
     (conf / path).write_text(hdr + code, encoding="utf-8", newline="\n")
 
 # cross-check with chapter: every referenced path exists in T, every T path referenced, code blocks match
-refs = set(re.findall(r"`((?:valid|invalid)/exp-[\w-]+\.card)`", ch))
+refs = set(re.findall(r"`((?:valid|invalid)/exp-[\w-]+\.card)`", ch)) - SP14_OWNED
 assert refs == set(T), ("mismatch", sorted(refs ^ set(T)))
 pat = re.compile(r"\(conformance: ([^)]*)\)\n\n```text\n(.*?)```", re.S)
 checked = 0
 for reflist, code in pat.findall(ch):
-    paths = re.findall(r"`([^`]+)`", reflist)
+    paths = [p for p in re.findall(r"`([^`]+)`", reflist) if p not in SP14_OWNED]
+    if not paths: continue
     assert any(T[p][4] == code for p in paths), ("code differs", paths); checked += 1
 print("tests:", len(T), "| chapter code blocks verified identical:", checked)

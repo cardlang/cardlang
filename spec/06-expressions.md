@@ -50,6 +50,15 @@ TypeArgumentCall ::= TypeArgumentIntrinsic '<' Type '>' Arguments
 TypeArgumentIntrinsic ::= 'convert' | 'checked_convert' | 'truncate' | 'decode_be' | 'decode_le'
 Arguments       ::= '(' ( Argument ( ',' Argument )* ','? )? ')'
 Argument        ::= ( 'ref' | 'inout' )? Expression
+ConditionExpression ::= ConditionUnary ( BinaryOperator ConditionUnary )*
+ConditionUnary  ::= ( '-' | 'not' | '~' ) ConditionUnary
+                  | 'attempt' ConditionPostfix
+                  | ConditionPostfix
+ConditionPostfix ::= ConditionPrimary PostfixPart*
+ConditionPrimary ::= IntegerLiteral | BooleanLiteral | Identifier
+                  | '(' Expression ')'
+                  | ArrayList
+                  | TypeArgumentCall
 ```
 
 In `TypeArgumentIntrinsic`, the quoted names stand for identifier tokens with those spellings. These names are reserved (LEX-15), so `convert <` never begins a comparison.
@@ -97,8 +106,8 @@ All binary operators at one grouping level must be the same operator. Two differ
 - a bound of a `for` range;
 - the scrutinee of a `match`.
 
-Doing so does not derive (**CE-SYN-1**). Parenthesize the constructor instead, as in `if (Limits { low: 1, high: 2 }).high == 2 { … }`.
-*Sources: D-430 (OI-30).*
+Doing so does not derive (**CE-SYN-1**): those positions use `ConditionExpression` (§6.1, Annex A §A.2.4), which excludes an unparenthesized constructor. Parenthesize the constructor instead, as in `if (Limits { low: 1, high: 2 }).high == 2 { … }`.
+*Sources: D-430 (OI-30), D-444 (OI-44).*
 
 ### Examples
 
@@ -295,6 +304,14 @@ function bits(flags: u8, count: u8) -> u8 {
 | `left == right` with array operands | CE-EXP-6 | `invalid/exp-119-array-equality.card` |
 | `-count` with `count: u8` (DN §6.5) | CE-EXP-6 | `invalid/exp-141-unary-minus-unsigned.card` |
 
+*Invalid:* an integer operand of `and`; there is no numeric truthiness (EXP-16). **CE-EXP-1**. (conformance: `invalid/exp-143-boolean-operator-integer.card`)
+
+```text
+function check(flags: u8) -> bool {
+    return Ok(flags and true);
+}
+```
+
 ## 6.4 Evaluation order
 
 **EXP-20 [Agreed]** Operands are evaluated left to right, each exactly once, before the operator is applied. This also applies to array-list elements, constructor fields in their written order, and call arguments. An index or slice is evaluated in this order: receiver, then index (or start and end), then the bounds check.
@@ -467,6 +484,14 @@ function narrow(incoming: u16) -> u8 {
 | `convert<u8>(value)` with `value: u16` (DN §3.2) | CE-EXP-8 | `invalid/exp-111-convert-narrowing.card` |
 | `convert<u32>(32)` (DN §3.3) | CE-EXP-8 | `invalid/exp-112-convert-unknown-source.card` |
 | `truncate<u8>(300)` | CE-EXP-8 | `invalid/exp-136-truncate-unknown-source.card` |
+
+*Invalid:* there is no conversion to `bool`; write `flags != 0` instead (EXP-35). **CE-EXP-8**. (conformance: `invalid/exp-144-convert-to-bool.card`)
+
+```text
+function check(flags: u8) -> bool {
+    return Ok(convert<bool>(flags));
+}
+```
 
 ## 6.8 Integers and bytes
 
@@ -690,21 +715,21 @@ When `attempt` is in the right operand of `and` or `or`, it is evaluated only if
 
 | Class | Meaning | Rules |
 |---|---|---|
-| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18 |
-| **CE-EXP-2** | An integer literal is out of range for its expected type | EXP-7 |
+| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18, STM-8, STM-11, FUN-8 |
+| **CE-EXP-2** | An integer literal is out of range for its expected type | EXP-7, STM-13 |
 | **CE-EXP-3** | An integer literal has no type context | EXP-11, EXP-29 |
 | **CE-EXP-4** | Different binary operators at one grouping level | EXP-2, EXP-5 |
 | **CE-EXP-5** | A chain of comparisons | EXP-4 |
 | **CE-EXP-6** | An operator applied to a type it does not accept | EXP-8, EXP-13–EXP-15, EXP-17–EXP-19 |
 | **CE-EXP-7** | A call or `attempt` inside a call argument | EXP-49 |
 | **CE-EXP-8** | An invalid conversion or byte intrinsic: unknown source type, non-integer type, conversion not guaranteed, or unsupported width | EXP-31, EXP-32, EXP-36, EXP-37 |
-| **CE-EXP-9** | An index whose type is not `u8`, `u16` or `u32` | EXP-39 |
+| **CE-EXP-9** | An index whose type is not `u8`, `u16` or `u32` | EXP-39, FUN-19 |
 | **CE-EXP-10** | An array list or `fill` with no expected array type | EXP-43, EXP-44 |
 | **CE-EXP-11** | An array list with the wrong number of elements | EXP-43 |
 | **CE-EXP-12** | A constructor field that is missing, undeclared or repeated | EXP-45 |
 | **CE-EXP-13** | A field selection the receiver does not have | EXP-41 |
 | **CE-EXP-14** | An outcome used where a value is required | EXP-48 |
-| **CE-EXP-15** | A call whose target is not callable | EXP-47 |
+| **CE-EXP-15** | A call whose target is not callable | EXP-47, HEP-3 |
 | **CE-EXP-16** | A call with the wrong number of arguments | EXP-47 |
 
 The trap kinds `OVERFLOW`, `UNDERFLOW`, `DIV-ZERO`, `NEGATION`, `SHIFT` and `BOUNDS` used in this chapter are the agreed placeholder names (D-415). Chapter 13 catalogs them.

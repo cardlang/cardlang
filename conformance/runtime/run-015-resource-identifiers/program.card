@@ -1,9 +1,9 @@
-// rule: PLT-20, PLT-22
+// rule: PLT-20, PLT-22, PLT-23
 // source: DN §11.2; PN §2
 // status: agreed
 // kind: application
 // expect: runtime
-// note: The resource identifier model: create, duplicate, unknown, wrong kind, delete, reuse of an identifier.
+// note: The resource identifier model: create, duplicate, unknown, wrong kind, delete, reuse of an identifier; a trap does not delete a resource.
 errors TestError {
     UnknownOperation = 1;
 }
@@ -42,6 +42,10 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
         var copy: u32 = id;
         var value: u32 = attempt card.test.resources.read(copy);
         return respond(inout response, value);
+    } else if operation == 7 {
+        attempt card.test.resources.create(id, KIND_COUNTER);
+        var missing: u8 = request[200];
+        return Ok(0);
     }
     return Err(TestError.UnknownOperation);
 }

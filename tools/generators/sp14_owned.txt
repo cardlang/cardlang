@@ -1,0 +1,9 @@
+invalid/exp-143-boolean-operator-integer.card
+invalid/exp-144-convert-to-bool.card
+invalid/fun-122-reference-variable.card
+invalid/lex-115-missing-semicolon.card
+invalid/nam-122-application-wrapper.card
+invalid/out-131-ok-as-value.card
+invalid/typ-115-no-64-bit.card
+valid/lex-009-long-identifier.card
+runtime/run-017-evaluation-and-copies/

@@ -3,7 +3,7 @@
 CardLang Language Specification, Draft 0.1. Annex status:
 
 - **A.1 lexical grammar:** complete (SP1).
-- **A.2 syntactic grammar:** complete for chapters 3–12 (SP2–SP11); consolidated in SP14.
+- **A.2 syntactic grammar:** complete and consolidated (SP14). The grammar has been checked mechanically against every conformance test (§A.3).
 
 The notation is defined in chapter 1 §1.7.1. This annex is normative for the *form* of programs. The chapters are normative for their meaning and for every restriction the grammar does not express. The grammar fragments in the chapters are copies of the productions here. If a fragment and this annex disagree, that is a specification error to be reported, not a choice between the two.
 
@@ -60,7 +60,7 @@ Punctuator      ::= '{' | '}' | '(' | ')' | '[' | ']' | ';' | ':' | ',' | '.' | 
 
 Lexical errors are CE-LEX-1 to CE-LEX-4 (chapter 2 §2.8).
 
-## A.2 Syntactic grammar (skeleton)
+## A.2 Syntactic grammar
 
 The syntactic grammar works on the token sequence of each file. Whitespace and comments never appear in it. In syntactic productions, quoted strings stand for the keyword or punctuator token with that spelling. `Identifier` and `IntegerLiteral` refer to the token classes of §A.1.
 
@@ -129,13 +129,22 @@ TypeArgumentCall  ::= TypeArgumentIntrinsic '<' Type '>' Arguments
 TypeArgumentIntrinsic ::= 'convert' | 'checked_convert' | 'truncate' | 'decode_be' | 'decode_le'
 Arguments         ::= '(' ( Argument ( ',' Argument )* ','? )? ')'
 Argument          ::= ( 'ref' | 'inout' )? Expression
+ConditionExpression ::= ConditionUnary ( BinaryOperator ConditionUnary )*
+ConditionUnary    ::= ( '-' | 'not' | '~' ) ConditionUnary
+                    | 'attempt' ConditionPostfix
+                    | ConditionPostfix
+ConditionPostfix  ::= ConditionPrimary PostfixPart*
+ConditionPrimary  ::= IntegerLiteral | BooleanLiteral | Identifier
+                    | '(' Expression ')'
+                    | ArrayList
+                    | TypeArgumentCall
 ```
 
 Notes on these productions:
 
 - **Flat binary structure.** The binary operators have no precedence. A flat sequence is accepted, and EXP-2 to EXP-5 require a single operator per grouping level and forbid comparison chains (CE-EXP-4, CE-EXP-5).
 - **Type-argument intrinsics.** The names in `TypeArgumentIntrinsic` are reserved identifiers (LEX-15), not keywords. Writing one followed by `<` always begins a type argument.
-- **Constructors in conditions.** A `StructConstructor` must be parenthesized at the outer level of an `if`/`while` condition, a `for` range bound and a `match` scrutinee (EXP-6). In those positions, `Identifier '{'` begins the body.
+- **Constructors in conditions.** The condition of `if` and `while`, each `for` range bound, and the scrutinee of `match` use `ConditionExpression` (EXP-6, D-444). It is `Expression` without an unparenthesized `StructConstructor`, so in those positions `Identifier '{'` always begins the body. A parenthesized constructor, `'(' Expression ')'`, and constructors inside brackets or arguments are allowed.
 - **Parsed but restricted.** Slices (`'..'` in an index bracket) and argument modes are parsed here. Chapter 8 restricts where they may appear.
 
 ### A.2.5 Statements and blocks (chapter 7)
@@ -149,10 +158,10 @@ Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
 VarStatement        ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
 AssignmentStatement ::= Expression '=' Expression ';'
 ExpressionStatement ::= Expression ';'
-IfStatement         ::= 'if' Expression Block ( 'else' 'if' Expression Block )* ( 'else' Block )?
-WhileStatement      ::= 'while' Expression Block
-ForStatement        ::= 'for' Identifier ':' Type 'in' Expression '..' Expression Block
-MatchStatement      ::= 'match' Expression '{' MatchArm* '}'
+IfStatement         ::= 'if' ConditionExpression Block ( 'else' 'if' ConditionExpression Block )* ( 'else' Block )?
+WhileStatement      ::= 'while' ConditionExpression Block
+ForStatement        ::= 'for' Identifier ':' Type 'in' ConditionExpression '..' ConditionExpression Block
+MatchStatement      ::= 'match' ConditionExpression '{' MatchArm* '}'
 MatchArm            ::= Pattern '=>' Block
 Pattern             ::= 'Ok' '(' ( Identifier | '_' )? ')'
                       | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
@@ -172,13 +181,12 @@ Notes on these productions:
   - any `ExpressionStatement` (STM-2);
   - a `_` arm (STM-16, chapter 9).
 - **What is absent.** There is no standalone block statement (STM-3) and no compound-assignment form (STM-6).
-- **Range separator.** In `ForStatement`, `..` is the range separator. A `for` bound is parsed with the constructor restriction of EXP-6.
+- **Range separator.** In `ForStatement`, `..` is the range separator. Both bounds are `ConditionExpression`s (§A.2.4), as are the conditions of `if` and `while` and the scrutinee of `match`.
 - **Patterns.** `Pattern` covers both enum and outcome patterns. Chapter 9 gives meaning to the `Ok` and `Err` patterns, and §A.2.7 refers back here.
 
 ### A.2.6 Functions and parameters (chapter 8)
 
 ```
-FunctionDeclaration ::= 'function' Identifier ParameterList ReturnType? Block   /* also in A.2.1 */
 ParameterList       ::= '(' ( Parameter ( ',' Parameter )* ','? )? ')'
 Parameter           ::= Identifier ':' ( 'ref' | 'inout' )? Type
 ReturnType          ::= '->' Type
@@ -186,6 +194,7 @@ ReturnType          ::= '->' Type
 
 Notes on these productions:
 
+- **Declarations.** `FunctionDeclaration` and `CommandDeclaration` are in §A.2.1.
 - **Arguments and slices.** Call-site argument modes (`Argument`) and slices (the `'..'` form of `PostfixPart`) are in §A.2.4.
 - **Restrictions from chapter 8.** Chapter 8 restricts where slices may appear (FUN-18), requires argument modes to match parameter modes (FUN-7), and restricts which arguments a reference may take (FUN-9, FUN-10).
 - **Restriction from chapter 4.** An unsized `T[]` parameter type is allowed only with `ref` or `inout` (TYP-21).
@@ -232,15 +241,93 @@ This section adds no new productions. `CommandDeclaration` is in §A.2.1. Chapte
 - its signature must be `(ref u8[], inout u8[]) -> u32` (HEP-2, CE-HEP-3);
 - application code never calls it (HEP-3, CE-EXP-15).
 
-| Section | Content | Filled in by |
-|---|---|---|
-| A.2.1 | Source files and top-level declarations | SP2 (done) |
-| A.2.2 | Types | SP3 (done) |
-| A.2.3 | Constant expressions | SP4 (done; see below) |
-| A.2.4 | Expressions | SP5 (done) |
-| A.2.5 | Statements and blocks | SP6 (done) |
-| A.2.6 | Functions, parameters, arguments and slices | SP7 (done) |
-| A.2.7 | Outcomes, patterns and error sets | SP8 (done) |
-| A.2.8 | State declarations | SP9 (done) |
-| A.2.9 | Transactions | SP10 (done) |
-| A.2.10 | The host entry point | SP11 (done) |
+## A.3 Nonterminal index and mechanical check
+
+### A.3.1 Index
+
+Every nonterminal of this annex, with the section that defines it. Each is defined exactly once.
+
+| Nonterminal | Defined in |
+|---|---|
+| `AbortStatement` | §A.2.9 |
+| `Argument` | §A.2.4 |
+| `Arguments` | §A.2.4 |
+| `ArrayList` | §A.2.4 |
+| `AssignmentStatement` | §A.2.5 |
+| `BinaryLiteral` | §A.1.5 |
+| `BinaryOperator` | §A.2.4 |
+| `BinDigit` | §A.1.5 |
+| `Block` | §A.2.5 |
+| `BlockComment` | §A.1.2 |
+| `BooleanLiteral` | §A.1.5 |
+| `BreakStatement` | §A.2.5 |
+| `ByteOrderMark` | §A.1.1 |
+| `CommandDeclaration` | §A.2.1 |
+| `Comment` | §A.1.2 |
+| `ConditionExpression` | §A.2.4 |
+| `ConditionPostfix` | §A.2.4 |
+| `ConditionPrimary` | §A.2.4 |
+| `ConditionUnary` | §A.2.4 |
+| `ContinueStatement` | §A.2.5 |
+| `DecimalLiteral` | §A.1.5 |
+| `Digit` | §A.1.5 |
+| `EnumDeclaration` | §A.2.1 |
+| `ErrorMember` | §A.2.1 |
+| `ErrorSetDeclaration` | §A.2.1 |
+| `Expression` | §A.2.4 |
+| `ExpressionStatement` | §A.2.5 |
+| `FieldDeclaration` | §A.2.1 |
+| `FieldInit` | §A.2.4 |
+| `ForStatement` | §A.2.5 |
+| `FunctionDeclaration` | §A.2.1 |
+| `GlobalValueDeclaration` | §A.2.1 |
+| `HexDigit` | §A.1.5 |
+| `HexLiteral` | §A.1.5 |
+| `IdentChar` | §A.1.4 |
+| `Identifier` | §A.1.4 |
+| `IdentStart` | §A.1.4 |
+| `IfStatement` | §A.2.5 |
+| `IntegerLiteral` | §A.1.5 |
+| `Keyword` | §A.1.4 |
+| `LineBreak` | §A.1.1 |
+| `LineComment` | §A.1.2 |
+| `MatchArm` | §A.2.5 |
+| `MatchStatement` | §A.2.5 |
+| `NumericRun` | §A.1.5 |
+| `Parameter` | §A.2.6 |
+| `ParameterList` | §A.2.6 |
+| `Pattern` | §A.2.5 |
+| `PostfixExpression` | §A.2.4 |
+| `PostfixPart` | §A.2.4 |
+| `PrimaryExpression` | §A.2.4 |
+| `Punctuator` | §A.1.6 |
+| `RequireStatement` | §A.2.5 |
+| `ReturnStatement` | §A.2.5 |
+| `ReturnType` | §A.2.6 |
+| `SourceFile` | §A.2.1 |
+| `SourceText` | §A.1.1 |
+| `Statement` | §A.2.5 |
+| `StorageKeyword` | §A.2.1 |
+| `StructConstructor` | §A.2.4 |
+| `StructDeclaration` | §A.2.1 |
+| `Token` | §A.1.3 |
+| `TopLevelDeclaration` | §A.2.1 |
+| `TransactionStatement` | §A.2.9 |
+| `Type` | §A.2.2 |
+| `TypeArgumentCall` | §A.2.4 |
+| `TypeArgumentIntrinsic` | §A.2.4 |
+| `UnaryExpression` | §A.2.4 |
+| `Underscore` | §A.1.4 |
+| `VarStatement` | §A.2.5 |
+| `WhileStatement` | §A.2.5 |
+| `Whitespace` | §A.1.1 |
+
+### A.3.2 Mechanical check
+
+The grammar in §A.2 is checked by `tools/checkers/grammar.py`, which reads the productions directly from this annex, converts them to BNF and runs an Earley recognizer over the tokens of each source file. `tools/run_checks.py` runs it, and it requires:
+
+- every valid test, every runtime program and every other test file, except those expecting a lexical error, to derive `SourceFile`, file by file;
+- every test that expects **CE-SYN-1** not to derive;
+- every code block in the design notes that the reference checker accepts to derive `SourceFile`.
+
+The check found one inconsistency, OI-44: EXP-6 excluded an unparenthesized constructor from condition positions, but the general `Expression` in those positions allowed one. `ConditionExpression` (§A.2.4) now encodes the rule (D-444). The other invalid tests derive, as intended: the grammar is deliberately permissive, and their errors come from chapter rules (§A.0).

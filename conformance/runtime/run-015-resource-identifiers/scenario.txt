@@ -24,3 +24,7 @@ command 01 01        # reusing the identifier names a new resource
 expect ok
 command 03 01
 expect ok 00 00 00 00
+command 07 03        # create counter 3, then trap
+expect trap BOUNDS
+command 03 03        # the trap did not delete the resource (PLT-23)
+expect ok 00 00 00 00

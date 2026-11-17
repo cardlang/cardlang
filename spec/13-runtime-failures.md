@@ -128,6 +128,7 @@ The behaviour in this chapter, and the runtime behaviour of earlier chapters, is
 | `runtime/run-012-wallet-application/` | DN §13 wallet: authorization, transactions, `abort`, reset |
 | `runtime/run-013-execution-budget/` | RTF-6 |
 | `runtime/run-014-recovery-after-interrupt/` | TXN-13, RTF-10 (needs fault injection) |
+| `runtime/run-017-evaluation-and-copies/` | EXP-20, EXP-27, EXP-46, EXP-50, FUN-11, FUN-17, FUN-23, TXN-5, HEP-7 |
 
 ## 13.7 Errors defined in this chapter
 

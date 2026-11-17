@@ -33,6 +33,11 @@ RUNS = [
     ("pltcheck.py", "invalid/out-*", "full checker on chapter 9 invalid tests"),
     ("pltcheck.py", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
     ("pltcheck.py", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
+    # Consistency of the specification text itself (SP14).
+    ("speccheck.py", None, "rules, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index"),
+    # Annex A, checked mechanically (SP14): an Earley recognizer built from the EBNF in the annex.
+    ("grammar.py", None, "Annex A derives every test except CE-SYN-1 ones"),
+    ("grammar.py", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("../interp/interp.py", None, "runtime scenarios in conformance/runtime/"),
 ]

@@ -144,6 +144,12 @@ session delta32: i32;
 session ready: bool;
 ```
 
+*Invalid:* there is no 64-bit integer type, so `u64` does not resolve (TYP-8). **CE-NAM-2**. (conformance: `invalid/typ-115-no-64-bit.card`)
+
+```text
+session big: u64;
+```
+
 ## 4.4 Enums
 
 ```

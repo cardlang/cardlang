@@ -57,6 +57,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-41 | Initial contents of the response region | Gap | SP11 | Resolved |
 | OI-42 | Stack depth | Gap | SP12 | Resolved |
 | OI-43 | A catalog for testing platform-dependent rules | Gap | SP13 | Resolved |
+| OI-44 | EXP-6 and the written grammar | Contradiction | SP14 | Resolved |
 
 ---
 
@@ -696,6 +697,19 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Status:** resolved 2026-11-17 (D-443)
 - **Decision:** Option (a). The test catalog is non-normative and defines no real platform API.
 
+## OI-44 — EXP-6 and the written grammar
+
+- **Kind:** contradiction (found in SP14)
+- **Sources:** EXP-6 ("does not derive (CE-SYN-1)"); Annex A §A.2.5 (`IfStatement ::= 'if' Expression Block`, whose general `Expression` includes `StructConstructor`); D-430
+- **Affected rules:** EXP-6; the grammar fragments of chapters 6, 7 and 9; Annex A §A.2.4, §A.2.5
+- **Question:** EXP-6 says that an unparenthesized structure constructor in a condition position does not derive. The written grammar nonetheless derives it. Which should change?
+- **Options:**
+  - (a) Encode the restriction in the grammar, with restricted nonterminals for condition positions.
+  - (b) Keep the general grammar, and state EXP-6 as a restriction applied after parsing.
+- **Recommendation:** (a). Annex A becomes self-sufficient and can be checked mechanically. The meaning stays as D-430.
+- **Status:** resolved 2026-11-17 (D-444)
+- **Decision:** Option (a).
+
 ---
 
 ## Resolution log
@@ -745,3 +759,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied: HEP-8 (SP11); PLT-7 (SP13) |
 | 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 (SP12) |
 | 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ (SP13) |
+| 2026-11-17 | OI-44 | EXP-6 encoded in the grammar (D-444) | User | Applied in Annex A §A.2.4 and §A.2.5, EXP-6, and the fragments of chapters 6, 7 and 9 (SP14) |
