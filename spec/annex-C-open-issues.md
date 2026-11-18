@@ -65,6 +65,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-49 | Wiping secrets | Gap | WP1 | Resolved |
 | OI-50 | Security expectations for platforms | Gap | WP1 | Resolved |
 | OI-51 | The capacity model (withdrawn) | Proposal-to-validate | WP1 | Resolved |
+| OI-52 | Derived secrets are application data | Gap | WP4 | Resolved |
 
 ---
 
@@ -804,6 +805,20 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-52 — Derived secrets are application data
+
+- **Kind:** gap (raised by WP4, `plans_and_notes/spec-plans/WP4-crypto.md`, decision C1)
+- **Sources:** PLT-33 as written in WP1; the FIDO2 PIN/UV protocol, which derives keys from an ECDH secret
+- **Affected rules:** PLT-33
+- **Question:** PLT-33 said that secret key material never appears in application memory. But key agreement and key derivation produce secrets that an application must handle. Do those results fall under PLT-33?
+- **Options:**
+  - (a) No. PLT-33 covers the material held in key resources. Derived values are application data, and the application erases them.
+  - (b) Yes. Derived secrets must stay inside the platform as key resources, which needs wrap and unwrap APIs.
+- **Status:** resolved 2026-11-18 (D-452)
+- **Decision:** Option (a). PLT-33 covers the material held in key resources; values an application computes or receives, including key-agreement and key-derivation results, are application data that it erases itself (wipe). Chosen for the Base Profile byte model (WP4 C1).
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -859,3 +874,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-49 | Wiping secrets (D-449) | User | STM-23, EXP-22, LEX-13, PLT-34 (WP1) |
 | 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 (WP1) |
 | 2026-11-17 | OI-51 | The capacity model (withdrawn) (D-451) | User | STA-13, FUN-24, STM-23, RTF-4 (WP1) |
+| 2026-11-18 | OI-52 | Derived secrets are application data (D-452) | User | PLT-33 (WP4) |

@@ -1,0 +1,114 @@
+// rule: PLT-24, PLT-25
+// source: platform/base-profile.md BP-26 to BP-33
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Base Profile crypto: published vectors through CardLang, sign and verify, multi-part operations and lifetimes, ECDH, errors, random.
+errors AppError {
+    UnknownOperation = 1;
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var length: u32 = 0;
+    var iv: u8[16] = fill(0);
+    var signature: u8[64] = fill(0);
+    if operation == 1 {
+        length = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref request[1..request.length], inout response);
+        return Ok(length);
+    } else if operation == 2 {
+        attempt card.key.import(1, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Persistent }, ref request[1..33]);
+        return Ok(0);
+    } else if operation == 3 {
+        length = attempt card.crypto.mac(1, MacAlgorithm.HmacSha256, ref request[1..request.length], inout response);
+        return Ok(length);
+    } else if operation == 4 {
+        length = attempt card.crypto.derive(KdfAlgorithm.HkdfSha256, ref request[1..23], ref request[23..36], ref request[36..46], 42, inout response);
+        return Ok(length);
+    } else if operation == 5 {
+        attempt card.key.import(2, KeySpec { type: KeyType.Aes256, storage: KeyStorage.Persistent }, ref request[1..33]);
+        return Ok(0);
+    } else if operation == 6 {
+        length = attempt card.crypto.encrypt(2, CipherAlgorithm.AesCbcNoPadding, ref iv, ref request[1..17], inout response);
+        return Ok(length);
+    } else if operation == 7 {
+        length = attempt card.crypto.decrypt(2, CipherAlgorithm.AesCbcNoPadding, ref iv, ref request[1..17], inout response);
+        return Ok(length);
+    } else if operation == 8 {
+        var id: u32 = convert<u32>(request[1]);
+        attempt card.key.generate(id, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent });
+        return Ok(0);
+    } else if operation == 9 {
+        var message: u8[16] = fill(0);
+        message[0..16] = request[1..17];
+        length = attempt card.crypto.sign(3, SignatureAlgorithm.EcdsaP256Sha256, ref message, inout signature);
+        var good: bool = attempt card.crypto.verify(3, SignatureAlgorithm.EcdsaP256Sha256, ref message, ref signature);
+        message[0] = message[0] ^ 1;
+        var bad: bool = attempt card.crypto.verify(3, SignatureAlgorithm.EcdsaP256Sha256, ref message, ref signature);
+        response[0] = 0;
+        response[1] = 0;
+        if good {
+            response[0] = 1;
+        }
+        if bad {
+            response[1] = 1;
+        }
+        return Ok(2);
+    } else if operation == 10 {
+        attempt card.crypto.begin_sign(10, 3, SignatureAlgorithm.EcdsaP256Sha256, OperationLifetime.Command);
+        attempt card.crypto.update(10, ref request[1..9]);
+        attempt card.crypto.update(10, ref request[9..17]);
+        length = attempt card.crypto.finish(10, inout signature);
+        var valid: bool = attempt card.crypto.verify(3, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..17], ref signature);
+        response[0] = 0;
+        if valid {
+            response[0] = 1;
+        }
+        return Ok(1);
+    } else if operation == 11 {
+        var point: u8[65] = fill(0);
+        var first: u8[32] = fill(0);
+        var second: u8[32] = fill(0);
+        length = attempt card.key.export_public(4, inout point);
+        length = attempt card.crypto.agree(3, ref point, inout first);
+        length = attempt card.key.export_public(3, inout point);
+        length = attempt card.crypto.agree(4, ref point, inout second);
+        response[0] = 0;
+        if equal(ref first, ref second) {
+            response[0] = 1;
+        }
+        return Ok(1);
+    } else if operation == 12 {
+        attempt card.crypto.begin_digest(20, DigestAlgorithm.Sha256, OperationLifetime.Session);
+        attempt card.crypto.update(20, ref request[1..request.length]);
+        return Ok(0);
+    } else if operation == 13 {
+        length = attempt card.crypto.finish(20, inout response);
+        return Ok(length);
+    } else if operation == 14 {
+        attempt card.crypto.begin_digest(21, DigestAlgorithm.Sha256, OperationLifetime.Command);
+        return Ok(0);
+    } else if operation == 15 {
+        attempt card.crypto.update(21, ref request[1..request.length]);
+        return Ok(0);
+    } else if operation == 16 {
+        attempt card.crypto.begin_mac(22, 1, MacAlgorithm.HmacSha256, OperationLifetime.Command);
+        var verified: bool = attempt card.crypto.finish_verify(22, ref signature);
+        return Ok(0);
+    } else if operation == 17 {
+        length = attempt card.crypto.encrypt(2, CipherAlgorithm.AesCbcNoPadding, ref request[1..9], ref request[1..17], inout response);
+        return Ok(length);
+    } else if operation == 18 {
+        var secret: u8[32] = fill(0);
+        length = attempt card.crypto.agree(3, ref request[1..66], inout secret);
+        return Ok(length);
+    } else if operation == 19 {
+        var small: u8[16] = fill(0);
+        length = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref request[1..request.length], inout small);
+        return Ok(length);
+    } else if operation == 20 {
+        length = attempt card.random.fill(inout response[0..8]);
+        return Ok(length);
+    }
+    return Err(AppError.UnknownOperation);
+}

@@ -1,0 +1,28 @@
+// rule: NAM-18, PLT-25
+// source: platform/base-profile.md BP-26 to BP-33
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Every card.crypto and card.random API, called with matching arguments.
+function exercise(data: ref u8[], peer: ref u8[], out: inout u8[]) -> bool {
+    var length: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref data, inout out);
+    length = attempt card.crypto.mac(1, MacAlgorithm.HmacSha256, ref data, inout out);
+    var signature: u8[64] = fill(0);
+    length = attempt card.crypto.sign(2, SignatureAlgorithm.EcdsaP256Sha256, ref data, inout signature);
+    var valid: bool = attempt card.crypto.verify(2, SignatureAlgorithm.EcdsaP256Sha256, ref data, ref signature);
+    length = attempt card.crypto.agree(2, ref peer, inout out);
+    length = attempt card.crypto.derive(KdfAlgorithm.HkdfSha256, ref data, ref data, ref data, 32, inout out);
+    var iv: u8[16] = fill(0);
+    length = attempt card.crypto.encrypt(3, CipherAlgorithm.AesCbcNoPadding, ref iv, ref data, inout out);
+    length = attempt card.crypto.decrypt(3, CipherAlgorithm.AesCbcNoPadding, ref iv, ref data, inout out);
+    attempt card.crypto.begin_digest(10, DigestAlgorithm.Sha256, OperationLifetime.Command);
+    attempt card.crypto.begin_mac(11, 1, MacAlgorithm.HmacSha256, OperationLifetime.Session);
+    attempt card.crypto.begin_sign(12, 2, SignatureAlgorithm.EcdsaP256Sha256, OperationLifetime.Command);
+    attempt card.crypto.begin_verify(13, 2, SignatureAlgorithm.EcdsaP256Sha256, OperationLifetime.Command);
+    attempt card.crypto.update(10, ref data);
+    length = attempt card.crypto.finish(10, inout out);
+    var verified: bool = attempt card.crypto.finish_verify(13, ref signature);
+    attempt card.crypto.cancel(11);
+    length = attempt card.random.fill(inout out);
+    return Ok(valid and verified);
+}

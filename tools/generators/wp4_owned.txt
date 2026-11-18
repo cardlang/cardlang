@@ -1,0 +1,4 @@
+invalid/plt-111-wrong-algorithm-family.card
+invalid/plt-112-crypto-missing-inout.card
+valid/plt-006-crypto-apis.card
+runtime/run-020-crypto/

@@ -23,7 +23,7 @@ This is the normative specification of the CardLang language.
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | Complete and consolidated; checked mechanically (SP14) |
 | [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | SP13 | Draft complete |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-51 all resolved; none open |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-52 all resolved; none open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Complete: every decision covered (D-134 informative); rule coverage matrix in §D.3 |
 
 Related files:

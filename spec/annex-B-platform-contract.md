@@ -303,8 +303,8 @@ These rules are obligations on a platform. They are not language rules, because 
 **PLT-32 [Agreed]** A platform protects application secrets against side-channel and fault-injection attacks, at the level stated in its target profile. The level, and how it is evaluated, are platform-defined.
 *Sources: D-450 (OI-50).*
 
-**PLT-33 [Agreed]** Secret and private key material never appears in memory that an application can read, nor in any output. The only key material an application can obtain is a public key, through an API that exports it explicitly.
-*Sources: D-450 (OI-50).*
+**PLT-33 [Agreed]** The secret or private material held in a key resource never appears in memory that an application can read, nor in any output. The only material of a key resource that an application can obtain is a public key, through an API that exports it explicitly. Values that an application computes or receives itself, including the results of key-agreement and key-derivation APIs, are application data. The application is responsible for erasing them, for example with `wipe` (STM-23).
+*Sources: D-450 (OI-50), D-452 (OI-52).*
 
 **PLT-34 [Agreed]** A platform performs every store of a `wipe` statement (STM-23), including on volatile memory about to be released. It keeps no other copy of the wiped values that an application or the host could recover.
 *Sources: D-450 (OI-50), D-449 (OI-49).*

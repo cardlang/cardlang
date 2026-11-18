@@ -9,6 +9,7 @@ enum KeyType {
     Aes256;
     EcP256Private;
     EcP256Public;
+    Hmac256;
 }
 
 enum KeyStorage {
@@ -19,6 +20,27 @@ enum KeyStorage {
 struct KeySpec {
     type: KeyType;
     storage: KeyStorage;
+}
+
+// Cryptographic operations (§8). One enum per family, so a wrong algorithm is a compile-time error (WP4 C2).
+enum DigestAlgorithm {
+    Sha256;
+}
+
+enum MacAlgorithm {
+    HmacSha256;
+}
+
+enum SignatureAlgorithm {
+    EcdsaP256Sha256;
+}
+
+enum KdfAlgorithm {
+    HkdfSha256;
+}
+
+enum CipherAlgorithm {
+    AesCbcNoPadding;
 }
 
 // Multi-part operations (§8, B5).

@@ -56,3 +56,173 @@ api card.key.delete
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Delete key id and erase its material (BP-23).
+
+api card.crypto.digest
+    params      alg: DigestAlgorithm, data: ref u8[], out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 32-byte digest of data (BP-29).
+
+api card.crypto.mac
+    params      key: u32, alg: MacAlgorithm, data: ref u8[], out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 32-byte HMAC of data under an Hmac256 key (BP-29).
+
+api card.crypto.sign
+    params      key: u32, alg: SignatureAlgorithm, message: ref u8[], signature: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 64-byte ECDSA signature r || s of message (BP-29, BP-30).
+
+api card.crypto.verify
+    params      key: u32, alg: SignatureAlgorithm, message: ref u8[], signature: ref u8[]
+    payload     bool
+    transaction immediate
+    errors      NotFound, WrongResourceType
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Whether signature is a valid signature of message (BP-29).
+
+api card.crypto.agree
+    params      key: u32, peer: ref u8[], secret: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Malformed, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 32-byte ECDH secret with a peer's uncompressed point (BP-29).
+
+api card.crypto.derive
+    params      alg: KdfAlgorithm, secret: ref u8[], salt: ref u8[], info: ref u8[], length: u32, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Malformed, Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write length bytes of HKDF output (BP-29).
+
+api card.crypto.encrypt
+    params      key: u32, alg: CipherAlgorithm, iv: ref u8[], input: ref u8[], output: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Malformed, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the AES-CBC encryption of input (BP-29).
+
+api card.crypto.decrypt
+    params      key: u32, alg: CipherAlgorithm, iv: ref u8[], input: ref u8[], output: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Malformed, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the AES-CBC decryption of input (BP-29).
+
+api card.crypto.begin_digest
+    params      op: u32, alg: DigestAlgorithm, lifetime: OperationLifetime
+    payload     -
+    transaction immediate
+    errors      AlreadyExists, Malformed, Capacity
+    resources   creates Operation(op)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Start a multi-part digest (BP-31).
+
+api card.crypto.begin_mac
+    params      op: u32, key: u32, alg: MacAlgorithm, lifetime: OperationLifetime
+    payload     -
+    transaction immediate
+    errors      NotFound, AlreadyExists, WrongResourceType, Malformed, Capacity
+    resources   creates Operation(op), uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Start a multi-part MAC (BP-31).
+
+api card.crypto.begin_sign
+    params      op: u32, key: u32, alg: SignatureAlgorithm, lifetime: OperationLifetime
+    payload     -
+    transaction immediate
+    errors      NotFound, AlreadyExists, WrongResourceType, Malformed, Capacity
+    resources   creates Operation(op), uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Start a multi-part signature (BP-31).
+
+api card.crypto.begin_verify
+    params      op: u32, key: u32, alg: SignatureAlgorithm, lifetime: OperationLifetime
+    payload     -
+    transaction immediate
+    errors      NotFound, AlreadyExists, WrongResourceType, Malformed, Capacity
+    resources   creates Operation(op), uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Start a multi-part verification (BP-31).
+
+api card.crypto.update
+    params      op: u32, data: ref u8[]
+    payload     -
+    transaction immediate
+    errors      NotFound, WrongResourceType, InvalidState
+    resources   uses Operation(op)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Add data to an operation's input (BP-31).
+
+api card.crypto.finish
+    params      op: u32, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, InvalidState, Capacity
+    resources   deletes Operation(op)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     End a digest, MAC or signature operation and write its result (BP-31).
+
+api card.crypto.finish_verify
+    params      op: u32, signature: ref u8[]
+    payload     bool
+    transaction immediate
+    errors      NotFound, WrongResourceType, InvalidState
+    resources   deletes Operation(op)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     End a verification operation and return its result (BP-31).
+
+api card.crypto.cancel
+    params      op: u32
+    payload     -
+    transaction immediate
+    errors      NotFound, WrongResourceType
+    resources   deletes Operation(op)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     End an operation without a result (BP-31).
+
+api card.random.fill
+    params      out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      -
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Fill out with random bytes and return its length (BP-32).

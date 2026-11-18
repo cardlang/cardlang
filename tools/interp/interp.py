@@ -14,6 +14,7 @@ import hepcheck, pltcheck, expcheck, consteval
 from expcheck import P, p_expr, p_postfix, p_type, CE
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import p256                                              # test-only P-256 (WP3)
+import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
@@ -146,6 +147,7 @@ class Card:
         self.chk.run()                                   # static checks first
         self.resources = {}                              # test-catalog resources: id -> [kind, value]
         self.volatile_keys = {}                          # Base Profile keys with Volatile storage (BP-24)
+        self.operations = {}                             # Base Profile multi-part operations (BP-31)
         self.seed(b"cardlang-test-drbg")
         cp = self.chk.cp
         self.types = lambda ty: cp.resolve_type(ty)
@@ -418,7 +420,7 @@ class Card:
         ident = self.eval(args[0][1], env).v
         pkeys, vkeys = self.persistent["#keys"], self.volatile_keys
         key = pkeys.get(ident, vkeys.get(ident))
-        in_use = key is not None or ident in self.resources
+        in_use = key is not None or ident in self.resources or ident in self.operations
         if path in ("card.key.generate", "card.key.import"):          # BP-20, BP-21
             spec = self.eval(args[1][1], env)
             ktype, storage = spec["type"][2], spec["storage"][2]
@@ -426,11 +428,11 @@ class Card:
             if path == "card.key.generate" and ktype == "EcP256Public": return err("Unsupported")
             if ident == 0: return err("Malformed")
             if path == "card.key.generate":
-                if ktype.startswith("Aes"): material = tuple(self.random_bytes(16 if ktype == "Aes128" else 32))
+                if ktype.startswith("Aes") or ktype == "Hmac256": material = tuple(self.random_bytes(16 if ktype == "Aes128" else 32))
                 else: material = 1 + int.from_bytes(bytes(self.random_bytes(40)), "big") % (p256.N - 1)
             else:
                 src = view(args[2][1]); data = [src.lst[src.start + i].v for i in range(src.length)]
-                if ktype.startswith("Aes"):
+                if ktype.startswith("Aes") or ktype == "Hmac256":
                     if len(data) != (16 if ktype == "Aes128" else 32): return err("Malformed")
                     material = tuple(data)
                 elif ktype == "EcP256Private":
@@ -445,9 +447,9 @@ class Card:
             if len(store) >= (8 if storage == "Persistent" else 4): return err("Capacity")
             store[ident] = (ktype, material); return ("ok", None)
         if key is None:
-            return err("WrongResourceType") if ident in self.resources else err("NotFound")
+            return err("WrongResourceType") if ident in self.resources or ident in self.operations else err("NotFound")
         if path == "card.key.export_public":                              # BP-22
-            if key[0].startswith("Aes"): return err("WrongResourceType")
+            if not key[0].startswith("EcP256"): return err("WrongResourceType")
             out = view(args[1][1])
             if out.length < 65: return err("Capacity")
             pt = p256.mul(key[1]) if key[0] == "EcP256Private" else key[1]
@@ -457,9 +459,99 @@ class Card:
             (pkeys if ident in pkeys else vkeys).pop(ident); return ("ok", None)
         raise RuntimeError("no behaviour for " + path)
 
+    def crypto_call(self, path, args, env):
+        """card.crypto and card.random (BP-26 to BP-33), with real test-only algorithms."""
+        err = lambda member: ("err", ErrVal("platform", member))
+        def view(i):
+            x = self.place(args[i][1], env)
+            return x if isinstance(x, View) else View(x.get(), 0, len(x.get()))
+        def data(i):
+            v = view(i); return [v.lst[v.start + k].v for k in range(v.length)]
+        def write(i, out):
+            v = view(i)
+            if v.length < len(out): return err("Capacity")
+            for k, b in enumerate(out): v.lst[v.start + k] = Int(b, "u8")
+            return ("ok", Int(len(out), "u32"))
+        num = lambda i: self.eval(args[i][1], env).v
+        def get_key(ident, types):
+            key = self.persistent["#keys"].get(ident, self.volatile_keys.get(ident))
+            if key is None:
+                return None, err("WrongResourceType") if ident in self.resources or ident in self.operations else err("NotFound")
+            if key[0] not in types: return None, err("WrongResourceType")
+            return key, None
+        def public(key): return p256.mul(key[1]) if key[0] == "EcP256Private" else key[1]
+        AES, EC = ("Aes128", "Aes256"), ("EcP256Private", "EcP256Public")
+        name = path.split(".")[-1]
+        if path == "card.random.fill":
+            v = view(0); return write(0, self.random_bytes(v.length))
+        if name == "digest":
+            return write(2, list(hashlib.sha256(bytes(data(1))).digest()))
+        if name == "derive":
+            length = num(4)
+            if not 1 <= length <= 8160: return err("Malformed")
+            return write(5, testcrypto.hkdf_sha256(data(1), data(2), data(3), length))
+        if name in ("mac", "sign", "verify", "agree", "encrypt", "decrypt"):
+            types = {"mac": ("Hmac256",), "sign": ("EcP256Private",), "verify": EC, "agree": ("EcP256Private",),
+                     "encrypt": AES, "decrypt": AES}[name]
+            key, e = get_key(num(0), types)
+            if e: return e
+            if name == "mac": return write(3, testcrypto.hmac_sha256(key[1], data(2)))
+            if name == "sign": return write(3, testcrypto.ecdsa_sign(key[1], data(2)))
+            if name == "verify": return ("ok", testcrypto.ecdsa_verify(public(key), data(2), data(3)))
+            if name == "agree":
+                peer = p256.decode_point(data(1))
+                if peer is None: return err("Malformed")
+                return write(2, testcrypto.ecdh(key[1], peer))
+            iv, plain = data(2), data(3)
+            if len(iv) != 16 or len(plain) % 16: return err("Malformed")
+            return write(4, testcrypto.aes_cbc(key[1], iv, plain, decrypt=(name == "decrypt")))
+        # ---- multi-part operations (BP-31)
+        ops = self.operations
+        if name.startswith("begin_"):
+            purpose = name[6:]; op = num(0)
+            key_id = None
+            if purpose != "digest":
+                key_id = num(1)
+                key, e = get_key(key_id, {"mac": ("Hmac256",), "sign": ("EcP256Private",), "verify": EC}[purpose])
+                if e and e[1].ident == "NotFound": return e
+            in_use = op in ops or op in self.resources or op in self.persistent["#keys"] or op in self.volatile_keys
+            if in_use: return err("AlreadyExists")
+            if purpose != "digest" and e: return e
+            if op == 0: return err("Malformed")
+            if len(ops) >= 2: return err("Capacity")
+            ops[op] = {"purpose": purpose, "key": key_id, "data": [], "lifetime": self.eval(args[-1][1], env)[2]}
+            return ("ok", None)
+        op = num(0)
+        if op not in ops:
+            in_use = op in self.resources or op in self.persistent["#keys"] or op in self.volatile_keys
+            return err("WrongResourceType") if in_use else err("NotFound")
+        o = ops[op]
+        if name == "cancel":
+            del ops[op]; return ("ok", None)
+        key = None
+        if o["key"] is not None:
+            key = self.persistent["#keys"].get(o["key"], self.volatile_keys.get(o["key"]))
+            if key is None: return err("InvalidState")
+        if name == "update":
+            o["data"] += data(1); return ("ok", None)
+        if name == "finish":
+            if o["purpose"] == "verify": return err("InvalidState")
+            out = {"digest": lambda: list(hashlib.sha256(bytes(o["data"])).digest()),
+                   "mac": lambda: testcrypto.hmac_sha256(key[1], o["data"]),
+                   "sign": lambda: testcrypto.ecdsa_sign(key[1], o["data"])}[o["purpose"]]()
+            r = write(1, out)
+            if r[0] == "ok": del ops[op]
+            return r
+        if name == "finish_verify":
+            if o["purpose"] != "verify": return err("InvalidState")
+            result = testcrypto.ecdsa_verify(public(key), o["data"], data(1))
+            del ops[op]; return ("ok", result)
+        raise RuntimeError("no behaviour for " + path)
+
     def platform_call(self, path, args, env):
         """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
         if path.startswith("card.key."): return self.key_call(path, args, env)
+        if path.startswith(("card.crypto.", "card.random.")): return self.crypto_call(path, args, env)
         res = self.resources
         err = lambda member: ("err", ErrVal("platform", member))
         if path == "card.test.sign":
@@ -629,12 +721,12 @@ class Card:
 
     def power_on(self):
         self.session = {n: self.default(t) for n, t in self.session_types.items()}
-        self.volatile_keys = {}
+        self.volatile_keys = {}; self.operations = {}
         self.run_handler("on_power_on")
 
     def reset(self):
         self.session = None
-        self.volatile_keys = {}
+        self.volatile_keys = {}; self.operations = {}
 
     def command(self, request, capacity):
         if self.persistent is None or self.session is None: raise RuntimeError("command before install/power_on")
@@ -643,8 +735,11 @@ class Card:
         params, ret, body = self.funcs[self.command_name]
         env = {"scopes": [{params[0][0]: req, params[1][0]: resp}], "ret": "u32", "card": {"budget": BUDGET}}
         try:
-            self.block(body, env)
-            raise RuntimeError("command completed without an outcome")
+            try:
+                self.block(body, env)
+                raise RuntimeError("command completed without an outcome")
+            finally:                                           # Command-lifetime operations end with the command (BP-14)
+                self.operations = {k: o for k, o in self.operations.items() if o["lifetime"] != "Command"}
         except Ret as r:
             out = r.outcome
         except Trap as t:

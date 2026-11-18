@@ -1,6 +1,6 @@
 # CardLang Base Profile 1
 
-Status: draft (2026-11-17). §1–§7 are written (WP2, WP3); §8–§11 are filled in by WP4–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
+Status: draft (2026-11-18). §1–§8 are written (WP2–WP4); §9–§11 are filled in by WP5–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
 
 This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
@@ -56,10 +56,15 @@ The application can therefore retry, or handle the error, without cleaning up.
 
 | Type | Purpose | Defined by |
 |---|---|---|
-| `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`: every valid key type (WP3, K1) | §7 |
+| `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`, `Hmac256`: every valid key type (WP3 K1, WP4) | §7 |
 | `KeyStorage` | `Persistent`, `Volatile` | §7 |
 | `KeySpec` | A key's type and storage | §7 |
-| `OperationLifetime` | `Command`, `Session` (B5) | §8 (WP4) |
+| `DigestAlgorithm` | `Sha256` | §8 |
+| `MacAlgorithm` | `HmacSha256` | §8 |
+| `SignatureAlgorithm` | `EcdsaP256Sha256` (ES256) | §8 |
+| `KdfAlgorithm` | `HkdfSha256` | §8 |
+| `CipherAlgorithm` | `AesCbcNoPadding` | §8 |
+| `OperationLifetime` | `Command`, `Session` (B5) | §8 |
 
 Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` and `TlvHead`.
 
@@ -126,8 +131,9 @@ Beyond these minimums, running out of capacity is `Err(CardError.Capacity)`.
 | `Aes256` | A 32-byte AES key | Nothing |
 | `EcP256Private` | A P-256 key pair: the private scalar `d`, and its public point `Q = d·G` | The public point |
 | `EcP256Public` | A P-256 public point `Q` only | The public point |
+| `Hmac256` | A 32-byte HMAC key | Nothing |
 
-There are no usage restrictions (B4(b)). Any key may be used by any operation that accepts its type (§8). Secret and private material can never be exported (PLT-33).
+There are no usage restrictions (B4(b)). Any key may be used by any operation that accepts its type (§8). The secret and private material of a key can never be exported (PLT-33).
 
 **BP-19 Identifiers.** Using identifier 0, or any identifier that names no key, is `Err(CardError.NotFound)`. Creating a key with identifier 0 is `Err(CardError.Malformed)`, because 0 never names a resource (PLT-20). Using a resource that is not a key, or a key of a type the API does not accept, is `Err(CardError.WrongResourceType)`.
 
@@ -138,6 +144,7 @@ There are no usage restrictions (B4(b)). Any key may be used by any operation th
 | `KeyType` | `material` |
 |---|---|
 | `Aes128`, `Aes256` | The raw key: exactly 16 or 32 bytes |
+| `Hmac256` | The raw key: exactly 32 bytes |
 | `EcP256Private` | The private scalar `d`: 32 bytes, big-endian, with `1 ≤ d < n` (the order of the curve). The public point is derived |
 | `EcP256Public` | An uncompressed SEC 1 point: 65 bytes, `04 ‖ X ‖ Y`, with `X` and `Y` big-endian. The point must lie on the curve, and must not be the point at infinity |
 
@@ -161,7 +168,61 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 
 ## 8. Cryptographic operations and randomness (`card.crypto`, `card.random`)
 
-To be written in WP4.
+**BP-26 Derived values are application data.** Results that an API writes into an `inout` view are ordinary bytes: digests, MACs, signatures, key-agreement secrets, derived keys and random bytes. Only the material held *inside* a key resource is protected by PLT-33. To use a derived value as a key, the application imports it into a volatile key (BP-21). It erases its own copy with `wipe` (STM-23).
+
+**BP-27 Algorithms.** Each family has its own algorithm enum (§3), so passing an algorithm of the wrong family is a compile-time type error (CE-EXP-1). Version 1 has one algorithm per family:
+
+| Enum value | Algorithm |
+|---|---|
+| `DigestAlgorithm.Sha256` | SHA-256 (FIPS 180-4) |
+| `MacAlgorithm.HmacSha256` | HMAC-SHA-256 (RFC 2104) with an `Hmac256` key |
+| `SignatureAlgorithm.EcdsaP256Sha256` | ECDSA over P-256, with SHA-256 of the message (ES256) |
+| `KdfAlgorithm.HkdfSha256` | HKDF-SHA-256 (RFC 5869) |
+| `CipherAlgorithm.AesCbcNoPadding` | AES in CBC mode, without padding, with an `Aes128` or `Aes256` key |
+
+**BP-28 Keys and their types.** An API that takes a key returns `Err(CardError.NotFound)` when the identifier names no key, and `Err(CardError.WrongResourceType)` when it names another kind of resource, or a key of a type the API does not accept (BP-19).
+
+**BP-29 One-shot operations.**
+
+| API | Accepted key types | Result |
+|---|---|---|
+| `card.crypto.digest(alg, ref data, inout out) -> u32` | — | The 32-byte digest of `data` |
+| `card.crypto.mac(key, alg, ref data, inout out) -> u32` | `Hmac256` | The 32-byte MAC of `data` |
+| `card.crypto.sign(key, alg, ref message, inout signature) -> u32` | `EcP256Private` | The 64-byte signature `r ‖ s`, each 32 bytes big-endian. The message is hashed by the API |
+| `card.crypto.verify(key, alg, ref message, ref signature) -> bool` | `EcP256Private`, `EcP256Public` | `true` exactly when `signature` is a valid 64-byte signature of `message`. Any other signature, including one of the wrong length, is `false` (BP-10) |
+| `card.crypto.agree(key, ref peer, inout secret) -> u32` | `EcP256Private` | ECDH: the 32-byte x-coordinate of `d · peer`. `peer` is a 65-byte uncompressed point that must lie on the curve, otherwise `Err(CardError.Malformed)` |
+| `card.crypto.derive(alg, ref secret, ref salt, ref info, length, inout out) -> u32` | — | The first `length` bytes of HKDF output. `length` must be between 1 and 8160, otherwise `Err(CardError.Malformed)`. An empty `salt` means the default salt of RFC 5869 |
+| `card.crypto.encrypt(key, alg, ref iv, ref input, inout output) -> u32` | `Aes128`, `Aes256` | The CBC encryption of `input`, the same length as `input` |
+| `card.crypto.decrypt(key, alg, ref iv, ref input, inout output) -> u32` | `Aes128`, `Aes256` | The CBC decryption of `input`, the same length as `input` |
+
+- **The cipher inputs.** For `encrypt` and `decrypt`, `iv` must be 16 bytes, and the length of `input` must be a multiple of 16. Anything else is `Err(CardError.Malformed)`.
+- **Overlapping views.** `output` may overlap `input`. The result is as if the input were read completely before any output is written.
+- **Output size.** A result that does not fit its output view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
+
+**BP-30 Signature nonces.** The ECDSA nonce is derived deterministically as in RFC 6979, or drawn from the platform's secure random generator. Which one is platform-defined. Applications and conformance tests must not depend on the exact bytes of a signature, only on its validity.
+
+**BP-31 Multi-part operations.** A multi-part operation is a resource of kind *Operation* (BP-13). It computes a digest, a MAC, a signature or a signature verification over data supplied in pieces:
+
+| API | Purpose |
+|---|---|
+| `card.crypto.begin_digest(op, alg, lifetime)` | Start a digest |
+| `card.crypto.begin_mac(op, key, alg, lifetime)` | Start a MAC with an `Hmac256` key |
+| `card.crypto.begin_sign(op, key, alg, lifetime)` | Start a signature with an `EcP256Private` key |
+| `card.crypto.begin_verify(op, key, alg, lifetime)` | Start a verification with an `EcP256Private` or `EcP256Public` key |
+| `card.crypto.update(op, ref data)` | Add `data` to the operation's input |
+| `card.crypto.finish(op, inout out) -> u32` | End a digest, MAC or signature operation, and write its result as the one-shot API would |
+| `card.crypto.finish_verify(op, ref signature) -> bool` | End a verification operation, with the result of `verify` |
+| `card.crypto.cancel(op)` | End an operation without a result |
+
+- **The result.** The data supplied by `update` calls, concatenated in order, is the input. The result is the same as the one-shot API's on that input.
+- **Starting.** `begin_*` creates the operation `op`. An identifier in use is `Err(CardError.AlreadyExists)`, and creating with identifier 0 is `Err(CardError.Malformed)` (as BP-19).
+- **Ending.** `finish`, `finish_verify` and `cancel` delete the operation when they succeed. On `Err`, the operation remains as it was (BP-7). For example, after `Err(CardError.Capacity)` from `finish`, the application can call `finish` again with a larger view.
+- **States.** Using an identifier that names no operation is `Err(CardError.NotFound)`. The finish that does not match the operation's purpose is `Err(CardError.InvalidState)`. So is any call on an operation whose key has been deleted.
+- **Lifetime.** `lifetime` is `Command` or `Session` (BP-14).
+
+**BP-32 Randomness.** `card.random.fill(inout out) -> u32` fills the whole view with bytes from the platform's random generator, and returns its length. The generator is cryptographically secure. Its design and evaluation are platform-defined, at the security level of the target profile (PLT-32).
+
+**BP-33 Transactions.** Every API in this section is `immediate` (BP-15). None of them changes persistent state, and multi-part operations are volatile resources.
 
 ## 9. CBOR (`card.cbor`)
 

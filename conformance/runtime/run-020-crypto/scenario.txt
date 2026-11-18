@@ -1,0 +1,51 @@
+install
+power_on
+command 01 61 62 63          # SHA-256("abc"), FIPS 180-4
+expect ok ba 78 16 bf 8f 01 cf ea 41 41 40 de 5d ae 22 23 b0 03 61 a3 96 17 7a 9c b4 10 ff 61 f2 00 15 ad
+command 02 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
+expect ok
+command 03 61 62 63          # HMAC-SHA-256 under an imported Hmac256 key
+expect ok f0 13 37 29 c4 16 3d ed e8 1e 21 cd 47 83 92 56 da 58 17 12 38 c8 a0 d8 74 39 7c 73 b1 4e 1e 47
+command 04 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 0b 00 01 02 03 04 05 06 07 08 09 0a 0b 0c f0 f1 f2 f3 f4 f5 f6 f7 f8 f9   # HKDF, RFC 5869 A.1
+expect ok 3c b2 5f 25 fa ac d5 7a 90 43 4f 64 d0 36 2f 2a 2d 2d 0a 90 cf 1a 5a 4c 5d b0 2d 56 ec c4 c5 bf 34 00 72 08 d5 b8 87 18 58 65
+command 05 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
+expect ok
+command 06 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff           # one CBC block with a zero IV is the FIPS 197 C.3 vector
+expect ok 8e a2 b7 ca 51 67 45 bf ea fc 49 90 4b 49 60 89
+command 07 8e a2 b7 ca 51 67 45 bf ea fc 49 90 4b 49 60 89
+expect ok 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff
+command 08 03
+expect ok
+command 08 04
+expect ok
+command 09 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f          # sign, verify, and verify a tampered message
+expect ok 01 00
+command 0a 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f          # a multi-part signature verifies with the one-shot API
+expect ok 01
+command 0b                    # ECDH: both sides compute the same secret
+expect ok 01
+command 0c 61 62 63          # a Session operation survives into the next command
+expect ok
+command 0d
+expect ok ba 78 16 bf 8f 01 cf ea 41 41 40 de 5d ae 22 23 b0 03 61 a3 96 17 7a 9c b4 10 ff 61 f2 00 15 ad
+command 0e                    # a Command operation ends with its command
+expect ok
+command 0f 61 62 63
+expect err platform NotFound
+command 10                    # the wrong finish for the operation's purpose
+expect err platform InvalidState
+command 11 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff           # an 8-byte IV
+expect err platform Malformed
+command 12 04 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11        # a peer point not on the curve
+expect err platform Malformed
+command 13 61 62 63          # a 32-byte digest does not fit 16 bytes
+expect err platform Capacity
+command 0c 61 62 63
+expect ok
+reset
+power_on
+command 0d                    # a Session operation ends at reset
+expect err platform NotFound
+seed 00
+command 14                    # the interpreter's deterministic stream after seed 00
+expect ok 3e 70 77 fd 2f 66 d6 89
