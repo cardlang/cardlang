@@ -15,6 +15,7 @@ from expcheck import P, p_expr, p_postfix, p_type, CE
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import p256                                              # test-only P-256 (WP3)
 import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
+import testcbor                                          # test-only canonical CBOR (WP5)
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
@@ -548,8 +549,36 @@ class Card:
             del ops[op]; return ("ok", result)
         raise RuntimeError("no behaviour for " + path)
 
+    def cbor_call(self, path, args, env):
+        """card.cbor (BP-34 to BP-40)."""
+        def view(i):
+            x = self.place(args[i][1], env)
+            return x if isinstance(x, View) else View(x.get(), 0, len(x.get()))
+        def data(i):
+            v = view(i); return [v.lst[v.start + k].v for k in range(v.length)]
+        def write(i, out):
+            v = view(i)
+            if v.length < len(out): return ("err", ErrVal("platform", "Capacity"))
+            for k, b in enumerate(out): v.lst[v.start + k] = Int(b, "u8")
+            return ("ok", Int(len(out), "u32"))
+        name = path.split(".")[-1]
+        try:
+            if name == "validate": return ("ok", Int(testcbor.validate(data(0)), "u32"))
+            if name == "skip": return ("ok", Int(testcbor.skip(data(0)), "u32"))
+            if name == "head":
+                major, arg, size = testcbor.head(data(0))
+                return ("ok", {"major": ("enum", "CborMajor", major), "argument": Int(arg, "u32"), "size": Int(size, "u32"), "#": "CborHead"})
+            if name == "write_head":
+                major = self.eval(args[0][1], env)[2]; value = self.eval(args[1][1], env, "u32").v
+                return write(2, testcbor.write_head(major, value))
+            if name == "write_int": return write(1, testcbor.write_int(self.eval(args[0][1], env, "i32").v))
+        except testcbor.CborError as e:
+            return ("err", ErrVal("platform", e.kind))
+        raise RuntimeError("no behaviour for " + path)
+
     def platform_call(self, path, args, env):
         """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
+        if path.startswith("card.cbor."): return self.cbor_call(path, args, env)
         if path.startswith("card.key."): return self.key_call(path, args, env)
         if path.startswith(("card.crypto.", "card.random.")): return self.crypto_call(path, args, env)
         res = self.resources

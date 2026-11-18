@@ -48,3 +48,21 @@ enum OperationLifetime {
     Command;
     Session;
 }
+
+// CBOR (§9). The major types of RFC 8949, and a decoded head.
+enum CborMajor {
+    Unsigned;
+    Negative;
+    Bytes;
+    Text;
+    Array;
+    Map;
+    Tag;
+    Simple;
+}
+
+struct CborHead {
+    major: CborMajor;
+    argument: u32;
+    size: u32;
+}

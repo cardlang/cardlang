@@ -1,6 +1,6 @@
 # CardLang Base Profile 1
 
-Status: draft (2026-11-18). §1–§8 are written (WP2–WP4); §9–§11 are filled in by WP5–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
+Status: draft (2026-11-18). §1–§9 are written (WP2–WP5); §10–§11 are filled in by WP6–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
 
 This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
@@ -65,6 +65,8 @@ The application can therefore retry, or handle the error, without cleaning up.
 | `KdfAlgorithm` | `HkdfSha256` | §8 |
 | `CipherAlgorithm` | `AesCbcNoPadding` | §8 |
 | `OperationLifetime` | `Command`, `Session` (B5) | §8 |
+| `CborMajor` | The eight CBOR major types | §9 |
+| `CborHead` | A decoded CBOR head: major type, argument and size | §9 |
 
 Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` and `TlvHead`.
 
@@ -226,7 +228,38 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 
 ## 9. CBOR (`card.cbor`)
 
-To be written in WP5.
+**BP-34 A stateless API over views.** Every CBOR API works on the *start* of the view it is given. The application keeps its own position, and moves forward by slicing (FUN-18), for example `card.cbor.head(ref request[at..end])`. No CBOR API keeps state between calls, and none uses a resource.
+
+**BP-35 Heads.** `card.cbor.head(ref data) -> CborHead` decodes the head at `data[0]`:
+
+- `major` is the major type;
+- `argument` is the head's argument: the value of an unsigned integer, `n` for the negative integer `−1 − n`, the length in bytes of a byte or text string, the number of items of an array, the number of pairs of a map, the tag number, or the simple value;
+- `size` is the number of bytes the head occupies.
+
+A string's content is `data[size .. size + argument]`. An argument above the `u32` range is `Err(CardError.Unsupported)`. A negative integer is representable as `i32` when `argument ≤ 2147483647`.
+
+**BP-36 Canonical form.** CBOR in this profile is canonical. An encoding is well-formed and canonical when all of the following hold. Anything else is `Err(CardError.Malformed)`, except where `Unsupported` is stated:
+
+- **Complete.** Every head and string lies within the data.
+- **No indefinite lengths.** The additional-information values 28 to 31 do not occur.
+- **Shortest form.** Every argument uses the shortest head: a value below 24 in the initial byte, below 256 in one following byte, below 65536 in two, and below 2^32 in four.
+- **Map keys in order.** The keys of every map are in strictly increasing *canonical order*: a shorter encoded key comes first, and keys of equal length are ordered bytewise. This is the order of CTAP2 and RFC 7049 §3.9 (W2). Two equal keys are a duplicate, and are rejected.
+- **Valid text.** Every text string is valid UTF-8 (W4).
+- **Simple values.** Only `false` (20), `true` (21), `null` (22) and `undefined` (23) are allowed (W3). Floating-point values are `Err(CardError.Unsupported)`.
+- **Tags.** A tag is accepted as a head followed by one item (W3).
+
+**BP-37 `card.cbor.validate(ref data) -> u32`** checks that `data` begins with one complete data item that is well-formed and canonical (BP-36), at any depth, and returns that item's encoded length. Bytes after the item are not examined, so an application tells whether there is trailing data by comparing the result with the view's length. A platform validates items nested at least 16 levels deep, counting the outermost item as level 1. Deeper nesting may be `Err(CardError.Unsupported)` (W5).
+
+**BP-38 `card.cbor.skip(ref data) -> u32`** returns the encoded length of the complete item at `data[0]`, including everything nested in it. It checks each head it reads as BP-36 requires, but not the order of map keys and not UTF-8. It has no depth limit. Use `validate` once on a whole message, then `head` and `skip` to walk it.
+
+**BP-39 Writing.**
+
+- **`card.cbor.write_head(major, value, inout out) -> u32`** writes the shortest head for `major` and `value` at `out[0]`, and returns its size. For `Simple`, `value` must be 20 to 23, otherwise `Err(CardError.Malformed)`.
+- **`card.cbor.write_int(value: i32, inout out) -> u32`** writes `value` as an unsigned integer if it is at least 0, and otherwise as the negative integer with argument `−1 − value`.
+- **Capacity.** A head that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
+- **The application's part.** The application copies string content with slice assignment (FUN-24), and emits map keys in canonical order. `compare` (EXP-54) and the key lengths decide that order. `validate` on the finished output checks it.
+
+**BP-40 Transactions.** Every CBOR API is `immediate` (BP-15). None of them changes persistent state.
 
 ## 10. DER and BER-TLV (`card.der`, `card.tlv`)
 

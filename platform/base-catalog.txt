@@ -226,3 +226,53 @@ api card.random.fill
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Fill out with random bytes and return its length (BP-32).
+
+api card.cbor.validate
+    params      data: ref u8[]
+    payload     u32
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Check that data begins with one well-formed canonical item and return its length (BP-37).
+
+api card.cbor.head
+    params      data: ref u8[]
+    payload     CborHead
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Decode the head at the start of data (BP-35).
+
+api card.cbor.skip
+    params      data: ref u8[]
+    payload     u32
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Return the encoded length of the item at the start of data (BP-38).
+
+api card.cbor.write_head
+    params      major: CborMajor, value: u32, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Malformed, Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the shortest head for major and value and return its size (BP-39).
+
+api card.cbor.write_int
+    params      value: i32, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write value as a CBOR integer and return its size (BP-39).

@@ -396,7 +396,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | NAM-15 | cited | nam-003-member-scopes, nam-005-qualified-members, nam-113-duplicate-field |
 | NAM-16 | cited | nam-005-qualified-members, nam-114-bare-variant, nam-115-unknown-member |
 | NAM-17 | cited | nam-003-member-scopes |
-| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-101-unknown-platform-path |
+| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-101-unknown-platform-path |
 | NAM-19 | cited | nam-004-sibling-scopes, nam-112-use-outside-scope |
 | NAM-20 | cited | nam-111-self-reference |
 | NAM-21 | cited | nam-004-sibling-scopes, nam-109-parameter-shadows-global, nam-110-local-shadows-local, nam-119-same-scope-duplicate, nam-121-parameter-shadows-primitive |
@@ -484,7 +484,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-44 | cited | exp-011-fill-forms, exp-130-fill-without-context |
 | EXP-45 | cited | exp-012-constructor-order, exp-131-constructor-missing-field, exp-132-constructor-unknown-field, exp-133-constructor-duplicate-field |
 | EXP-46 | cited | run-017-evaluation-and-copies |
-| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family |
+| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-113-cbor-major-as-integer |
 | EXP-48 | cited | exp-014-checked-in-match, exp-127-outcome-as-value |
 | EXP-49 | cited | exp-124-nested-convert, exp-125-intrinsic-in-argument, exp-126-attempt-in-argument |
 | EXP-50 | cited | run-017-evaluation-and-copies |
@@ -538,7 +538,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | FUN-21 | cited | fun-007-slices-and-views, fun-008-narrowing-views |
 | FUN-22 | exercised | sta-002-setup-helper, txn-004-callee-writes |
 | FUN-23 | cited | run-017-evaluation-and-copies |
-| FUN-24 | cited | fun-011-slice-assignment, fun-123-slice-assignment-length, fun-124-slice-assignment-into-ref, fun-125-slice-assignment-element-type, run-018-array-operations |
+| FUN-24 | cited | fun-011-slice-assignment, fun-123-slice-assignment-length, fun-124-slice-assignment-into-ref, fun-125-slice-assignment-element-type, run-018-array-operations, run-021-cbor |
 | OUT-1 | exercised | out-001-match-ok-err, out-002-no-payload-match |
 | OUT-2 | cited | out-124-outcome-in-initializer |
 | OUT-3 | cited | out-103-ok-value-in-no-payload, out-104-ok-empty-in-payload |
@@ -643,7 +643,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys |
 | PLT-23 | cited | run-015-resource-identifiers |
 | PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys, run-020-crypto |
-| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, run-020-crypto |
+| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, run-020-crypto, run-021-cbor |
 | PLT-26 | exercised | plt-001-platform-call and every test that uses the test-only catalog |
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |

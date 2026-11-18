@@ -1,0 +1,65 @@
+// rule: PLT-25, FUN-24
+// source: platform/base-profile.md BP-34 to BP-40
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Base Profile CBOR: walking a CTAP-style map, writing a canonical COSE-style map, every Malformed and Unsupported case.
+errors AppError {
+    UnknownOperation = 1;
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var end: u32 = request.length;
+    if operation == 1 {
+        var length: u32 = attempt card.cbor.validate(ref request[1..end]);
+        response[0..4] = encode_be(length);
+        return Ok(4);
+    } else if operation == 2 {
+        var checked: u32 = attempt card.cbor.validate(ref request[1..end]);
+        var at: u32 = 1;
+        var map: CborHead = attempt card.cbor.head(ref request[at..end]);
+        at = at + map.size;
+        var out: u32 = 0;
+        for pair: u32 in 0..map.argument {
+            var key: CborHead = attempt card.cbor.head(ref request[at..end]);
+            at = at + key.size;
+            var value: CborHead = attempt card.cbor.head(ref request[at..end]);
+            if (key.argument == 1) or (key.argument == 2) {
+                var start: u32 = at + value.size;
+                response[out..out + value.argument] = request[start..start + value.argument];
+                out = out + value.argument;
+            }
+            var skipped: u32 = attempt card.cbor.skip(ref request[at..end]);
+            at = at + skipped;
+        }
+        return Ok(out);
+    } else if operation == 3 {
+        var tail: u8[2] = [170, 187];
+        var at: u32 = attempt card.cbor.write_head(CborMajor.Map, 3, inout response[0..response.length]);
+        var n: u32 = attempt card.cbor.write_int(1, inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.cbor.write_int(2, inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.cbor.write_int(3, inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.cbor.write_int(-7, inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.cbor.write_int(-1, inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.cbor.write_head(CborMajor.Bytes, 2, inout response[at..response.length]);
+        at = at + n;
+        response[at..at + 2] = tail;
+        at = at + 2;
+        var checked: u32 = attempt card.cbor.validate(ref response[0..at]);
+        return Ok(at);
+    } else if operation == 4 {
+        var first: CborHead = attempt card.cbor.head(ref request[1..end]);
+        response[0..4] = encode_be(first.argument);
+        return Ok(4);
+    } else if operation == 5 {
+        var n: u32 = attempt card.cbor.write_head(CborMajor.Unsigned, 1000, inout response[0..1]);
+        return Ok(n);
+    }
+    return Err(AppError.UnknownOperation);
+}

@@ -1,0 +1,14 @@
+// rule: NAM-18, PLT-25
+// source: platform/base-profile.md BP-34 to BP-40
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Every card.cbor API, called with matching arguments.
+function exercise(data: ref u8[], out: inout u8[]) -> u32 {
+    var length: u32 = attempt card.cbor.validate(ref data);
+    var first: CborHead = attempt card.cbor.head(ref data);
+    var next: u32 = attempt card.cbor.skip(ref data[first.size..data.length]);
+    var written: u32 = attempt card.cbor.write_head(CborMajor.Map, 2, inout out);
+    written = attempt card.cbor.write_int(-7, inout out[written..out.length]);
+    return Ok(length);
+}
