@@ -1,6 +1,6 @@
 # CardLang Base Profile 1
 
-Status: draft (2026-11-18). §1–§9 are written (WP2–WP5); §10–§11 are filled in by WP6–WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
+Status: draft (2026-11-18). §1–§10 are written (WP2–WP6); §11 is filled in by WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
 
 This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
@@ -67,6 +67,8 @@ The application can therefore retry, or handle the error, without cleaning up.
 | `OperationLifetime` | `Command`, `Session` (B5) | §8 |
 | `CborMajor` | The eight CBOR major types | §9 |
 | `CborHead` | A decoded CBOR head: major type, argument and size | §9 |
+| `TlvClass` | The four BER tag classes | §10 |
+| `TlvHead` | A decoded BER-TLV head: tag, class, constructed, length and size | §10 |
 
 Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` and `TlvHead`.
 
@@ -263,7 +265,38 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 
 ## 10. DER and BER-TLV (`card.der`, `card.tlv`)
 
-To be written in WP6.
+**BP-41 Pattern.** The TLV APIs follow BP-34. Each works on the start of the view it is given, keeps no state, and uses no resource. The reader accepts BER-TLV as ISO/IEC 7816-4 defines it, with definite lengths only, so it also reads DER. The writer always produces DER.
+
+**BP-42 `card.tlv.head(ref data) -> TlvHead`** decodes the tag and length at `data[0]`:
+
+- `tag` is the tag's raw bytes, packed big-endian into a `u32`, for example `0x30`, `0x7F49` or `0x9F38` (T1). The first byte gives `class` (bits 8 and 7) and `constructed` (bit 6). When the first byte's tag-number bits are all ones, the tag continues with subsequent bytes, each with bit 8 set except the last;
+- `length` is the content length, in the short form (`00`–`7F`) or a long form (`81`–`84`, followed by 1 to 4 bytes). Non-minimal forms are accepted (T2);
+- `size` is the number of bytes the tag and length occupy. A primitive object's content is `data[size .. size + length]`. A constructed object's content is a sequence of objects.
+
+These are `Err(CardError.Malformed)`:
+- the indefinite length `80`, or the length byte `FF`;
+- a tag or length that is incomplete;
+- content that extends beyond `data`.
+
+A tag longer than 4 bytes, or a length longer than 4 bytes (`85`–`FE`), is `Err(CardError.Unsupported)`. Padding bytes (`00` or `FF`) between objects are not skipped. An application whose protocol uses them skips them itself.
+
+**BP-43 `card.tlv.skip(ref data) -> u32`** returns `size + length` of the object at `data[0]`, with the checks of BP-42.
+
+**BP-44 `card.tlv.validate(ref data) -> u32`** checks the object at `data[0]` as BP-42 requires, and returns its encoded length. If the object is constructed, it checks its content too: the content must be a sequence of valid objects that exactly fills it, recursively. A platform validates at least 16 levels of nesting, counting the outermost object as level 1. Deeper nesting may be `Err(CardError.Unsupported)` (T3).
+
+**BP-45 The DER writer.**
+
+- **`card.der.write_head(tag, length, inout out) -> u32`** writes `tag`'s bytes, without leading zero bytes, followed by `length` in its minimal DER form, and returns the size written. A `tag` that is 0, or whose bytes are not a valid BER tag (BP-42), is `Err(CardError.Malformed)`.
+- **`card.der.write_integer(ref magnitude, inout out) -> u32`** writes a complete DER INTEGER, `02`, its length and its content, for the unsigned big-endian number `magnitude`:
+  - leading zero bytes are removed;
+  - a `00` byte is added when the first remaining byte has its high bit set;
+  - zero, including an empty `magnitude`, is written as `02 01 00`.
+- **`card.der.integer_size(ref magnitude) -> u32`** returns the size that `write_integer` would write. With it, an application computes a SEQUENCE's length before writing its head (T4).
+- **Capacity.** A result that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
+
+A DER ECDSA signature, `SEQUENCE { INTEGER r, INTEGER s }`, is written from the raw `r ‖ s` of `card.crypto.sign` (BP-29) with `integer_size` twice, `write_head(0x30, …)` and `write_integer` twice.
+
+**BP-46 Transactions.** Every TLV and DER API is `immediate` (BP-15).
 
 ## 11. Transport and environment
 

@@ -1,0 +1,32 @@
+install
+power_on
+command 02 7f 49 06 86 04 01 02 03 04    # walk a constructed object (a two-byte tag) to its primitive child
+expect ok 01 02 03 04
+command 03 9f 38 03 01 02 03             # a two-byte context-specific tag
+expect ok 00 00 9f 38 00 00 00 03 00 02
+command 03 7f 49 00                      # constructed, application class
+expect ok 00 00 7f 49 00 00 00 00 01 01
+command 03 5f 81 2d 82 00 01 aa          # a three-byte tag, the long length form 82
+expect ok 00 5f 81 2d 00 00 00 01 00 01
+command 01 04 81 02 aa bb                # a non-minimal length is accepted
+expect ok 00 00 00 05
+command 04 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01                 # DER signature: a 00 added to r, leading zeros stripped from s
+expect ok 30 26 02 21 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 01 01
+command 04 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f                 # DER signature, a typical value
+expect ok 30 44 02 20 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 02 20 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f
+command 01 30 80                         # an indefinite length
+expect err platform Malformed
+command 01 04 ff                         # the reserved length byte
+expect err platform Malformed
+command 01 04 05 01 02                   # truncated content
+expect err platform Malformed
+command 01 30 02 04 01 02                # a child that overruns its parent's content
+expect err platform Malformed
+command 01 04 85 00 00 00 00 01          # a 5-byte length
+expect err platform Unsupported
+command 01 30 1e 30 1c 30 1a 30 18 30 16 30 14 30 12 30 10 30 0e 30 0c 30 0a 30 08 30 06 30 04 30 02 04 00                    # 16 levels
+expect ok 00 00 00 20
+command 01 30 20 30 1e 30 1c 30 1a 30 18 30 16 30 14 30 12 30 10 30 0e 30 0c 30 0a 30 08 30 06 30 04 30 02 04 00                    # 17 levels
+expect err platform Unsupported
+command 05                               # a 4-byte head does not fit a 2-byte view
+expect err platform Capacity

@@ -1,0 +1,63 @@
+// rule: PLT-25, STM-14
+// source: platform/base-profile.md BP-41 to BP-46
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Base Profile TLV: walking BER-TLV, multi-byte tags and long lengths, DER signatures from r || s, every Malformed and Unsupported case.
+errors AppError {
+    UnknownOperation = 1;
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var end: u32 = request.length;
+    if operation == 1 {
+        var length: u32 = attempt card.tlv.validate(ref request[1..end]);
+        response[0..4] = encode_be(length);
+        return Ok(4);
+    } else if operation == 2 {
+        var outer: TlvHead = attempt card.tlv.head(ref request[1..end]);
+        var at: u32 = 1 + outer.size;
+        var inner: TlvHead = attempt card.tlv.head(ref request[at..end]);
+        var start: u32 = at + inner.size;
+        response[0..inner.length] = request[start..start + inner.length];
+        return Ok(inner.length);
+    } else if operation == 3 {
+        var first: TlvHead = attempt card.tlv.head(ref request[1..end]);
+        response[0..4] = encode_be(first.tag);
+        response[4..8] = encode_be(first.length);
+        response[8] = 0;
+        if first.constructed {
+            response[8] = 1;
+        }
+        match first.class {
+            TlvClass.Universal => {
+                response[9] = 0;
+            }
+            TlvClass.Application => {
+                response[9] = 1;
+            }
+            TlvClass.ContextSpecific => {
+                response[9] = 2;
+            }
+            TlvClass.Private => {
+                response[9] = 3;
+            }
+        }
+        return Ok(10);
+    } else if operation == 4 {
+        var lr: u32 = attempt card.der.integer_size(ref request[1..33]);
+        var ls: u32 = attempt card.der.integer_size(ref request[33..65]);
+        var at: u32 = attempt card.der.write_head(0x30, lr + ls, inout response[0..response.length]);
+        var n: u32 = attempt card.der.write_integer(ref request[1..33], inout response[at..response.length]);
+        at = at + n;
+        n = attempt card.der.write_integer(ref request[33..65], inout response[at..response.length]);
+        at = at + n;
+        var checked: u32 = attempt card.tlv.validate(ref response[0..at]);
+        return Ok(at);
+    } else if operation == 5 {
+        var n: u32 = attempt card.der.write_head(0x30, 300, inout response[0..2]);
+        return Ok(n);
+    }
+    return Err(AppError.UnknownOperation);
+}

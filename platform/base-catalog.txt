@@ -276,3 +276,63 @@ api card.cbor.write_int
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Write value as a CBOR integer and return its size (BP-39).
+
+api card.tlv.head
+    params      data: ref u8[]
+    payload     TlvHead
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Decode the BER-TLV tag and length at the start of data (BP-42).
+
+api card.tlv.skip
+    params      data: ref u8[]
+    payload     u32
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Return the encoded length of the object at the start of data (BP-43).
+
+api card.tlv.validate
+    params      data: ref u8[]
+    payload     u32
+    transaction immediate
+    errors      Unsupported, Malformed
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Check the object at the start of data, recursively, and return its length (BP-44).
+
+api card.der.write_head
+    params      tag: u32, length: u32, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Malformed, Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write a DER tag and minimal length and return their size (BP-45).
+
+api card.der.write_integer
+    params      magnitude: ref u8[], out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write a DER INTEGER for an unsigned big-endian number and return its size (BP-45).
+
+api card.der.integer_size
+    params      magnitude: ref u8[]
+    payload     u32
+    transaction immediate
+    errors      -
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Return the size write_integer would write (BP-45).

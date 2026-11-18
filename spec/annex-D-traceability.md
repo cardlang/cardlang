@@ -396,7 +396,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | NAM-15 | cited | nam-003-member-scopes, nam-005-qualified-members, nam-113-duplicate-field |
 | NAM-16 | cited | nam-005-qualified-members, nam-114-bare-variant, nam-115-unknown-member |
 | NAM-17 | cited | nam-003-member-scopes |
-| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-101-unknown-platform-path |
+| NAM-18 | cited | nam-120-unknown-platform-path, plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-008-tlv-apis, plt-101-unknown-platform-path |
 | NAM-19 | cited | nam-004-sibling-scopes, nam-112-use-outside-scope |
 | NAM-20 | cited | nam-111-self-reference |
 | NAM-21 | cited | nam-004-sibling-scopes, nam-109-parameter-shadows-global, nam-110-local-shadows-local, nam-119-same-scope-duplicate, nam-121-parameter-shadows-primitive |
@@ -484,7 +484,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-44 | cited | exp-011-fill-forms, exp-130-fill-without-context |
 | EXP-45 | cited | exp-012-constructor-order, exp-131-constructor-missing-field, exp-132-constructor-unknown-field, exp-133-constructor-duplicate-field |
 | EXP-46 | cited | run-017-evaluation-and-copies |
-| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-113-cbor-major-as-integer |
+| EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool |
 | EXP-48 | cited | exp-014-checked-in-match, exp-127-outcome-as-value |
 | EXP-49 | cited | exp-124-nested-convert, exp-125-intrinsic-in-argument, exp-126-attempt-in-argument |
 | EXP-50 | cited | run-017-evaluation-and-copies |
@@ -505,7 +505,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STM-11 | cited | stm-004-if-chain, stm-124-non-bool-condition |
 | STM-12 | cited | stm-005-while-break-continue |
 | STM-13 | cited | stm-006-for-ranges, stm-121-for-bool-index, stm-122-for-endpoint-out-of-range |
-| STM-14 | cited | run-005-loops-and-locals, stm-006-for-ranges, stm-108-assign-for-index |
+| STM-14 | cited | run-005-loops-and-locals, run-022-tlv, stm-006-for-ranges, stm-108-assign-for-index |
 | STM-15 | cited | run-005-loops-and-locals, stm-005-while-break-continue, stm-111-break-outside-loop, stm-112-continue-outside-loop |
 | STM-16 | cited | stm-007-enum-match, stm-012-match-arms-may-complete, stm-113-enum-match-missing, stm-114-enum-match-duplicate, stm-115-enum-match-foreign, stm-116-enum-match-wildcard |
 | STM-17 | cited | stm-117-match-integer |
@@ -643,7 +643,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys |
 | PLT-23 | cited | run-015-resource-identifiers |
 | PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys, run-020-crypto |
-| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, run-020-crypto, run-021-cbor |
+| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-008-tlv-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool, run-020-crypto, run-021-cbor, run-022-tlv |
 | PLT-26 | exercised | plt-001-platform-call and every test that uses the test-only catalog |
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |

@@ -1,0 +1,15 @@
+// rule: NAM-18, PLT-25
+// source: platform/base-profile.md BP-41 to BP-46
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Every card.tlv and card.der API, called with matching arguments.
+function exercise(data: ref u8[], out: inout u8[]) -> u32 {
+    var length: u32 = attempt card.tlv.validate(ref data);
+    var first: TlvHead = attempt card.tlv.head(ref data);
+    var next: u32 = attempt card.tlv.skip(ref data);
+    var size: u32 = attempt card.der.integer_size(ref data[0..4]);
+    var at: u32 = attempt card.der.write_head(0x30, size, inout out);
+    var n: u32 = attempt card.der.write_integer(ref data[0..4], inout out[at..out.length]);
+    return Ok(at + n);
+}

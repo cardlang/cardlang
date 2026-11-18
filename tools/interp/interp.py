@@ -16,6 +16,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import p256                                              # test-only P-256 (WP3)
 import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
 import testcbor                                          # test-only canonical CBOR (WP5)
+import testtlv                                           # test-only BER-TLV reader and DER writer (WP6)
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
@@ -576,8 +577,36 @@ class Card:
             return ("err", ErrVal("platform", e.kind))
         raise RuntimeError("no behaviour for " + path)
 
+    def tlv_call(self, path, args, env):
+        """card.tlv and card.der (BP-41 to BP-46)."""
+        def view(i):
+            x = self.place(args[i][1], env)
+            return x if isinstance(x, View) else View(x.get(), 0, len(x.get()))
+        def data(i):
+            v = view(i); return [v.lst[v.start + k].v for k in range(v.length)]
+        def write(i, out):
+            v = view(i)
+            if v.length < len(out): return ("err", ErrVal("platform", "Capacity"))
+            for k, b in enumerate(out): v.lst[v.start + k] = Int(b, "u8")
+            return ("ok", Int(len(out), "u32"))
+        try:
+            if path == "card.tlv.head":
+                tag, cls, constructed, length, size = testtlv.head(data(0))
+                return ("ok", {"tag": Int(tag, "u32"), "class": ("enum", "TlvClass", cls), "constructed": constructed,
+                               "length": Int(length, "u32"), "size": Int(size, "u32"), "#": "TlvHead"})
+            if path == "card.tlv.skip": return ("ok", Int(testtlv.skip(data(0)), "u32"))
+            if path == "card.tlv.validate": return ("ok", Int(testtlv.validate(data(0)), "u32"))
+            if path == "card.der.write_head":
+                return write(2, testtlv.write_head(self.eval(args[0][1], env, "u32").v, self.eval(args[1][1], env, "u32").v))
+            if path == "card.der.write_integer": return write(1, testtlv.write_integer(data(0)))
+            if path == "card.der.integer_size": return ("ok", Int(testtlv.integer_size(data(0)), "u32"))
+        except testtlv.TlvError as e:
+            return ("err", ErrVal("platform", e.kind))
+        raise RuntimeError("no behaviour for " + path)
+
     def platform_call(self, path, args, env):
         """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
+        if path.startswith(("card.tlv.", "card.der.")): return self.tlv_call(path, args, env)
         if path.startswith("card.cbor."): return self.cbor_call(path, args, env)
         if path.startswith("card.key."): return self.key_call(path, args, env)
         if path.startswith(("card.crypto.", "card.random.")): return self.crypto_call(path, args, env)
