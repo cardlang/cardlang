@@ -351,7 +351,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 298 rules: 217 cited, 48 exercised, 33 not testable.
+**Totals:** 298 rules: 220 cited, 45 exercised, 33 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -554,7 +554,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | OUT-13 | cited | out-001-match-ok-err |
 | OUT-14 | cited | out-006-unused-error-binding, out-120-compare-error-binding, out-121-store-error-binding, out-122-pass-error-binding, out-123-error-binding-require |
 | OUT-15 | cited | out-007-error-set, out-008-no-error-set, out-125-two-error-sets, out-129-empty-error-set |
-| OUT-16 | cited | out-007-error-set, out-126-zero-code, out-127-duplicate-code, out-128-computed-code, out-130-code-out-of-range |
+| OUT-16 | cited | out-007-error-set, out-126-zero-code, out-127-duplicate-code, out-128-computed-code, out-130-code-out-of-range, plt-009-iso-error-codes, plt-010-raw-binding-any-code, plt-115-iso-code-not-a-status-word, plt-116-iso-code-platform-range |
 | OUT-17 | not testable | An obligation across versions of an application, not on one program |
 | OUT-18 | cited | run-007-outcomes |
 | OUT-19 | cited | out-009-match-card-error, out-108-originate-card-error, out-109-require-card-error, txn-110-abort-card-error |
@@ -595,14 +595,14 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | HEP-2 | cited | hep-001-minimal, hep-002-any-names, hep-103-wrong-return-type, hep-104-no-return-type, hep-105-inout-request, hep-106-fixed-size-request, hep-107-extra-parameter |
 | HEP-3 | cited | hep-108-call-command |
 | HEP-4 | exercised | hep-003-dispatch-and-encode, run-007-outcomes |
-| HEP-5 | exercised | hep-001-minimal, run-010-response-contract |
+| HEP-5 | cited | run-023-iso7816-binding |
 | HEP-6 | exercised | run-010-response-contract |
 | HEP-7 | cited | run-017-evaluation-and-copies |
 | HEP-8 | not testable | The initial response contents are deliberately unspecified, so no expectation is portable |
 | HEP-9 | cited | hep-003-dispatch-and-encode, hep-005-counter-application, run-010-response-contract |
 | HEP-10 | not testable | Transmission timing relative to commit is not observable through the scenario format |
 | HEP-11 | cited | hep-004-protocol-status-in-payload |
-| HEP-12 | exercised | run-007-outcomes, run-001-integer-traps |
+| HEP-12 | cited | run-023-iso7816-binding |
 | HEP-13 | not testable | Non-interleaving is a property of the platform; the harness runs commands one at a time by construction |
 | HEP-14 | exercised | run-001-integer-traps |
 | HEP-15 | cited | hep-003-dispatch-and-encode, hep-005-counter-application, run-011-counter-application, run-012-wallet-application, run-016-signer-application |
@@ -627,7 +627,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-6 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-7 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-8 | exercised | run-010-response-contract |
-| PLT-9 | exercised | run-007-outcomes |
+| PLT-9 | cited | run-023-iso7816-binding |
 | PLT-10 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-11 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-12 | exercised | run-014-recovery-after-interrupt |

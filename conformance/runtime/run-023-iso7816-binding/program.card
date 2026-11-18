@@ -1,0 +1,29 @@
+// rule: HEP-5, HEP-12, PLT-9
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: application
+// binding: iso7816
+// expect: runtime
+// note: The ISO 7816 binding: the request layout, and the status words of success, application and platform errors, and traps.
+errors IsoError {
+    WrongLength = 0x6700;
+    InsNotSupported = 0x6D00;
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 4 else IsoError.WrongLength;
+    var ins: u8 = request[1];
+    if ins == 0x10 {
+        var n: u32 = request.length - 4;
+        response[0..n] = request[4..request.length];
+        return Ok(n);
+    } else if ins == 0x20 {
+        var length: u32 = attempt card.key.export_public(9, inout response);
+        return Ok(length);
+    } else if ins == 0x30 {
+        var zero: u8 = request[2];
+        var quotient: u8 = 1 / zero;
+        return Ok(0);
+    }
+    return Err(IsoError.InsNotSupported);
+}

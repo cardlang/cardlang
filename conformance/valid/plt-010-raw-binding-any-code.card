@@ -1,0 +1,10 @@
+// rule: OUT-16
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: raw
+// expect: ok
+// note: In the raw binding, application error codes are only restricted by OUT-16 (BP-53).
+errors AppError {
+    Refused = 1;
+}

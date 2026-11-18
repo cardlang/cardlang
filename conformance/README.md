@@ -35,7 +35,8 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 | `source` | yes | DN/PN sections or `D-` IDs that the example comes from |
 | `status` | yes | `agreed`, `proposal` or `open`: the strongest tag among the rules tested. A test that depends on a [Proposal] or [Open] rule is not normative until that rule is agreed |
 | `kind` | yes | `application` (a complete application, including its single `command`) or `fragment` (declarations checked on their own; see below) |
-| `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, or `runtime` for a runtime test, whose expected results are in its `scenario.txt` |
+| `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, `profile-error BP-<n>` (a build rejected by a Base Profile rule, `platform/base-profile.md`), or `runtime` for a runtime test, whose expected results are in its `scenario.txt` |
+| `binding` | no | The Base Profile transport binding the test is built for: `iso7816` or `raw` (profile BP-47). Absent means no binding check |
 | `requires` | no | `fault-injection`, for runtime tests that need a harness able to inject faults |
 | `also` | no | Other compile-error classes an implementation may report in addition to `expect`. Used only when the violation being tested cannot avoid a second one (for example, a stray `*/` after a comment that may not cross files) |
 | `note` | no | One line of explanation |
@@ -77,6 +78,7 @@ The application must first compile without errors. The harness then runs the sce
 | `command <hex bytes> capacity <n>` | The same, with a response capacity of `n` bytes |
 | `reset` | A security reset: all session state is cleared (RTF-9). A `power_on` step is needed before the next command |
 | `interrupt during-commit` | Fault injection. The next commit is interrupted by power loss, so the command produces no outcome. Persistent state recovers to all-or-nothing (TXN-13), and the session is lost. Needs `requires: fault-injection` |
+| `seed <hex>` | Restart the reference interpreter's deterministic random generator with this seed (WP3 K4). It affects `card.random.fill` and key generation. A real platform ignores it |
 
 Every `command` step is followed by exactly one `expect` line:
 
@@ -87,6 +89,7 @@ Every `command` step is followed by exactly one `expect` line:
 | `expect err app <code>` | Return an application error with this decimal code |
 | `expect err platform <Member>` | Return this `CardError` member. The names are the placeholders of D-415 |
 | `expect trap <KIND>` | Trap with this kind, for example `expect trap OVERFLOW` |
+| `expect sw <hex>` | The ISO 7816 binding's status word for the outcome (profile BP-51), for example `expect sw 6d00` |
 | `expect none` | Produce no outcome, after an `interrupt` |
 
 Blank lines, and anything after `#`, are ignored. Tests observe only what the host can see. State is checked indirectly, through the responses of later commands.

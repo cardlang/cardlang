@@ -1,0 +1,10 @@
+// rule: OUT-16
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: iso7816
+// expect: profile-error BP-52
+// note: Codes 6F00 to 6FFF are reserved for platform errors and traps (BP-51).
+errors AppError {
+    Refused = 0x6F05;
+}

@@ -1,0 +1,10 @@
+// rule: OUT-16
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: iso7816
+// expect: profile-error BP-52
+// note: Code 1 is not an ISO status word, so the build for the ISO 7816 binding is rejected.
+errors AppError {
+    Refused = 1;
+}

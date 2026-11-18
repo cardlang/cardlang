@@ -137,7 +137,34 @@ class PltChecker(hepcheck.HepChecker):
         finally:
             del self.funcs[path]
 
-def run(toks, kind="fragment"):
+class ProfileError(Exception):
+    """A build rejected by a Base Profile rule (not a language compile error), e.g. BP-52."""
+
+def literal_value(text):
+    text = text.replace("_", "")
+    return int(text, 0) if text[:2].lower() in ("0x", "0b") else int(text, 10)
+
+def error_codes(toks):
+    """The codes of the application error set: errors Name { Member = literal; ... }."""
+    codes = []
+    for i, (_, v) in enumerate(toks):
+        if v == "errors" and i + 2 < len(toks) and toks[i + 2][1] == "{":
+            j = i + 3
+            while j < len(toks) and toks[j][1] != "}":
+                if toks[j][1] == "=" and toks[j + 1][0] == "int": codes.append(literal_value(toks[j + 1][1]))
+                j += 1
+    return codes
+
+def check_binding(toks, binding):
+    """BP-52: in the ISO 7816 binding, application error codes are status words in 6200-6EFF or 9100-9FFF."""
+    if binding == "iso7816":
+        for c in error_codes(toks):
+            if not (0x6200 <= c <= 0x6EFF or 0x9100 <= c <= 0x9FFF): raise ProfileError("BP-52")
+    elif binding not in (None, "raw"):
+        raise ValueError("unknown binding " + binding)
+
+def run(toks, kind="fragment", binding=None):
+    check_binding(toks, binding)
     if kind == "fragment":
         toks = toks + lex(hepcheck.SCAFFOLD)
     PltChecker(toks).run()
@@ -149,9 +176,11 @@ if __name__ == "__main__":
         toks = sum((lex(f.read_bytes()) for f in files), [])
         meta = header(files[0].read_bytes()); exp = meta["expect"]
         try:
-            run(toks, meta.get("kind", "fragment")); got = "ok"
+            run(toks, meta.get("kind", "fragment"), meta.get("binding")); got = "ok"
         except (CE, consteval.CE) as e:
             got = "compile-error " + str(e)
+        except ProfileError as e:
+            got = "profile-error " + str(e)
         st = "PASS" if got == exp else "FAIL"; ok &= st == "PASS"
         print(st, t.name, "| expect", exp, "| checker", got)
     print("ALL PASS" if ok else "FAILURES")

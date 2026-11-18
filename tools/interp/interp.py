@@ -813,7 +813,20 @@ class Card:
         return ("ok", [resp.lst[i].v for i in range(count)])
 
 # ------------------------------------------------------------------ scenarios
+PROFILE = pathlib.Path(__file__).resolve().parents[2] / "platform" / "base-profile.md"
+CARD_ERROR_CODES = {m: int(c, 16) for m, c in __import__("re").findall(r"^\| `(\w+)` \| `0x([0-9A-Fa-f]{4})` \|",
+                                                                       PROFILE.read_text(encoding="utf-8"), __import__("re").M)}
+
+def status_word(outcome):
+    """The ISO 7816 binding's status word for an outcome (profile BP-51)."""
+    if outcome is None or outcome[0] == "none": return None
+    if outcome[0] == "ok": return 0x9000
+    if outcome[0] == "trap": return 0x6F00
+    if outcome[1] == "app": return outcome[2]
+    return 0x6F00 + CARD_ERROR_CODES[outcome[2]]
+
 def parse_expect(words):
+    if words[0] == "sw": return ("sw", int(words[1], 16))
     if words[0] == "ok": return ("ok", [int(w, 16) for w in words[1:]])
     if words[0] == "err" and words[1] == "app": return ("err", "app", int(words[2]))
     if words[0] == "err" and words[1] == "platform": return ("err", "platform", words[2])
@@ -839,8 +852,9 @@ def run_scenario(card, text):
             pending = card.command([int(w, 16) for w in words], capacity)
         elif step == "expect":
             want = parse_expect(line[1:])
-            if pending != want:
-                return f"line {lineno}: expected {want}, got {pending}"
+            got = ("sw", status_word(pending)) if want[0] == "sw" else pending
+            if got != want:
+                return f"line {lineno}: expected {want}, got {got}"
             pending = None
         else:
             return f"line {lineno}: unknown step {step}"
@@ -853,9 +867,10 @@ if __name__ == "__main__":
         files = [d / f for f in (d / "files.txt").read_text().split()] if (d / "files.txt").exists() else sorted(d.glob("*.card"))
         toks = sum((lex(f.read_bytes()) for f in files), [])
         try:
+            pltcheck.check_binding(toks, header(files[0].read_bytes()).get("binding"))       # profile BP-52
             card = Card(toks)
             problem = run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8"))
-        except (CE, consteval.CE) as e:
+        except (CE, consteval.CE, pltcheck.ProfileError) as e:
             problem = "does not compile: " + str(e)
         status = "PASS" if problem is None else "FAIL"; ok &= problem is None
         print(status, d.name, "" if problem is None else "| " + problem)

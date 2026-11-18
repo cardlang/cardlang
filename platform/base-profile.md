@@ -1,6 +1,6 @@
 # CardLang Base Profile 1
 
-Status: draft (2026-11-18). §1–§10 are written (WP2–WP6); §11 is filled in by WP7. Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
+Status: draft (2026-11-18). All sections are written (WP2–WP7). Design decisions: `plans_and_notes/base-api-plan.md` and `plans_and_notes/spec-plans/WP2-profile-skeleton.md`.
 
 This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
@@ -12,7 +12,8 @@ This document is a **platform specification**. It is not part of the language sp
 - it provides every entry of `platform/base-catalog.txt`, with the behaviour this document states;
 - it supplies the declarations of `platform/base-types.card` exactly as written;
 - it uses the `CardError` members and codes of §4;
-- it meets the resource minimums of §5.
+- it meets the resource minimums of §5;
+- it claims at least one transport binding of §11, and meets its rules.
 
 **BP-2** A conforming platform may add APIs, types, `CardError` members and algorithms. It must not change or remove anything this profile defines. An addition must not use a name or code that this profile defines.
 
@@ -298,9 +299,61 @@ A DER ECDSA signature, `SEQUENCE { INTEGER r, INTEGER s }`, is written from the 
 
 **BP-46 Transactions.** Every TLV and DER API is `immediate` (BP-15).
 
-## 11. Transport and environment
+## 11. Transport bindings and environment
 
-To be written in WP7: command chaining and long responses, and user presence.
+The APIs of §7–§10 do not depend on the transport. How messages reach the application, and how outcomes reach the host, is defined by a *transport binding*. This version defines two.
+
+**BP-47 Bindings.** A platform claims one or more bindings. An application is built for exactly one binding, which its build configuration names. A build for the ISO 7816 binding applies the check of BP-52. An application runs only on a platform that claims its binding.
+
+**BP-48 Whole messages.** In every binding:
+- the platform reassembles a message that the transport splits into parts, and the application's `command` runs once, on the whole request;
+- the platform delivers a whole response, however the transport has to split it;
+- a platform supports requests of at least 1280 bytes, and gives every command a response view of at least 1280 bytes (HEP-5, HEP-6).
+
+### 11.1 The ISO 7816 binding
+
+This binding carries commands as ISO/IEC 7816-4 APDUs, over contact or contactless (NFC) interfaces.
+
+**BP-49 Chaining and length.** The platform accepts command chaining (CLA bit `0x10`) and, where the interface supports it, extended-length APDUs. It returns a long response with `61xx` and GET RESPONSE, or with extended length, as the host requests.
+
+**BP-50 The request.** `request` is the reassembled command APDU without its length fields:
+- `request[0]` is CLA, with the chaining bit cleared;
+- `request[1]` is INS, and `request[2]` and `request[3]` are P1 and P2;
+- `request[4 .. request.length]` is the reassembled data field.
+
+Le is not passed: `response.length` is the capacity (HEP-6). The platform handles the SELECT of the application itself, and never passes it to `command`.
+
+**BP-51 Status words.** The outcome of a command is reported as follows. The four categories map to disjoint status words, so they stay distinguishable (PLT-9):
+
+| Outcome | Status word |
+|---|---|
+| `Ok(count)` | `9000`, after the `count` response bytes (BP-49 for long responses) |
+| `Err` of an application error with code `c` | `c` |
+| `Err(CardError.m)` | `6F00 + code(m)`, with `code(m)` from §4 |
+| A trap | `6F00` |
+
+**BP-52 Application error codes.** In an application built for this binding, every member of the application's error set (OUT-16) has a code in `6200`–`6EFF`, or in `9100`–`9FFF`. Any other code is rejected when the application is built for the binding, so no application error can be confused with `9000` or the `6Fxx` platform range. Protocols that report their own status inside the response data, as CTAP2 does, return it with `Ok`.
+
+### 11.2 The raw binding
+
+This binding carries messages without a card-specific framing, for example between a host and an application in a Trusted Execution Environment such as TrustZone-M on a microcontroller.
+
+**BP-53 Messages and outcomes.** `request` is the message, exactly as the host sent it, and the response is the first `count` bytes of `response`. The outcome is delivered to the host as a pair:
+- a category (success, application error, platform error or trap);
+- a 16-bit code, which is the error's code, or 0 for success and for a trap.
+
+How the pair and the bytes are encoded for the host is platform-defined, and is part of the host-side interface. Application error codes are not restricted beyond OUT-16.
+
+### 11.3 Environment and lifecycle
+
+**BP-54 User presence.** On a contactless interface, presenting the card counts as a test of user presence: an application may treat every command it receives there as made with the user present. Any other means of establishing presence is platform-defined. This version has no API for it.
+
+**BP-55 Lifecycle handlers.** The profile uses the handler names of the language placeholders (STA-6, PLT-18):
+
+- **`on_install()`** runs once, when the application is installed, before any command. If it traps or returns `Err`, installation fails, and the application is not installed.
+- **`on_power_on()`** runs at every power-on, after session state and volatile keys have been reset, and before the first command. If it traps or returns `Err`, the application stays unavailable until the next power-on, and the platform reports every command to it as it reports a trap.
+
+Deselection and logical channels are not visible to applications in this version. Session state and volatile resources survive deselection until the next power-on or security reset.
 
 ## 12. Answers to the Annex B §B.12 checklist
 
@@ -310,5 +363,10 @@ To be written in WP7: command chaining and long responses, and user presence.
 | Platform API catalog (NAM-18, PLT-25) | §6 and `platform/base-catalog.txt` |
 | Platform-supplied types (NAM-14 item 4) | §3 and `platform/base-types.card` |
 | Resource lifetimes at power-on and security reset (PLT-23) | §5, BP-14 |
+| Which received bytes form the request; the response capacity (HEP-5, HEP-6) | §11, BP-48 to BP-50 and BP-53 |
+| How outcome categories and codes reach the host (HEP-12, PLT-9) | §11, BP-51 (ISO 7816) and BP-53 (raw) |
+| Lifecycle events and handlers (STA-6, PLT-18) | §11, BP-55 |
+| Session state at deselection and on logical channels (STA-4) | §11, BP-55: not visible, and session state survives deselection |
+| User presence | §11, BP-54 |
 | Side-channel and fault protection level (PLT-32) | Left to the implementation, which states its level |
 | Every other item | Left to the implementation |

@@ -1,0 +1,14 @@
+install
+power_on
+command 80 10 00 00 01 02 03    # CLA INS P1 P2, then the data field (BP-50)
+expect ok 01 02 03
+command 80 10 00 00 01 02
+expect sw 9000
+command 80 20 00 00             # CardError.NotFound is 6F00 + 0x10 (BP-51)
+expect sw 6f10
+command 80 30 00 00             # a trap
+expect sw 6f00
+command 80 40 00 00             # the application's own status word
+expect sw 6d00
+command 80                      # too short for a header
+expect sw 6700
