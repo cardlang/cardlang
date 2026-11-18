@@ -44,3 +44,6 @@ Desktop.ini
 # Python bytecode (tools/)
 __pycache__/
 *.pyc
+
+# Third-party reference material, downloaded locally and never committed (WP8 step 0)
+reference/
