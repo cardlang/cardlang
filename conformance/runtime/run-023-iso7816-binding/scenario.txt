@@ -1,5 +1,7 @@
 install
 power_on
+select                          # on_select supplies the SELECT response data: "FIDO_2_0" (BP-50a)
+expect ok 46 49 44 4f 5f 32 5f 30
 command 80 10 00 00 01 02 03    # CLA INS P1 P2, then the data field (BP-50)
 expect ok 01 02 03
 command 80 10 00 00 01 02

@@ -1,5 +1,8 @@
 invalid/plt-115-iso-code-not-a-status-word.card
 invalid/plt-116-iso-code-platform-range.card
+invalid/plt-117-on-select-signature.card
+invalid/plt-118-call-on-select.card
 valid/plt-009-iso-error-codes.card
 valid/plt-010-raw-binding-any-code.card
+valid/plt-011-on-select.card
 runtime/run-023-iso7816-binding/

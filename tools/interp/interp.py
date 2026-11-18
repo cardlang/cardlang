@@ -782,6 +782,26 @@ class Card:
         self.volatile_keys = {}; self.operations = {}
         self.run_handler("on_power_on")
 
+    def select(self):
+        """ISO 7816 binding: run on_select, if declared, for the SELECT response data (BP-50a)."""
+        if "on_select" not in self.funcs: return ("ok", [])
+        resp = View([Int(0, "u8") for _ in range(256)], 0, 256)
+        env = {"scopes": [], "ret": "u32", "card": {"budget": BUDGET}}
+        try:
+            self.invoke_with("on_select", {self.funcs["on_select"][0][0][0]: resp}, env)
+        except Ret as r:
+            out = r.outcome
+            if out[0] == "err": return ("err", out[1].category, out[1].ident)
+            return ("ok", [resp.lst[i].v for i in range(out[1].v)])
+        except Trap as t:
+            return ("trap", t.kind)
+        raise RuntimeError("on_select completed without an outcome")
+
+    def invoke_with(self, name, scope, env):
+        params, ret, body = self.funcs[name]
+        env["scopes"].append(scope)
+        self.block(body, env)
+
     def reset(self):
         self.session = None
         self.volatile_keys = {}; self.operations = {}
@@ -843,6 +863,7 @@ def run_scenario(card, text):
         if step == "install": card.install()
         elif step == "power_on": card.power_on()
         elif step == "reset": card.reset()
+        elif step == "select": pending = card.select()
         elif step == "interrupt": card.interrupt_next_commit = True
         elif step == "seed": card.seed(bytes.fromhex("".join(line[1:])))
         elif step == "command":

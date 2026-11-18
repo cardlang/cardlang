@@ -155,9 +155,24 @@ def error_codes(toks):
                 j += 1
     return codes
 
+ON_SELECT = ["(", "?", ":", "inout", "u8", "[", "]", ")", "->", "u32"]
+
+def check_on_select(toks):
+    """BP-50a: on_select(response: inout u8[]) -> u32, never called by application code."""
+    for i, (kind, v) in enumerate(toks):
+        if v != "on_select": continue
+        if i > 0 and toks[i - 1][1] == "function":
+            sig = [x for _, x in toks[i + 1:i + 1 + len(ON_SELECT)]]
+            if [s if p != "?" else "?" for s, p in zip(sig, ON_SELECT)] != ON_SELECT or toks[i + 2][0] != "id":
+                raise ProfileError("BP-50a")
+        elif i + 1 < len(toks) and toks[i + 1][1] == "(":
+            raise ProfileError("BP-50a")                  # a call: lifecycle handlers are not callable
+
 def check_binding(toks, binding):
-    """BP-52: in the ISO 7816 binding, application error codes are status words in 6200-6EFF or 9100-9FFF."""
+    """BP-50a and BP-52 for the ISO 7816 binding: the on_select handler, and application error codes that are
+    status words in 6200-6EFF or 9100-9FFF."""
     if binding == "iso7816":
+        check_on_select(toks)
         for c in error_codes(toks):
             if not (0x6200 <= c <= 0x6EFF or 0x9100 <= c <= 0x9FFF): raise ProfileError("BP-52")
     elif binding not in (None, "raw"):

@@ -93,7 +93,7 @@ Floating-point values (major type 7 with additional information 25, 26 or 27) ar
 **Decided 2026-11-18:**
 
 - **W1 (a):** stateless calls over slices.
-- **W2 (a):** the CTAP2 length-first key order.
+- **W2 (a):** the CTAP2 length-first key order. **Revised 2026-11-18 (WP8 step 0, R1).** CTAP2's actual rule is bytewise order of the encoded keys; my description of option (a) was wrong. The profile now uses bytewise order (option (b), RFC 8949 core deterministic).
 - **W3 (a):** floats are `Unsupported`, tags are accepted structurally, and only four simple values are allowed.
 - **W4 (a):** `validate` checks UTF-8.
 - **W5 (a, clarified):** only `validate` is limited by depth. Its internal key-order check keeps the previous key and the pairs remaining for each open map. Platforms validate at least 16 levels, and deeper input may be `Unsupported`. `head` and `skip` have no depth limit, because one pending-item counter is enough for them.

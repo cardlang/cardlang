@@ -93,9 +93,9 @@ command 01 {REQUEST} 00    # validate returns the item's length; trailing bytes 
 expect ok 00 00 00 11
 command 03                 # build {{1: 2, 3: -7, -1: h'aabb'}} in canonical order
 expect ok a3 01 02 03 26 20 42 aa bb
-command 01 a2 61 7a 00 19 03 e8 00    # "z" before 1000: the shorter key first (CTAP2 order)
+command 01 a2 19 03 e8 00 61 7a 00    # 1000 (19 03 e8) before "z" (61 7a): bytewise order (BP-36)
 expect ok 00 00 00 08
-command 01 a2 19 03 e8 00 61 7a 00    # the same keys in bytewise order
+command 01 a2 61 7a 00 19 03 e8 00    # the same keys in length-first order, which BP-36 rejects
 expect err platform Malformed
 command 01 18 05           # not the shortest form
 expect err platform Malformed

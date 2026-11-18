@@ -246,7 +246,7 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 - **Complete.** Every head and string lies within the data.
 - **No indefinite lengths.** The additional-information values 28 to 31 do not occur.
 - **Shortest form.** Every argument uses the shortest head: a value below 24 in the initial byte, below 256 in one following byte, below 65536 in two, and below 2^32 in four.
-- **Map keys in order.** The keys of every map are in strictly increasing *canonical order*: a shorter encoded key comes first, and keys of equal length are ordered bytewise. This is the order of CTAP2 and RFC 7049 §3.9 (W2). Two equal keys are a duplicate, and are rejected.
+- **Map keys in order.** The keys of every map are in strictly increasing *bytewise* order of their encodings. This is RFC 8949's core deterministic order (§4.2.1), and, for every key type CTAP2 uses, CTAP2's canonical order (W2 as revised by R1, WP8 step 0). Two equal keys are a duplicate, and are rejected.
 - **Valid text.** Every text string is valid UTF-8 (W4).
 - **Simple values.** Only `false` (20), `true` (21), `null` (22) and `undefined` (23) are allowed (W3). Floating-point values are `Err(CardError.Unsupported)`.
 - **Tags.** A tag is accepted as a head followed by one item (W3).
@@ -260,7 +260,7 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 - **`card.cbor.write_head(major, value, inout out) -> u32`** writes the shortest head for `major` and `value` at `out[0]`, and returns its size. For `Simple`, `value` must be 20 to 23, otherwise `Err(CardError.Malformed)`.
 - **`card.cbor.write_int(value: i32, inout out) -> u32`** writes `value` as an unsigned integer if it is at least 0, and otherwise as the negative integer with argument `−1 − value`.
 - **Capacity.** A head that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
-- **The application's part.** The application copies string content with slice assignment (FUN-24), and emits map keys in canonical order. `compare` (EXP-54) and the key lengths decide that order. `validate` on the finished output checks it.
+- **The application's part.** The application copies string content with slice assignment (FUN-24), and emits map keys in canonical order. `compare` (EXP-54) on two encoded keys decides that order. `validate` on the finished output checks it.
 
 **BP-40 Transactions.** Every CBOR API is `immediate` (BP-15). None of them changes persistent state.
 
@@ -321,7 +321,13 @@ This binding carries commands as ISO/IEC 7816-4 APDUs, over contact or contactle
 - `request[1]` is INS, and `request[2]` and `request[3]` are P1 and P2;
 - `request[4 .. request.length]` is the reassembled data field.
 
-Le is not passed: `response.length` is the capacity (HEP-6). The platform handles the SELECT of the application itself, and never passes it to `command`.
+Le is not passed: `response.length` is the capacity (HEP-6). The platform handles the SELECT of the application itself, and never passes it to `command`. The data of the SELECT response comes from `on_select` (BP-50a).
+
+**BP-50a The `on_select` handler.** In this binding, an application may declare a handler `function on_select(response: inout u8[]) -> u32`. On every SELECT of the application, the platform runs it with a fresh response view of at least 256 bytes:
+- an outcome of `Ok(count)` makes the first `count` bytes of the view the SELECT response data, with status word `9000`;
+- `Err` and traps are reported as for `command` (BP-51), and the application is not selected.
+
+Without the handler, the SELECT response has no data and status word `9000`. Like every lifecycle handler (PLT-18, STA-8), `on_select` cannot be called by application code. A declaration under that name with any other signature, or a call to it, is rejected when the application is built for the binding. CTAP uses this handler to return its version string (WP8 step 0, R3).
 
 **BP-51 Status words.** The outcome of a command is reported as follows. The four categories map to disjoint status words, so they stay distinguishable (PLT-9):
 
@@ -365,7 +371,7 @@ Deselection and logical channels are not visible to applications in this version
 | Resource lifetimes at power-on and security reset (PLT-23) | §5, BP-14 |
 | Which received bytes form the request; the response capacity (HEP-5, HEP-6) | §11, BP-48 to BP-50 and BP-53 |
 | How outcome categories and codes reach the host (HEP-12, PLT-9) | §11, BP-51 (ISO 7816) and BP-53 (raw) |
-| Lifecycle events and handlers (STA-6, PLT-18) | §11, BP-55 |
+| Lifecycle events and handlers (STA-6, PLT-18) | §11, BP-50a and BP-55 |
 | Session state at deselection and on logical channels (STA-4) | §11, BP-55: not visible, and session state survives deselection |
 | User presence | §11, BP-54 |
 | Side-channel and fault protection level (PLT-32) | Left to the implementation, which states its level |

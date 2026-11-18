@@ -78,6 +78,7 @@ The application must first compile without errors. The harness then runs the sce
 | `command <hex bytes> capacity <n>` | The same, with a response capacity of `n` bytes |
 | `reset` | A security reset: all session state is cleared (RTF-9). A `power_on` step is needed before the next command |
 | `interrupt during-commit` | Fault injection. The next commit is interrupted by power loss, so the command produces no outcome. Persistent state recovers to all-or-nothing (TXN-13), and the session is lost. Needs `requires: fault-injection` |
+| `select` | ISO 7816 binding: a SELECT of the application. It runs `on_select`, if declared, and its outcome is checked by the following `expect` (profile BP-50a) |
 | `seed <hex>` | Restart the reference interpreter's deterministic random generator with this seed (WP3 K4). It affects `card.random.fill` and key generation. A real platform ignores it |
 
 Every `command` step is followed by exactly one `expect` line:

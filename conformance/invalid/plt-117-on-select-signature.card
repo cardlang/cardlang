@@ -1,0 +1,10 @@
+// rule: STA-8, PLT-18
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: iso7816
+// expect: profile-error BP-50a
+// note: on_select must take one inout u8[] and return u32 (BP-50a).
+function on_select() {
+    return Ok();
+}

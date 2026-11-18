@@ -1,0 +1,11 @@
+// rule: STA-8, PLT-18
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: iso7816
+// expect: ok
+// note: An on_select handler with the signature BP-50a requires.
+function on_select(response: inout u8[]) -> u32 {
+    response[0] = 1;
+    return Ok(1);
+}

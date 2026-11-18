@@ -58,8 +58,8 @@ def _validate(d, pos, depth):
         prev = None
         for _ in range(val):
             start = p; p = _validate(d, p, depth + 1); key = bytes(d[start:p])
-            if prev is not None and not (len(prev), prev) < (len(key), key):
-                raise CborError("Malformed")                      # out of CTAP2 canonical order, or a duplicate
+            if prev is not None and not prev < key:
+                raise CborError("Malformed")                      # not in bytewise order (BP-36, R1), or a duplicate
             prev = key; p = _validate(d, p, depth + 1)
         return p
     if major == 6: return _validate(d, p, depth + 1)
@@ -93,8 +93,8 @@ if __name__ == "__main__":
         try: validate(h(bad)); raise AssertionError(bad)
         except CborError as e: assert e.kind == kind, (bad, e.kind)
     assert validate(h("81" * 15 + "00")) == 16
-    assert validate(h("a2617a001903e800")) == 8                    # "z" sorts before 1000 (length first)
-    try: validate(h("a21903e800617a00")); raise AssertionError("order")
+    assert validate(h("a21903e800617a00")) == 8                    # 1000 (19 03 e8) sorts before "z" (61 7a): bytewise
+    try: validate(h("a2617a001903e800")); raise AssertionError("order")
     except CborError as e: assert e.kind == "Malformed"
     try: head(h("1b0000000100000000")); raise AssertionError("range")
     except CborError as e: assert e.kind == "Unsupported"

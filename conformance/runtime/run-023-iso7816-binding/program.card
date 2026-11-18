@@ -5,6 +5,12 @@
 // binding: iso7816
 // expect: runtime
 // note: The ISO 7816 binding: the request layout, and the status words of success, application and platform errors, and traps.
+function on_select(response: inout u8[]) -> u32 {
+    var version: u8[8] = [0x46, 0x49, 0x44, 0x4F, 0x5F, 0x32, 0x5F, 0x30];
+    response[0..8] = version;
+    return Ok(8);
+}
+
 errors IsoError {
     WrongLength = 0x6700;
     InsNotSupported = 0x6D00;

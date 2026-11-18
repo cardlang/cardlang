@@ -51,7 +51,6 @@ EXERCISED = {
     "PLT-8": "run-010-response-contract",
     "PLT-12": "run-014-recovery-after-interrupt",
     "PLT-13": "run-009-transactions, run-014-recovery-after-interrupt",
-    "PLT-18": "sta-004-lifecycle-handlers, run-008-state-lifecycle",
     "PLT-19": "run-008-state-lifecycle",
     "PLT-26": "plt-001-platform-call and every test that uses the test-only catalog",
     "PLT-27": "run-002-checked-and-conversions, run-015-resource-identifiers",

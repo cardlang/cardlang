@@ -1,0 +1,15 @@
+// rule: STA-8, PLT-18
+// source: platform/base-profile.md BP-47 to BP-55
+// status: agreed
+// kind: fragment
+// binding: iso7816
+// expect: profile-error BP-50a
+// note: A lifecycle handler cannot be called by application code (BP-50a).
+function on_select(response: inout u8[]) -> u32 {
+    return Ok(0);
+}
+
+function again(response: inout u8[]) -> u32 {
+    var n: u32 = attempt on_select(inout response);
+    return Ok(n);
+}

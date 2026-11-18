@@ -351,7 +351,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 298 rules: 220 cited, 45 exercised, 33 not testable.
+**Totals:** 298 rules: 221 cited, 44 exercised, 33 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -566,7 +566,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STA-5 | cited | sta-002-setup-helper |
 | STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, sta-004-lifecycle-handlers |
 | STA-7 | cited | sta-004-lifecycle-handlers, sta-105-handler-with-payload, sta-106-handler-with-parameter |
-| STA-8 | cited | sta-108-constant-named-like-handler |
+| STA-8 | cited | plt-011-on-select, plt-117-on-select-signature, plt-118-call-on-select, sta-108-constant-named-like-handler |
 | STA-9 | cited | sta-107-call-handler |
 | STA-10 | cited | sta-004-lifecycle-handlers |
 | STA-11 | cited | sta-003-persistent-assignments |
@@ -636,7 +636,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-15 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-16 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-17 | not testable | Informative: future platform work |
-| PLT-18 | exercised | sta-004-lifecycle-handlers, run-008-state-lifecycle |
+| PLT-18 | cited | plt-011-on-select, plt-117-on-select-signature, plt-118-call-on-select |
 | PLT-19 | exercised | run-008-state-lifecycle |
 | PLT-20 | cited | run-015-resource-identifiers, run-016-signer-application |
 | PLT-21 | cited | plt-003-base-types |
