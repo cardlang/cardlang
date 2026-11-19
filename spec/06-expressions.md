@@ -1,6 +1,6 @@
 # 6. Expressions
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP5).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP5).
 
 This chapter defines the syntax, typing and evaluation of expressions:
 

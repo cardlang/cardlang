@@ -1,6 +1,6 @@
 # 9. Outcomes and errors
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP8).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP8).
 
 This chapter covers:
 

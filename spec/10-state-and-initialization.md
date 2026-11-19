@@ -1,6 +1,6 @@
 # 10. State and initialization
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP9).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP9).
 
 This chapter defines:
 

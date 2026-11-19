@@ -1,6 +1,6 @@
 # 12. Host entry point
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP11).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP11).
 
 Every host request to an application enters through a single declaration: the application's `command`. This chapter defines:
 

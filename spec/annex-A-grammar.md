@@ -1,6 +1,6 @@
 # Annex A — Grammar
 
-CardLang Language Specification, Draft 0.1. Annex status:
+CardLang Language Specification, Draft 0.2. Annex status:
 
 - **A.1 lexical grammar:** complete (SP1).
 - **A.2 syntactic grammar:** complete and consolidated (SP14). The grammar has been checked mechanically against every conformance test (§A.3).

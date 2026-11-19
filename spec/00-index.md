@@ -1,8 +1,8 @@
-# CardLang Language Specification — Draft 0.1
+# CardLang Language Specification — Draft 0.2
 
 This is the normative specification of the CardLang language.
 
-**Status: Draft 0.1 — complete (2026-11-17).** Every rule is [Agreed], every open issue is resolved, and the scripted checks in `tools/run_checks.py` pass. The consolidation report is `plans_and_notes/SP14-consolidation-report.md`. The specification was written in sub-plans; see `plans_and_notes/specification-plan-of-plans.md`. Conventions, status tags and notation are defined in [chapter 1](01-scope-and-conventions.md).
+**Status: Draft 0.2 (2026-11-19).** Every rule is [Agreed], every open issue is resolved, and the scripted checks in `tools/run_checks.py` pass. What changed since Draft 0.1 is in `plans_and_notes/draft-0.2-release-notes.md`. Draft 0.1's consolidation report is `plans_and_notes/SP14-consolidation-report.md`. The CardLang Base Profile 1, a platform specification, is in `platform/`.
 
 ## Contents and status
 

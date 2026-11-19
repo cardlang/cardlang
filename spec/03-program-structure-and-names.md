@@ -1,6 +1,6 @@
 # 3. Program structure and names
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP2).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP2).
 
 This chapter defines how an application is assembled from source files, which declarations exist and where they may appear, and how every name is resolved. What each declaration *means* is defined in later chapters:
 

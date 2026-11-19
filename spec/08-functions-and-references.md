@@ -1,6 +1,6 @@
 # 8. Functions, references and slices
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP7).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP7).
 
 This chapter covers:
 

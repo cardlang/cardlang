@@ -2,7 +2,7 @@
 
 CardLang is a small, statically typed, imperative language for writing smart-card applications. This repository holds its language specification, a conformance test suite, and reference tools that check the two against each other.
 
-**Status: Draft 0.1, complete** (tag `spec-draft-0.1`). All 287 rules are agreed and every open issue is resolved. There is no compiler or VM yet. See [the consolidation report](plans_and_notes/SP14-consolidation-report.md) for what Draft 0.1 contains and what comes next.
+**Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. There is no compiler or VM yet. See [the release notes](plans_and_notes/draft-0.2-release-notes.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
 
 ## The language at a glance
 
@@ -61,7 +61,8 @@ This is a shortened version of the counter, one of the representative applicatio
 |---|---|
 | [`spec/`](spec/00-index.md) | The specification: chapters 1–13, plus Annex A (grammar), B (platform contract), C (open issues) and D (traceability). Start at [`spec/00-index.md`](spec/00-index.md) |
 | [`conformance/`](conformance/README.md) | 350 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
-| [`platform/`](platform/base-profile.md) | The CardLang Base Profile, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes and the API catalog (`base-catalog.txt`). Work in progress |
+| [`platform/`](platform/base-profile.md) | The CardLang Base Profile 1, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes, keys, crypto, CBOR, TLV, transport bindings and the API catalog (`base-catalog.txt`) |
+| [`examples/fido2/`](examples/fido2/) | A FIDO2 (CTAP 2.0) authenticator in CardLang, with PIN protocols two and one, checked by `tools/fido/check_fido2.py` |
 | [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
 | [`plans_and_notes/`](plans_and_notes/) | The source design notes, the decision register, the plan of plans with one sub-plan per chapter, and the SP14 consolidation report |
 

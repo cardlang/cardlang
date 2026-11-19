@@ -1,6 +1,6 @@
 # 11. Transactions
 
-CardLang Language Specification, Draft 0.1. Chapter status: **draft complete** (SP10).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP10).
 
 A *transaction* groups persistent writes so that they commit together or not at all. This chapter covers:
 
