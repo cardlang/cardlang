@@ -1,0 +1,8 @@
+// rule: LEX-25
+// source: D-453
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: Byte strings with every escape.
+const QUOTE: u8[4] = b"a\"\\\x00";
+const EMPTY_TAIL: u8[2] = b"\xFF ";

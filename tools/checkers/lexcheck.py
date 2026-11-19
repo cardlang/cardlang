@@ -1,10 +1,11 @@
 """Reference lexer written from spec chapter 2, used to verify SP1."""
 import re, sys, pathlib
 
-PUNCT2 = ["..", "->", "=>", "==", "!=", "<=", ">=", "<<", ">>"]
+PUNCT3 = ["<<=", ">>="]                                       # compound assignment (WP9 L6)
+PUNCT2 = ["..", "->", "=>", "==", "!=", "<=", ">=", "<<", ">>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^="]
 PUNCT1 = list("{}()[];:,.=<>+-*/%~&|^")
 KEYWORDS = set("""abort and attempt break command const continue else enum Err errors false for function
-if in inout match not Ok or persistent ref require return session struct transaction true var while wipe""".split())
+if in inout match not Ok or persistent ref require return session struct transaction true var while wipe ignore""".split())
 LIT = re.compile(r"(?:[0-9](?:_?[0-9])*|0x[0-9a-fA-F](?:_?[0-9a-fA-F])*|0b[01](?:_?[01])*)\Z")
 
 class LexError(Exception):
@@ -38,12 +39,29 @@ def lex(data: bytes):
             if not LIT.match(run):
                 raise LexError("CE-LEX-4", i)
             toks.append(("int", run)); i = j
+        elif s.startswith('b"', i):                             # a byte-string literal (WP9 L1)
+            j = i + 2; out = []
+            while True:
+                if j >= n or s[j] in "\r\n": raise LexError("CE-LEX-5", i)
+                ch = s[j]
+                if ch == '"': j += 1; break
+                if ch == "\\":
+                    esc = s[j + 1:j + 2]
+                    if esc in ('"', "\\"): out.append(ord(esc)); j += 2; continue
+                    if esc == "x" and re.fullmatch(r"[0-9a-fA-F]{2}", s[j + 2:j + 4] or ""):
+                        out.append(int(s[j + 2:j + 4], 16)); j += 4; continue
+                    raise LexError("CE-LEX-5", i)
+                if not (" " <= ch <= "~"): raise LexError("CE-LEX-5", i)
+                out.append(ord(ch)); j += 1
+            toks.append(("bytes", tuple(out))); i = j
         elif c.isascii() and (c.isalpha() or c == "_"):
             j = i
             while j < n and s[j].isascii() and (s[j].isalnum() or s[j] == "_"):
                 j += 1
             w = s[i:j]
             toks.append(("kw" if w in KEYWORDS else "_" if w == "_" else "id", w)); i = j
+        elif s[i:i+3] in PUNCT3:
+            toks.append(("p", s[i:i+3])); i += 3
         elif s[i:i+2] in PUNCT2:
             toks.append(("p", s[i:i+2])); i += 2
         elif c in PUNCT1:

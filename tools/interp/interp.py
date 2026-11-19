@@ -88,6 +88,8 @@ def parse_pattern(p):
         p.take(); p.expect("(")
         if p.peek(1) == ".":
             owner = p.take(); p.take(); member = p.take(); p.expect(")"); return ("err_member", owner, member)
+        if p.peek(1) == "(":
+            owner = p.take(); p.take(); name = p.take(); p.expect(")"); p.expect(")"); return ("err_set", owner, name)
         name = p.take(); p.expect(")"); return ("err_bind", name)
     if p.peek() == "_":
         p.take(); return ("wild",)
@@ -133,14 +135,21 @@ def parse_stmt(p):
     if v == "require":
         p.take(); c = p_expr(p); p.expect("else"); e = p_expr(p); p.expect(";"); return ("require", c, e)
     if v == "attempt":
-        p.take(); e = p_postfix(p, False); p.expect(";"); return ("attempt", e)
+        p.take(); e = p_postfix(p, False); other = None
+        if p.peek() == "else": p.take(); other = p_postfix(p, False)
+        p.expect(";"); return ("attempt", e, other)
+    if v == "ignore":
+        p.take(); e = p_postfix(p, False); p.expect(";"); return ("ignore", e)
     if v == "transaction":
         p.take(); return ("transaction", parse_block(p))
     if v == "wipe":
         p.take(); e = p_expr(p); p.expect(";"); return ("wipe", e)
     if v == "abort":
         p.take(); p.expect("Err"); p.expect("("); e = p_expr(p); p.expect(")"); p.expect(";"); return ("abort", e)
-    dest = p_expr(p); p.expect("="); e = p_expr(p); p.expect(";"); return ("assign", dest, e)
+    dest = p_expr(p)
+    if p.peek() in ("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="):
+        op = p.take()[:-1]; e = p_expr(p); p.expect(";"); return ("compound", dest, op, e)
+    p.expect("="); e = p_expr(p); p.expect(";"); return ("assign", dest, e)
 
 # ------------------------------------------------------------------ the machine
 class Card:
@@ -317,8 +326,9 @@ class Card:
         if k == "bin": return self.binary(e, env, T)
         if k == "attempt":
             out = self.eval(e[1], env)
-            if out[0] == "err": raise Ret(out)
+            if out[0] == "err": raise Ret(("err", self.eval(e[2], env)) if len(e) == 3 else out)    # OUT-22
             return copy_value(out[1])
+        if k == "__value": return e[1]
         if k == "call": return self.call(e, env, T)
         if k == "list":
             et = T[1] if isinstance(T, tuple) else None
@@ -736,7 +746,12 @@ class Card:
             if not self.eval(s[1], env, "bool"): raise Ret(("err", self.eval(s[2], env)))
         elif k == "attempt":
             out = self.eval(s[1], env)
-            if out[0] == "err": raise Ret(out)
+            if out[0] == "err": raise Ret(("err", self.eval(s[2], env)) if s[2] is not None else out)
+        elif k == "ignore":                                    # STM-24
+            self.eval(s[1], env)
+        elif k == "compound":                                  # STM-25: the place is evaluated once
+            dest = self.place(s[1], env); cur = dest.get(); t = self.type_of(cur)
+            dest.set(self.coerce(self.binary(("bin", s[2], ("__value", cur), s[3]), env, t), t))
         elif k == "transaction":
             snap = copy.deepcopy(self.persistent)
             try:
@@ -763,6 +778,9 @@ class Card:
             if pat[1] == "CardError": return {} if e.category == "platform" and e.ident == pat[2] else None
             return {} if e.category == "app" and e.ident == self.codes[(pat[1], pat[2])] else None
         if pat[0] == "err_bind": return {} if pat[1] == "_" else {pat[1]: v[1]}
+        if pat[0] == "err_set":                                # OUT-21: any application error, binding its code
+            if v[1].category != "app": return None
+            return {} if pat[2] == "_" else {pat[2]: Int(v[1].ident, "u16")}
         return None
 
     # ---- the card lifecycle (scenario steps)

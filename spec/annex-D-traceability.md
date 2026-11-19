@@ -23,14 +23,14 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | Spec file | Sub-plan | Design-note and platform-note sources | Rule IDs |
 |---|---|---|---|
 | 01-scope-and-conventions.md | SP0 | DN header, §1, §2, §3 (intro), §12, §13; PN §1 | none (conventions only) |
-| 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-24 |
+| 02-lexical-structure.md | SP1 | DN §3.0, §3.3 (literal forms), §3.5, §3.6, §4.1, §6.5 (negative minimum) | LEX-1 … LEX-25 |
 | 03-program-structure-and-names.md | SP2 | DN §3.0, §3.6 (scope), §3.7, §3.11, §4.1, §4.2, §5.1, §6.3, §11.1 | NAM-1 … NAM-22 |
 | 04-types.md | SP3 | DN §3.1, §3.4, §3.9 (defaults), §3.11, §8, §8.1, §8.2, §8.4, §9–§9.3 | TYP-1 … TYP-23 |
 | 05-constant-expressions.md | SP4 | DN §3.3, §3.8, §3.10, §3.11, §5.1, §6.5 | CEX-1 … CEX-14 |
-| 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-54 |
-| 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-23 |
+| 06-expressions.md | SP5 | DN §3.2, §3.3, §3.4, §3.5, §3.7, §3.11, §6.2, §6.5, §8.1, §8.2, §8.3, §9.3 | EXP-1 … EXP-55 |
+| 07-statements-and-control-flow.md | SP6 | DN §3.5, §3.6, §3.7 (completion), §3.9, §3.10, §3.11, §5.1, §8.2 | STM-1 … STM-25 |
 | 08-functions-and-references.md | SP7 | DN §3.0, §3.7, §3.8, §8.4, §9.2 | FUN-1 … FUN-24 |
-| 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-20 |
+| 09-outcomes-and-errors.md | SP8 | DN §3.2, §3.6, §3.7, §6.1, §6.2, §6.3, §7.2; PN §5 | OUT-1 … OUT-22 |
 | 10-state-and-initialization.md | SP9 | DN §3.9, §5, §5.1, §6.4 (session), §7.1, §8.2, §8.3, §9.3; PN §3 | STA-1 … STA-14 |
 | 11-transactions.md | SP10 | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-18 |
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
@@ -338,6 +338,11 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-450 | Security expectations for platforms | WP1 | PLT-31 to PLT-34, PLT-32, PLT-33 | OI-50 | covered |
 | D-451 | Capacity model withdrawn; runtime-sized atomic overflow traps | WP1 | STA-13, FUN-24, STM-23, RTF-4 | OI-51 | covered |
 | D-452 | Derived secrets are application data | WP4 | PLT-33 | OI-52 | covered |
+| D-453 | Byte-string literals | WP9 | LEX-25, EXP-55 | OI-53 | covered |
+| D-454 | The code of an application error | WP9 | OUT-21 | OI-54 | covered |
+| D-455 | attempt with a replacement error | WP9 | OUT-22, TXN-18 | OI-55 | covered |
+| D-456 | Discarding an outcome | WP9 | STM-24, LEX-13 | OI-56 | covered |
+| D-457 | Compound assignment | WP9 | STM-25, STM-6, LEX-22 | OI-57 | covered |
 
 ## D.3 Rules → conformance tests
 
@@ -351,7 +356,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 298 rules: 221 cited, 44 exercised, 33 not testable.
+**Totals:** 304 rules: 227 cited, 44 exercised, 33 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -376,9 +381,10 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | LEX-19 | cited | lex-003-integer-literals |
 | LEX-20 | exercised | exp-003-negative-minimum, exp-103-negative-literal-unsigned |
 | LEX-21 | cited | lex-004-boolean-literals |
-| LEX-22 | cited | lex-005-longest-match |
+| LEX-22 | cited | lex-005-longest-match, stm-132-split-compound |
 | LEX-23 | cited | lex-115-missing-semicolon |
 | LEX-24 | cited | lex-114-preprocessor-directive |
+| LEX-25 | cited | lex-010-byte-string-escapes, lex-117-unterminated-byte-string, lex-118-byte-string-bad-escape |
 | NAM-1 | exercised | nam-002-multi-file-any-order, lex-006-two-files |
 | NAM-2 | cited | nam-006-empty-file |
 | NAM-3 | not testable | A build-configuration rule, outside the language; it has no CE class |
@@ -492,12 +498,13 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-52 | exercised | exp-013-wrapping, exp-017-checked-convert, exp-019-equal-and-compare |
 | EXP-53 | cited | exp-019-equal-and-compare, exp-145-equal-element-types, exp-147-equal-by-value, fun-012-views-equal-and-wipe, run-018-array-operations |
 | EXP-54 | cited | exp-019-equal-and-compare, exp-146-compare-bool, fun-012-views-equal-and-wipe, run-018-array-operations |
+| EXP-55 | cited | exp-020-byte-strings, exp-148-byte-string-length, run-024-ergonomics |
 | STM-1 | exercised | stm-004-if-chain, stm-126-standalone-block |
 | STM-2 | cited | stm-125-expression-statement |
 | STM-3 | cited | stm-126-standalone-block |
 | STM-4 | cited | stm-001-local-defaults-and-initializers |
 | STM-5 | cited | run-005-loops-and-locals, stm-001-local-defaults-and-initializers |
-| STM-6 | cited | stm-101-chained-assignment, stm-102-assignment-in-condition, stm-103-compound-assignment, stm-104-increment |
+| STM-6 | cited | stm-101-chained-assignment, stm-102-assignment-in-condition, stm-104-increment |
 | STM-7 | cited | stm-002-assignment-places, stm-105-assign-constant, stm-106-assign-constant-element, stm-107-assign-by-value-parameter, stm-108-assign-for-index, stm-109-assign-length, stm-110-assign-match-binding, stm-127-assign-function |
 | STM-8 | cited | stm-002-assignment-places, stm-003-whole-array-assignment |
 | STM-9 | cited | run-004-assignment-order |
@@ -515,6 +522,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STM-21 | cited | stm-009-while-true-no-return, stm-118-missing-return, stm-119-if-without-else-return, stm-120-while-true-with-break |
 | STM-22 | cited | stm-010-statements-after-return |
 | STM-23 | cited | fun-012-views-equal-and-wipe, run-018-array-operations, stm-013-wipe, stm-128-wipe-constant |
+| STM-24 | cited | run-024-ergonomics, stm-014-ignore, stm-130-ignore-non-call |
+| STM-25 | cited | run-024-ergonomics, stm-015-compound-assignment, stm-129-compound-on-constant, stm-131-compound-type, stm-132-split-compound |
 | FUN-1 | exercised | fun-001-forward-call-across-files, fun-010-no-payload-function |
 | FUN-2 | cited | fun-002-structure-return, fun-010-no-payload-function |
 | FUN-3 | cited | fun-001-forward-call-across-files |
@@ -559,6 +568,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | OUT-18 | cited | run-007-outcomes |
 | OUT-19 | cited | out-009-match-card-error, out-108-originate-card-error, out-109-require-card-error, txn-110-abort-card-error |
 | OUT-20 | cited | run-007-outcomes, run-011-counter-application, run-012-wallet-application |
+| OUT-21 | cited | out-010-error-codes-and-mapping, out-132-card-error-set-pattern, run-024-ergonomics |
+| OUT-22 | cited | out-010-error-codes-and-mapping, out-133-attempt-else-card-error, run-024-ergonomics |
 | STA-1 | cited | sta-001-global-declarations |
 | STA-2 | cited | sta-001-global-declarations, sta-101-persistent-initializer, sta-102-session-fill-initializer, sta-103-persistent-zero-initializer, sta-104-session-false-initializer |
 | STA-3 | cited | run-008-state-lifecycle |
@@ -590,7 +601,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | TXN-15 | cited | txn-010-ends-with-abort |
 | TXN-16 | not testable | Transaction capacity is platform-defined; the suite has no target profile |
 | TXN-17 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, plt-105-forbidden-in-transaction, plt-106-forbidden-through-helper |
-| TXN-18 | cited | run-009-transactions, txn-012-attempt-inside, txn-013-require-inside |
+| TXN-18 | cited | run-009-transactions, run-024-ergonomics, txn-012-attempt-inside, txn-013-require-inside |
 | HEP-1 | cited | hep-001-minimal, hep-002-any-names, hep-005-counter-application, hep-101-no-command, hep-102-two-commands |
 | HEP-2 | cited | hep-001-minimal, hep-002-any-names, hep-103-wrong-return-type, hep-104-no-return-type, hep-105-inout-request, hep-106-fixed-size-request, hep-107-extra-parameter |
 | HEP-3 | cited | hep-108-call-command |

@@ -61,8 +61,6 @@ add(I+"stm-101-chained-assignment.card", "STM-6", "DN §3.5", "compile-error CE-
 fn(["var a: u32;", "var b: u32;", "a = b = 0;", "return Ok();"]))
 add(I+"stm-102-assignment-in-condition.card", "STM-6", "DN §3.5", "compile-error CE-SYN-1", "Assignment inside a condition.",
 fn(["var ready: bool;", "if ready = true {", "}", "return Ok();"]))
-add(I+"stm-103-compound-assignment.card", "STM-6", "DN §3.5", "compile-error CE-SYN-1", "Compound assignment is deferred.",
-fn(["var count: u32;", "count += 1;", "return Ok();"]))
 add(I+"stm-104-increment.card", "STM-6", "DN §3.5", "compile-error CE-SYN-1", "There is no increment operator.",
 fn(["var count: u32;", "count++;", "return Ok();"]))
 add(I+"stm-105-assign-constant.card", "STM-7", "DN §5.1", "compile-error CE-STM-2", "Assignment to a constant.",

@@ -1,0 +1,23 @@
+// rule: STM-25
+// source: D-457
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: All ten compound operators.
+persistent total: u32;
+
+function check() {
+    var x: u8 = 1;
+    x += 2;
+    x -= 1;
+    x *= 3;
+    x /= 2;
+    x %= 2;
+    x &= 0x0F;
+    x |= 0x10;
+    x ^= 0x01;
+    x <<= 1;
+    x >>= 2;
+    total += 1;
+    return Ok();
+}

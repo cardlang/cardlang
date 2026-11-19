@@ -57,3 +57,22 @@ Each finding has a category, its evidence from the applet, and a proposed change
 - **The PIN protocol** (`clientPIN` protocol 2, F1 step 2). It exercises ECDH, HKDF, AES-CBC, HMAC, `wipe` and session state, and the open question of `FIDO_2_0` hosts and protocol 2.
 - **Resident credentials** (F2 follow-up). These exercise persistent arrays of structures and transactions.
 - **Decide which findings to take up for Draft 0.2.** L1, L2, L4 and P1 have the clearest payoff.
+
+## 4. After WP9: the applet using L1, L2, L4, L5 and L6 (2026-11-19)
+
+WP9 added byte strings (L1), the `Err(Set(code))` pattern (L2), `attempt … else` (L4), `ignore` (L5) and compound assignment (L6), as OI-53 to OI-57. The applet was refactored to use them, and `check_fido2.py` still passes all 21 checks.
+
+| Measure | Before | After |
+|---|---|---|
+| Total lines | 552 | 480 (−13%) |
+| `iso7816-entry.card` | 78 lines, with a 12-arm error `match` | 38 lines, with one `Err(IsoError(code))` arm |
+| `at = at + n;` lines after CBOR writes | 40 | 0. Each write is now `at += attempt card.cbor.write_…(…);` |
+| Hand-written byte lists for text | 12 | 0. Only the binary `GET_INFO` blob is still a list |
+| Empty-arm `match` statements | 2 | 1 |
+
+**New findings from the refactor:**
+
+| # | Finding | Proposal |
+|---|---|---|
+| L10 | **`attempt … else` leaves no room for cleanup.** `load_credential_key` must wipe the derived key bytes before returning on failure, so it keeps a `match`: `attempt … else` would return without the `wipe` | A candidate: scoped cleanup, such as a `defer wipe derived;` statement. It is not urgent, because one `match` covers the case |
+| L11 | **EXP-49 bit once:** `status(inout response, truncate<u8>(code))` is rejected, because `truncate` is a call inside a call argument. It needed one temporary | Still weak evidence against EXP-49: one case in 480 lines |

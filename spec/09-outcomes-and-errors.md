@@ -199,7 +199,7 @@ function narrow(incoming: u16) -> u8 {
 ```
 MatchStatement ::= 'match' ConditionExpression '{' MatchArm* '}'      /* §A.2.5 */
 Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
-                 | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
+                 | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier | Identifier '(' ( Identifier | '_' ) ')' ) ')'
                  | …
 ```
 
@@ -354,6 +354,26 @@ function add_to_total(amount: u32) -> bool {
 | `attempt log_error(error);` | CE-OUT-6 | `invalid/out-122-pass-error-binding.card` |
 | `require ready else error;` | CE-STM-7 | `invalid/out-123-error-binding-require.card` |
 
+**OUT-21 [Agreed]** The pattern `Err(Set(name))`, where `Set` is the application's error set, matches every `Err` whose error is a member of `Set`. It binds `name` as a read-only local of type `u16` that holds the member's code (OUT-16). Platform errors never match it.
+
+- **Arm order.** It counts as a specific arm for every member of `Set`. An arm for a member of `Set` after it, or a second `Err(Set(…))` arm, is **CE-OUT-5**.
+- **No error values.** The binding is an integer, not an error value. OUT-14 is unchanged: an `Err(name)` binding still cannot be inspected.
+- **`CardError`.** `Err(CardError(name))` is **CE-OUT-5**.
+*Sources: D-454 (OI-54).*
+
+**OUT-22 [Agreed]** `attempt c else M`, where `M` is a qualified member of the application's error set, is `attempt c` (OUT-9, OUT-10) with one difference: when `c` produces `Err` of any kind, the enclosing function or command returns `Err(M)` instead of the original error. Lexically inside a transaction, it aborts with `Err(M)` instead (TXN-18). It has the expression and the statement forms of `attempt`.
+
+- **The operand.** An operand `M` that is not such a member, including a `CardError` member, is **CE-OUT-3**.
+- **Traps** are never caught.
+- **Parsing.** The `else` belongs to the nearest `attempt`. To use `attempt` inside the condition of a `require`, parenthesize it: `require (attempt ready()) else E.M;`.
+*Sources: D-455 (OI-55).*
+
+*Valid:* an `Err(Set(code))` arm that translates application errors, and `attempt … else` in both forms. (conformance: `valid/out-010-error-codes-and-mapping.card`)
+
+*Invalid:* `Err(CardError(code))`. **CE-OUT-5**. (conformance: `invalid/out-132-card-error-set-pattern.card`)
+
+*Invalid:* `attempt … else CardError.NotFound`. **CE-OUT-3**. (conformance: `invalid/out-133-attempt-else-card-error.card`)
+
 ## 9.6 The application error set
 
 ```
@@ -437,8 +457,8 @@ An error carries nothing else: no message, no payload and no field naming its so
 |---|---|---|
 | **CE-OUT-1** | An outcome is discarded by a call used as a statement | OUT-7 |
 | **CE-OUT-2** | A `return` form does not match the function's payload, or a forwarded outcome has a different payload type | OUT-3, OUT-5 |
-| **CE-OUT-3** | An `Err` or `require` operand that is not an application error member or error binding, including any `CardError` member | STM-19, OUT-4, OUT-19, TXN-7 |
-| **CE-OUT-4** | An invalid `attempt`: its operand is not an outcome-producing call, or its form does not match the payload | OUT-8, OUT-9 |
-| **CE-OUT-5** | An invalid outcome `match`: incompatible pattern, missing or repeated success arm, missing catch-all, repeated specific error, or an arm after the catch-all | OUT-11, OUT-12 |
+| **CE-OUT-3** | An `Err` or `require` operand that is not an application error member or error binding, including any `CardError` member | STM-19, OUT-4, OUT-19, OUT-22, TXN-7 |
+| **CE-OUT-4** | An invalid `attempt` or `ignore`: its operand is not an outcome-producing call, or the `attempt` form does not match the payload | STM-24, OUT-8, OUT-9 |
+| **CE-OUT-5** | An invalid outcome `match`: incompatible pattern, missing or repeated success arm, missing catch-all, repeated specific error, or an arm after the catch-all | OUT-11, OUT-12, OUT-21 |
 | **CE-OUT-6** | An error binding used other than in `return Err(…)` or `abort Err(…)` | OUT-14 |
 | **CE-OUT-7** | An invalid error set: more than one set, no members, or a non-literal, zero or duplicate code | OUT-15, OUT-16 |

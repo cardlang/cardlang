@@ -40,6 +40,7 @@ class OutChecker(funcheck.FunChecker):
     def synth(self, e, L, value=True):
         if e[0] == "name" and e[1] in self._bindings: raise CE("CE-OUT-6")
         if e[0] == "attempt":
+            if len(e) == 3 and not self.app_member(e[2]): raise CE("CE-OUT-3")     # OUT-22
             if e[1][0] != "call": raise CE("CE-OUT-4")
             t = self.synth(e[1], L)
             if not (isinstance(t, tuple) and t[0] == "outcome"): raise CE("CE-OUT-4")
@@ -71,6 +72,9 @@ class OutChecker(funcheck.FunChecker):
             p.expect(";"); return False
         if v == "attempt":
             p.take(); e = p_postfix(p, False)
+            if p.peek() == "else":
+                p.take()
+                if not self.app_member(p_postfix(p, False)): raise CE("CE-OUT-3")      # OUT-22
             if e[0] != "call": raise CE("CE-OUT-4")
             t = self.synth(e, L)
             if not (isinstance(t, tuple) and t[0] == "outcome") or t[1] != "none": raise CE("CE-OUT-4")
@@ -85,7 +89,7 @@ class OutChecker(funcheck.FunChecker):
             if not (isinstance(st, tuple) and st[0] == "outcome"):
                 p.i = save; return super().sstmt(p, L, ret, ro, loops)
             return self.outcome_match(p, st[1], L, ret, ro, loops)
-        if v not in ("var", "if", "while", "for", "break", "continue", "{", "wipe") and v not in ("persistent", "session", "const"):
+        if v not in ("var", "if", "while", "for", "break", "continue", "{", "wipe", "ignore") and v not in ("persistent", "session", "const"):
             save = p.i; e = p_expr(p)
             if p.peek() == ";" and e[0] == "call":
                 t = self.synth(e, L)
@@ -113,11 +117,17 @@ class OutChecker(funcheck.FunChecker):
                 p.expect(")")
             elif p.peek() == "Err":
                 p.take(); p.expect("(")
-                if p.peek(1) == ".":
+                if p.peek(1) == "(":                                  # Err(Set(code)), OUT-21
+                    owner = p.take(); p.take(); b = p.take(); p.expect(")")
+                    if owner not in self.errors: raise CE("CE-NAM-2")
+                    if owner == "CardError" or ("set", owner) in specifics: raise CE("CE-OUT-5")
+                    specifics.add(("set", owner))
+                    if b != "_": L2[b] = "u16"; ro2.add(b)
+                elif p.peek(1) == ".":
                     owner = p.take(); p.take(); member = p.take()
                     if owner not in self.errors: raise CE("CE-NAM-2")
                     if member not in self.errors[owner]: raise CE("CE-NAM-9")
-                    if (owner, member) in specifics: raise CE("CE-OUT-5")
+                    if (owner, member) in specifics or ("set", owner) in specifics: raise CE("CE-OUT-5")
                     specifics.add((owner, member))
                 else:
                     b = p.take(); catch_all = True

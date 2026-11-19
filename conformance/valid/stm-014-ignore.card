@@ -1,0 +1,24 @@
+// rule: STM-24
+// source: D-456
+// status: agreed
+// kind: fragment
+// expect: ok
+// note: ignore with and without a payload.
+errors AppError {
+    Alpha = 1;
+    Beta = 2;
+}
+
+function get() -> u32 {
+    return Err(AppError.Beta);
+}
+
+function act() {
+    return Err(AppError.Alpha);
+}
+
+function check() {
+    ignore get();
+    ignore act();
+    return Ok();
+}

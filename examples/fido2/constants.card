@@ -7,18 +7,18 @@ const DERIVE_KEY: u32 = 2;
 // A volatile key holding one credential's private key while it is in use.
 const TEMP_KEY: u32 = 3;
 
-// Text keys and values used in CTAP maps, as UTF-8 bytes.
-const KEY_ID: u8[2] = [0x69, 0x64];                                   // "id"
-const KEY_TYPE: u8[4] = [0x74, 0x79, 0x70, 0x65];                     // "type"
-const KEY_ALG: u8[3] = [0x61, 0x6C, 0x67];                            // "alg"
-const KEY_RK: u8[2] = [0x72, 0x6B];                                   // "rk"
-const KEY_UP: u8[2] = [0x75, 0x70];                                   // "up"
-const KEY_UV: u8[2] = [0x75, 0x76];                                   // "uv"
-const PUBLIC_KEY: u8[10] = [0x70, 0x75, 0x62, 0x6C, 0x69, 0x63, 0x2D, 0x6B, 0x65, 0x79];   // "public-key"
-const FMT_NONE: u8[4] = [0x6E, 0x6F, 0x6E, 0x65];                     // "none"
+// Text keys and values used in CTAP maps.
+const KEY_ID: u8[2] = b"id";
+const KEY_TYPE: u8[4] = b"type";
+const KEY_ALG: u8[3] = b"alg";
+const KEY_RK: u8[2] = b"rk";
+const KEY_UP: u8[2] = b"up";
+const KEY_UV: u8[2] = b"uv";
+const PUBLIC_KEY: u8[10] = b"public-key";
+const FMT_NONE: u8[4] = b"none";
 
-// The AAGUID of this example authenticator: the ASCII bytes of "CardLangExample1".
-const AAGUID: u8[16] = [0x43, 0x61, 0x72, 0x64, 0x4C, 0x61, 0x6E, 0x67, 0x45, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x31];
+// The AAGUID of this example authenticator.
+const AAGUID: u8[16] = b"CardLangExample1";
 
 // The authenticatorGetInfo response, canonical CBOR:
 // {1: ["FIDO_2_0"], 3: AAGUID, 4: {"rk": false, "up": true, "plat": false}, 5: 1280}

@@ -66,6 +66,11 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-50 | Security expectations for platforms | Gap | WP1 | Resolved |
 | OI-51 | The capacity model (withdrawn) | Proposal-to-validate | WP1 | Resolved |
 | OI-52 | Derived secrets are application data | Gap | WP4 | Resolved |
+| OI-53 | Byte-string literals | Proposal-to-validate | WP9 | Resolved |
+| OI-54 | The code of an application error | Proposal-to-validate | WP9 | Resolved |
+| OI-55 | attempt with a replacement error | Proposal-to-validate | WP9 | Resolved |
+| OI-56 | Discarding an outcome | Proposal-to-validate | WP9 | Resolved |
+| OI-57 | Compound assignment | Proposal-to-validate | WP9 | Resolved |
 
 ---
 
@@ -819,6 +824,56 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-53 — Byte-string literals
+
+- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Affected rules:** LEX-25, EXP-55
+- **Basis:** WP8 L1; WP9 G1. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Status:** resolved 2026-11-19 (D-453)
+- **Decision:** `b"…"`: printable ASCII with the escapes `\"`, `\\` and `\xHH`; an array list of its bytes, checking against u8[N]; CE-LEX-5 for malformed literals.
+
+---
+
+## OI-54 — The code of an application error
+
+- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Affected rules:** OUT-21
+- **Basis:** WP8 L2; WP9 G2. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Status:** resolved 2026-11-19 (D-454)
+- **Decision:** The pattern Err(Set(name)) matches any member of the application's error set and binds its code as a read-only u16; platform errors never match; OUT-14 unchanged.
+
+---
+
+## OI-55 — attempt with a replacement error
+
+- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Affected rules:** OUT-22, TXN-18
+- **Basis:** WP8 L4; WP9 G3. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Status:** resolved 2026-11-19 (D-455)
+- **Decision:** attempt c else M returns (or, inside a transaction, aborts with) Err(M) for any Err of c; M is an application error member.
+
+---
+
+## OI-56 — Discarding an outcome
+
+- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Affected rules:** STM-24, LEX-13
+- **Basis:** WP8 L5; WP9 G4. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Status:** resolved 2026-11-19 (D-456)
+- **Decision:** ignore c; evaluates the call and discards any outcome, with or without a payload; ignore is a keyword.
+
+---
+
+## OI-57 — Compound assignment
+
+- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Affected rules:** STM-25, STM-6, LEX-22
+- **Basis:** WP8 L6; WP9 G5. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Status:** resolved 2026-11-19 (D-457)
+- **Decision:** Ten compound operators (+= -= *= /= %= &= |= ^= <<= >>=) as punctuators; the place is evaluated once, then op is applied with its usual checks.
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -875,3 +930,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 (WP1) |
 | 2026-11-17 | OI-51 | The capacity model (withdrawn) (D-451) | User | STA-13, FUN-24, STM-23, RTF-4 (WP1) |
 | 2026-11-18 | OI-52 | Derived secrets are application data (D-452) | User | PLT-33 (WP4) |
+| 2026-11-19 | OI-53 | Byte-string literals (D-453) | User | LEX-25, EXP-55 (WP9) |
+| 2026-11-19 | OI-54 | The code of an application error (D-454) | User | OUT-21 (WP9) |
+| 2026-11-19 | OI-55 | attempt with a replacement error (D-455) | User | OUT-22, TXN-18 (WP9) |
+| 2026-11-19 | OI-56 | Discarding an outcome (D-456) | User | STM-24, LEX-13 (WP9) |
+| 2026-11-19 | OI-57 | Compound assignment (D-457) | User | STM-25, STM-6, LEX-22 (WP9) |

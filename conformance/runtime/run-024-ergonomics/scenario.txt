@@ -1,0 +1,24 @@
+install
+power_on
+command 01           # Err(AppError(code)) binds the member's code (OUT-21)
+expect ok 91 02
+command 02           # attempt ... else replaces a platform error (OUT-22)
+expect err app 37123
+command 03           # inside a transaction, attempt ... else aborts with the replacement
+expect err app 37123
+command 05           # total += 5 was rolled back
+expect ok 00 00 00 00
+command 08
+expect ok
+command 05
+expect ok 00 00 00 05
+command 04           # ignore discards an Err, with and without a payload (STM-24)
+expect ok 6f 6b
+command 06 01 02     # compound assignment
+expect ok 03
+command 06 c8 64     # 200 + 100 overflows u8: checked as usual (STM-25)
+expect trap OVERFLOW
+command 07           # values[attempt next()] += 1 calls next once
+expect ok 01 01
+command 07
+expect ok 02 02

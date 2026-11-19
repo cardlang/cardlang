@@ -31,14 +31,14 @@ Expression      ::= UnaryExpression ( BinaryOperator UnaryExpression )*
 BinaryOperator  ::= '+' | '-' | '*' | '/' | '%' | '==' | '!=' | '<' | '<=' | '>' | '>='
                   | 'and' | 'or' | '&' | '|' | '^' | '<<' | '>>'
 UnaryExpression ::= ( '-' | 'not' | '~' ) UnaryExpression
-                  | 'attempt' PostfixExpression
+                  | 'attempt' PostfixExpression ( 'else' PostfixExpression )?
                   | PostfixExpression
 PostfixExpression ::= PrimaryExpression PostfixPart*
 PostfixPart     ::= '[' Expression ']'
                   | '[' Expression '..' Expression ']'
                   | '.' Identifier
                   | Arguments
-PrimaryExpression ::= IntegerLiteral | BooleanLiteral | Identifier
+PrimaryExpression ::= IntegerLiteral | BooleanLiteral | ByteStringLiteral | Identifier
                   | '(' Expression ')'
                   | ArrayList
                   | StructConstructor
@@ -52,10 +52,10 @@ Arguments       ::= '(' ( Argument ( ',' Argument )* ','? )? ')'
 Argument        ::= ( 'ref' | 'inout' )? Expression
 ConditionExpression ::= ConditionUnary ( BinaryOperator ConditionUnary )*
 ConditionUnary  ::= ( '-' | 'not' | '~' ) ConditionUnary
-                  | 'attempt' ConditionPostfix
+                  | 'attempt' ConditionPostfix ( 'else' ConditionPostfix )?
                   | ConditionPostfix
 ConditionPostfix ::= ConditionPrimary PostfixPart*
-ConditionPrimary ::= IntegerLiteral | BooleanLiteral | Identifier
+ConditionPrimary ::= IntegerLiteral | BooleanLiteral | ByteStringLiteral | Identifier
                   | '(' Expression ')'
                   | ArrayList
                   | TypeArgumentCall
@@ -690,6 +690,19 @@ function build() -> Account {
 | A constructor with an undeclared field | CE-EXP-12 | `invalid/exp-132-constructor-unknown-field.card` |
 | A constructor with `balance` twice | CE-EXP-12 | `invalid/exp-133-constructor-duplicate-field.card` |
 
+**EXP-55 [Agreed]** A byte-string literal (LEX-25) of `N` bytes is an array list of `N` integer literals, one per byte, in order. It has the same typing and positions as that array list (EXP-43):
+
+- it has no type of its own;
+- it checks against `u8[N]`. Another length is **CE-EXP-11**, and no expected array type is **CE-EXP-10**;
+- it is a constant expression (chapter 5).
+
+For example, `const KEY_ID: u8[2] = b"id";` is the same as `const KEY_ID: u8[2] = [0x69, 0x64];`. Like an array list, it is not storage, so passing it as a `ref` argument is **CE-FUN-3**. Declare a `const` instead.
+*Sources: D-453 (OI-53).*
+
+*Valid:* byte strings, escapes included, as constants, initializers and slice-assignment sources. (conformance: `valid/exp-020-byte-strings.card`)
+
+*Invalid:* a byte string of 2 bytes for a `u8[3]`. **CE-EXP-11**. (conformance: `invalid/exp-148-byte-string-length.card`)
+
 ## 6.11 Calls
 
 **EXP-47 [Agreed]** A call `f(a1, …, an)` names its target directly. The target is one of:
@@ -750,7 +763,7 @@ When `attempt` is in the right operand of `and` or `or`, it is evaluated only if
 
 | Class | Meaning | Rules |
 |---|---|---|
-| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18, EXP-53, STM-8, STM-11, FUN-8, FUN-24 |
+| **CE-EXP-1** | A type does not match the type required by its context, including a literal checked against a non-integer type | EXP-7, EXP-12, EXP-16, EXP-18, EXP-53, STM-8, STM-11, STM-25, FUN-8, FUN-24 |
 | **CE-EXP-2** | An integer literal is out of range for its expected type | EXP-7, STM-13 |
 | **CE-EXP-3** | An integer literal has no type context | EXP-11, EXP-29 |
 | **CE-EXP-4** | Different binary operators at one grouping level | EXP-2, EXP-5 |
@@ -759,8 +772,8 @@ When `attempt` is in the right operand of `and` or `or`, it is evaluated only if
 | **CE-EXP-7** | A call or `attempt` inside a call argument | EXP-49 |
 | **CE-EXP-8** | An invalid conversion or byte intrinsic: unknown source type, non-integer type, conversion not guaranteed, or unsupported width | EXP-31, EXP-32, EXP-36, EXP-37 |
 | **CE-EXP-9** | An index whose type is not `u8`, `u16` or `u32` | EXP-39, FUN-19 |
-| **CE-EXP-10** | An array list or `fill` with no expected array type | EXP-43, EXP-44, FUN-24 |
-| **CE-EXP-11** | An array list with the wrong number of elements | EXP-43 |
+| **CE-EXP-10** | An array list or `fill` with no expected array type | EXP-43, EXP-44, EXP-55, FUN-24 |
+| **CE-EXP-11** | An array list with the wrong number of elements | EXP-43, EXP-55 |
 | **CE-EXP-12** | A constructor field that is missing, undeclared or repeated | EXP-45 |
 | **CE-EXP-13** | A field selection the receiver does not have | EXP-41 |
 | **CE-EXP-14** | An outcome used where a value is required | EXP-48 |

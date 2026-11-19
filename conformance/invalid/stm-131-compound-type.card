@@ -1,0 +1,12 @@
+// rule: STM-25
+// source: D-457
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-EXP-1
+// note: The operand of += must have the place's type.
+function check() {
+    var small: u8 = 1;
+    var wide: u16 = 2;
+    small += wide;
+    return Ok();
+}

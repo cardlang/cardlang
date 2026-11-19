@@ -1,0 +1,15 @@
+invalid/exp-148-byte-string-length.card
+invalid/lex-117-unterminated-byte-string.card
+invalid/lex-118-byte-string-bad-escape.card
+invalid/out-132-card-error-set-pattern.card
+invalid/out-133-attempt-else-card-error.card
+invalid/stm-129-compound-on-constant.card
+invalid/stm-130-ignore-non-call.card
+invalid/stm-131-compound-type.card
+invalid/stm-132-split-compound.card
+valid/exp-020-byte-strings.card
+valid/lex-010-byte-string-escapes.card
+valid/out-010-error-codes-and-mapping.card
+valid/stm-014-ignore.card
+valid/stm-015-compound-assignment.card
+runtime/run-024-ergonomics/

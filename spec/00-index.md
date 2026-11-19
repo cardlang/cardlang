@@ -23,7 +23,7 @@ This is the normative specification of the CardLang language.
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | Complete and consolidated; checked mechanically (SP14) |
 | [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | SP13 | Draft complete |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-52 all resolved; none open |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-57 all resolved; none open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Complete: every decision covered (D-134 informative); rule coverage matrix in §D.3 |
 
 Related files:
@@ -36,20 +36,20 @@ Related files:
 
 | Chapter | Rules | [Agreed] | [Proposal] | [Open] |
 |---|---|---|---|---|
-| 2 Lexical structure | 24 | 24 | 0 | 0 |
+| 2 Lexical structure | 25 | 25 | 0 | 0 |
 | 3 Program structure and names | 22 | 22 | 0 | 0 |
 | 4 Types | 23 | 23 | 0 | 0 |
 | 5 Constant expressions | 14 | 14 | 0 | 0 |
-| 6 Expressions | 54 | 54 | 0 | 0 |
-| 7 Statements and control flow | 23 | 23 | 0 | 0 |
+| 6 Expressions | 55 | 55 | 0 | 0 |
+| 7 Statements and control flow | 25 | 25 | 0 | 0 |
 | 8 Functions, references and slices | 24 | 24 | 0 | 0 |
-| 9 Outcomes and errors | 20 | 20 | 0 | 0 |
+| 9 Outcomes and errors | 22 | 22 | 0 | 0 |
 | 10 State and initialization | 14 | 14 | 0 | 0 |
 | 11 Transactions | 18 | 18 | 0 | 0 |
 | 12 Host entry point | 16 | 16 | 0 | 0 |
 | 13 Runtime failures | 12 | 12 | 0 | 0 |
 | Annex B Platform contract | 34 | 34 | 0 | 0 |
-| **Total** | 298 | 298 | 0 | 0 |
+| **Total** | 304 | 304 | 0 | 0 |
 
 `tools/checkers/speccheck.py` checks these counts against the rules actually defined.
 
@@ -90,6 +90,7 @@ Related files:
 | CE-LEX-2 | Character not permitted outside a comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-3 | Unterminated block comment | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-LEX-4 | Malformed numeric literal | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
+| CE-LEX-5 | Malformed byte-string literal | [2 §2.8](02-lexical-structure.md#28-lexical-errors) |
 | CE-NAM-1 | Duplicate name in the application scope | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
 | CE-NAM-2 | Unresolved name | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
 | CE-NAM-3 | Shadowing a visible name | [3 §3.6](03-program-structure-and-names.md#36-errors-defined-in-this-chapter) |
@@ -114,7 +115,7 @@ Related files:
 | CE-OUT-1 | Outcome discarded by a call used as a statement | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-2 | Return form does not match the payload, or forwarding mismatch | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-3 | Err or require operand is not an application error member or error binding | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
-| CE-OUT-4 | Invalid attempt operand or form | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
+| CE-OUT-4 | Invalid attempt or ignore operand, or attempt form | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-5 | Invalid outcome match | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-6 | Error binding used other than in return Err or abort Err | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |
 | CE-OUT-7 | Invalid error set | [9 §9.9](09-outcomes-and-errors.md#99-errors-defined-in-this-chapter) |

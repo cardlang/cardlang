@@ -499,6 +499,6 @@ function narrow(data: inout u8[]) -> u32 {
 |---|---|---|
 | **CE-FUN-1** | The call graph contains a cycle (recursion) | FUN-5 |
 | **CE-FUN-2** | An argument's mode does not match its parameter's mode | EXP-53, FUN-7 |
-| **CE-FUN-3** | A `ref` or `inout` argument does not identify existing storage | FUN-9 |
+| **CE-FUN-3** | A `ref` or `inout` argument does not identify existing storage | EXP-55, FUN-9 |
 | **CE-FUN-4** | An `inout` argument is not mutable through its path | FUN-10, FUN-15 |
 | **CE-FUN-5** | A slice in a position where slices are not allowed | FUN-18 |

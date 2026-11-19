@@ -1,0 +1,12 @@
+// rule: STM-25
+// source: D-457
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-STM-2
+// note: A compound assignment to a constant.
+const LIMIT: u8 = 4;
+
+function check() {
+    LIMIT += 1;
+    return Ok();
+}

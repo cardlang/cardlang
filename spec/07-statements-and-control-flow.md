@@ -28,7 +28,7 @@ Block               ::= '{' Statement* '}'
 Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
                       | IfStatement | WhileStatement | ForStatement | MatchStatement
                       | BreakStatement | ContinueStatement | ReturnStatement | RequireStatement
-                      | TransactionStatement | AbortStatement | WipeStatement
+                      | TransactionStatement | AbortStatement | WipeStatement | IgnoreStatement
 ExpressionStatement ::= Expression ';'
 ```
 
@@ -81,7 +81,8 @@ function locals() -> u32 {
 ## 7.3 Assignment
 
 ```
-AssignmentStatement ::= Expression '=' Expression ';'
+AssignmentStatement ::= Expression ( '=' | CompoundOperator ) Expression ';'
+CompoundOperator    ::= '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>='
 ```
 
 **STM-6 [Agreed]** Assignment is a statement, never an expression. It has exactly one `=`. Consequently, none of these exist, and each fails to derive (**CE-SYN-1**):
@@ -90,7 +91,7 @@ AssignmentStatement ::= Expression '=' Expression ';'
 - assignment inside a condition;
 - increment and decrement, such as `count++;`.
 
-Compound assignment such as `x += 1;` is deferred. The text `+=` is the two tokens `+` and `=` (LEX-22), so it also does not derive.
+Compound assignment, such as `x += 1;`, is defined by STM-25.
 *Sources: D-105, D-349; DN §3.5.*
 
 **STM-7 [Agreed]** The left side of an assignment must be a *place*. A place is one of:
@@ -196,7 +197,6 @@ function copy() {
 |---|---|---|
 | `a = b = 0;` (DN §3.5) | CE-SYN-1 | `invalid/stm-101-chained-assignment.card` |
 | `if ready = true { … }` | CE-SYN-1 | `invalid/stm-102-assignment-in-condition.card` |
-| `count += 1;` | CE-SYN-1 | `invalid/stm-103-compound-assignment.card` |
 | `count++;` | CE-SYN-1 | `invalid/stm-104-increment.card` |
 | `LIMIT = 5;` with `LIMIT` a constant | CE-STM-2 | `invalid/stm-105-assign-constant.card` |
 | `IDENTIFIER[0] = 9;` with `IDENTIFIER` a constant | CE-STM-2 | `invalid/stm-106-assign-constant-element.card` |
@@ -205,6 +205,36 @@ function copy() {
 | `buffer.length = 10;` (DN §8.1) | CE-STM-2 | `invalid/stm-109-assign-length.card` |
 | `value = 1;` with `value` bound by `Ok(value)` | CE-STM-2 | `invalid/stm-110-assign-match-binding.card` |
 | `helper = 1;` with `helper` a function | CE-STM-2 | `invalid/stm-127-assign-function.card` |
+
+```
+IgnoreStatement ::= 'ignore' PostfixExpression ';'
+```
+
+**STM-24 [Agreed]** `ignore c;` evaluates the call `c` and discards its outcome, whether `Ok` (with or without a payload) or `Err`. `c` must be a call that produces an outcome. Anything else is **CE-OUT-4**. Traps are not affected: a trap in `c` ends the command as usual. `ignore` never leaves the enclosing block, so it is valid inside a transaction. It is the explicit form of discarding an outcome, which OUT-7 otherwise forbids.
+*Sources: D-456 (OI-56).*
+
+**STM-25 [Agreed]** A *compound assignment* `p op= e;`, where `op=` is one of `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=` and `>>=`, is evaluated as follows:
+
+1. Evaluate the place `p`'s path once, and check its indices (STM-9 step 1).
+2. Read the current value of `p`.
+3. Evaluate `e`.
+4. Apply `op` to the current value and `e`, with the semantics and checks of the binary operator (chapter 6). For example, an overflow traps (EXP-23).
+5. Store the result into `p`.
+
+The place is never evaluated twice: in `values[attempt next()] += 1;`, `next` is called once.
+
+- **Typing.** `p` must be an assignable place (STM-7) that is not a slice. Otherwise it is **CE-STM-2**. The binary expression `p op e` must type as for the operator, with `e` as one whole operand, and its type must be the type of `p`. Otherwise it is **CE-EXP-1**.
+- **Persistence.** A compound assignment to persistent storage is one atomic persistent assignment (STA-11).
+- **Not an expression.** A compound assignment is a statement, never an expression (STM-6).
+*Sources: D-457 (OI-57).*
+
+*Valid:* `ignore` with and without a payload. (conformance: `valid/stm-014-ignore.card`)
+
+*Valid:* all ten compound operators. (conformance: `valid/stm-015-compound-assignment.card`)
+
+*Invalid:* a compound assignment to a constant. **CE-STM-2**. (conformance: `invalid/stm-129-compound-on-constant.card`)
+
+*Invalid:* `ignore` of something that is not a call. **CE-OUT-4**. (conformance: `invalid/stm-130-ignore-non-call.card`)
 
 ## 7.4 `if`
 
@@ -337,7 +367,7 @@ function scan() -> u8 {
 MatchStatement ::= 'match' ConditionExpression '{' MatchArm* '}'
 MatchArm       ::= Pattern '=>' Block
 Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
-                 | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
+                 | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier | Identifier '(' ( Identifier | '_' ) ')' ) ')'
                  | Identifier '.' Identifier
                  | '_'
 ```
@@ -505,7 +535,7 @@ function early() -> u32 {
 | Class | Meaning | Rules |
 |---|---|---|
 | **CE-STM-1** | An expression other than an `attempt` call used as a statement | STM-2 |
-| **CE-STM-2** | The left side of an assignment is not an assignable place | STM-7, STM-23, FUN-24 |
+| **CE-STM-2** | The left side of an assignment is not an assignable place | STM-7, STM-23, STM-25, FUN-24 |
 | **CE-STM-3** | `break` or `continue` outside a loop | STM-15 |
 | **CE-STM-4** | An invalid `match`: missing, repeated or foreign variant; wildcard arm; or a scrutinee that cannot be matched | STM-16, STM-17 |
 | **CE-STM-5** | A function or command body may complete normally | STM-21 |

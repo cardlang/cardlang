@@ -13,14 +13,8 @@ function ctap(message: ref u8[], response: inout u8[]) -> u32 {
         return reset_authenticator(inout response);
     }
     require (code == 0x01) or (code == 0x02) else IsoError.CtapInvalidCommand;
-    match card.cbor.validate(ref message[1..message.length]) {
-        Ok(length) => {
-            require length == (message.length - 1) else IsoError.CtapInvalidCbor;
-        }
-        Err(_) => {
-            return Err(IsoError.CtapInvalidCbor);
-        }
-    }
+    var length: u32 = attempt card.cbor.validate(ref message[1..message.length]) else IsoError.CtapInvalidCbor;
+    require length == (message.length - 1) else IsoError.CtapInvalidCbor;
     if code == 0x01 {
         return make_credential(ref message[1..message.length], inout response);
     }
@@ -82,24 +76,17 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
     // {1: "none", 2: authData, 3: {}}
     response[0] = 0;
     var at: u32 = 1;
-    n = attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_int(1, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
-    at = at + n;
+    at += attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(1, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
     response[at..at + 4] = FMT_NONE;
-    at = at + 4;
-    n = attempt card.cbor.write_int(2, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Bytes, 180, inout response[at..response.length]);
-    at = at + n;
+    at += 4;
+    at += attempt card.cbor.write_int(2, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Bytes, 180, inout response[at..response.length]);
     response[at..at + 180] = auth;
-    at = at + 180;
-    n = attempt card.cbor.write_int(3, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Map, 0, inout response[at..response.length]);
-    at = at + n;
+    at += 180;
+    at += attempt card.cbor.write_int(3, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Map, 0, inout response[at..response.length]);
     return Ok(at);
 }
 
@@ -121,7 +108,7 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     require id_start != 0 else IsoError.CtapNoCredentials;
 
     transaction {
-        sign_count = sign_count + 1;
+        sign_count += 1;
     }
     var flags: u8 = 0;
     if options.up {
@@ -143,40 +130,29 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     // {1: {"id": credentialId, "type": "public-key"}, 2: authData, 3: signature}
     response[0] = 0;
     var at: u32 = 1;
-    n = attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_int(1, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Map, 2, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Text, 2, inout response[at..response.length]);
-    at = at + n;
+    at += attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(1, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Map, 2, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Text, 2, inout response[at..response.length]);
     response[at..at + 2] = KEY_ID;
-    at = at + 2;
-    n = attempt card.cbor.write_head(CborMajor.Bytes, 48, inout response[at..response.length]);
-    at = at + n;
+    at += 2;
+    at += attempt card.cbor.write_head(CborMajor.Bytes, 48, inout response[at..response.length]);
     response[at..at + 48] = params[id_start..id_start + 48];
-    at = at + 48;
-    n = attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
-    at = at + n;
+    at += 48;
+    at += attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
     response[at..at + 4] = KEY_TYPE;
-    at = at + 4;
-    n = attempt card.cbor.write_head(CborMajor.Text, 10, inout response[at..response.length]);
-    at = at + n;
+    at += 4;
+    at += attempt card.cbor.write_head(CborMajor.Text, 10, inout response[at..response.length]);
     response[at..at + 10] = PUBLIC_KEY;
-    at = at + 10;
-    n = attempt card.cbor.write_int(2, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Bytes, 37, inout response[at..response.length]);
-    at = at + n;
+    at += 10;
+    at += attempt card.cbor.write_int(2, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Bytes, 37, inout response[at..response.length]);
     response[at..at + 37] = signed[0..37];
-    at = at + 37;
-    n = attempt card.cbor.write_int(3, inout response[at..response.length]);
-    at = at + n;
-    n = attempt card.cbor.write_head(CborMajor.Bytes, der_size, inout response[at..response.length]);
-    at = at + n;
+    at += 37;
+    at += attempt card.cbor.write_int(3, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Bytes, der_size, inout response[at..response.length]);
     response[at..at + der_size] = der[0..der_size];
-    at = at + der_size;
+    at += der_size;
     return Ok(at);
 }
 

@@ -60,6 +60,7 @@ def args(p):
 
 def primary(p):
     k, v = p.take()
+    if k == "bytes": return ("list", [("int", b) for b in v])                  # WP9 L1
     if k == "int":
         s = v.replace("_", "")  # LEX-17/LEX-19: a leading zero is decimal, never octal
         return ("int", int(s[2:], 16) if s.startswith("0x") else int(s[2:], 2) if s.startswith("0b") else int(s, 10))

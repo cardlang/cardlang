@@ -1,0 +1,11 @@
+// rule: STM-25, LEX-22
+// source: D-457
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-SYN-1
+// note: + = with a space is two tokens, not a compound operator.
+function check() {
+    var x: u8 = 1;
+    x + = 1;
+    return Ok();
+}

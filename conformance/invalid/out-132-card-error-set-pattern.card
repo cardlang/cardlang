@@ -1,0 +1,28 @@
+// rule: OUT-21
+// source: D-454
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-5
+// note: Err(CardError(code)) is not allowed.
+errors AppError {
+    Alpha = 1;
+    Beta = 2;
+}
+
+function get() -> u32 {
+    return Err(AppError.Beta);
+}
+
+function check() {
+    match get() {
+        Ok(value) => {
+            return Ok();
+        }
+        Err(CardError(code)) => {
+            return Ok();
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+}

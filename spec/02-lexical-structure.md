@@ -127,18 +127,18 @@ const B: u32 = 2;
 **LEX-12 [Agreed]** An *identifier* is an ASCII letter (`A`–`Z`, `a`–`z`) or underscore, followed by zero or more ASCII letters, digits and underscores. The exceptions are a keyword (LEX-13) and a lone `_` (LEX-14). Identifiers are case-sensitive: `Account` and `account` are different identifiers. Escape sequences and non-ASCII letters are not part of identifiers (LEX-3). Naming conventions, such as capitalized type names, are style only.
 *Sources: D-023, D-301, D-303; DN §3.0.*
 
-**LEX-13 [Agreed]** The following 32 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
+**LEX-13 [Agreed]** The following 33 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
 
 ```text
 abort      and        attempt    break      command    const      continue
 else       enum       Err        errors     false      for        function
 if         in         inout      match      not        Ok         or
 persistent ref        require    return     session    struct     transaction
-true       var        while      wipe
+true       var        while      wipe       ignore
 ```
 
 `true` and `false` are also the Boolean literals (LEX-21). Using a keyword where the grammar requires an identifier is **CE-SYN-1**.
-*Sources: D-303, D-404 (OI-4), D-449 (OI-49); DN §3.0, §3.6.*
+*Sources: D-303, D-404 (OI-4), D-449 (OI-49), D-456 (OI-56); DN §3.0, §3.6.*
 
 **LEX-14 [Agreed]** A lone underscore `_` is a token of its own, not an identifier. The syntax permits it only as the ignored pattern (chapter 9). Identifiers that merely contain or start with an underscore, such as `_x` or `__count`, are ordinary identifiers.
 *Sources: D-302; DN §3.0.*
@@ -271,12 +271,22 @@ const DISABLED: bool = false;
 
 ## 2.6 Operators and punctuators
 
-**LEX-22 [Agreed]** The *punctuators* are exactly the following 31 tokens:
+**LEX-25 [Agreed]** A *byte-string literal* is `b"`, followed by zero or more characters, followed by `"`. Each character is one of:
+
+- a printable ASCII character (`0x20`–`0x7E`) other than `"` and `\`, which stands for its own code;
+- the escape `\"`, for the byte `0x22`, or `\\`, for the byte `0x5C`;
+- the escape `\xHH`, where `HH` is exactly two hex digits, for that byte.
+
+A byte-string literal ends on the same line it starts on. One that is unterminated, spans a line, contains any other character, or has any other escape is **CE-LEX-5**. The literal stands for the sequence of bytes its characters denote. It is not text: there is no string type and no encoding (EXP-55).
+*Sources: D-453 (OI-53).*
+
+**LEX-22 [Agreed]** The *punctuators* are exactly the following 41 tokens:
 
 ```text
 {   }   (   )   [   ]   ;   :   ,   .   ..
 ->  =>  =   ==  !=  <   <=  >   >=
 +   -   *   /   %   ~   &   |   ^   <<  >>
++=  -=  *=  /=  %=  &=  |=  ^=  <<= >>=
 ```
 
 Their uses are defined by the syntax in later chapters. In summary:
@@ -284,10 +294,11 @@ Their uses are defined by the syntax in later chapters. In summary:
 - `..` forms ranges and slices;
 - `->` introduces a successful return type;
 - `=>` separates a match pattern from its arm;
-- `<` and `>` also enclose the type argument of the conversion intrinsics.
+- `<` and `>` also enclose the type argument of the conversion intrinsics;
+- the ten compound operators, such as `+=`, form compound assignments (STM-25). Longest match (LEX-10) makes `<<=` one token.
 
-Sequences that are not tokens are not operators. For example, `+=` is the two tokens `+` and `=`, and `!` on its own is not a token (it cannot begin one, so it is **CE-LEX-2** under LEX-6). Boolean operators are the keywords `and`, `or` and `not`.
-*Sources: D-024, D-102; DN §3.0, §3.5, §3.6, §3.7, §8.4.* *Derivation: the token set is exactly the punctuation used by the agreed syntax in the notes. Spellings the notes omit or defer, such as `?:`, `+=` and `++`, are not tokens.*
+Sequences that are not tokens are not operators. For example, `+ =` with a space is the two tokens `+` and `=`, and `!` on its own is not a token (it cannot begin one, so it is **CE-LEX-2** under LEX-6). Boolean operators are the keywords `and`, `or` and `not`.
+*Sources: D-024, D-102, D-457 (OI-57); DN §3.0, §3.5, §3.6, §3.7, §8.4.* *Derivation: the token set is the punctuation used by the agreed syntax in the notes, plus the compound operators added by D-457. Spellings the notes omit, such as `?:` and `++`, are not tokens.*
 
 **LEX-23 [Agreed]** Line breaks are not tokens, and no semicolon is ever inserted automatically. Statements and declarations that need a semicolon must contain one (chapters 3 and 7).
 *Sources: D-024, D-312; DN §3.0.*
@@ -299,6 +310,7 @@ Sequences that are not tokens are not operators. For example, `+=` is the two to
 Punctuator ::= '{' | '}' | '(' | ')' | '[' | ']' | ';' | ':' | ',' | '.' | '..'
              | '->' | '=>' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>='
              | '+' | '-' | '*' | '/' | '%' | '~' | '&' | '|' | '^' | '<<' | '>>'
+             | '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>='
 ```
 
 ### Examples
@@ -335,5 +347,6 @@ These tests check behavior that depends on the exact bytes of a file. They are g
 | **CE-LEX-2** | A character outside a comment is not permitted: non-ASCII, a control character other than whitespace, or a character that cannot begin a token | LEX-3, LEX-6, LEX-22, LEX-24 |
 | **CE-LEX-3** | A block comment is still open at the end of its file | LEX-8, LEX-11 |
 | **CE-LEX-4** | A numeric run does not match any integer literal form | LEX-17, LEX-18 |
+| **CE-LEX-5** | A malformed byte-string literal: unterminated, spanning a line, containing a character that is not printable ASCII, or an invalid escape | LEX-25 |
 
 Input that tokenizes successfully but matches no grammar production, such as a keyword used as a name, is **CE-SYN-1** (Annex A).

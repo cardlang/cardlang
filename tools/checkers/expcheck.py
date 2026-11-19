@@ -45,7 +45,10 @@ def p_unary(p, ns):
     if p.peek() in ("-", "not", "~"):
         op = p.take(); return ("un", op, p_unary(p, ns))
     if p.peek() == "attempt":
-        p.take(); return ("attempt", p_postfix(p, ns))
+        p.take(); call = p_postfix(p, ns)
+        if p.peek() == "else":                                 # attempt c else E.M (WP9 L4)
+            p.take(); return ("attempt", call, p_postfix(p, ns))
+        return ("attempt", call)
     return p_postfix(p, ns)
 
 def p_args(p):
@@ -82,6 +85,7 @@ def p_type(p):
 
 def p_primary(p, ns):
     k = p.kind(); v = p.take()
+    if k == "bytes": return ("list", [("int", b) for b in v])                  # WP9 L1: an array list of bytes
     if k == "int": return ("int", consteval.primary(consteval.P([("int", v)]))[1])
     if v in ("true", "false"): return ("bool", v == "true")
     if v == "(":
@@ -391,9 +395,12 @@ class Checker:
             p.expect(";"); return
         if v == "attempt":
             p.take(); e = p_postfix(p, False)
+            if p.peek() == "else": p.take(); p_postfix(p, False)
             t = self.synth(e, L)
             if t != ("outcome", "none"): raise CE("CE-EXP-1")
             p.expect(";"); return
+        if v == "ignore":
+            p.take(); e = p_postfix(p, False); self.synth(e, L); p.expect(";"); return
         if v in ("if", "while"):
             # parse the condition and body first: syntax errors take precedence (Annex A §A.0)
             p.take(); cond = p_expr(p, nostruct=True)
@@ -435,6 +442,10 @@ class Checker:
         dest = p_postfix(p, False)
         if p.peek() == "=":
             p.take(); dt = self.synth(dest, L); self.check(p_expr(p), dt, L); p.expect(";"); return
+        if p.peek() in ("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="):
+            op = p.take()[:-1]; dt = self.synth(dest, L)
+            if self.synth(("bin", op, dest, p_expr(p)), L) != dt: raise CE("CE-EXP-1")
+            p.expect(";"); return
         raise CE("CE-SYN-1")
 
     def _skip_block(self, p):
@@ -469,7 +480,8 @@ class Checker:
                 while toks[j][1] != "=": j += 1
                 k = j + 1; depth = 0
                 while not (toks[k][1] == ";" and depth == 0):
-                    depth += toks[k][1] in "([{" and 1 or 0; depth -= toks[k][1] in ")]}" and 1 or 0; k += 1
+                    punct = toks[k][1] if toks[k][0] == "p" else ""          # byte-string tokens carry a tuple
+                    depth += punct in ("(", "[", "{") and 1 or 0; depth -= punct in (")", "]", "}") and 1 or 0; k += 1
                 return toks[j+1:k]
 
 def run(toks):

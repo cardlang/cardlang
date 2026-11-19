@@ -77,9 +77,17 @@ class StmChecker(expcheck.Checker):
                 if t != ("outcome", ret): raise CE("CE-EXP-1")
             p.expect(";"); return False
         if v == "attempt":
-            p.take(); e = p_postfix(p, False); t = self.synth(e, L)
+            p.take(); e = p_postfix(p, False)
+            if p.peek() == "else": p.take(); p_postfix(p, False)
+            t = self.synth(e, L)
             if t != ("outcome", "none"): raise CE("CE-EXP-1")
             p.expect(";"); return True
+        if v == "ignore":                                        # STM-24 (WP9 L5)
+            p.take(); e = p_postfix(p, False); p.expect(";")
+            if e[0] != "call": raise CE("CE-OUT-4")
+            t = self.synth(e, L)
+            if not (isinstance(t, tuple) and t[0] == "outcome"): raise CE("CE-OUT-4")
+            return True
         if v in ("break", "continue"):
             p.take(); p.expect(";")
             if not loops: raise CE("CE-STM-3")
@@ -155,6 +163,12 @@ class StmChecker(expcheck.Checker):
         e = p_expr(p)
         if p.peek() == "=" and e[0] == "slice":           # FUN-24, checked by funcheck
             p.take(); self.slice_assign(e, p, L, ro); return True
+        if p.peek() in ("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="):                                         # STM-25 (WP9 L6)
+            op = p.take()[:-1]
+            if e[0] == "slice": raise CE("CE-STM-2")
+            self.place(e, L, ro); dt = self.synth(e, L)
+            if self.synth(("bin", op, e, p_expr(p)), L) != dt: raise CE("CE-EXP-1")
+            p.expect(";"); return True
         if p.peek() == "=":
             p.take(); self.place(e, L, ro); dt = self.synth(e, L)
             self.check(p_expr(p), dt, L); p.expect(";"); return True

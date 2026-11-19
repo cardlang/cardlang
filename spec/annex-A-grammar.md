@@ -28,7 +28,7 @@ LineComment     ::= '//' [^#x0A#x0D]*
 BlockComment    ::= '/*' ( [^*] | '*'+ [^*/] )* '*'+ '/'
 
 /* A.1.3 Tokens (LEX-10) */
-Token           ::= Identifier | Keyword | Underscore | IntegerLiteral | Punctuator
+Token           ::= Identifier | Keyword | Underscore | IntegerLiteral | ByteStringLiteral | Punctuator
 
 /* A.1.4 Identifiers and keywords (LEX-12 to LEX-16) */
 Identifier      ::= ( IdentStart IdentChar* ) - ( Keyword | '_' )
@@ -40,7 +40,7 @@ Keyword         ::= 'abort' | 'and' | 'attempt' | 'break' | 'command' | 'const'
                   | 'for' | 'function' | 'if' | 'in' | 'inout' | 'match' | 'not'
                   | 'Ok' | 'or' | 'persistent' | 'ref' | 'require' | 'return'
                   | 'session' | 'struct' | 'transaction' | 'true' | 'var' | 'while'
-                  | 'wipe'
+                  | 'wipe' | 'ignore'
 
 /* A.1.5 Integer and Boolean literals (LEX-17 to LEX-21) */
 IntegerLiteral  ::= DecimalLiteral | HexLiteral | BinaryLiteral
@@ -52,14 +52,17 @@ HexDigit        ::= [0-9a-fA-F]
 BinDigit        ::= [01]
 NumericRun      ::= Digit [A-Za-z0-9_]*      /* must wholly match IntegerLiteral (LEX-18) */
 BooleanLiteral  ::= 'true' | 'false'         /* keywords; listed for reference */
+ByteStringLiteral ::= 'b"' ( ByteChar | '\"' | '\\' | '\x' HexDigit HexDigit )* '"'   /* LEX-25 */
+ByteChar        ::= [#x20-#x7E] - ( '"' | '\' )
 
 /* A.1.6 Punctuators (LEX-22) */
 Punctuator      ::= '{' | '}' | '(' | ')' | '[' | ']' | ';' | ':' | ',' | '.' | '..'
                   | '->' | '=>' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>='
                   | '+' | '-' | '*' | '/' | '%' | '~' | '&' | '|' | '^' | '<<' | '>>'
+                  | '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>='
 ```
 
-Lexical errors are CE-LEX-1 to CE-LEX-4 (chapter 2 §2.8).
+Lexical errors are CE-LEX-1 to CE-LEX-5 (chapter 2 §2.8).
 
 ## A.2 Syntactic grammar
 
@@ -111,14 +114,14 @@ Expression        ::= UnaryExpression ( BinaryOperator UnaryExpression )*
 BinaryOperator    ::= '+' | '-' | '*' | '/' | '%' | '==' | '!=' | '<' | '<=' | '>' | '>='
                     | 'and' | 'or' | '&' | '|' | '^' | '<<' | '>>'
 UnaryExpression   ::= ( '-' | 'not' | '~' ) UnaryExpression
-                    | 'attempt' PostfixExpression
+                    | 'attempt' PostfixExpression ( 'else' PostfixExpression )?
                     | PostfixExpression
 PostfixExpression ::= PrimaryExpression PostfixPart*
 PostfixPart       ::= '[' Expression ']'
                     | '[' Expression '..' Expression ']'
                     | '.' Identifier
                     | Arguments
-PrimaryExpression ::= IntegerLiteral | BooleanLiteral | Identifier
+PrimaryExpression ::= IntegerLiteral | BooleanLiteral | ByteStringLiteral | Identifier
                     | '(' Expression ')'
                     | ArrayList
                     | StructConstructor
@@ -132,10 +135,10 @@ Arguments         ::= '(' ( Argument ( ',' Argument )* ','? )? ')'
 Argument          ::= ( 'ref' | 'inout' )? Expression
 ConditionExpression ::= ConditionUnary ( BinaryOperator ConditionUnary )*
 ConditionUnary    ::= ( '-' | 'not' | '~' ) ConditionUnary
-                    | 'attempt' ConditionPostfix
+                    | 'attempt' ConditionPostfix ( 'else' ConditionPostfix )?
                     | ConditionPostfix
 ConditionPostfix  ::= ConditionPrimary PostfixPart*
-ConditionPrimary  ::= IntegerLiteral | BooleanLiteral | Identifier
+ConditionPrimary  ::= IntegerLiteral | BooleanLiteral | ByteStringLiteral | Identifier
                     | '(' Expression ')'
                     | ArrayList
                     | TypeArgumentCall
@@ -156,10 +159,12 @@ Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
                       | IfStatement | WhileStatement | ForStatement | MatchStatement
                       | BreakStatement | ContinueStatement | ReturnStatement | RequireStatement
                       | TransactionStatement | AbortStatement        /* A.2.9 */
-                      | WipeStatement
+                      | WipeStatement | IgnoreStatement
 VarStatement        ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
-AssignmentStatement ::= Expression '=' Expression ';'
+AssignmentStatement ::= Expression ( '=' | CompoundOperator ) Expression ';'
+CompoundOperator    ::= '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>='
 WipeStatement       ::= 'wipe' Expression ';'
+IgnoreStatement     ::= 'ignore' PostfixExpression ';'
 ExpressionStatement ::= Expression ';'
 IfStatement         ::= 'if' ConditionExpression Block ( 'else' 'if' ConditionExpression Block )* ( 'else' Block )?
 WhileStatement      ::= 'while' ConditionExpression Block
@@ -167,7 +172,7 @@ ForStatement        ::= 'for' Identifier ':' Type 'in' ConditionExpression '..' 
 MatchStatement      ::= 'match' ConditionExpression '{' MatchArm* '}'
 MatchArm            ::= Pattern '=>' Block
 Pattern             ::= 'Ok' '(' ( Identifier | '_' )? ')'
-                      | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier ) ')'
+                      | 'Err' '(' ( Identifier | '_' | Identifier '.' Identifier | Identifier '(' ( Identifier | '_' ) ')' ) ')'
                       | Identifier '.' Identifier
                       | '_'
 BreakStatement      ::= 'break' ';'
@@ -264,9 +269,12 @@ Every nonterminal of this annex, with the section that defines it. Each is defin
 | `BlockComment` | §A.1.2 |
 | `BooleanLiteral` | §A.1.5 |
 | `BreakStatement` | §A.2.5 |
+| `ByteChar` | §A.1.5 |
 | `ByteOrderMark` | §A.1.1 |
+| `ByteStringLiteral` | §A.1.5 |
 | `CommandDeclaration` | §A.2.1 |
 | `Comment` | §A.1.2 |
+| `CompoundOperator` | §A.2.5 |
 | `ConditionExpression` | §A.2.4 |
 | `ConditionPostfix` | §A.2.4 |
 | `ConditionPrimary` | §A.2.4 |
@@ -290,6 +298,7 @@ Every nonterminal of this annex, with the section that defines it. Each is defin
 | `Identifier` | §A.1.4 |
 | `IdentStart` | §A.1.4 |
 | `IfStatement` | §A.2.5 |
+| `IgnoreStatement` | §A.2.5 |
 | `IntegerLiteral` | §A.1.5 |
 | `Keyword` | §A.1.4 |
 | `LineBreak` | §A.1.1 |

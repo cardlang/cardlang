@@ -1,0 +1,11 @@
+// rule: STM-24
+// source: D-456
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-4
+// note: ignore of something that is not a call.
+function check() {
+    var count: u32 = 0;
+    ignore count;
+    return Ok();
+}

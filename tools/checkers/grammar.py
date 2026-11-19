@@ -62,7 +62,7 @@ class Grammar:
                 sym = self.new(self.alternatives(toks[i + 1:j - 1])); i = j
             else:
                 if t.startswith("'"): sym = ("t", t[1:-1])
-                elif t in ("Identifier", "IntegerLiteral"): sym = ("k", t)
+                elif t in ("Identifier", "IntegerLiteral", "ByteStringLiteral"): sym = ("k", t)
                 else: sym = ("n", t)
                 i += 1
             if i < len(toks) and toks[i] in "?*+":
@@ -91,6 +91,7 @@ class Grammar:
         if sym[0] == "t": return value == sym[1]
         if sym[1] == "Identifier": return kind == "id"
         if sym[1] == "IntegerLiteral": return kind == "int"
+        if sym[1] == "ByteStringLiteral": return kind == "bytes"
         return False
 
     def recognize(self, toks, start="SourceFile"):

@@ -137,7 +137,7 @@ Session changes made during the transaction remain. Local variables end as for a
 
 **TXN-18 [Agreed]** Lexically inside the block of a transaction in the same function or command, the error path of `attempt` and of `require` aborts the transaction:
 
-- `attempt c`, in either form, whose call produces `Err(e)`, behaves as `abort Err(e);`;
+- `attempt c`, in either form, whose call produces `Err(e)`, behaves as `abort Err(e);`, and `attempt c else M` behaves as `abort Err(M);` (OUT-22);
 - `require c else M;` whose condition is `false` behaves as `abort Err(M);`.
 
 Each is executed by the steps of TXN-8: the block stops, the pending persistent writes roll back, and the error is returned unchanged. Unlike an `abort` operand, `e` may be a platform error, because `attempt` propagates an error and does not originate one (OUT-18, OUT-19). Inside a function called from the transaction, `attempt` and `require` return from that function as usual, and the caller's transaction stays active (TXN-9).

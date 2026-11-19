@@ -1,0 +1,19 @@
+// rule: OUT-22
+// source: D-455
+// status: agreed
+// kind: fragment
+// expect: compile-error CE-OUT-3
+// note: The replacement error must be an application error member.
+errors AppError {
+    Alpha = 1;
+    Beta = 2;
+}
+
+function get() -> u32 {
+    return Err(AppError.Beta);
+}
+
+function check() {
+    var value: u32 = attempt get() else CardError.NotFound;
+    return Ok();
+}
