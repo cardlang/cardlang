@@ -8,7 +8,7 @@ The plan is in `plans_and_notes/vm-plan-of-plans.md`. Each work package (VM0 to 
 
 - **The VM trusts its bytecode** (V-1). Static guarantees come from the compiler and an off-device verifier, so the VM has no verifier.
 - **Small, bounded RAM** (V-2). The VM's own bookkeeping is fixed and at most 1 KiB. Application storage is configured separately.
-- **Portable C11 over a rich HAL** (V-3). Crypto, keys, randomness and persistent storage with transactions are the HAL's.
+- **Portable C11 over a rich HAL** (V-3). Crypto, keys, randomness and persistent storage with transactions are the HAL's. The VM does no cryptography at all (V-19).
 - **A stack machine** (V-4).
 
 ## Layers
@@ -34,9 +34,9 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 
 | Document | Content | Work package | Status |
 |---|---|---|---|
-| `decisions.md` | The decision register (V-n) | all | V-1 to V-18 |
+| `decisions.md` | The decision register (V-n) | all | V-1 to V-23 |
 | `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | VM1 | drafted: VEX-1 to VEX-50 |
-| `hal.md` | The HAL interface (`HAL-n`) and `c/include/cl_hal.h` | VM2 | not started |
+| `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | VM2 | drafted: HAL-1 to HAL-31; headers not yet compiled |
 | `bytecode.md` | The instruction set and its encoding (`BC-n`) | VM3 | not started |
 | `image-format.md` | The application image (`IMG-n`) | VM3 | not started |
 | `c/` | The product VM in C11, and a host HAL | VM7 | not started |

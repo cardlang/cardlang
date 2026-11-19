@@ -1,6 +1,6 @@
 # CardLang VM — Execution and memory model
 
-Work package VM1. Plan: `plans_and_notes/vm-plans/VM1-execution-model.md`. Decisions: `vm/decisions.md`.
+Work package VM1, amended by VM2 (VEX-32, VEX-34, VEX-35, VEX-37, VEX-45, VEX-50). Plan: `plans_and_notes/vm-plans/VM1-execution-model.md`. Decisions: `vm/decisions.md`.
 
 This document states how a CardLang program's values, storage, calls, outcomes and failures are represented inside the VM. It does not define instructions or their encoding (`bytecode.md`), the image layout (`image-format.md`), or HAL function signatures (`hal.md`). Requirements are numbered `VEX-n` and cite the decisions and the specification or profile rules they serve (V-9). Where this document and the specification disagree, the specification wins.
 
@@ -148,7 +148,7 @@ Parts 1 to 3 have sizes known statically; their layout is the compiler's and is 
 **VEX-31 Transactions.** The context has one transaction flag. A `transaction` block begins a HAL transaction; leaving it normally commits; `abort`, and the error paths of `attempt` and `require` inside it (TXN-18), abort it. Atomic updates inside a transaction join it. The HAL keeps pending writes and provides read-your-writes. A commit the HAL reports as failed but contained is `trap(COMMIT)` (TXN-12).
 *Serves: TXN-1 to TXN-18.*
 
-**VEX-32 Key changes in transactions.** Creating and deleting a persistent key joins an active transaction (BP-15). This is the HAL's: the VM passes the transaction state with the call.
+**VEX-32 Key changes in transactions.** Creating and deleting a persistent key joins an active transaction (BP-15). This is the HAL's: the HAL knows its own transaction state, so the call carries nothing extra (HAL-19, HAL-22).
 *Serves: BP-15.*
 
 ## 8. Natives and application data
@@ -156,16 +156,25 @@ Parts 1 to 3 have sizes known statically; their layout is the compiler's and is 
 **VEX-33 Calling a native.** A catalog API is called by its index in the image's native import table (VM3). Its arguments are cells, as for a function call. Its result is the outcome register (VEX-24) and, on success, a scalar payload cell.
 *Serves: V-5; PLT-30.*
 
-**VEX-34 Data access through helpers.** A native never receives a raw pointer to application data. It reads and writes views and references through VM helpers that copy a chunk to or from the application's place, whatever its region. For `RESPONSE`, `REQUEST`, `SESSION`, `STACK` and `CONST`, a helper may hand the native a direct pointer to the region's bytes; for `PERSISTENT`, data passes through a bounce buffer of 64 bytes in the context. A native's writes into a persistent view form one atomic update (VEX-28).
-*Serves: V-16, V-2; FUN-23, BP-7.*
+**VEX-34 Data access through helpers.** A native never receives a raw pointer to application data. It reads and writes views and references through VM helpers that copy a chunk to or from the application's place, whatever its region. For `RESPONSE`, `REQUEST`, `SESSION`, `STACK` and `CONST`, a helper may hand the native a direct pointer to the region's bytes. For `PERSISTENT`:
+- a HAL call receives a reader or a writer descriptor (HAL-11, HAL-12);
+- the native library's own code, and the intrinsics, pass data through a bounce buffer of 128 bytes in the context.
 
-**VEX-35 Resources are the HAL's.** Keys and multi-part operations are identified by number and held by the HAL. Their memory, including key material (PLT-33) and operation state, is the HAL's, sized by the profile's minimum capacities (BP-16), and is not VM bookkeeping.
-*Serves: V-2; PLT-33, BP-14, BP-16.*
+A native's writes into a persistent view form one atomic update (VEX-28).
+*Serves: V-16, V-22, V-23, V-2; FUN-23, BP-7.*
+
+**VEX-35 Resources.** Keys and multi-part operations are identified by number.
+- **Keys,** including their material (PLT-33), are held by the HAL (HAL-21).
+- **Operations:** the native library keeps the table of identifiers, purposes and lifetimes. Their HAL contexts are slots in the resource area of `cl_config`, which no application region maps (HAL-27).
+
+Neither is VM bookkeeping. Both are sized by the profile's minimum capacities (BP-16).
+*Serves: V-2, V-20; PLT-33, BP-14, BP-16.*
 
 **VEX-36 The bounce buffer is wiped.** After every native call, and after every intrinsic that used it, the bounce buffer is set to zero.
 *Serves: PLT-34, PLT-35.*
 
 **VEX-37 Intrinsics.** Intrinsics (EXP-52) are executed by the VM, not by the HAL. Those over aggregates (`fill`, `equal`, `compare`, `encode_*`, `decode_*`) read and write places through the same access paths as other instructions. `equal` takes time independent of the compared contents and of where they differ (PLT-31); when a side is persistent, it reads through the bounce buffer in fixed-size chunks.
+`equal` and `compare` are comparisons of application data, not cryptography; all cryptography is in the HAL (HAL-1, HAL-2).
 *Serves: EXP-52 to EXP-54, PLT-31.*
 
 **VEX-38 `wipe`.** A `wipe` performs every one of its stores, in every region, including in a frame about to end. Nothing in the VM removes or defers them.
@@ -205,7 +214,7 @@ Session state, persistent writes outside a transaction, and other resources are 
 | Entry | What the VM does |
 |---|---|
 | `cl_vm_load(vm, config, image, size)` | Sets up the context; runs the load-time checks (VEX-9) |
-| `cl_vm_install(vm)` | Zero-fills `PERSISTENT` through the HAL (VEX-5); runs `on_install` if declared. If it traps or returns `Err`, installation fails and the result says so (BP-55) |
+| `cl_vm_install(vm)` | The new partition already reads as zero, which is every default (HAL-15, VEX-5); runs `on_install` if declared. If it traps or returns `Err`, installation fails and the result says so (BP-55) |
 | `cl_vm_session_start(vm)` | Ends any open session; zero-fills `SESSION`; tells the HAL to drop volatile keys and session operations; runs `on_session_start` if declared. If it traps or returns `Err`, the application is unavailable until the next session start (BP-55) |
 | `cl_vm_session_end(vm)` | Zero-fills `SESSION`; tells the HAL to drop volatile keys and session operations (STA-4, BP-14) |
 | `cl_vm_security_reset(vm)` | As a session end, for every context (RTF-9) |
@@ -237,10 +246,12 @@ Session state, persistent writes outside a transaction, and other resources are 
 
 *Serves: V-2.*
 
-**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. The estimate for a 32-bit target is about 140 bytes, of which 64 are the bounce buffer. VM5 reports what the prototype needs and VM8 measures the C VM.
+**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. The estimate for a 32-bit target is about 200 bytes, of which 128 are the bounce buffer (V-22). VM5 reports what the prototype needs and VM8 measures the C VM.
 *Serves: V-2, V-12.*
 
 ## 12. What the HAL must provide (input to VM2)
+
+`vm/hal.md` §8 shows which `HAL-n` requirement meets each need.
 
 | # | Requirement | From |
 |---|---|---|

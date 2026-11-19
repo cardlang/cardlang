@@ -19,10 +19,15 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-13 | **Values are packed, unaligned and little-endian** in every region; enums are their ordinal in 1 byte (2 above 256 variants). Every default value is then all-zero bytes | 2026-11-19 | VM1 | VEX-4, VEX-5 |
 | V-14 | **An address is one 32-bit cell:** a 3-bit region tag and a 29-bit offset. A view is two cells (address, length). Instructions name the region when the compiler knows it | 2026-11-19 | VM1 | VEX-7, VEX-11 to VEX-13 |
 | V-15 | **Persistent writes are HAL atomic updates,** written in chunks; the VM never stages a destination in RAM | 2026-11-19 | VM1 | VEX-28 |
-| V-16 | **Natives reach application data through VM helpers;** persistent data passes through a 64-byte bounce buffer in the context, wiped after each call | 2026-11-19 | VM1 | VEX-34, VEX-36 |
+| V-16 | **Natives reach application data through VM helpers;** persistent data passes through a bounce buffer in the context (64 bytes; 128 since V-22), wiped after each call | 2026-11-19 | VM1 | VEX-34, VEX-36 |
 | V-17 | **The image is memory-mapped** and read through a read-only pointer | 2026-11-19 | VM1 | VEX-10 |
 | V-18 | **The execution budget is an instruction counter;** natives and aggregate intrinsics charge per call and per byte | 2026-11-19 | VM1 | VEX-42 |
+| V-19 | **All cryptography is in the HAL.** The VM core and the native library perform no cryptographic computation or composition. The HAL's crypto interface follows the catalog's operations (one-shot and multi-part). The backend behind it (PSA, a secure element, a library) is the port's choice | 2026-11-19 | VM2 | HAL-1 to HAL-3, HAL-25, HAL-26 |
+| V-20 | **Operation contexts in a configured area.** The HAL publishes the context size and alignment; the native library keeps the slots in the resource area of `cl_config` | 2026-11-19 | VM2 | HAL-27, VEX-35 |
+| V-21 | **HAL calls are synchronous** and never re-enter the VM | 2026-11-19 | VM2 | HAL-4 |
+| V-22 | **The bounce buffer is 128 bytes** (amends V-16) | 2026-11-19 | VM2 | VEX-34, VEX-50 |
+| V-23 | **HAL data arguments are descriptors:** a pointer for RAM and constant data, a reader or writer for persistent data, so nothing persistent is staged in VM RAM | 2026-11-19 | VM2 | HAL-11 to HAL-14 |
 
 ## Open questions
 
-None. VM1 raised none; VM2 will add its own here.
+None. VM1 and VM2 raised none.
