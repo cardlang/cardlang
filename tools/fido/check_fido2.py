@@ -4,13 +4,17 @@ Builds examples/fido2 with the full checker and the ISO 7816 binding check (BP-5
 session through the reference interpreter, and checks every response with code of its own: a CBOR codec, a DER
 parser, and ECDSA verification from tools/interp/testcrypto.py. None of the applet's logic is reused.
 
-Usage: python -I tools/fido/check_fido2.py .
+Usage: python -I tools/fido/check_fido2.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, hashlib, hmac
-ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else pathlib.Path(__file__).resolve().parents[2]
+TOOLS = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(TOOLS / "harness"))
+import scenario
+BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
+ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else TOOLS.parent
 sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from lexcheck import lex
-import grammar, pltcheck, interp, p256, testcrypto
+import grammar, backends, p256, testcrypto
 
 # ------------------------------------------------------------------ a small, independent CBOR codec
 def enc(v):
@@ -70,17 +74,15 @@ class Session:
         g = grammar.load_grammar()
         for f in files:
             assert g.recognize(lex(f.read_bytes()))[0], f"{f.name} does not derive from Annex A"
-        toks = sum((lex(f.read_bytes()) for f in files), [])
-        pltcheck.check_binding(toks, "iso7816")
-        self.card = interp.Card(toks)
-        self.card.install(); self.card.power_on()
+        self.card = backends.build(BACKEND, files, "iso7816")
+        self.card.install(); self.card.session_start()
     def ctap(self, code, params=None):
         data = bytes([code]) + (enc(params) if params is not None else b"")
         out = self.card.command(list(b"\x80\x10\x00\x00" + data), 1280)
         assert out[0] == "ok", f"expected 9000, got {out}"
         return out[1][0], (dec(bytes(out[1]), 1)[0] if len(out[1]) > 1 else None)
     def apdu(self, raw):
-        return interp.status_word(self.card.command(list(raw), 1280))
+        return scenario.status_word(self.card.command(list(raw), 1280))
 
 # ------------------------------------------------------------------ the platform side of the PIN protocols
 class PinHost:
@@ -162,7 +164,7 @@ def pin_checks(protocol, make_credential, assertion):
     check(tag + "third consecutive wrong PIN: PIN auth blocked (0x34)", st == 0x34, hex(st))
     st, _ = h.get_token("1234")
     check(tag + "blocked until a power cycle, even with the right PIN", st == 0x34, hex(st))
-    s.card.reset(); s.card.power_on()
+    s.card.reset(); s.card.session_start()
     st, token = h.get_token("1234")
     check(tag + "after a power cycle: the right PIN works, retries back to 8", st == 0 and h.retries() == 8, hex(st))
     check(tag + "changePIN", h.change_pin("1234", "567890") == 0)
@@ -171,10 +173,10 @@ def pin_checks(protocol, make_credential, assertion):
     check(tag + "after changePIN: the old PIN fails, the new one works", st == 0x31 and st2 == 0, f"{st:#x} {st2:#x}")
     for i in range(8):
         if i and i % 3 == 0:
-            s.card.reset(); s.card.power_on()
+            s.card.reset(); s.card.session_start()
         st, _ = h.get_token("0000")
     check(tag + "eight wrong PINs: PIN blocked (0x32)", st == 0x32 and h.retries() == 0, f"{st:#x} {h.retries()}")
-    s.card.reset(); s.card.power_on()
+    s.card.reset(); s.card.session_start()
     st, _ = h.get_token("567890")
     check(tag + "PIN blocked survives a power cycle", st == 0x32, hex(st))
     st, _ = s.ctap(0x07)
@@ -249,7 +251,7 @@ def main():
     st, att = s.ctap(0x01, mc)
     check("after reset, the counter starts again at 0", st == 0 and att[2][33:37] == b"\0\0\0\0", repr(att)[:120])
 
-    s.card.reset(); s.card.power_on()
+    s.card.reset(); s.card.session_start()
     st, att2 = s.ctap(0x01, mc)
     cred2 = att2[2][55:103]
     st2, _ = assertion(rp, cred2, cdh)

@@ -1,0 +1,72 @@
+# The CardLang VM
+
+This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
+
+The plan is in `plans_and_notes/vm-plan-of-plans.md`. Each work package (VM0 to VM8) has a sub-plan in `plans_and_notes/vm-plans/`.
+
+## Goals
+
+- **The VM trusts its bytecode** (V-1). Static guarantees come from the compiler and an off-device verifier, so the VM has no verifier.
+- **Small, bounded RAM** (V-2). The VM's own bookkeeping is fixed and at most 1 KiB. Application storage is configured separately.
+- **Portable C11 over a rich HAL** (V-3). Crypto, keys, randomness and persistent storage with transactions are the HAL's.
+- **A stack machine** (V-4).
+
+## Layers
+
+```text
+   host / transport (the platform's main loop)
+          │  requests, session events
+   ┌──────▼─────────────────────────────┐
+   │ binding adapter (ISO 7816 / raw)   │  status words, raw envelope (profile BP-50 to BP-53)
+   ├────────────────────────────────────┤
+   │ VM core: loader, interpreter loop, │  traps, outcomes, frames, views
+   │ memory regions                     │
+   ├────────────────────────────────────┤
+   │ native library and native table    │  card.* calls by catalog index; CBOR, TLV, DER in C (V-5)
+   ├────────────────────────────────────┤
+   │ HAL (cl_hal.h)                     │  storage and transactions, crypto, keys, RNG
+   └────────────────────────────────────┘
+```
+
+The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls the HAL through `cl_hal.h`. One VM context runs one application (V-8).
+
+## Documents
+
+| Document | Content | Work package | Status |
+|---|---|---|---|
+| `decisions.md` | The decision register (V-n) | all | V-1 to V-12 |
+| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`) | VM1 | not started |
+| `hal.md` | The HAL interface (`HAL-n`) and `c/include/cl_hal.h` | VM2 | not started |
+| `bytecode.md` | The instruction set and its encoding (`BC-n`) | VM3 | not started |
+| `image-format.md` | The application image (`IMG-n`) | VM3 | not started |
+| `c/` | The product VM in C11, and a host HAL | VM7 | not started |
+
+The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11).
+
+## Conventions
+
+- **Requirements** are numbered per document and cite the decisions and the spec or profile rules they serve (V-9), for example: *Serves: RTF-2, PLT-35; V-2.*
+- **C names** use the prefix `cl_` for functions and types, and `CL_` for macros and constants.
+
+## Acceptance
+
+Every VM backend is checked by the same harness (`tools/harness/`, V-10) against the criteria of V-12:
+
+1. every runtime conformance test passes (`conformance/runtime/`);
+2. `tools/fido/check_fido2.py` passes;
+3. every valid conformance program compiles to an image;
+4. the backend reports its bytecode size, stack and frame figures, and its bookkeeping RAM.
+
+Run a backend's scenarios with:
+
+```bash
+python -I tools/harness/scenario.py . --backend interp
+```
+
+and the FIDO2 check with:
+
+```bash
+python -I tools/fido/check_fido2.py . --backend interp
+```
+
+The only backend so far is `interp`, the reference interpreter.

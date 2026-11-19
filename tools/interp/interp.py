@@ -1,11 +1,12 @@
-"""Reference interpreter for CardLang runtime conformance tests (non-normative).
+"""Reference interpreter for CardLang runtime conformance tests (non-normative). It is the `interp` backend of the
+harness in tools/harness/ (VM0).
 
 It executes the scenario of every test in conformance/runtime/ and compares host-visible results
 (responses, errors, traps) with the scenario's `expect` lines. Each program is first checked by the
 full static checker (hepcheck). When this interpreter and spec/ disagree, the specification wins.
 
 Usage (from the repository root):
-    python -I tools/interp/interp.py . ["runtime/run-*"]
+    python -I tools/interp/interp.py . ["runtime/run-*"]      (the same as tools/harness/scenario.py --backend interp)
 """
 import copy, sys, pathlib, hashlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "checkers"))
@@ -13,6 +14,7 @@ from lexcheck import lex, header
 import hepcheck, pltcheck, expcheck, consteval
 from expcheck import P, p_expr, p_postfix, p_type, CE
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "harness"))
 import p256                                              # test-only P-256 (WP3)
 import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
 import testcbor                                          # test-only canonical CBOR (WP5)
@@ -171,7 +173,7 @@ class Card:
         self.consts = {n: self.conv(cp.const_value(n)[0], self.chk.consts[n]) for n in cp.consts}
         self.codes = self.error_codes(toks)
         self.persistent = None; self.session = None
-        self.interrupt_next_commit = False; self.in_txn = None
+        self.interrupt_commit = False; self.in_txn = None
 
     @staticmethod
     def kind_of(toks, name):
@@ -770,8 +772,8 @@ class Card:
                 restore(self.persistent, snap); raise Ret(("err", a.err))
             except BaseException:
                 restore(self.persistent, snap); raise
-            if self.interrupt_next_commit:                     # power loss during the commit
-                self.interrupt_next_commit = False
+            if self.interrupt_commit:                          # power loss during the commit
+                self.interrupt_commit = False
                 restore(self.persistent, snap); raise Interrupted()
         elif k == "abort":
             raise Abort(self.eval(s[1], env))
@@ -807,10 +809,14 @@ class Card:
         self.persistent["#keys"] = {}                                   # persistent keys roll back with transactions
         self.run_handler("on_install")
 
-    def power_on(self):
+    def session_start(self):
         self.session = {n: self.default(t) for n, t in self.session_types.items()}
         self.volatile_keys = {}; self.operations = {}
         self.run_handler("on_session_start")
+
+    def interrupt_next_commit(self):
+        """Test hook: the next commit is interrupted by a power loss."""
+        self.interrupt_commit = True
 
     def select(self):
         """ISO 7816 binding: run on_select, if declared, for the SELECT response data (BP-50a)."""
@@ -842,7 +848,7 @@ class Card:
         self.volatile_keys = {}; self.operations = {}
 
     def command(self, request, capacity):
-        if self.persistent is None or self.session is None: raise RuntimeError("command before install/power_on")
+        if self.persistent is None or self.session is None: raise RuntimeError("command before install/session_start")
         req = View([Int(b, "u8") for b in request], 0, len(request))
         resp = View([Int(0, "u8") for _ in range(capacity)], 0, capacity)
         params, ret, body = self.funcs[self.command_name]
@@ -869,76 +875,9 @@ class Card:
         return ("ok", [resp.lst[i].v for i in range(count)])
 
 # ------------------------------------------------------------------ scenarios
-PROFILE = pathlib.Path(__file__).resolve().parents[2] / "platform" / "base-profile.md"
-CARD_ERROR_CODES = {m: int(c, 16) for m, c in __import__("re").findall(r"^\| `(\w+)` \| `0x([0-9A-Fa-f]{4})` \|",
-                                                                       PROFILE.read_text(encoding="utf-8"), __import__("re").M)}
-
-def status_word(outcome):
-    """The ISO 7816 binding's status word for an outcome (profile BP-51)."""
-    if outcome is None or outcome[0] == "none": return None
-    if outcome[0] == "ok": return 0x9000
-    if outcome[0] == "trap": return 0x6F00
-    if outcome[1] == "app": return outcome[2]
-    return 0x6F00 + CARD_ERROR_CODES[outcome[2]]
-
-def raw_envelope(outcome):
-    """The raw binding's response envelope for an outcome (profile BP-53)."""
-    if outcome is None or outcome[0] == "none": return None
-    if outcome[0] == "ok": return [0x00, 0x00, 0x00] + outcome[1]
-    if outcome[0] == "trap": return [0x03, 0x00, 0x00]
-    code = outcome[2] if outcome[1] == "app" else CARD_ERROR_CODES[outcome[2]]
-    return [0x01 if outcome[1] == "app" else 0x02, code >> 8, code & 0xFF]
-
-def parse_expect(words):
-    if words[0] == "sw": return ("sw", int(words[1], 16))
-    if words[0] == "raw": return ("raw", [int(w, 16) for w in words[1:]])
-    if words[0] == "ok": return ("ok", [int(w, 16) for w in words[1:]])
-    if words[0] == "err" and words[1] == "app": return ("err", "app", int(words[2]))
-    if words[0] == "err" and words[1] == "platform": return ("err", "platform", words[2])
-    if words[0] == "trap": return ("trap", words[1])
-    if words[0] == "none": return ("none",)
-    raise ValueError(words)
-
-def run_scenario(card, text):
-    pending = None
-    for lineno, raw in enumerate(text.splitlines(), 1):
-        line = raw.split("#")[0].split()
-        if not line: continue
-        step = line[0]
-        if step == "install": card.install()
-        elif step in ("power_on", "session_start"): card.power_on()          # STA-4: a session start
-        elif step == "session_end": card.session_end()
-        elif step == "reset": card.reset()
-        elif step == "select": pending = card.select()
-        elif step == "interrupt": card.interrupt_next_commit = True
-        elif step == "seed": card.seed(bytes.fromhex("".join(line[1:])))
-        elif step == "command":
-            words = line[1:]; capacity = 256
-            if "capacity" in words:
-                i = words.index("capacity"); capacity = int(words[i + 1]); words = words[:i]
-            pending = card.command([int(w, 16) for w in words], capacity)
-        elif step == "expect":
-            want = parse_expect(line[1:])
-            got = ("sw", status_word(pending)) if want[0] == "sw" else ("raw", raw_envelope(pending)) if want[0] == "raw" else pending
-            if got != want:
-                return f"line {lineno}: expected {want}, got {got}"
-            pending = None
-        else:
-            return f"line {lineno}: unknown step {step}"
-    return None
+# The scenario runner and the binding encoders live in tools/harness/scenario.py (VM0), shared by every backend.
+from scenario import status_word, raw_envelope, run_scenario                     # kept importable from here
 
 if __name__ == "__main__":
-    repo = pathlib.Path(sys.argv[1]); glob = sys.argv[2] if len(sys.argv) > 2 else "runtime/run-*"
-    ok = True
-    for d in sorted((repo / "conformance").glob(glob)):
-        files = [d / f for f in (d / "files.txt").read_text().split()] if (d / "files.txt").exists() else sorted(d.glob("*.card"))
-        toks = sum((lex(f.read_bytes()) for f in files), [])
-        try:
-            pltcheck.check_binding(toks, header(files[0].read_bytes()).get("binding"))       # profile BP-52
-            card = Card(toks)
-            problem = run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8"))
-        except (CE, consteval.CE, pltcheck.ProfileError) as e:
-            problem = "does not compile: " + str(e)
-        status = "PASS" if problem is None else "FAIL"; ok &= problem is None
-        print(status, d.name, "" if problem is None else "| " + problem)
-    print("ALL PASS" if ok else "FAILURES")
+    import scenario
+    scenario.main(sys.argv[1:], default_backend="interp")
