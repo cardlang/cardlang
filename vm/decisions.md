@@ -27,7 +27,12 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-21 | **HAL calls are synchronous** and never re-enter the VM | 2026-11-19 | VM2 | HAL-4 |
 | V-22 | **The bounce buffer is 128 bytes** (amends V-16) | 2026-11-19 | VM2 | VEX-34, VEX-50 |
 | V-23 | **HAL data arguments are descriptors:** a pointer for RAM and constant data, a reader or writer for persistent data, so nothing persistent is staged in VM RAM | 2026-11-19 | VM2 | HAL-11 to HAL-14 |
+| V-24 | **Instructions are a one-byte opcode with fixed-width operands** per opcode, unaligned and little-endian | 2026-11-19 | VM3 | BC-1, BC-2, BC-6 |
+| V-25 | **One opcode per operation, with a one-byte type operand** for integer types; VM6 may specialise frequent pairs | 2026-11-19 | VM3 | BC-3, BC-8, BC-13 to BC-17 |
+| V-26 | **Natives have fixed numbers** per catalog API, used directly by `NATIVE n`; the image's import list serves only the load-time check | 2026-11-19 | VM3 | BC-21, BC-32 to BC-34, IMG-7 |
+| V-27 | **An optional debug section** (files, function names, line table), ignored by the device VM and strippable | 2026-11-19 | VM3 | IMG-10 |
+| V-28 | **Bytecode and image version 0 are living** until VM6: VM4 and VM5 may change them, recording each change in the change log | 2026-11-19 | VM3 | `vm/bytecode.md` §9 |
 
 ## Open questions
 
-None. VM1 and VM2 raised none.
+None. VM1 to VM3 raised none.

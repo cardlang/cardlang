@@ -34,11 +34,11 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 
 | Document | Content | Work package | Status |
 |---|---|---|---|
-| `decisions.md` | The decision register (V-n) | all | V-1 to V-23 |
+| `decisions.md` | The decision register (V-n) | all | V-1 to V-28 |
 | `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | VM1 | drafted: VEX-1 to VEX-50 |
 | `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | VM2 | drafted: HAL-1 to HAL-31; headers not yet compiled |
-| `bytecode.md` | The instruction set and its encoding (`BC-n`) | VM3 | not started |
-| `image-format.md` | The application image (`IMG-n`) | VM3 | not started |
+| `bytecode.md` | The instruction set, its encoding, the calling convention and the native numbers (`BC-n`); hand-compiled examples | VM3 | version 0 drafted: BC-1 to BC-38 (living until VM6) |
+| `image-format.md` | The application image and the load-time checks (`IMG-n`) | VM3 | version 0 drafted: IMG-1 to IMG-13 |
 | `c/` | The product VM in C11, and a host HAL | VM7 | not started |
 
 The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11).
