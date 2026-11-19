@@ -1,0 +1,18 @@
+install
+power_on
+command 01           # a Command key is usable within its command
+expect ok 55
+command 02           # ... and gone in the next one (BP-14)
+expect err platform NotFound
+command 03           # created, then the command traps
+expect trap BOUNDS
+command 02           # a trap does not leave a Command key behind
+expect err platform NotFound
+command 04 aa bb cc  # write_string: "rp" as text, then 3 bytes (BP-39)
+expect ok 62 72 70 43 aa bb cc
+command 05           # text that is not valid UTF-8
+expect err platform Malformed
+command 06 01        # a major type that is not a string
+expect err platform Malformed
+command 07 aa bb     # head plus content do not fit 2 bytes
+expect err platform Capacity

@@ -4,7 +4,7 @@
 // Persistent key identifiers (profile §7). MAC_KEY authenticates credential IDs; DERIVE_KEY derives credential keys.
 const MAC_KEY: u32 = 1;
 const DERIVE_KEY: u32 = 2;
-// A volatile key holding one credential's private key while it is in use.
+// A Command key (BP-14) holding one credential's private key during the command that uses it.
 const TEMP_KEY: u32 = 3;
 
 // Text keys and values used in CTAP maps.

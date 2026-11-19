@@ -120,13 +120,9 @@ function write_cose_key(point: ref u8[], out: inout u8[]) -> u32 {
     at += attempt card.cbor.write_int(-1, inout out[at..out.length]);
     at += attempt card.cbor.write_int(1, inout out[at..out.length]);
     at += attempt card.cbor.write_int(-2, inout out[at..out.length]);
-    at += attempt card.cbor.write_head(CborMajor.Bytes, 32, inout out[at..out.length]);
-    out[at..at + 32] = point[1..33];
-    at += 32;
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref point[1..33], inout out[at..out.length]);
     at += attempt card.cbor.write_int(-3, inout out[at..out.length]);
-    at += attempt card.cbor.write_head(CborMajor.Bytes, 32, inout out[at..out.length]);
-    out[at..at + 32] = point[33..65];
-    at += 32;
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref point[33..65], inout out[at..out.length]);
     return Ok(at);
 }
 

@@ -142,7 +142,7 @@ WipeStatement ::= 'wipe' Expression ';'
 **STM-23 [Agreed]** `wipe p;` stores `default(T)` (TYP-22) into every element of `p`. The operand `p` must be an assignable place (STM-7), or a slice of one (FUN-24). Any other operand is **CE-STM-2**.
 
 - **Evaluation.** As for an assignment (STM-9): the place's path, and a slice's endpoints and region, are evaluated and checked first, and then the store happens.
-- **The stores are always performed.** They are never removed, merged or postponed past the end of the place's lifetime, even when nothing later reads the place. This is the one exception to EXP-22, so that secrets can be erased reliably (PLT-34).
+- **The stores are always performed.** They are never removed, merged or postponed past the end of the place's lifetime, even when nothing later reads the place. This is the one exception to EXP-22, so that secrets can be erased reliably (PLT-34). Locals are also erased when their frame ends (PLT-35), so `wipe` of a local only erases it sooner.
 - **Persistence.** A `wipe` of persistent storage is a persistent assignment. It is atomic for its whole destination (STA-11), STA-13 applies to that destination, and it participates in an active transaction.
 *Sources: D-449 (OI-49), D-451 (OI-51); DN §3.9.*
 

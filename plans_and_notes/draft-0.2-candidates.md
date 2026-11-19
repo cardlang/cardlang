@@ -17,9 +17,9 @@ Changes already made after Draft 0.1, for reference: OI-45 (`attempt` and `requi
 | 9 | **Done in WP9 (OI-56).** **A short form for discarding an outcome** (`ignore c;`) | WP8 L5 | |
 | 10 | **Done in WP9 (OI-57).** **Compound assignment** (`+=`, deferred in STM-6) | WP8 L6 | |
 | 11 | **A block-scoped view binding** | WP8 L7 | Must keep FUN-16's guarantee that views never escape |
-| 12 | **Command-lifetime keys** (`KeyStorage.Command`) | WP8 P1 | A profile change |
-| 13 | **`card.cbor.write_string`** | WP8 P2 | A profile change |
+| 12 | **Done (BP-14, BP-24).** **Command-lifetime keys** (`KeyStorage.Command`) | WP8 P1 | A profile change |
+| 13 | **Done (BP-39).** **`card.cbor.write_string`** | WP8 P2 | A profile change |
 
 Evidence against changing a rule: WP8 L8 found that EXP-49 and the mixed-operator rule cost little in a real applet. Item 2 (EXP-49) therefore has weaker support than it seemed.
 
-| 14 | **Scoped cleanup on early exit**, such as `defer wipe x;`, so `attempt … else` can be used where secrets must be erased first | WP8 L10 (after WP9) | Not urgent |
+| 14 | **Done, differently (OI-58, PLT-35).** Not `defer`, but a platform obligation: a frame's locals are erased when it ends, traps included | WP8 L10 (after WP9) | `defer` could not cover traps |

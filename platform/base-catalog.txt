@@ -336,3 +336,13 @@ api card.der.integer_size
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Return the size write_integer would write (BP-45).
+
+api card.cbor.write_string
+    params      major: CborMajor, content: ref u8[], out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Malformed, Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write a complete byte or text string, head and content, and return its size (BP-39).

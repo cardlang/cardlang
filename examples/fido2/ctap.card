@@ -60,7 +60,6 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
     attempt load_credential_key(ref rp_hash, ref credential_id[0..32]);
     var point: u8[65];
     n = attempt card.key.export_public(TEMP_KEY, inout point);
-    attempt card.key.delete(TEMP_KEY);
 
     // authData: rpIdHash, flags (UP | AT), signCount, then the attested credential data.
     var auth: u8[180];
@@ -78,13 +77,9 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
     var at: u32 = 1;
     at += attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
     at += attempt card.cbor.write_int(1, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
-    response[at..at + 4] = FMT_NONE;
-    at += 4;
+    at += attempt card.cbor.write_string(CborMajor.Text, ref FMT_NONE, inout response[at..response.length]);
     at += attempt card.cbor.write_int(2, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Bytes, 180, inout response[at..response.length]);
-    response[at..at + 180] = auth;
-    at += 180;
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref auth, inout response[at..response.length]);
     at += attempt card.cbor.write_int(3, inout response[at..response.length]);
     at += attempt card.cbor.write_head(CborMajor.Map, 0, inout response[at..response.length]);
     return Ok(at);
@@ -123,7 +118,6 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     attempt load_credential_key(ref rp_hash, ref params[id_start..id_start + 32]);
     var raw: u8[64];
     n = attempt card.crypto.sign(TEMP_KEY, SignatureAlgorithm.EcdsaP256Sha256, ref signed, inout raw);
-    attempt card.key.delete(TEMP_KEY);
     var der: u8[72];
     var der_size: u32 = attempt der_signature(ref raw, inout der);
 
@@ -133,26 +127,14 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     at += attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
     at += attempt card.cbor.write_int(1, inout response[at..response.length]);
     at += attempt card.cbor.write_head(CborMajor.Map, 2, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Text, 2, inout response[at..response.length]);
-    response[at..at + 2] = KEY_ID;
-    at += 2;
-    at += attempt card.cbor.write_head(CborMajor.Bytes, 48, inout response[at..response.length]);
-    response[at..at + 48] = params[id_start..id_start + 48];
-    at += 48;
-    at += attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
-    response[at..at + 4] = KEY_TYPE;
-    at += 4;
-    at += attempt card.cbor.write_head(CborMajor.Text, 10, inout response[at..response.length]);
-    response[at..at + 10] = PUBLIC_KEY;
-    at += 10;
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_ID, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref params[id_start..id_start + 48], inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_TYPE, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref PUBLIC_KEY, inout response[at..response.length]);
     at += attempt card.cbor.write_int(2, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Bytes, 37, inout response[at..response.length]);
-    response[at..at + 37] = signed[0..37];
-    at += 37;
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref signed[0..37], inout response[at..response.length]);
     at += attempt card.cbor.write_int(3, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Bytes, der_size, inout response[at..response.length]);
-    response[at..at + der_size] = der[0..der_size];
-    at += der_size;
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref der[0..der_size], inout response[at..response.length]);
     return Ok(at);
 }
 

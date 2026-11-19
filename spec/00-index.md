@@ -23,7 +23,7 @@ This is the normative specification of the CardLang language.
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | SP12 | Draft complete |
 | [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | SP1–SP14 | Complete and consolidated; checked mechanically (SP14) |
 | [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | SP13 | Draft complete |
-| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-57 all resolved; none open |
+| [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | SP0, then all | Complete: OI-1…OI-58 all resolved; none open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | SP0, then all | Complete: every decision covered (D-134 informative); rule coverage matrix in §D.3 |
 
 Related files:
@@ -48,8 +48,8 @@ Related files:
 | 11 Transactions | 18 | 18 | 0 | 0 |
 | 12 Host entry point | 16 | 16 | 0 | 0 |
 | 13 Runtime failures | 12 | 12 | 0 | 0 |
-| Annex B Platform contract | 34 | 34 | 0 | 0 |
-| **Total** | 304 | 304 | 0 | 0 |
+| Annex B Platform contract | 35 | 35 | 0 | 0 |
+| **Total** | 305 | 305 | 0 | 0 |
 
 `tools/checkers/speccheck.py` checks these counts against the rules actually defined.
 

@@ -71,6 +71,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-55 | attempt with a replacement error | Proposal-to-validate | WP9 | Resolved |
 | OI-56 | Discarding an outcome | Proposal-to-validate | WP9 | Resolved |
 | OI-57 | Compound assignment | Proposal-to-validate | WP9 | Resolved |
+| OI-58 | Erasing a frame's locals on exit | Gap | Draft 0.2 | Resolved |
 
 ---
 
@@ -874,6 +875,20 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-58 — Erasing a frame's locals on exit
+
+- **Kind:** gap (from the FIDO2 check, finding L10)
+- **Sources:** STM-23, PLT-34; `plans_and_notes/WP8-fido2-findings.md` §4
+- **Affected rules:** PLT-35 (new), STM-23
+- **Question:** A secret held in a local must be erased on every way out of a function. `wipe` must run before each exit, so `attempt … else` cannot be used, and nothing erases a local when a trap discards its frame. How should secrets in locals be erased?
+- **Options:**
+  - (a) A `defer wipe x;` statement, which runs on `return` and `Err`. It does not cover traps, because a trap runs no application code.
+  - (b) A platform obligation: every frame's local memory is erased when the frame ends, traps included. The language gains nothing; the VM zeroes each frame on exit.
+- **Status:** resolved 2026-11-19 (D-458)
+- **Decision:** Option (b). A platform erases a call frame's local memory when the frame ends, however it ends, including on a trap (PLT-35). It replaces the deferred-cleanup candidate (defer), which could not cover traps.
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -935,3 +950,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-19 | OI-55 | attempt with a replacement error (D-455) | User | OUT-22, TXN-18 (WP9) |
 | 2026-11-19 | OI-56 | Discarding an outcome (D-456) | User | STM-24, LEX-13 (WP9) |
 | 2026-11-19 | OI-57 | Compound assignment (D-457) | User | STM-25, STM-6, LEX-22 (WP9) |
+| 2026-11-19 | OI-58 | Erasing a frame's locals on exit (D-458) | User | PLT-35; STM-23 note (Draft 0.2) |

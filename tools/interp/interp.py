@@ -457,7 +457,8 @@ class Card:
                     material = pt
             store = pkeys if storage == "Persistent" else vkeys
             if len(store) >= (8 if storage == "Persistent" else 4): return err("Capacity")
-            store[ident] = (ktype, material); return ("ok", None)
+            store[ident] = (ktype, material) + (("Command",) if storage == "Command" else ())    # BP-14
+            return ("ok", None)
         if key is None:
             return err("WrongResourceType") if ident in self.resources or ident in self.operations else err("NotFound")
         if path == "card.key.export_public":                              # BP-22
@@ -583,6 +584,13 @@ class Card:
                 major = self.eval(args[0][1], env)[2]; value = self.eval(args[1][1], env, "u32").v
                 return write(2, testcbor.write_head(major, value))
             if name == "write_int": return write(1, testcbor.write_int(self.eval(args[0][1], env, "i32").v))
+            if name == "write_string":                                            # BP-39 (P2)
+                major = self.eval(args[0][1], env)[2]; content = data(1)
+                if major not in ("Bytes", "Text"): raise testcbor.CborError("Malformed")
+                if major == "Text":
+                    try: bytes(content).decode("utf-8")
+                    except UnicodeDecodeError: raise testcbor.CborError("Malformed")
+                return write(2, testcbor.write_head(major, len(content)) + content)
         except testcbor.CborError as e:
             return ("err", ErrVal("platform", e.kind))
         raise RuntimeError("no behaviour for " + path)
@@ -838,6 +846,7 @@ class Card:
                 raise RuntimeError("command completed without an outcome")
             finally:                                           # Command-lifetime operations end with the command (BP-14)
                 self.operations = {k: o for k, o in self.operations.items() if o["lifetime"] != "Command"}
+                self.volatile_keys = {k: v for k, v in self.volatile_keys.items() if v[2:] != ("Command",)}
         except Ret as r:
             out = r.outcome
         except Trap as t:

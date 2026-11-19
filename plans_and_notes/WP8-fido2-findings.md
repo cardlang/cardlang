@@ -76,3 +76,17 @@ WP9 added byte strings (L1), the `Err(Set(code))` pattern (L2), `attempt … els
 |---|---|---|
 | L10 | **`attempt … else` leaves no room for cleanup.** `load_credential_key` must wipe the derived key bytes before returning on failure, so it keeps a `match`: `attempt … else` would return without the `wipe` | A candidate: scoped cleanup, such as a `defer wipe derived;` statement. It is not urgent, because one `match` covers the case |
 | L11 | **EXP-49 bit once:** `status(inout response, truncate<u8>(code))` is rejected, because `truncate` is a call inside a call argument. It needed one temporary | Still weak evidence against EXP-49: one case in 480 lines |
+
+## 5. After P1, P2 and PLT-35 (2026-11-19)
+
+These changes were taken up next:
+- **P1:** `KeyStorage.Command` keys, which end with their command, even on a trap (BP-14, BP-24).
+- **P2:** `card.cbor.write_string` (BP-39).
+- **L10:** answered by **PLT-35**, not by `defer`. A platform erases a frame's locals when it ends, including on a trap (OI-58, D-458). `defer` could not have covered traps.
+
+The applet now has:
+- **449 lines** (552 at the start of WP8, 480 after WP9);
+- **no `match` and no `wipe`** in `load_credential_key`. It is two `attempt`s, the second with `else`, and `TEMP_KEY` is a command key, so the defensive delete and both final deletes are gone;
+- **10 string writes, each one line** (`write_string`), where each used to be three.
+
+`check_fido2.py` still passes all 21 checks.

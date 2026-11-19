@@ -15,6 +15,7 @@ enum KeyType {
 enum KeyStorage {
     Persistent;
     Volatile;
+    Command;
 }
 
 struct KeySpec {

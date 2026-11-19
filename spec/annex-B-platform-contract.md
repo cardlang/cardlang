@@ -292,6 +292,7 @@ A platform specification must document a choice for every item below. Each row p
 | 30 | [PLT-24](annex-B-platform-contract.md) | Resource storage strategy, such as fixed slots, bounded pools or a heap, is platform-defined and needs no dynamic allocation in the language. |
 | 31 | [PLT-28](annex-B-platform-contract.md) | How trap kinds are reported, if at all, is platform-defined (PLT-10). |
 | 32 | [PLT-32](annex-B-platform-contract.md) | The level, and how it is evaluated, are platform-defined. |
+| 33 | [PLT-35](annex-B-platform-contract.md) | How the memory is erased, and whether a platform erases more, are platform-defined. |
 
 ## B.13 Security expectations
 
@@ -308,3 +309,6 @@ These rules are obligations on a platform. They are not language rules, because 
 
 **PLT-34 [Agreed]** A platform performs every store of a `wipe` statement (STM-23), including on volatile memory about to be released. It keeps no other copy of the wiped values that an application or the host could recover.
 *Sources: D-450 (OI-50), D-449 (OI-49).*
+
+**PLT-35 [Agreed]** When a call frame ends, a platform erases the frame's local memory. This applies to every function, command and lifecycle handler, however the frame ends: `return`, `Err`, `attempt` propagation, `abort`, or a trap (RTF-1). No later code, application or host can recover the values its locals held. Applications therefore need `wipe` (STM-23) only for state that outlives a frame, such as session and persistent state, or to erase a local sooner. How the memory is erased, and whether a platform erases more, are platform-defined.
+*Sources: D-458 (OI-58).*

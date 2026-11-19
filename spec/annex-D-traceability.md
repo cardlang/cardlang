@@ -36,7 +36,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | 12-host-entry-point.md | SP11 | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | SP12 | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
 | annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1, A.2.1–A.2.10, A.3; consolidated and checked mechanically (SP14) |
-| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-34 |
+| annex-B-platform-contract.md | SP13 | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-35 |
 | annex-C-open-issues.md | all | see each issue | — |
 
 ## D.2 Decisions → rules
@@ -343,6 +343,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-455 | attempt with a replacement error | WP9 | OUT-22, TXN-18 | OI-55 | covered |
 | D-456 | Discarding an outcome | WP9 | STM-24, LEX-13 | OI-56 | covered |
 | D-457 | Compound assignment | WP9 | STM-25, STM-6, LEX-22 | OI-57 | covered |
+| D-458 | Erasing a frame's locals on exit | Draft 0.2 | PLT-35, STM-23 | OI-58 | covered |
 
 ## D.3 Rules → conformance tests
 
@@ -356,7 +357,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 304 rules: 227 cited, 44 exercised, 33 not testable.
+**Totals:** 305 rules: 227 cited, 44 exercised, 34 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -651,8 +652,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-19 | exercised | run-008-state-lifecycle |
 | PLT-20 | cited | run-015-resource-identifiers, run-016-signer-application |
 | PLT-21 | cited | plt-003-base-types |
-| PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys |
-| PLT-23 | cited | run-015-resource-identifiers |
+| PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys, run-025-command-keys-and-strings |
+| PLT-23 | cited | run-015-resource-identifiers, run-025-command-keys-and-strings |
 | PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys, run-020-crypto |
 | PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-008-tlv-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool, run-020-crypto, run-021-cbor, run-022-tlv |
 | PLT-26 | exercised | plt-001-platform-call and every test that uses the test-only catalog |
@@ -664,3 +665,4 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-32 | not testable | Side-channel and fault resistance is not observable by a conforming program; checked by platform evaluation |
 | PLT-33 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-34 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-35 | not testable | Erased memory is not observable by a conforming program; checked by platform evaluation |

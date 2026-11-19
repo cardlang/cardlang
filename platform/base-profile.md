@@ -58,7 +58,7 @@ The application can therefore retry, or handle the error, without cleaning up.
 | Type | Purpose | Defined by |
 |---|---|---|
 | `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`, `Hmac256`: every valid key type (WP3 K1, WP4) | §7 |
-| `KeyStorage` | `Persistent`, `Volatile` | §7 |
+| `KeyStorage` | `Persistent`, `Volatile`, `Command` | §7 |
 | `KeySpec` | A key's type and storage | §7 |
 | `DigestAlgorithm` | `Sha256` | §8 |
 | `MacAlgorithm` | `HmacSha256` | §8 |
@@ -101,6 +101,7 @@ Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` a
 |---|---|
 | Persistent key | Until deleted. It survives power loss and security reset |
 | Volatile key | Until deleted, the next power-on, or a security reset |
+| Command key | Until deleted, or the end of the command that created it, whether it returns, returns `Err` or traps |
 | Operation with `Command` lifetime | Until finished, or until the end of the command, whether it returns or traps |
 | Operation with `Session` lifetime | Until finished, the next power-on, or a security reset |
 
@@ -109,7 +110,7 @@ Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` a
 **BP-16 Minimum capacities.** A conforming platform can hold at least:
 
 - 8 persistent keys;
-- 4 volatile keys;
+- 4 volatile keys, counting command keys;
 - 2 operations active at the same time.
 
 Beyond these minimums, running out of capacity is `Err(CardError.Capacity)`.
@@ -161,13 +162,13 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 
 **BP-24 Storage and transactions.**
 
-- A `Persistent` key survives commands, traps, power loss and security reset. A `Volatile` key disappears at the next power-on or security reset (BP-14).
+- A `Persistent` key survives commands, traps, power loss and security reset. A `Volatile` key disappears at the next power-on or security reset. A `Command` key disappears when the command that created it ends, however it ends (BP-14). Use it for a key needed only while one command runs, such as a derived credential key: no cleanup code is needed, and a trap cannot leave it behind.
 - `generate`, `import` and `delete` of a persistent key take part in an active transaction (BP-15):
   - inside the transaction, the change is visible at once (TXN-2);
   - it commits or rolls back with the transaction. After a rollback, a deleted key exists again with the same material, and a created key does not exist;
   - after an interruption, the keys reflect all of the transaction or none of it (TXN-13);
   - each change counts against the platform's transaction capacity. Exceeding it is `trap(TXN-CAPACITY)` (TXN-16).
-- The same operations on a volatile key take effect immediately, even inside a transaction (TXN-4).
+- The same operations on a volatile or command key take effect immediately, even inside a transaction (TXN-4).
 
 **BP-25 Capacity.** Creating a key beyond what the platform can hold is `Err(CardError.Capacity)`. A platform holds at least 8 persistent and 4 volatile keys (BP-16).
 
@@ -258,6 +259,7 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 **BP-39 Writing.**
 
 - **`card.cbor.write_head(major, value, inout out) -> u32`** writes the shortest head for `major` and `value` at `out[0]`, and returns its size. For `Simple`, `value` must be 20 to 23, otherwise `Err(CardError.Malformed)`.
+- **`card.cbor.write_string(major, ref content, inout out) -> u32`** writes a complete byte string (`major` = `Bytes`) or text string (`Text`): the shortest head for `content.length`, followed by `content`. It returns the total size. Any other `major` is `Err(CardError.Malformed)`, and so is a `Text` whose content is not valid UTF-8 (BP-36).
 - **`card.cbor.write_int(value: i32, inout out) -> u32`** writes `value` as an unsigned integer if it is at least 0, and otherwise as the negative integer with argument `−1 − value`.
 - **Capacity.** A head that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
 - **The application's part.** The application copies string content with slice assignment (FUN-24), and emits map keys in canonical order. `compare` (EXP-54) on two encoded keys decides that order. `validate` on the finished output checks it.
