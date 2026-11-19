@@ -260,6 +260,7 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 
 - **`card.cbor.write_head(major, value, inout out) -> u32`** writes the shortest head for `major` and `value` at `out[0]`, and returns its size. For `Simple`, `value` must be 20 to 23, otherwise `Err(CardError.Malformed)`.
 - **`card.cbor.write_string(major, ref content, inout out) -> u32`** writes a complete byte string (`major` = `Bytes`) or text string (`Text`): the shortest head for `content.length`, followed by `content`. It returns the total size. Any other `major` is `Err(CardError.Malformed)`, and so is a `Text` whose content is not valid UTF-8 (BP-36).
+- **`card.cbor.write_bool(value: bool, inout out) -> u32`** writes `true` (`0xF5`) or `false` (`0xF4`), and returns 1.
 - **`card.cbor.write_int(value: i32, inout out) -> u32`** writes `value` as an unsigned integer if it is at least 0, and otherwise as the negative integer with argument `−1 − value`.
 - **Capacity.** A head that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
 - **The application's part.** The application copies string content with slice assignment (FUN-24), and emits map keys in canonical order. `compare` (EXP-54) on two encoded keys decides that order. `validate` on the finished output checks it.

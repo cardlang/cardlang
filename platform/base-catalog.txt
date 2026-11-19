@@ -346,3 +346,13 @@ api card.cbor.write_string
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Write a complete byte or text string, head and content, and return its size (BP-39).
+
+api card.cbor.write_bool
+    params      value: bool, out: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      Capacity
+    resources   -
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write a CBOR Boolean (0xF5 or 0xF4) and return 1 (BP-39).

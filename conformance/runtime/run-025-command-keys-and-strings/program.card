@@ -3,7 +3,7 @@
 // status: agreed
 // kind: application
 // expect: runtime
-// note: Command-lifetime keys end with their command, also on a trap; card.cbor.write_string and its errors.
+// note: Command-lifetime keys end with their command, also on a trap; card.cbor.write_string and its errors; write_bool.
 errors AppError {
     UnknownOperation = 1;
 }
@@ -35,6 +35,10 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
     } else if operation == 6 {
         var n: u32 = attempt card.cbor.write_string(CborMajor.Unsigned, ref request[1..request.length], inout response);
         return Ok(n);
+    } else if operation == 8 {
+        var at: u32 = attempt card.cbor.write_bool(true, inout response[0..response.length]);
+        at += attempt card.cbor.write_bool(false, inout response[at..response.length]);
+        return Ok(at);
     } else if operation == 7 {
         var n: u32 = attempt card.cbor.write_string(CborMajor.Bytes, ref request[1..request.length], inout response[0..2]);
         return Ok(n);

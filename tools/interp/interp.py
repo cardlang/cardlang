@@ -584,6 +584,8 @@ class Card:
                 major = self.eval(args[0][1], env)[2]; value = self.eval(args[1][1], env, "u32").v
                 return write(2, testcbor.write_head(major, value))
             if name == "write_int": return write(1, testcbor.write_int(self.eval(args[0][1], env, "i32").v))
+            if name == "write_bool":                                              # BP-39
+                return write(1, [0xF5 if self.eval(args[0][1], env, "bool") else 0xF4])
             if name == "write_string":                                            # BP-39 (P2)
                 major = self.eval(args[0][1], env)[2]; content = data(1)
                 if major not in ("Bytes", "Text"): raise testcbor.CborError("Malformed")

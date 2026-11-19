@@ -16,3 +16,5 @@ command 06 01        # a major type that is not a string
 expect err platform Malformed
 command 07 aa bb     # head plus content do not fit 2 bytes
 expect err platform Capacity
+command 08           # write_bool (BP-39)
+expect ok f5 f4

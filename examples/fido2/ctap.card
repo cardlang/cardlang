@@ -27,10 +27,6 @@ function ctap(message: ref u8[], response: inout u8[]) -> u32 {
 // authenticatorGetInfo (0x04):
 // {1: ["FIDO_2_0"], 3: AAGUID, 4: {"rk": false, "up": true, "plat": false, "clientPin": pin_set}, 5: 1280, 6: [2, 1]}
 function get_info(response: inout u8[]) -> u32 {
-    var client_pin: u32 = 20;
-    if pin_set {
-        client_pin = 21;
-    }
     response[0] = 0;
     var at: u32 = 1;
     at += attempt card.cbor.write_head(CborMajor.Map, 5, inout response[at..response.length]);
@@ -42,13 +38,13 @@ function get_info(response: inout u8[]) -> u32 {
     at += attempt card.cbor.write_int(4, inout response[at..response.length]);
     at += attempt card.cbor.write_head(CborMajor.Map, 4, inout response[at..response.length]);
     at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_RK, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Simple, 20, inout response[at..response.length]);
+    at += attempt card.cbor.write_bool(false, inout response[at..response.length]);
     at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_UP, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Simple, 21, inout response[at..response.length]);
+    at += attempt card.cbor.write_bool(true, inout response[at..response.length]);
     at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_PLAT, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Simple, 20, inout response[at..response.length]);
+    at += attempt card.cbor.write_bool(false, inout response[at..response.length]);
     at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_CLIENT_PIN, inout response[at..response.length]);
-    at += attempt card.cbor.write_head(CborMajor.Simple, client_pin, inout response[at..response.length]);
+    at += attempt card.cbor.write_bool(pin_set, inout response[at..response.length]);
     at += attempt card.cbor.write_int(5, inout response[at..response.length]);
     at += attempt card.cbor.write_int(1280, inout response[at..response.length]);
     at += attempt card.cbor.write_int(6, inout response[at..response.length]);

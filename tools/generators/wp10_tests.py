@@ -37,6 +37,10 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
     } else if operation == 6 {
         var n: u32 = attempt card.cbor.write_string(CborMajor.Unsigned, ref request[1..request.length], inout response);
         return Ok(n);
+    } else if operation == 8 {
+        var at: u32 = attempt card.cbor.write_bool(true, inout response[0..response.length]);
+        at += attempt card.cbor.write_bool(false, inout response[at..response.length]);
+        return Ok(at);
     } else if operation == 7 {
         var n: u32 = attempt card.cbor.write_string(CborMajor.Bytes, ref request[1..request.length], inout response[0..2]);
         return Ok(n);
@@ -62,10 +66,12 @@ command 06 01        # a major type that is not a string
 expect err platform Malformed
 command 07 aa bb     # head plus content do not fit 2 bytes
 expect err platform Capacity
+command 08           # write_bool (BP-39)
+expect ok f5 f4
 """
 d = conf / "runtime" / "run-025-command-keys-and-strings"; d.mkdir(parents=True, exist_ok=True)
 (d / "program.card").write_text(hdr("PLT-22, PLT-23", SRC, "runtime",
-    "Command-lifetime keys end with their command, also on a trap; card.cbor.write_string and its errors.", "application")
+    "Command-lifetime keys end with their command, also on a trap; card.cbor.write_string and its errors; write_bool.", "application")
     + PROGRAM, encoding="utf-8", newline="\n")
 (d / "scenario.txt").write_text(SCENARIO, encoding="utf-8", newline="\n")
 (pathlib.Path(__file__).parent / "wp10_owned.txt").write_text("runtime/run-025-command-keys-and-strings/\n", encoding="utf-8", newline="\n")
