@@ -80,8 +80,8 @@ These names are language-level placeholders. Annex B confirms them. The numeric 
 
 ## 13.4 Security reset and interruption
 
-**RTF-9 [Agreed]** The runtime may issue a *security reset*, and a fatal platform failure requires one. A security reset clears all volatile state across all applications, including every application's session state. Session defaults are restored by the next initialization (STA-4). A security reset may interrupt a command, and that command then has no outcome. A security reset is never reported as an `Err`, whether `CardError` or any other. How a platform decides to issue one, and how it cleans up securely, are platform-defined (Annex B).
-*Sources: D-054, D-056, D-397; DN §6.4.*
+**RTF-9 [Agreed]** The runtime may issue a *security reset*, and a fatal platform failure requires one. A security reset clears all volatile state across all applications, including every application's session state. A security reset ends every application's session, and session defaults are restored at the next session start (STA-4). A security reset may interrupt a command, and that command then has no outcome. A security reset is never reported as an `Err`, whether `CardError` or any other. How a platform decides to issue one, and how it cleans up securely, are platform-defined (Annex B).
+*Sources: D-054, D-056, D-397, D-459 (OI-59); DN §6.4.*
 
 **RTF-10 [Agreed]** A security reset or a loss of power may end execution with no outcome and no response at all. The persistent guarantees still hold when that happens:
 

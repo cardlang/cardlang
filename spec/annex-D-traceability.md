@@ -344,6 +344,7 @@ Decision IDs are defined in `plans_and_notes/decision-register.md`. Every decisi
 | D-456 | Discarding an outcome | WP9 | STM-24, LEX-13 | OI-56 | covered |
 | D-457 | Compound assignment | WP9 | STM-25, STM-6, LEX-22 | OI-57 | covered |
 | D-458 | Erasing a frame's locals on exit | Draft 0.2 | PLT-35, STM-23 | OI-58 | covered |
+| D-459 | Session boundaries defined by the transport binding | WP11 | STA-4, STA-6, RTF-9, PLT-18, PLT-19 | OI-59 | covered |
 
 ## D.3 Rules → conformance tests
 
@@ -574,9 +575,9 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STA-1 | cited | sta-001-global-declarations |
 | STA-2 | cited | sta-001-global-declarations, sta-101-persistent-initializer, sta-102-session-fill-initializer, sta-103-persistent-zero-initializer, sta-104-session-false-initializer |
 | STA-3 | cited | run-008-state-lifecycle |
-| STA-4 | cited | run-008-state-lifecycle, run-012-wallet-application, sta-002-setup-helper |
+| STA-4 | cited | run-008-state-lifecycle, run-012-wallet-application, run-026-raw-binding-sessions, sta-002-setup-helper |
 | STA-5 | cited | sta-002-setup-helper |
-| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, sta-004-lifecycle-handlers |
+| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, run-026-raw-binding-sessions, sta-004-lifecycle-handlers |
 | STA-7 | cited | sta-004-lifecycle-handlers, sta-105-handler-with-payload, sta-106-handler-with-parameter |
 | STA-8 | cited | plt-011-on-select, plt-117-on-select-signature, plt-118-call-on-select, sta-108-constant-named-like-handler |
 | STA-9 | cited | sta-107-call-handler |
@@ -639,7 +640,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-6 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-7 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-8 | exercised | run-010-response-contract |
-| PLT-9 | cited | run-023-iso7816-binding |
+| PLT-9 | cited | run-023-iso7816-binding, run-026-raw-binding-sessions |
 | PLT-10 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-11 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
 | PLT-12 | exercised | run-014-recovery-after-interrupt |

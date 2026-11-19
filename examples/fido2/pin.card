@@ -12,7 +12,7 @@ function new_token() {
 }
 
 // At every power-on: a new key-agreement key and a new token (§6.5.5.1).
-function on_power_on() {
+function on_session_start() {
     attempt card.key.generate(KA_KEY, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Volatile });
     attempt new_token();
     return Ok();

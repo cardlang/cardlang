@@ -808,7 +808,7 @@ class Card:
     def power_on(self):
         self.session = {n: self.default(t) for n, t in self.session_types.items()}
         self.volatile_keys = {}; self.operations = {}
-        self.run_handler("on_power_on")
+        self.run_handler("on_session_start")
 
     def select(self):
         """ISO 7816 binding: run on_select, if declared, for the SELECT response data (BP-50a)."""
@@ -829,6 +829,11 @@ class Card:
         params, ret, body = self.funcs[name]
         env["scopes"].append(scope)
         self.block(body, env)
+
+    def session_end(self):
+        """STA-4: session state, volatile keys and Session operations are discarded."""
+        self.session = None
+        self.volatile_keys = {}; self.operations = {}
 
     def reset(self):
         self.session = None
@@ -874,8 +879,17 @@ def status_word(outcome):
     if outcome[1] == "app": return outcome[2]
     return 0x6F00 + CARD_ERROR_CODES[outcome[2]]
 
+def raw_envelope(outcome):
+    """The raw binding's response envelope for an outcome (profile BP-53)."""
+    if outcome is None or outcome[0] == "none": return None
+    if outcome[0] == "ok": return [0x00, 0x00, 0x00] + outcome[1]
+    if outcome[0] == "trap": return [0x03, 0x00, 0x00]
+    code = outcome[2] if outcome[1] == "app" else CARD_ERROR_CODES[outcome[2]]
+    return [0x01 if outcome[1] == "app" else 0x02, code >> 8, code & 0xFF]
+
 def parse_expect(words):
     if words[0] == "sw": return ("sw", int(words[1], 16))
+    if words[0] == "raw": return ("raw", [int(w, 16) for w in words[1:]])
     if words[0] == "ok": return ("ok", [int(w, 16) for w in words[1:]])
     if words[0] == "err" and words[1] == "app": return ("err", "app", int(words[2]))
     if words[0] == "err" and words[1] == "platform": return ("err", "platform", words[2])
@@ -890,7 +904,8 @@ def run_scenario(card, text):
         if not line: continue
         step = line[0]
         if step == "install": card.install()
-        elif step == "power_on": card.power_on()
+        elif step in ("power_on", "session_start"): card.power_on()          # STA-4: a session start
+        elif step == "session_end": card.session_end()
         elif step == "reset": card.reset()
         elif step == "select": pending = card.select()
         elif step == "interrupt": card.interrupt_next_commit = True
@@ -902,7 +917,7 @@ def run_scenario(card, text):
             pending = card.command([int(w, 16) for w in words], capacity)
         elif step == "expect":
             want = parse_expect(line[1:])
-            got = ("sw", status_word(pending)) if want[0] == "sw" else pending
+            got = ("sw", status_word(pending)) if want[0] == "sw" else ("raw", raw_envelope(pending)) if want[0] == "raw" else pending
             if got != want:
                 return f"line {lineno}: expected {want}, got {got}"
             pending = None

@@ -23,7 +23,7 @@ for path, code, note, src in [
 add(I+"sta-105-handler-with-payload.card", "STA-7", "D-422", "compile-error CE-STA-2", "A handler with a payload.",
 "function on_install() -> u32 {\n    return Ok(1);\n}\n")
 add(I+"sta-106-handler-with-parameter.card", "STA-7", "D-422", "compile-error CE-STA-2", "A handler with a parameter.",
-"function on_power_on(level: u8) {\n    return Ok();\n}\n")
+"function on_session_start(level: u8) {\n    return Ok();\n}\n")
 add(I+"sta-107-call-handler.card", "STA-9", "D-422", "compile-error CE-STA-3", "Application code calls a handler.",
 "persistent installed_version: u16;\n\nfunction on_install() {\n    installed_version = 1;\n    return Ok();\n}\n\n"
 "function reinstall() {\n    attempt on_install();\n    return Ok();\n}\n")

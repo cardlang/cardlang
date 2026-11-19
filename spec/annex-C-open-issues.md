@@ -72,6 +72,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | OI-56 | Discarding an outcome | Proposal-to-validate | WP9 | Resolved |
 | OI-57 | Compound assignment | Proposal-to-validate | WP9 | Resolved |
 | OI-58 | Erasing a frame's locals on exit | Gap | Draft 0.2 | Resolved |
+| OI-59 | Session boundaries defined by the transport binding | Proposal-to-validate | WP11 | Resolved |
 
 ---
 
@@ -889,6 +890,21 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ---
 
+## OI-59 — Session boundaries defined by the transport binding
+
+- **Kind:** proposal-to-validate (Draft 0.2 candidate 1, from the review of the transport bindings)
+- **Sources:** STA-4, STA-6, RTF-9, PLT-18, PLT-19; profile BP-14, BP-55; `plans_and_notes/spec-plans/WP11-sessions-and-raw-envelope.md`
+- **Affected rules:** STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23, the chapter 1 glossary, NAM-14, LEX-15
+- **Question:** Session state and volatile resources were tied to power-on, which is card-centric. In a TEE, power-on is device boot, while clients open and close sessions many times between boots. How should session boundaries be defined?
+- **Options:**
+  - (a) Define a session as a language term whose start and end events the transport binding defines, with at most one session per application at a time. Rename the placeholder handler to `on_session_start`.
+  - (b) Allow several concurrent sessions, with one session-state instance per client.
+  - (c) Keep power-on.
+- **Status:** resolved 2026-11-19 (D-459)
+- **Decision:** Option (a). A session starts and ends at events the platform's transport binding defines; a security reset ends every session; at most one session per application at a time; the placeholder handler on_power_on is renamed on_session_start. On a card, behaviour is unchanged (power-on starts a session).
+
+---
+
 ## Resolution log
 
 | Date | ID | Decision | Decided by | Spec changes |
@@ -951,3 +967,4 @@ This annex records every contradiction, gap and proposal-to-validate found while
 | 2026-11-19 | OI-56 | Discarding an outcome (D-456) | User | STM-24, LEX-13 (WP9) |
 | 2026-11-19 | OI-57 | Compound assignment (D-457) | User | STM-25, STM-6, LEX-22 (WP9) |
 | 2026-11-19 | OI-58 | Erasing a frame's locals on exit (D-458) | User | PLT-35; STM-23 note (Draft 0.2) |
+| 2026-11-19 | OI-59 | Session boundaries defined by the transport binding (D-459) | User | STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23; the handler renamed (WP11) |

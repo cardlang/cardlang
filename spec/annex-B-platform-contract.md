@@ -108,13 +108,13 @@ The language exposes no representation, so these choices cannot be observed by a
 - whether a handler is required;
 - what happens when a handler returns `Err` or traps, including whether the application becomes available;
 - how an interrupted installation is handled, and how provisioning is made safe to repeat;
-- which session events exist beyond power-on and security reset, such as deselection or logical channels.
+- for each transport binding, which events start and end a session (STA-4), including whether deselection or logical channels do.
 
-The placeholder handlers `on_install` and `on_power_on` (STA-6) are used by this specification until a platform defines its own. A platform that replaces them must document the replacement. A platform must not run a lifecycle handler while a command is active (PLT-4).
-*Sources: D-124, D-370, D-407 (OI-7), D-438 (OI-38); DN §3.9; PN §3.*
+The placeholder handlers `on_install` and `on_session_start` (STA-6) are used by this specification until a platform defines its own. A platform that replaces them must document the replacement. A platform must not run a lifecycle handler while a command is active (PLT-4).
+*Sources: D-124, D-370, D-407 (OI-7), D-438 (OI-38), D-459 (OI-59); DN §3.9; PN §3.*
 
-**PLT-19 [Agreed]** The platform may issue a security reset, and it must issue one after a fatal platform failure. A security reset clears all volatile state of every application, including session state. The platform performs secure cleanup, whose method is platform-defined. Session defaults are restored at the next initialization (STA-4). A security reset is never reported to an application as an `Err`. A command it interrupts has no outcome. When the platform decides to issue a security reset is platform-defined.
-*Sources: D-054, D-056, D-397; DN §6.4; PN §3.*
+**PLT-19 [Agreed]** The platform may issue a security reset, and it must issue one after a fatal platform failure. A security reset clears all volatile state of every application, including session state. The platform performs secure cleanup, whose method is platform-defined. It ends every application's session, and session defaults are restored at the next session start (STA-4). A security reset is never reported to an application as an `Err`. A command it interrupts has no outcome. When the platform decides to issue a security reset is platform-defined.
+*Sources: D-054, D-056, D-397, D-459 (OI-59); DN §6.4; PN §3.*
 
 ## B.7 Runtime-owned resources
 
@@ -144,7 +144,7 @@ The placeholder handlers `on_install` and `on_power_on` (STA-6) are used by this
 After deletion, every copy of the identifier names nothing. Reusing the identifier makes all copies name the new resource. Stale handles are not detected.
 *Sources: D-203, D-204; DN §11.2; PN §2.*
 
-**PLT-23 [Agreed]** A trap does not clean up, delete or invalidate runtime-owned resources (RTF-2). Each resource operation defines the state it leaves on failure. What happens to resources at power-on, at security reset and when an application is deleted is platform-defined. A resource's lifetime is independent of the variables that hold its identifier.
+**PLT-23 [Agreed]** A trap does not clean up, delete or invalidate runtime-owned resources (RTF-2). Each resource operation defines the state it leaves on failure. What happens to resources at a session start, at security reset and when an application is deleted is platform-defined. A resource's lifetime is independent of the variables that hold its identifier.
 *Sources: D-052, D-204; DN §6.4, §11.2; PN §2.*
 
 **PLT-24 [Agreed]** Each platform API states its behavior inside a transaction. It either participates in the transaction (its effects commit and roll back with it), or is permitted but does not participate (its effects are immediate), or is not permitted. A call to a not-permitted API is rejected at compile time (TXN-17). Resource storage strategy, such as fixed slots, bounded pools or a heap, is platform-defined and needs no dynamic allocation in the language.
@@ -265,7 +265,7 @@ A platform specification must document a choice for every item below. Each row p
 | 3 | [EXP-29](06-expressions.md) | The `CardError` member names are placeholders, and their codes are platform-defined (Annex B). |
 | 4 | [OUT-19](09-outcomes-and-errors.md) | Its member names and codes are platform-defined (Annex B). |
 | 5 | [STA-3](10-state-and-initialization.md) | Deleting persistent state, upgrading an application, and migrating persistent values between versions are platform-defined (Annex B). |
-| 6 | [STA-4](10-state-and-initialization.md) | Whether other events affect session state, such as deselection or logical channels, is platform-defined (Annex B). |
+| 6 | [STA-4](10-state-and-initialization.md) | Which events start and end a session, including whether deselection or logical channels do, is platform-defined, per binding (Annex B). |
 | 7 | [STA-13](10-state-and-initialization.md) | The limit values, and how the rejection is reported, are platform-defined (Annex B). |
 | 8 | [TXN-14](11-transactions.md) | The mechanism the platform uses to provide this isolation is platform-defined (Annex B). |
 | 9 | [TXN-16](11-transactions.md) | The limit values are platform-defined (Annex B). |
@@ -288,7 +288,7 @@ A platform specification must document a choice for every item below. Each row p
 | 26 | [PLT-16](annex-B-platform-contract.md) | The following are platform-defined: - the physical layout of persistent state; - how persistent state survives an application upgrade, including enum values and structure layouts, whose declaration order is not a stable encoding (TYP-9); - schema migration; - rollback protection; - deletion of an application and its state. |
 | 27 | [PLT-19](annex-B-platform-contract.md) | The platform performs secure cleanup, whose method is platform-defined. |
 | 28 | [PLT-19](annex-B-platform-contract.md) | When the platform decides to issue a security reset is platform-defined. |
-| 29 | [PLT-23](annex-B-platform-contract.md) | What happens to resources at power-on, at security reset and when an application is deleted is platform-defined. |
+| 29 | [PLT-23](annex-B-platform-contract.md) | What happens to resources at a session start, at security reset and when an application is deleted is platform-defined. |
 | 30 | [PLT-24](annex-B-platform-contract.md) | Resource storage strategy, such as fixed slots, bounded pools or a heap, is platform-defined and needs no dynamic allocation in the language. |
 | 31 | [PLT-28](annex-B-platform-contract.md) | How trap kinds are reported, if at all, is platform-defined (PLT-10). |
 | 32 | [PLT-32](annex-B-platform-contract.md) | The level, and how it is evaluated, are platform-defined. |

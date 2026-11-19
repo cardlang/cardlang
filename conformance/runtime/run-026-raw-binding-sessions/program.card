@@ -1,0 +1,43 @@
+// rule: STA-4, STA-6, PLT-9
+// source: D-459; platform/base-profile.md BP-53, BP-56
+// status: agreed
+// kind: application
+// binding: raw
+// expect: runtime
+// note: Raw binding: the response envelope for each outcome category, and session boundaries opened and closed by the host.
+errors AppError {
+    Refused = 7;
+}
+
+session counter: u8;
+session marker: u8;
+
+function on_session_start() {
+    marker = 0x5A;
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        counter += 1;
+        response[0] = counter;
+        response[1] = marker;
+        return Ok(2);
+    } else if operation == 2 {
+        return Err(AppError.Refused);
+    } else if operation == 3 {
+        var length: u32 = attempt card.key.export_public(9, inout response);
+        return Ok(length);
+    } else if operation == 4 {
+        var missing: u8 = request[200];
+        return Ok(0);
+    } else if operation == 5 {
+        attempt card.key.generate(3, KeySpec { type: KeyType.Aes128, storage: KeyStorage.Volatile });
+        return Ok(0);
+    } else if operation == 6 {
+        attempt card.key.delete(3);
+        return Ok(0);
+    }
+    return Err(AppError.Refused);
+}

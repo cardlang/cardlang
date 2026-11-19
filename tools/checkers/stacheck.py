@@ -5,7 +5,7 @@ from lexcheck import lex, header
 import outcheck, expcheck, consteval
 from expcheck import CE
 
-HANDLERS = {"on_install", "on_power_on"}   # placeholders, D-438
+HANDLERS = {"on_install", "on_session_start"}   # placeholders, D-438
 
 class StaChecker(outcheck.OutChecker):
     def run(self):

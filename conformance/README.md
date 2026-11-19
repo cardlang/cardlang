@@ -73,7 +73,9 @@ The application must first compile without errors. The harness then runs the sce
 | Step | Meaning |
 |---|---|
 | `install` | Create the application's persistent state with defaults (STA-3). Then run `on_install`, if the application defines it (STA-6) |
-| `power_on` | Apply session defaults (STA-4). Then run `on_power_on`, if the application defines it |
+| `session_start` | A session start (STA-4): end any open session, apply session defaults, then run `on_session_start` if the application defines it. In the ISO 7816 binding this is power-on |
+| `power_on` | The ISO 7816 binding's name for `session_start` |
+| `session_end` | A session end (STA-4): session state, volatile keys and `Session` operations are discarded. In the raw binding, the host closing the session |
 | `command <hex bytes>` | Invoke the command with these request bytes, for example `command 01 ff`. With no bytes, the request is empty. The response capacity is 256 bytes |
 | `command <hex bytes> capacity <n>` | The same, with a response capacity of `n` bytes |
 | `reset` | A security reset: all session state is cleared (RTF-9). A `power_on` step is needed before the next command |
@@ -91,6 +93,7 @@ Every `command` step is followed by exactly one `expect` line:
 | `expect err platform <Member>` | Return this `CardError` member. The names are the placeholders of D-415 |
 | `expect trap <KIND>` | Trap with this kind, for example `expect trap OVERFLOW` |
 | `expect sw <hex>` | The ISO 7816 binding's status word for the outcome (profile BP-51), for example `expect sw 6d00` |
+| `expect raw <hex>` | The raw binding's response envelope for the outcome: category, a 2-byte code, then the data (profile BP-53), for example `expect raw 01 00 07` |
 | `expect none` | Produce no outcome, after an `interrupt` |
 
 Blank lines, and anything after `#`, are ignored. Tests observe only what the host can see. State is checked indirectly, through the responses of later commands.

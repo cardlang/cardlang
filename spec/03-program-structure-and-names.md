@@ -139,7 +139,7 @@ const A: u32 = 1;
 2. the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub`, `wrapping_mul`, `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (chapter 6; the last five added by D-432), `equal` and `compare` (chapter 6; added by D-448);
 3. the platform names `card` (the root of platform API paths, NAM-18) and `CardError` (the platform error set, chapter 9);
 4. the configuration structures, algorithm enums and other names the platform specification supplies (Annex B);
-5. the lifecycle-handler names, currently the placeholders `on_install` and `on_power_on` (chapter 10; added by D-422 and D-438).
+5. the lifecycle-handler names, currently the placeholders `on_install` and `on_session_start` (chapter 10; added by D-422 and D-438; renamed by D-459).
 
 Declaring a top-level name that equals a predeclared name is **CE-NAM-5**. The one exception is a lifecycle-handler name: an application may declare a `function` with that name, and doing so defines the handler (STA-7). Declaring anything else with a handler name is still CE-NAM-5. Using one as a parameter, local or binding name is shadowing and therefore **CE-NAM-3** (NAM-21). Platform-supplied structures and enums follow all ordinary rules for structures and enums. They introduce no imports, namespaces or hidden fields.
 *Sources: D-044, D-201, D-319, D-404 (OI-4), D-425 (OI-25), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38), D-448 (OI-48); DN §4.1, §4.2, §11.1.*

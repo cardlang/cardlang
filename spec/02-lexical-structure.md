@@ -150,7 +150,7 @@ true       var        while      wipe       ignore
 - the array intrinsics `equal` and `compare` (added by D-448);
 - the platform names `card` and `CardError`;
 - any further platform names supplied by the platform specification (Annex B);
-- the lifecycle-handler names `on_install` and `on_power_on` (added by D-422 and D-438). An application may declare a function with one of these names, which defines the handler (NAM-14, STA-7, STA-8).
+- the lifecycle-handler names `on_install` and `on_session_start` (added by D-422 and D-438; renamed by D-459). An application may declare a function with one of these names, which defines the handler (NAM-14, STA-7, STA-8).
 
 `length` is not reserved and may be used as a field name.
 *Sources: D-044, D-404 (OI-4), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38), D-448 (OI-48); DN §4.2.*

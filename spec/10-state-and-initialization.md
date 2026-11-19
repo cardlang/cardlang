@@ -82,16 +82,16 @@ session scratch: u8[128];
 Deleting persistent state, upgrading an application, and migrating persistent values between versions are platform-defined (Annex B).
 *Sources: D-123, D-128, D-369, D-416 (OI-16); DN §3.9, §5.*
 
-**STA-4 [Agreed]** Session state is initialized and cleared as follows:
+**STA-4 [Agreed]** A *session* is the period during which an application's session state lives. It begins at a *session start* and finishes at a *session end*.
 
-- At every chip power-on, every `session` global holds `default(T)` before any application code runs.
-- Session values persist from one command to the next.
-- Session values are preserved when a command traps (chapter 13).
-- A security reset clears all session state. The next initialization restores the defaults (chapter 13).
-- An ordinary trap never re-initializes session state.
+- **The events.** The events that start and end a session are defined by the platform's transport binding (PLT-18). A security reset always ends every application's session (RTF-9). On a smart card, a session starts at power-on and ends at power-off or at a security reset.
+- **One at a time.** An application has at most one session at a time. A session start ends the application's previous session, if one is still open.
+- **At a session start,** every `session` global holds `default(T)` before any application code runs. The session-start handler then runs (STA-6).
+- **During a session,** session values persist from one command to the next. They are preserved when a command traps (chapter 13). An ordinary trap never re-initializes session state.
+- **At a session end,** session state is discarded.
 
-Whether other events affect session state, such as deselection or logical channels, is platform-defined (Annex B).
-*Sources: D-050, D-051, D-054, D-123, D-128; DN §3.9, §5, §6.4.*
+Which events start and end a session, including whether deselection or logical channels do, is platform-defined, per binding (Annex B).
+*Sources: D-050, D-051, D-054, D-123, D-128, D-459 (OI-59); DN §3.9, §5, §6.4.*
 
 ## 10.4 Lifecycle handlers
 
@@ -103,7 +103,7 @@ Whether other events affect session state, such as deselection or logical channe
 - what happens if a handler returns `Err` or traps;
 - how an interrupted installation is handled.
 
-Setup that writes persistent values must be designed to run only when the platform runs it. Resetting a durable balance at every power-on, for example, would destroy existing state.
+Setup that writes persistent values must be designed to run only when the platform runs it. Resetting a durable balance at every session start, for example, would destroy existing state.
 *Sources: D-124, D-370, D-407 (OI-7); DN §3.9; PN §3.*
 
 **STA-6 [Agreed]** Until the platform catalog defines lifecycle handlers, this specification uses two placeholder handlers:
@@ -111,7 +111,7 @@ Setup that writes persistent values must be designed to run only when the platfo
 | Handler | Signature | Runs |
 |---|---|---|
 | `on_install` | `function on_install()`: no parameters, no payload | Once, after the application's persistent state is created |
-| `on_power_on` | `function on_power_on()`: no parameters, no payload | After session defaults are applied at power-on |
+| `on_session_start` | `function on_session_start()`: no parameters, no payload | After session defaults are applied at a session start (STA-4). Renamed from `on_power_on` by D-459 |
 
 Annex B confirms or replaces these names, as for the `CardError` placeholders (D-415).
 *Sources: D-438 (OI-38).*
@@ -147,7 +147,7 @@ function on_install() {
     return Ok();
 }
 
-function on_power_on() {
+function on_session_start() {
     retry_limit = 3;
     return Ok();
 }
@@ -172,7 +172,7 @@ function example_setup() {
 | Fault | Class | Conformance |
 |---|---|---|
 | `function on_install() -> u32 { … }` | CE-STA-2 | `invalid/sta-105-handler-with-payload.card` |
-| `function on_power_on(level: u8) { … }` | CE-STA-2 | `invalid/sta-106-handler-with-parameter.card` |
+| `function on_session_start(level: u8) { … }` | CE-STA-2 | `invalid/sta-106-handler-with-parameter.card` |
 | `attempt on_install();` in another function | CE-STA-3 | `invalid/sta-107-call-handler.card` |
 | `const on_install: u32 = 1;` | CE-NAM-5 | `invalid/sta-108-constant-named-like-handler.card` |
 

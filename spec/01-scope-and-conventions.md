@@ -198,7 +198,7 @@ Terms are defined as the notes use them. Where a term needs a precise rule, the 
 | **Trap** | An execution fault that terminates the current command. It is not an outcome and cannot be caught (D-010; DN §6.4). |
 | **Security reset** | A runtime-issued whole-chip reset that clears volatile state, including session state. It is required after a fatal platform failure (D-054, D-056; DN §6.4). |
 | **Persistent state** | Application-scope state that survives resets (DN §5.1). |
-| **Session state** | Application-scope volatile state, set to type defaults at chip power-on and cleared by a security reset (D-050, D-054; DN §5.1). |
+| **Session state** | Application-scope volatile state, set to type defaults at every session start and discarded at session end. The transport binding defines the session events; on a smart card, a session starts at power-on (STA-4; D-050, D-054, D-459; DN §5.1). |
 | **Local state** | Variables belonging to one function or command invocation (DN §5). |
 | **Default value** | The recursive zero, false or first-variant value given to storage without an explicit initializer (D-123, D-128; DN §3.9). |
 | **Transaction** | A `transaction { … }` block whose persistent writes commit or roll back together (DN §7.2). |

@@ -390,7 +390,7 @@ function on_install() {
     return Ok();
 }
 
-function on_power_on() {
+function on_session_start() {
     level = 3;
     return Ok();
 }
@@ -426,7 +426,7 @@ command 01           # the session change survived the trap
 expect ok 05 01 05
 reset
 power_on
-command 01           # session back to default plus on_power_on; persistent kept
+command 01           # session back to default plus on_session_start; persistent kept
 expect ok 05 01 03
 """)
 

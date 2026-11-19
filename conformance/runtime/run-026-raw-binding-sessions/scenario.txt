@@ -1,0 +1,27 @@
+install
+session_start        # the host opens a session (BP-53a, BP-56); on_session_start runs
+command 01           # the envelope: category 00, code 0000, then the data (BP-53)
+expect raw 00 00 00 01 5a
+command 01           # session state persists from command to command
+expect raw 00 00 00 02 5a
+command 02           # an application error: category 01 and the member's code
+expect raw 01 00 07
+command 03           # a platform error: category 02 and the CardError code (NotFound = 0x0010)
+expect raw 02 00 10
+command 04           # a trap: category 03
+expect raw 03 00 00
+command 01           # a trap does not reset session state
+expect raw 00 00 00 03 5a
+command 05           # a volatile key, for the rest of the session
+expect raw 00 00 00
+session_end          # the host closes the session
+session_start
+command 01           # a new session: defaults again, then on_session_start
+expect raw 00 00 00 01 5a
+command 06           # the volatile key ended with the previous session
+expect raw 02 00 10
+command 01
+expect raw 00 00 00 02 5a
+session_start        # a new session start ends the open session (STA-4)
+command 01
+expect raw 00 00 00 01 5a

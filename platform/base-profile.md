@@ -100,10 +100,10 @@ Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` a
 | Resource | Lifetime |
 |---|---|
 | Persistent key | Until deleted. It survives power loss and security reset |
-| Volatile key | Until deleted, the next power-on, or a security reset |
+| Volatile key | Until deleted, or the end of the session (STA-4) |
 | Command key | Until deleted, or the end of the command that created it, whether it returns, returns `Err` or traps |
 | Operation with `Command` lifetime | Until finished, or until the end of the command, whether it returns or traps |
-| Operation with `Session` lifetime | Until finished, the next power-on, or a security reset |
+| Operation with `Session` lifetime | Until finished, or the end of the session (STA-4) |
 
 **BP-15 Transactions.** Creating or deleting a persistent key participates in an active transaction (B4(c)). It commits and rolls back with it. Every other API in the profile is `immediate` unless its entry says otherwise.
 
@@ -162,7 +162,7 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 
 **BP-24 Storage and transactions.**
 
-- A `Persistent` key survives commands, traps, power loss and security reset. A `Volatile` key disappears at the next power-on or security reset. A `Command` key disappears when the command that created it ends, however it ends (BP-14). Use it for a key needed only while one command runs, such as a derived credential key: no cleanup code is needed, and a trap cannot leave it behind.
+- A `Persistent` key survives commands, traps, power loss and security reset. A `Volatile` key disappears at the end of the session (STA-4). A `Command` key disappears when the command that created it ends, however it ends (BP-14). Use it for a key needed only while one command runs, such as a derived credential key: no cleanup code is needed, and a trap cannot leave it behind.
 - `generate`, `import` and `delete` of a persistent key take part in an active transaction (BP-15):
   - inside the transaction, the change is visible at once (TXN-2);
   - it commits or rolls back with the transaction. After a rollback, a deleted key exists again with the same material, and a created key does not exist;
@@ -346,11 +346,22 @@ Without the handler, the SELECT response has no data and status word `9000`. Lik
 
 This binding carries messages without a card-specific framing, for example between a host and an application in a Trusted Execution Environment such as TrustZone-M on a microcontroller.
 
-**BP-53 Messages and outcomes.** `request` is the message, exactly as the host sent it, and the response is the first `count` bytes of `response`. The outcome is delivered to the host as a pair:
-- a category (success, application error, platform error or trap);
-- a 16-bit code, which is the error's code, or 0 for success and for a trap.
+**BP-53 Messages and outcomes.** `request` is the message, exactly as the host sent it. The response the host receives is an *envelope*:
 
-How the pair and the bytes are encoded for the host is platform-defined, and is part of the host-side interface. Application error codes are not restricted beyond OUT-16.
+```text
+category (1 byte) || code (2 bytes, big-endian) || data
+```
+
+| Outcome | `category` | `code` | `data` |
+|---|---|---|---|
+| `Ok(count)` | `0x00` | `0x0000` | The first `count` bytes of `response` |
+| `Err` of an application error | `0x01` | The member's code (OUT-16) | Empty |
+| `Err(CardError.m)` | `0x02` | `code(m)` from §4 | Empty |
+| A trap | `0x03` | `0x0000` | Empty |
+
+The four categories are distinct (PLT-9). Whether a platform reports a trap's kind, in the code field or otherwise, is platform-defined (PLT-10). A security reset or a power loss may produce no envelope at all (RTF-10). Application error codes are restricted only by OUT-16.
+
+**BP-53a Session control.** Besides messages, the raw binding's host interface has two operations: *open session* and *close session*. Their encoding is platform-defined, because they are not messages to the application. See BP-56.
 
 ### 11.3 Environment and lifecycle
 
@@ -359,9 +370,18 @@ How the pair and the bytes are encoded for the host is platform-defined, and is 
 **BP-55 Lifecycle handlers.** The profile uses the handler names of the language placeholders (STA-6, PLT-18):
 
 - **`on_install()`** runs once, when the application is installed, before any command. If it traps or returns `Err`, installation fails, and the application is not installed.
-- **`on_power_on()`** runs at every power-on, after session state and volatile keys have been reset, and before the first command. If it traps or returns `Err`, the application stays unavailable until the next power-on, and the platform reports every command to it as it reports a trap.
+- **`on_session_start()`** runs at every session start (STA-4, BP-56), after session state and volatile keys have been reset, and before the first command of the session. If it traps or returns `Err`, the application stays unavailable until the next session start, and the platform reports every command to it as it reports a trap.
 
-Deselection and logical channels are not visible to applications in this version. Session state and volatile resources survive deselection until the next power-on or security reset.
+Deselection and logical channels are not visible to applications in this version. Session state and volatile resources survive deselection until the session ends.
+
+**BP-56 Session events (STA-4).** Each binding defines its session events:
+
+| Binding | A session starts | A session ends |
+|---|---|---|
+| ISO 7816 | At power-on, when the card receives its reset and sends its ATR | At power-off, or at a security reset |
+| Raw | When the host opens a session (BP-53a) | When the host closes it, at a new open session (STA-4), at power-off, or at a security reset |
+
+In both bindings a security reset ends the session of every application (RTF-9).
 
 ## 12. Answers to the Annex B §B.12 checklist
 
@@ -370,7 +390,8 @@ Deselection and logical channels are not visible to applications in this version
 | `CardError` member names and codes (EXP-29, OUT-19) | §4 |
 | Platform API catalog (NAM-18, PLT-25) | §6 and `platform/base-catalog.txt` |
 | Platform-supplied types (NAM-14 item 4) | §3 and `platform/base-types.card` |
-| Resource lifetimes at power-on and security reset (PLT-23) | §5, BP-14 |
+| Resource lifetimes at a session start and at security reset (PLT-23) | §5, BP-14 |
+| Session events, per binding (STA-4, PLT-18) | §11, BP-56 |
 | Which received bytes form the request; the response capacity (HEP-5, HEP-6) | §11, BP-48 to BP-50 and BP-53 |
 | How outcome categories and codes reach the host (HEP-12, PLT-9) | §11, BP-51 (ISO 7816) and BP-53 (raw) |
 | Lifecycle events and handlers (STA-6, PLT-18) | §11, BP-50a and BP-55 |
