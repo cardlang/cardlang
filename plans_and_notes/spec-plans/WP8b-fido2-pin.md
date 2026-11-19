@@ -1,7 +1,7 @@
 # WP8 step 2 — The FIDO2 PIN protocol: detailed sub-plan
 
 Parent: `plans_and_notes/spec-plans/WP8-fido2.md` (F1: the core first, then the PIN protocol).
-Status: decisions D1–D3 taken 2026-11-19 (§5). Ready to draft.
+Status: decisions D1–D3 taken 2026-11-19 (§5). **Drafted 2026-11-19**: `examples/fido2/pin.card` and the platform-side checks in `check_fido2.py` (59 checks). Findings N1–N7 are in `WP8-fido2-findings.md` §6.
 
 ## 1. Purpose
 

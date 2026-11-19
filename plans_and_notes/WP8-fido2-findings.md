@@ -90,3 +90,19 @@ The applet now has:
 - **10 string writes, each one line** (`write_string`), where each used to be three.
 
 `check_fido2.py` still passes all 21 checks.
+
+## 6. The PIN protocol step (2026-11-19)
+
+`examples/fido2` gained `authenticatorClientPIN`, with PIN/UV auth protocols two and one (`getPINRetries`, `getKeyAgreement`, `setPIN`, `changePIN`, `getPinToken`), and PIN-based UV in `makeCredential` and `getAssertion`. `getInfo` is now built at runtime, because `clientPin` reflects the state. The applet is **782 lines**, 263 of them in the new `pin.card`. It compiled under the full checker and the grammar check on the first attempt.
+
+`check_fido2.py` gained an independent platform-side implementation of both protocols. It does key agreement, both KDFs, both encryption forms, and both tag lengths. It now runs **59 checks**: the 21 core ones plus 19 for each protocol, all passing on the first run. Two deliberate mutations were caught: swapped HKDF info strings (protocol two fails, protocol one passes), and a missing decrement of the retries counter (the retry and blocking checks fail for both protocols).
+
+| # | Finding | Category | Proposal |
+|---|---|---|---|
+| N1 | **Command keys fit the shared secret exactly.** Both halves are imported as `Command` keys in each `clientPIN` command, with no cleanup code and no leak on a trap. Together with PLT-35, `derive_shared_secret` has no `wipe` at all | Profile, positive | — |
+| N2 | **The retries counter is tear-safe without effort.** `pin_retries -= 1;` before the comparison is one atomic persistent assignment (STA-11, STM-25), exactly what CTAP asks for | Language, positive | — |
+| N3 | **A runtime `getInfo` takes 23 writer lines**, and Booleans are written as `write_head(CborMajor.Simple, 20 or 21)` | Profile | A `card.cbor.write_bool(value, inout out)` would make Booleans readable. The verbosity is otherwise inherent in building CBOR field by field |
+| N4 | **COSE keys need lookups by negative integer keys** (`-2`, `-3`), so the applet has a second map-walking helper (`find_key`) beside `index_map` | Application | None: helpers are the intended pattern |
+| N5 | **Constant zero arrays are spelled out** (`ZERO_SALT` and `ZERO_IV`, as lists of 32 and 16 zeros). I did not check whether `fill(0)` is accepted as a constant initializer | Language | Check `fill` in constant expressions (chapter 5). If it is not allowed, consider allowing it |
+| N6 | **The token is a secret in session state** under the byte model (WP4 C1). It must be encrypted to the platform, so the applet keeps it as bytes in `session` and also as `TOKEN_KEY`. Session state is cleared at power-on and reset, but it sits in application-readable memory between commands | Profile, design trade-off | A later version could add "export a key's material encrypted under another key", which is a limited form of wrap. Recorded; no action now |
+| N7 | **EXP-49 did not bite in 263 new lines.** `return Ok(attempt … else …)` is allowed, because `Ok` is not a call | Language | Further evidence against relaxing EXP-49 |

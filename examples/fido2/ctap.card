@@ -12,20 +12,50 @@ function ctap(message: ref u8[], response: inout u8[]) -> u32 {
     if code == 0x07 {
         return reset_authenticator(inout response);
     }
-    require (code == 0x01) or (code == 0x02) else IsoError.CtapInvalidCommand;
+    require (code == 0x01) or (code == 0x02) or (code == 0x06) else IsoError.CtapInvalidCommand;
     var length: u32 = attempt card.cbor.validate(ref message[1..message.length]) else IsoError.CtapInvalidCbor;
     require length == (message.length - 1) else IsoError.CtapInvalidCbor;
     if code == 0x01 {
         return make_credential(ref message[1..message.length], inout response);
     }
+    if code == 0x06 {
+        return client_pin(ref message[1..message.length], inout response);
+    }
     return get_assertion(ref message[1..message.length], inout response);
 }
 
-// authenticatorGetInfo (0x04): a fixed response.
+// authenticatorGetInfo (0x04):
+// {1: ["FIDO_2_0"], 3: AAGUID, 4: {"rk": false, "up": true, "plat": false, "clientPin": pin_set}, 5: 1280, 6: [2, 1]}
 function get_info(response: inout u8[]) -> u32 {
+    var client_pin: u32 = 20;
+    if pin_set {
+        client_pin = 21;
+    }
     response[0] = 0;
-    response[1..51] = GET_INFO;
-    return Ok(51);
+    var at: u32 = 1;
+    at += attempt card.cbor.write_head(CborMajor.Map, 5, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(1, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Array, 1, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref VERSION, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(3, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Bytes, ref AAGUID, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(4, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Map, 4, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_RK, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Simple, 20, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_UP, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Simple, 21, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_PLAT, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Simple, 20, inout response[at..response.length]);
+    at += attempt card.cbor.write_string(CborMajor.Text, ref KEY_CLIENT_PIN, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Simple, client_pin, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(5, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(1280, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(6, inout response[at..response.length]);
+    at += attempt card.cbor.write_head(CborMajor.Array, 2, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(2, inout response[at..response.length]);
+    at += attempt card.cbor.write_int(1, inout response[at..response.length]);
+    return Ok(at);
 }
 
 // authenticatorMakeCredential (0x01), with ES256, "none" attestation and a non-resident credential.
@@ -46,6 +76,8 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
     require not options.rk else IsoError.CtapUnsupportedOption;
     require not options.uv else IsoError.CtapUnsupportedOption;
     require options.up else IsoError.CtapInvalidOption;
+    var uv: bool = attempt check_token_param(ref params, client_hash, p[8], p[9]);
+    require uv or (not pin_set) else IsoError.CtapPinRequired;            // CTAP 2.1 §6.1.2
     var rp_hash: u8[32];
     var n: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref params[rp_id.start..rp_id.start + rp_id.length], inout rp_hash);
     if p[5] != 0 {
@@ -65,12 +97,15 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
     var auth: u8[180];
     auth[0..32] = rp_hash;
     auth[32] = 0x41;
+    if uv {
+        auth[32] = 0x45;
+    }
     auth[33..37] = encode_be(sign_count);
     auth[37..53] = AAGUID;
     auth[53] = 0;
     auth[54] = 48;
     auth[55..103] = credential_id;
-    var cose_size: u32 = attempt write_cose_key(ref point, inout auth[103..180]);
+    var cose_size: u32 = attempt write_cose_key(ref point, -7, inout auth[103..180]);
 
     // {1: "none", 2: authData, 3: {}}
     response[0] = 0;
@@ -96,6 +131,7 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     var options: Options = attempt read_options(ref params, p[5]);
     require not options.rk else IsoError.CtapUnsupportedOption;
     require not options.uv else IsoError.CtapUnsupportedOption;
+    var uv: bool = attempt check_token_param(ref params, client_hash, p[6], p[7]);
     var rp_hash: u8[32];
     var n: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref params[rp_id.start..rp_id.start + rp_id.length], inout rp_hash);
     require p[3] != 0 else IsoError.CtapNoCredentials;
@@ -108,6 +144,9 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     var flags: u8 = 0;
     if options.up {
         flags = 0x01;
+    }
+    if uv {
+        flags |= 0x04;
     }
     // The signed data: authData (rpIdHash, flags, signCount), then clientDataHash.
     var signed: u8[69];
@@ -146,7 +185,12 @@ function reset_authenticator(response: inout u8[]) -> u32 {
         attempt card.key.generate(MAC_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Persistent });
         attempt card.key.generate(DERIVE_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Persistent });
         sign_count = 0;
+        pin_set = false;
+        pin_retries = 8;
+        wipe pin_hash;
     }
+    pin_failures = 0;
+    attempt new_token();
     response[0] = 0;
     return Ok(1);
 }

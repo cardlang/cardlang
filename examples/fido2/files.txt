@@ -1,5 +1,6 @@
 constants.card
 cbor.card
 credentials.card
+pin.card
 ctap.card
 iso7816-entry.card

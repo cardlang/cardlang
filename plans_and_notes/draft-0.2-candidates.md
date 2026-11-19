@@ -23,3 +23,6 @@ Changes already made after Draft 0.1, for reference: OI-45 (`attempt` and `requi
 Evidence against changing a rule: WP8 L8 found that EXP-49 and the mixed-operator rule cost little in a real applet. Item 2 (EXP-49) therefore has weaker support than it seemed.
 
 | 14 | **Done, differently (OI-58, PLT-35).** Not `defer`, but a platform obligation: a frame's locals are erased when it ends, traps included | WP8 L10 (after WP9) | `defer` could not cover traps |
+| 15 | **`card.cbor.write_bool`** | WP8 N3 | A profile change |
+| 16 | **`fill` in constant initializers**, to check first | WP8 N5 | A language check, possibly a change |
+| 17 | **Exporting a key's material encrypted under another key** (limited wrap), so secrets like the PIN token need not sit in session state | WP8 N6 | A profile change; later |

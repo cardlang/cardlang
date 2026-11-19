@@ -6,6 +6,12 @@ const MAC_KEY: u32 = 1;
 const DERIVE_KEY: u32 = 2;
 // A Command key (BP-14) holding one credential's private key during the command that uses it.
 const TEMP_KEY: u32 = 3;
+// PIN protocol keys (pin.card): the key-agreement key and the token are Volatile (they end at power-off);
+// the two halves of the shared secret are Command keys (they end with the command).
+const KA_KEY: u32 = 4;
+const TOKEN_KEY: u32 = 5;
+const SS_HMAC_KEY: u32 = 6;
+const SS_AES_KEY: u32 = 7;
 
 // Text keys and values used in CTAP maps.
 const KEY_ID: u8[2] = b"id";
@@ -16,15 +22,18 @@ const KEY_UP: u8[2] = b"up";
 const KEY_UV: u8[2] = b"uv";
 const PUBLIC_KEY: u8[10] = b"public-key";
 const FMT_NONE: u8[4] = b"none";
+const KEY_PLAT: u8[4] = b"plat";
+const KEY_CLIENT_PIN: u8[9] = b"clientPin";
+const VERSION: u8[8] = b"FIDO_2_0";
+
+// PIN protocol two (CTAP 2.1 §6.5.7) and protocol one's zero IV.
+const HMAC_INFO: u8[14] = b"CTAP2 HMAC key";
+const AES_INFO: u8[13] = b"CTAP2 AES key";
+const ZERO_SALT: u8[32] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const ZERO_IV: u8[16] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 // The AAGUID of this example authenticator.
 const AAGUID: u8[16] = b"CardLangExample1";
-
-// The authenticatorGetInfo response, canonical CBOR:
-// {1: ["FIDO_2_0"], 3: AAGUID, 4: {"rk": false, "up": true, "plat": false}, 5: 1280}
-const GET_INFO: u8[50] = [0xA4, 0x01, 0x81, 0x68, 0x46, 0x49, 0x44, 0x4F, 0x5F, 0x32, 0x5F, 0x30, 0x03, 0x50, 0x43, 0x61,
-    0x72, 0x64, 0x4C, 0x61, 0x6E, 0x67, 0x45, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x31, 0x04, 0xA3, 0x62, 0x72, 0x6B, 0xF4,
-    0x62, 0x75, 0x70, 0xF5, 0x64, 0x70, 0x6C, 0x61, 0x74, 0xF4, 0x05, 0x19, 0x05, 0x00];
 
 // The one application error set (OUT-16). CTAP status codes travel inside the response with 9000, so these
 // Ctap* members are internal: the entry point turns each into a CTAP status byte. Their codes 91xx are valid
@@ -41,6 +50,14 @@ errors IsoError {
     CtapUnsupportedOption = 0x912B;
     CtapInvalidOption = 0x912C;
     CtapNoCredentials = 0x912E;
+    CtapPinInvalid = 0x9131;
+    CtapPinBlocked = 0x9132;
+    CtapPinAuthInvalid = 0x9133;
+    CtapPinAuthBlocked = 0x9134;
+    CtapPinNotSet = 0x9135;
+    CtapPinRequired = 0x9136;
+    CtapPinPolicyViolation = 0x9137;
+    CtapInvalidSubcommand = 0x913E;
     CtapOther = 0x917F;
     WrongLength = 0x6700;
     InsNotSupported = 0x6D00;
@@ -48,6 +65,14 @@ errors IsoError {
 
 // The signature counter, increased by every assertion.
 persistent sign_count: u32;
+
+// The PIN (CTAP 2.1 §6.5.2): LEFT(SHA-256(PIN), 16), whether one is set, and the attempts left before lockout.
+persistent pin_hash: u8[16];
+persistent pin_set: bool;
+persistent pin_retries: u8;
+// Consecutive wrong PINs since power-on, and the pinUvAuthToken.
+session pin_failures: u8;
+session token: u8[32];
 
 // A string inside a CBOR message: where its content starts, and how long it is.
 struct Span {

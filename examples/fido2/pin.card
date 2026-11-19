@@ -1,0 +1,263 @@
+// PIN/UV auth protocols one and two (CTAP 2.1 §6.5.6, §6.5.7), and authenticatorClientPIN (0x06).
+// The shared secret lives in two Command keys (P1), so it ends with the command, even on a trap.
+// Derived bytes in locals are erased when their frame ends (PLT-35).
+
+// A fresh pinUvAuthToken: 32 random bytes, kept in session state (to encrypt it for the platform) and as
+// TOKEN_KEY (to verify pinUvAuthParam).
+function new_token() {
+    var n: u32 = attempt card.random.fill(inout token);
+    ignore card.key.delete(TOKEN_KEY);
+    attempt card.key.import(TOKEN_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Volatile }, ref token);
+    return Ok();
+}
+
+// At every power-on: a new key-agreement key and a new token (§6.5.5.1).
+function on_power_on() {
+    attempt card.key.generate(KA_KEY, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Volatile });
+    attempt new_token();
+    return Ok();
+}
+
+// The PIN/UV auth protocol number at `at`: 1 or 2.
+function read_protocol(data: ref u8[], at: u32) -> u32 {
+    var head: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require head.major == CborMajor.Unsigned else IsoError.CtapUnexpectedType;
+    require (head.argument == 1) or (head.argument == 2) else IsoError.CtapInvalidParameter;
+    return Ok(head.argument);
+}
+
+// The offset of the value of the key with this major type (Unsigned or Negative) and argument, or 0.
+function find_key(data: ref u8[], at: u32, major: CborMajor, argument: u32) -> u32 {
+    var map: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require map.major == CborMajor.Map else IsoError.CtapUnexpectedType;
+    var cursor: u32 = at + map.size;
+    var found: u32 = 0;
+    for pair: u32 in 0..map.argument {
+        var key: CborHead = attempt card.cbor.head(ref data[cursor..data.length]);
+        var key_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        cursor += key_size;
+        if (key.major == major) and (key.argument == argument) {
+            found = cursor;
+        }
+        var value_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        cursor += value_size;
+    }
+    return Ok(found);
+}
+
+// The platform's COSE key at `at`, as a 65-byte SEC 1 point (x is key -2, y is key -3).
+function read_cose_point(data: ref u8[], at: u32, point: inout u8[]) {
+    var x_at: u32 = attempt find_key(ref data, at, CborMajor.Negative, 1);
+    var y_at: u32 = attempt find_key(ref data, at, CborMajor.Negative, 2);
+    require (x_at != 0) and (y_at != 0) else IsoError.CtapInvalidParameter;
+    var x: Span = attempt read_string(ref data, x_at, CborMajor.Bytes);
+    var y: Span = attempt read_string(ref data, y_at, CborMajor.Bytes);
+    require (x.length == 32) and (y.length == 32) else IsoError.CtapInvalidParameter;
+    point[0] = 0x04;
+    point[1..33] = data[x.start..x.start + 32];
+    point[33..65] = data[y.start..y.start + 32];
+    return Ok();
+}
+
+// The shared secret with the platform's key: SS_HMAC_KEY and SS_AES_KEY.
+// Protocol one: both are SHA-256(Z). Protocol two: HKDF(Z, "CTAP2 HMAC key") and HKDF(Z, "CTAP2 AES key").
+function derive_shared_secret(protocol: u32, data: ref u8[], cose_at: u32) {
+    var point: u8[65];
+    attempt read_cose_point(ref data, cose_at, inout point);
+    var z: u8[32];
+    var n: u32 = attempt card.crypto.agree(KA_KEY, ref point, inout z) else IsoError.CtapInvalidParameter;
+    var hmac_part: u8[32];
+    var aes_part: u8[32];
+    if protocol == 1 {
+        n = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref z, inout hmac_part);
+        aes_part = hmac_part;
+    } else {
+        n = attempt card.crypto.derive(KdfAlgorithm.HkdfSha256, ref z, ref ZERO_SALT, ref HMAC_INFO, 32, inout hmac_part);
+        n = attempt card.crypto.derive(KdfAlgorithm.HkdfSha256, ref z, ref ZERO_SALT, ref AES_INFO, 32, inout aes_part);
+    }
+    attempt card.key.import(SS_HMAC_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Command }, ref hmac_part);
+    attempt card.key.import(SS_AES_KEY, KeySpec { type: KeyType.Aes256, storage: KeyStorage.Command }, ref aes_part);
+    return Ok();
+}
+
+// Whether `param` authenticates `message` under the Hmac256 key `key`: the first 16 bytes of the HMAC for
+// protocol one, all 32 for protocol two. equal() is constant-time (PLT-31).
+function verify_param(protocol: u32, key: u32, message: ref u8[], param: ref u8[]) -> bool {
+    var full: u8[32];
+    var n: u32 = attempt card.crypto.mac(key, MacAlgorithm.HmacSha256, ref message, inout full);
+    if protocol == 1 {
+        return Ok(equal(ref param, ref full[0..16]));
+    }
+    return Ok(equal(ref param, ref full));
+}
+
+// Decrypt with SS_AES_KEY: a zero IV for protocol one; iv || ct for protocol two. Any failure is a PIN auth error.
+function decrypt_secret(protocol: u32, ciphertext: ref u8[], out: inout u8[]) -> u32 {
+    if protocol == 1 {
+        return Ok(attempt card.crypto.decrypt(SS_AES_KEY, CipherAlgorithm.AesCbcNoPadding, ref ZERO_IV, ref ciphertext, inout out) else IsoError.CtapPinAuthInvalid);
+    }
+    require ciphertext.length >= 32 else IsoError.CtapPinAuthInvalid;
+    return Ok(attempt card.crypto.decrypt(SS_AES_KEY, CipherAlgorithm.AesCbcNoPadding, ref ciphertext[0..16], ref ciphertext[16..ciphertext.length], inout out) else IsoError.CtapPinAuthInvalid);
+}
+
+// Encrypt with SS_AES_KEY: a zero IV for protocol one; a random IV, prepended, for protocol two.
+function encrypt_secret(protocol: u32, plaintext: ref u8[], out: inout u8[]) -> u32 {
+    if protocol == 1 {
+        return Ok(attempt card.crypto.encrypt(SS_AES_KEY, CipherAlgorithm.AesCbcNoPadding, ref ZERO_IV, ref plaintext, inout out));
+    }
+    var iv: u8[16];
+    var n: u32 = attempt card.random.fill(inout iv);
+    out[0..16] = iv;
+    n = attempt card.crypto.encrypt(SS_AES_KEY, CipherAlgorithm.AesCbcNoPadding, ref iv, ref plaintext, inout out[16..out.length]);
+    return Ok(16 + n);
+}
+
+// A wrong PIN: a new key-agreement key, and the error for the counters (§6.5.5.7).
+function pin_mismatch() {
+    ignore card.key.delete(KA_KEY);
+    attempt card.key.generate(KA_KEY, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Volatile });
+    pin_failures += 1;
+    if pin_retries == 0 {
+        return Err(IsoError.CtapPinBlocked);
+    }
+    if pin_failures >= 3 {
+        return Err(IsoError.CtapPinAuthBlocked);
+    }
+    return Err(IsoError.CtapPinInvalid);
+}
+
+// Check pinHashEnc against the stored PIN. The retries counter is decremented first, as one atomic persistent
+// assignment (STA-11), so removing the card cannot save an attempt.
+function check_pin_hash(protocol: u32, data: ref u8[], hash_at: u32) {
+    var encrypted: Span = attempt read_string(ref data, hash_at, CborMajor.Bytes);
+    pin_retries -= 1;
+    var hash: u8[16];
+    var length: u32 = attempt decrypt_secret(protocol, ref data[encrypted.start..encrypted.start + encrypted.length], inout hash);
+    require length == 16 else IsoError.CtapPinAuthInvalid;
+    if not equal(ref hash, ref pin_hash) {
+        attempt pin_mismatch();
+    }
+    pin_retries = 8;
+    pin_failures = 0;
+    return Ok();
+}
+
+// Decrypt newPinEnc (64 padded bytes), check the PIN's length (4 to 63 bytes), and store LEFT(SHA-256(PIN), 16).
+function store_new_pin(protocol: u32, encrypted: ref u8[]) {
+    var padded: u8[64];
+    var length: u32 = attempt decrypt_secret(protocol, ref encrypted, inout padded);
+    require length == 64 else IsoError.CtapInvalidParameter;
+    var pin_length: u32 = 64;
+    while (pin_length > 0) and (padded[pin_length - 1] == 0) {
+        pin_length -= 1;
+    }
+    require (pin_length >= 4) and (pin_length <= 63) else IsoError.CtapPinPolicyViolation;
+    var full: u8[32];
+    var n: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref padded[0..pin_length], inout full);
+    transaction {
+        pin_hash[0..16] = full[0..16];
+        pin_retries = 8;
+        pin_set = true;
+    }
+    return Ok();
+}
+
+// authenticatorClientPIN (0x06): getPINRetries, getKeyAgreement, setPIN, changePIN and getPinToken.
+function client_pin(params: ref u8[], response: inout u8[]) -> u32 {
+    var p: u32[11];
+    var end: u32 = attempt index_map(ref params, 0, inout p);
+    require (p[1] != 0) and (p[2] != 0) else IsoError.CtapMissingParameter;
+    var protocol: u32 = attempt read_protocol(ref params, p[1]);
+    var sub_head: CborHead = attempt card.cbor.head(ref params[p[2]..params.length]);
+    require sub_head.major == CborMajor.Unsigned else IsoError.CtapUnexpectedType;
+    var sub: u32 = sub_head.argument;
+    response[0] = 0;
+    if sub == 1 {
+        // getPINRetries: {3: pinRetries}
+        var retries: i32 = convert<i32>(pin_retries);
+        var at: u32 = 1;
+        at += attempt card.cbor.write_head(CborMajor.Map, 1, inout response[at..response.length]);
+        at += attempt card.cbor.write_int(3, inout response[at..response.length]);
+        at += attempt card.cbor.write_int(retries, inout response[at..response.length]);
+        return Ok(at);
+    }
+    if sub == 2 {
+        // getKeyAgreement: {1: the key-agreement public key, alg -25}
+        var point: u8[65];
+        var n: u32 = attempt card.key.export_public(KA_KEY, inout point);
+        var at: u32 = 1;
+        at += attempt card.cbor.write_head(CborMajor.Map, 1, inout response[at..response.length]);
+        at += attempt card.cbor.write_int(1, inout response[at..response.length]);
+        at += attempt write_cose_key(ref point, -25, inout response[at..response.length]);
+        return Ok(at);
+    }
+    if sub == 3 {
+        // setPIN: pinUvAuthParam authenticates newPinEnc.
+        require (p[3] != 0) and (p[4] != 0) and (p[5] != 0) else IsoError.CtapMissingParameter;
+        require not pin_set else IsoError.CtapPinAuthInvalid;
+        attempt derive_shared_secret(protocol, ref params, p[3]);
+        var new_enc: Span = attempt read_string(ref params, p[5], CborMajor.Bytes);
+        var param: Span = attempt read_string(ref params, p[4], CborMajor.Bytes);
+        var valid: bool = attempt verify_param(protocol, SS_HMAC_KEY, ref params[new_enc.start..new_enc.start + new_enc.length], ref params[param.start..param.start + param.length]);
+        require valid else IsoError.CtapPinAuthInvalid;
+        attempt store_new_pin(protocol, ref params[new_enc.start..new_enc.start + new_enc.length]);
+        return Ok(1);
+    }
+    if sub == 4 {
+        // changePIN: pinUvAuthParam authenticates newPinEnc || pinHashEnc.
+        require (p[3] != 0) and (p[4] != 0) and (p[5] != 0) and (p[6] != 0) else IsoError.CtapMissingParameter;
+        require pin_set else IsoError.CtapPinNotSet;
+        require pin_retries != 0 else IsoError.CtapPinBlocked;
+        require pin_failures < 3 else IsoError.CtapPinAuthBlocked;
+        attempt derive_shared_secret(protocol, ref params, p[3]);
+        var new_enc: Span = attempt read_string(ref params, p[5], CborMajor.Bytes);
+        var hash_enc: Span = attempt read_string(ref params, p[6], CborMajor.Bytes);
+        var param: Span = attempt read_string(ref params, p[4], CborMajor.Bytes);
+        var total: u32 = new_enc.length + hash_enc.length;
+        require total <= 112 else IsoError.CtapInvalidParameter;
+        var message: u8[112];
+        message[0..new_enc.length] = params[new_enc.start..new_enc.start + new_enc.length];
+        message[new_enc.length..total] = params[hash_enc.start..hash_enc.start + hash_enc.length];
+        var valid: bool = attempt verify_param(protocol, SS_HMAC_KEY, ref message[0..total], ref params[param.start..param.start + param.length]);
+        require valid else IsoError.CtapPinAuthInvalid;
+        attempt check_pin_hash(protocol, ref params, p[6]);
+        transaction {
+            pin_set = false;
+        }
+        attempt store_new_pin(protocol, ref params[new_enc.start..new_enc.start + new_enc.length]);
+        attempt new_token();
+        return Ok(1);
+    }
+    if sub == 5 {
+        // getPinToken: {2: the encrypted pinUvAuthToken}
+        require (p[3] != 0) and (p[6] != 0) else IsoError.CtapMissingParameter;
+        require pin_set else IsoError.CtapPinNotSet;
+        require pin_retries != 0 else IsoError.CtapPinBlocked;
+        require pin_failures < 3 else IsoError.CtapPinAuthBlocked;
+        attempt derive_shared_secret(protocol, ref params, p[3]);
+        attempt check_pin_hash(protocol, ref params, p[6]);
+        var encrypted: u8[48];
+        var size: u32 = attempt encrypt_secret(protocol, ref token, inout encrypted);
+        var at: u32 = 1;
+        at += attempt card.cbor.write_head(CborMajor.Map, 1, inout response[at..response.length]);
+        at += attempt card.cbor.write_int(2, inout response[at..response.length]);
+        at += attempt card.cbor.write_string(CborMajor.Bytes, ref encrypted[0..size], inout response[at..response.length]);
+        return Ok(at);
+    }
+    return Err(IsoError.CtapInvalidSubcommand);
+}
+
+// The pinUvAuthParam of makeCredential or getAssertion, if present: true when it verifies with the token.
+// `param_at` and `protocol_at` are the parameters' offsets, or 0 when absent.
+function check_token_param(params: ref u8[], client_hash: Span, param_at: u32, protocol_at: u32) -> bool {
+    if param_at == 0 {
+        return Ok(false);
+    }
+    require protocol_at != 0 else IsoError.CtapMissingParameter;
+    var protocol: u32 = attempt read_protocol(ref params, protocol_at);
+    require pin_set else IsoError.CtapPinNotSet;
+    var param: Span = attempt read_string(ref params, param_at, CborMajor.Bytes);
+    var valid: bool = attempt verify_param(protocol, TOKEN_KEY, ref params[client_hash.start..client_hash.start + 32], ref params[param.start..param.start + param.length]);
+    require valid else IsoError.CtapPinAuthInvalid;
+    return Ok(true);
+}

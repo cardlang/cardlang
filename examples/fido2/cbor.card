@@ -110,13 +110,13 @@ function supports_es256(data: ref u8[], at: u32) -> bool {
     return Ok(found);
 }
 
-// Write the COSE key of a P-256 public point (65-byte SEC 1 form): {1: 2, 3: -7, -1: 1, -2: x, -3: y}.
-function write_cose_key(point: ref u8[], out: inout u8[]) -> u32 {
+// Write the COSE key of a P-256 public point (65-byte SEC 1 form): {1: 2, 3: alg, -1: 1, -2: x, -3: y}.
+function write_cose_key(point: ref u8[], alg: i32, out: inout u8[]) -> u32 {
     var at: u32 = attempt card.cbor.write_head(CborMajor.Map, 5, inout out[0..out.length]);
     at += attempt card.cbor.write_int(1, inout out[at..out.length]);
     at += attempt card.cbor.write_int(2, inout out[at..out.length]);
     at += attempt card.cbor.write_int(3, inout out[at..out.length]);
-    at += attempt card.cbor.write_int(-7, inout out[at..out.length]);
+    at += attempt card.cbor.write_int(alg, inout out[at..out.length]);
     at += attempt card.cbor.write_int(-1, inout out[at..out.length]);
     at += attempt card.cbor.write_int(1, inout out[at..out.length]);
     at += attempt card.cbor.write_int(-2, inout out[at..out.length]);
