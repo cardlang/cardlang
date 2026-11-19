@@ -16,7 +16,7 @@ Changes already made after Draft 0.1, for reference: OI-45 (`attempt` and `requi
 | 8 | **Done in WP9 (OI-55).** **`attempt c else E.M`**: map any `Err` to an application error | WP8 L4 | Analogous to `require` |
 | 9 | **Done in WP9 (OI-56).** **A short form for discarding an outcome** (`ignore c;`) | WP8 L5 | |
 | 10 | **Done in WP9 (OI-57).** **Compound assignment** (`+=`, deferred in STM-6) | WP8 L6 | |
-| 11 | **A block-scoped view binding** | WP8 L7 | Must keep FUN-16's guarantee that views never escape |
+| 11 | **Dropped (2026-11-19).** **A block-scoped view binding** | WP8 L7 | Dropped: a helper function taking `ref u8[]` does the same with no language change, and the binding would add a keyword, a scoping rule and aliasing interactions (FUN-12 to FUN-15) |
 | 12 | **Done (BP-14, BP-24).** **Command-lifetime keys** (`KeyStorage.Command`) | WP8 P1 | A profile change |
 | 13 | **Done (BP-39).** **`card.cbor.write_string`** | WP8 P2 | A profile change |
 
