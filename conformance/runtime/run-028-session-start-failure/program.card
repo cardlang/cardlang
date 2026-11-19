@@ -1,0 +1,32 @@
+// rule: STA-6
+// source: platform/base-profile.md BP-55
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Profile BP-55: when on_session_start returns Err or traps, the application is unavailable until the next session start, and every command is reported as a trap.
+errors AppError {
+    Refused = 7;
+}
+
+persistent starts: u8;
+session ready: u8;
+
+function on_session_start() {
+    starts += 1;
+    if (starts % 2) == 0 {
+        return Err(AppError.Refused);
+    }
+    if starts == 3 {
+        var cells: u8[2] = fill(0);
+        var index: u8 = starts;
+        cells[index] = 1;
+    }
+    ready = 1;
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    response[0] = starts;
+    response[1] = ready;
+    return Ok(2);
+}

@@ -1,0 +1,2 @@
+install              # on_install returns Err: installation fails (BP-55)
+expect err app 7

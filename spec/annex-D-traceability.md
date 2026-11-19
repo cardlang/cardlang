@@ -577,7 +577,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STA-3 | cited | run-008-state-lifecycle |
 | STA-4 | cited | run-008-state-lifecycle, run-012-wallet-application, run-026-raw-binding-sessions, sta-002-setup-helper |
 | STA-5 | cited | sta-002-setup-helper |
-| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, run-026-raw-binding-sessions, sta-004-lifecycle-handlers |
+| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, run-026-raw-binding-sessions, run-027-install-failure, run-028-session-start-failure, sta-004-lifecycle-handlers |
 | STA-7 | cited | sta-004-lifecycle-handlers, sta-105-handler-with-payload, sta-106-handler-with-parameter |
 | STA-8 | cited | plt-011-on-select, plt-117-on-select-signature, plt-118-call-on-select, sta-108-constant-named-like-handler |
 | STA-9 | cited | sta-107-call-handler |

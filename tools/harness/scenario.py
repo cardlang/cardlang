@@ -17,7 +17,8 @@ CARD_ERROR_CODES = {m: int(c, 16) for m, c in re.findall(r"^\| `(\w+)` \| `0x([0
 
 # ------------------------------------------------------------------ outcomes and the binding encodings
 # An outcome is one of: ("ok", [bytes]), ("err", "app", code), ("err", "platform", CardError member name),
-# ("trap", kind), or ("none",) when a power loss or a security reset leaves no response.
+# ("trap", kind), or ("none",) when a power loss or a security reset leaves no response. The kind is None for a
+# command to an application left unavailable by a failed on_session_start (profile BP-55).
 
 def status_word(outcome):
     """The ISO 7816 binding's status word for an outcome (profile BP-51)."""
@@ -41,7 +42,7 @@ def parse_expect(words):
     if words[0] == "ok": return ("ok", [int(w, 16) for w in words[1:]])
     if words[0] == "err" and words[1] == "app": return ("err", "app", int(words[2]))
     if words[0] == "err" and words[1] == "platform": return ("err", "platform", words[2])
-    if words[0] == "trap": return ("trap", words[1])
+    if words[0] == "trap": return ("trap", words[1] if len(words) > 1 else None)
     if words[0] == "none": return ("none",)
     raise ValueError(words)
 
@@ -53,8 +54,8 @@ def run_scenario(card, text):
         line = raw.split("#")[0].split()
         if not line: continue
         step = line[0]
-        if step == "install": card.install()
-        elif step in ("power_on", "session_start"): card.session_start()   # STA-4: power_on is the ISO name
+        if step == "install": pending = card.install()                      # the outcome of on_install (BP-55)
+        elif step in ("power_on", "session_start"): pending = card.session_start()   # STA-4; power_on is the ISO name
         elif step == "session_end": card.session_end()
         elif step == "reset": card.reset()
         elif step == "select": pending = card.select()

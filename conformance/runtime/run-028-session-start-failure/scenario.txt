@@ -1,0 +1,23 @@
+install
+expect ok
+session_start        # the first session: on_session_start succeeds
+expect ok
+command 00
+expect ok 01 01
+session_start        # the second: on_session_start returns Err (BP-55)
+expect err app 7
+command 00           # the application is unavailable: every command is reported as a trap
+expect trap
+command 00
+expect sw 6f00
+session_start        # the third: on_session_start traps
+expect trap BOUNDS
+command 00
+expect trap
+session_end
+session_start        # the fourth: Err again; the persistent writes of the failed starts remain
+expect err app 7
+session_start        # the fifth: available again
+expect ok
+command 00
+expect ok 05 01

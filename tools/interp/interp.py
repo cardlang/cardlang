@@ -174,6 +174,7 @@ class Card:
         self.codes = self.error_codes(toks)
         self.persistent = None; self.session = None
         self.interrupt_commit = False; self.in_txn = None
+        self.unavailable = False                               # BP-55: on_session_start failed
 
     @staticmethod
     def kind_of(toks, name):
@@ -797,22 +798,30 @@ class Card:
 
     # ---- the card lifecycle (scenario steps)
     def run_handler(self, name):
-        if name in self.funcs:
-            env = {"scopes": [], "ret": "none", "card": {"budget": BUDGET}}
-            try:
-                self.invoke(name, [], env)
-            except Trap:
-                pass                                           # handler failure handling is platform-defined
+        """Run a lifecycle handler, if declared, and return its outcome for the platform (BP-55)."""
+        if name not in self.funcs: return ("ok", [])
+        env = {"scopes": [], "ret": "none", "card": {"budget": BUDGET}}
+        try:
+            out = self.invoke(name, [], env)
+        except Trap as t:
+            return ("trap", t.kind)
+        if out[0] == "err": return ("err", out[1].category, out[1].ident)
+        return ("ok", [])
 
     def install(self):
         self.persistent = {n: self.default(t) for n, t in self.persistent_types.items()}
         self.persistent["#keys"] = {}                                   # persistent keys roll back with transactions
-        self.run_handler("on_install")
+        out = self.run_handler("on_install")
+        if out[0] != "ok":                                     # BP-55: installation fails; nothing is installed
+            self.persistent = None
+        return out
 
     def session_start(self):
         self.session = {n: self.default(t) for n, t in self.session_types.items()}
         self.volatile_keys = {}; self.operations = {}
-        self.run_handler("on_session_start")
+        out = self.run_handler("on_session_start")
+        self.unavailable = out[0] != "ok"                      # BP-55: unavailable until the next session start
+        return out
 
     def interrupt_next_commit(self):
         """Test hook: the next commit is interrupted by a power loss."""
@@ -849,6 +858,7 @@ class Card:
 
     def command(self, request, capacity):
         if self.persistent is None or self.session is None: raise RuntimeError("command before install/session_start")
+        if self.unavailable: return ("trap", None)              # BP-55: reported as a trap, with no kind
         req = View([Int(b, "u8") for b in request], 0, len(request))
         resp = View([Int(0, "u8") for _ in range(capacity)], 0, capacity)
         params, ret, body = self.funcs[self.command_name]
