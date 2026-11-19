@@ -1,0 +1,194 @@
+// The CTAP 2.0 commands (CTAP 2.1 §6): getInfo, makeCredential, getAssertion and reset.
+// Each handler writes the CTAP status byte and CBOR response into `response`, and returns its length.
+// A CTAP error is returned as an IsoError.Ctap* member; the entry point turns it into a status byte.
+
+// Dispatch one CTAP message: the command byte, then its CBOR parameters.
+function ctap(message: ref u8[], response: inout u8[]) -> u32 {
+    require message.length >= 1 else IsoError.CtapInvalidLength;
+    var code: u8 = message[0];
+    if code == 0x04 {
+        return get_info(inout response);
+    }
+    if code == 0x07 {
+        return reset_authenticator(inout response);
+    }
+    require (code == 0x01) or (code == 0x02) else IsoError.CtapInvalidCommand;
+    match card.cbor.validate(ref message[1..message.length]) {
+        Ok(length) => {
+            require length == (message.length - 1) else IsoError.CtapInvalidCbor;
+        }
+        Err(_) => {
+            return Err(IsoError.CtapInvalidCbor);
+        }
+    }
+    if code == 0x01 {
+        return make_credential(ref message[1..message.length], inout response);
+    }
+    return get_assertion(ref message[1..message.length], inout response);
+}
+
+// authenticatorGetInfo (0x04): a fixed response.
+function get_info(response: inout u8[]) -> u32 {
+    response[0] = 0;
+    response[1..51] = GET_INFO;
+    return Ok(51);
+}
+
+// authenticatorMakeCredential (0x01), with ES256, "none" attestation and a non-resident credential.
+function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
+    var p: u32[11];
+    var end: u32 = attempt index_map(ref params, 0, inout p);
+    require (p[1] != 0) and (p[2] != 0) and (p[3] != 0) and (p[4] != 0) else IsoError.CtapMissingParameter;
+    var client_hash: Span = attempt read_string(ref params, p[1], CborMajor.Bytes);
+    require client_hash.length == 32 else IsoError.CtapInvalidParameter;
+    var id_at: u32 = attempt find_text_key(ref params, p[2], ref KEY_ID);
+    require id_at != 0 else IsoError.CtapMissingParameter;
+    var rp_id: Span = attempt read_string(ref params, id_at, CborMajor.Text);
+    var user: CborHead = attempt card.cbor.head(ref params[p[3]..params.length]);
+    require user.major == CborMajor.Map else IsoError.CtapUnexpectedType;
+    var es256: bool = attempt supports_es256(ref params, p[4]);
+    require es256 else IsoError.CtapUnsupportedAlgorithm;
+    var options: Options = attempt read_options(ref params, p[7]);
+    require not options.rk else IsoError.CtapUnsupportedOption;
+    require not options.uv else IsoError.CtapUnsupportedOption;
+    require options.up else IsoError.CtapInvalidOption;
+    var rp_hash: u8[32];
+    var n: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref params[rp_id.start..rp_id.start + rp_id.length], inout rp_hash);
+    if p[5] != 0 {
+        var excluded: u32 = attempt first_valid(ref params, p[5], ref rp_hash);
+        require excluded == 0 else IsoError.CtapCredentialExcluded;
+    }
+
+    // The credential: a random nonce, its tag, and the derived key's public point.
+    var credential_id: u8[48];
+    n = attempt card.random.fill(inout credential_id[0..32]);
+    attempt credential_tag(ref rp_hash, ref credential_id[0..32], inout credential_id[32..48]);
+    attempt load_credential_key(ref rp_hash, ref credential_id[0..32]);
+    var point: u8[65];
+    n = attempt card.key.export_public(TEMP_KEY, inout point);
+    attempt card.key.delete(TEMP_KEY);
+
+    // authData: rpIdHash, flags (UP | AT), signCount, then the attested credential data.
+    var auth: u8[180];
+    auth[0..32] = rp_hash;
+    auth[32] = 0x41;
+    auth[33..37] = encode_be(sign_count);
+    auth[37..53] = AAGUID;
+    auth[53] = 0;
+    auth[54] = 48;
+    auth[55..103] = credential_id;
+    var cose_size: u32 = attempt write_cose_key(ref point, inout auth[103..180]);
+
+    // {1: "none", 2: authData, 3: {}}
+    response[0] = 0;
+    var at: u32 = 1;
+    n = attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(1, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 4] = FMT_NONE;
+    at = at + 4;
+    n = attempt card.cbor.write_int(2, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, 180, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 180] = auth;
+    at = at + 180;
+    n = attempt card.cbor.write_int(3, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Map, 0, inout response[at..response.length]);
+    at = at + n;
+    return Ok(at);
+}
+
+// authenticatorGetAssertion (0x02), for one credential from the allowList.
+function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
+    var p: u32[8];
+    var end: u32 = attempt index_map(ref params, 0, inout p);
+    require (p[1] != 0) and (p[2] != 0) else IsoError.CtapMissingParameter;
+    var rp_id: Span = attempt read_string(ref params, p[1], CborMajor.Text);
+    var client_hash: Span = attempt read_string(ref params, p[2], CborMajor.Bytes);
+    require client_hash.length == 32 else IsoError.CtapInvalidParameter;
+    var options: Options = attempt read_options(ref params, p[5]);
+    require not options.rk else IsoError.CtapUnsupportedOption;
+    require not options.uv else IsoError.CtapUnsupportedOption;
+    var rp_hash: u8[32];
+    var n: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref params[rp_id.start..rp_id.start + rp_id.length], inout rp_hash);
+    require p[3] != 0 else IsoError.CtapNoCredentials;
+    var id_start: u32 = attempt first_valid(ref params, p[3], ref rp_hash);
+    require id_start != 0 else IsoError.CtapNoCredentials;
+
+    transaction {
+        sign_count = sign_count + 1;
+    }
+    var flags: u8 = 0;
+    if options.up {
+        flags = 0x01;
+    }
+    // The signed data: authData (rpIdHash, flags, signCount), then clientDataHash.
+    var signed: u8[69];
+    signed[0..32] = rp_hash;
+    signed[32] = flags;
+    signed[33..37] = encode_be(sign_count);
+    signed[37..69] = params[client_hash.start..client_hash.start + 32];
+    attempt load_credential_key(ref rp_hash, ref params[id_start..id_start + 32]);
+    var raw: u8[64];
+    n = attempt card.crypto.sign(TEMP_KEY, SignatureAlgorithm.EcdsaP256Sha256, ref signed, inout raw);
+    attempt card.key.delete(TEMP_KEY);
+    var der: u8[72];
+    var der_size: u32 = attempt der_signature(ref raw, inout der);
+
+    // {1: {"id": credentialId, "type": "public-key"}, 2: authData, 3: signature}
+    response[0] = 0;
+    var at: u32 = 1;
+    n = attempt card.cbor.write_head(CborMajor.Map, 3, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(1, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Map, 2, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Text, 2, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 2] = KEY_ID;
+    at = at + 2;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, 48, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 48] = params[id_start..id_start + 48];
+    at = at + 48;
+    n = attempt card.cbor.write_head(CborMajor.Text, 4, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 4] = KEY_TYPE;
+    at = at + 4;
+    n = attempt card.cbor.write_head(CborMajor.Text, 10, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 10] = PUBLIC_KEY;
+    at = at + 10;
+    n = attempt card.cbor.write_int(2, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, 37, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + 37] = signed[0..37];
+    at = at + 37;
+    n = attempt card.cbor.write_int(3, inout response[at..response.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, der_size, inout response[at..response.length]);
+    at = at + n;
+    response[at..at + der_size] = der[0..der_size];
+    at = at + der_size;
+    return Ok(at);
+}
+
+// authenticatorReset (0x07): new HMAC keys invalidate every credential issued so far.
+function reset_authenticator(response: inout u8[]) -> u32 {
+    transaction {
+        attempt card.key.delete(MAC_KEY);
+        attempt card.key.delete(DERIVE_KEY);
+        attempt card.key.generate(MAC_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Persistent });
+        attempt card.key.generate(DERIVE_KEY, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Persistent });
+        sign_count = 0;
+    }
+    response[0] = 0;
+    return Ok(1);
+}

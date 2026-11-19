@@ -42,6 +42,8 @@ RUNS = [
     ("grammar.py", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("../interp/interp.py", None, "runtime scenarios in conformance/runtime/"),
+    # The FIDO2 example applet (WP8), checked independently of its own logic.
+    ("../fido/check_fido2.py", None, "examples/fido2: a CTAP session, checked independently"),
 ]
 
 def main():

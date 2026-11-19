@@ -20,3 +20,5 @@ command 06
 expect ok 05 06 00 00
 command 07           # wipe stores the default
 expect ok 00 00
+command 09 0a 0b 0c 0d    # a whole view parameter as the source of a slice assignment (WP8 finding T1)
+expect ok 0a 0b 0c 0d

@@ -1,0 +1,69 @@
+// The ISO 7816 binding entry point (profile §11.1) for CTAP over NFC (CTAP 2.1 §11.3).
+// The only binding-specific file: a raw-binding build would replace it, and keep every other file.
+
+// SELECT of the FIDO applet returns the version string (BP-50a).
+function on_select(response: inout u8[]) -> u32 {
+    var version: u8[8] = [0x46, 0x49, 0x44, 0x4F, 0x5F, 0x32, 0x5F, 0x30];     // "FIDO_2_0"
+    response[0..8] = version;
+    return Ok(8);
+}
+
+// Write a one-byte CTAP status response.
+function status(response: inout u8[], code: u8) -> u32 {
+    response[0] = code;
+    return Ok(1);
+}
+
+// request: CLA INS P1 P2, then the data field (BP-50). INS 0x10 is NFCCTAP_MSG; 0x12 is NFCCTAP_CONTROL.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 4 else IsoError.WrongLength;
+    var ins: u8 = request[1];
+    if ins == 0x12 {
+        return Ok(0);
+    }
+    require ins == 0x10 else IsoError.InsNotSupported;
+    match ctap(ref request[4..request.length], inout response) {
+        Ok(count) => {
+            return Ok(count);
+        }
+        Err(IsoError.CtapInvalidCommand) => {
+            return status(inout response, 0x01);
+        }
+        Err(IsoError.CtapInvalidParameter) => {
+            return status(inout response, 0x02);
+        }
+        Err(IsoError.CtapInvalidLength) => {
+            return status(inout response, 0x03);
+        }
+        Err(IsoError.CtapUnexpectedType) => {
+            return status(inout response, 0x11);
+        }
+        Err(IsoError.CtapInvalidCbor) => {
+            return status(inout response, 0x12);
+        }
+        Err(IsoError.CtapMissingParameter) => {
+            return status(inout response, 0x14);
+        }
+        Err(IsoError.CtapCredentialExcluded) => {
+            return status(inout response, 0x19);
+        }
+        Err(IsoError.CtapUnsupportedAlgorithm) => {
+            return status(inout response, 0x26);
+        }
+        Err(IsoError.CtapUnsupportedOption) => {
+            return status(inout response, 0x2B);
+        }
+        Err(IsoError.CtapInvalidOption) => {
+            return status(inout response, 0x2C);
+        }
+        Err(IsoError.CtapNoCredentials) => {
+            return status(inout response, 0x2E);
+        }
+        Err(IsoError.CtapOther) => {
+            return status(inout response, 0x7F);
+        }
+        Err(error) => {
+            return Err(error);
+        }
+    }
+}

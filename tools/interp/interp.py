@@ -685,7 +685,9 @@ class Card:
                 sv = self.place(s[2], env); src = [copy_value(sv.lst[sv.start + i]) for i in range(sv.length)]
             else:
                 et = self.type_of(dest.lst[dest.start]) if dest.length else None
-                src = [copy_value(x) for x in self.eval(s[2], env, ("arr", et, dest.length))]
+                val = self.eval(s[2], env, ("arr", et, dest.length))
+                if isinstance(val, View): val = [val.lst[val.start + i] for i in range(val.length)]   # a whole view
+                src = [copy_value(x) for x in val]
             if len(src) != dest.length: raise Trap("BOUNDS")
             for i, x in enumerate(src): dest.lst[dest.start + i] = x
         elif k == "wipe":                                    # STM-23

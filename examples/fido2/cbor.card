@@ -1,0 +1,153 @@
+// Reading and writing the CTAP CBOR structures (profile §9). Every message is validated once, in ctap(),
+// before these functions walk it, so they read with attempt and treat a wrong type as a CTAP error.
+
+// Record where the value of each small unsigned key of the map at `at` starts: positions[k], or 0 if absent.
+function index_map(data: ref u8[], at: u32, positions: inout u32[]) -> u32 {
+    var map: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require map.major == CborMajor.Map else IsoError.CtapUnexpectedType;
+    var cursor: u32 = at + map.size;
+    for pair: u32 in 0..map.argument {
+        var key: CborHead = attempt card.cbor.head(ref data[cursor..data.length]);
+        require key.major == CborMajor.Unsigned else IsoError.CtapUnexpectedType;
+        cursor = cursor + key.size;
+        if key.argument < positions.length {
+            positions[key.argument] = cursor;
+        }
+        var value_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        cursor = cursor + value_size;
+    }
+    return Ok(cursor);
+}
+
+// The offset of the value of text key `name` in the map at `at`, or 0 if the map has no such key.
+function find_text_key(data: ref u8[], at: u32, name: ref u8[]) -> u32 {
+    var map: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require map.major == CborMajor.Map else IsoError.CtapUnexpectedType;
+    var cursor: u32 = at + map.size;
+    var found: u32 = 0;
+    for pair: u32 in 0..map.argument {
+        var key: CborHead = attempt card.cbor.head(ref data[cursor..data.length]);
+        var key_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        var matched: bool = false;
+        if (key.major == CborMajor.Text) and (key.argument == name.length) {
+            var start: u32 = cursor + key.size;
+            matched = equal(ref data[start..start + name.length], ref name);
+        }
+        cursor = cursor + key_size;
+        if matched {
+            found = cursor;
+        }
+        var value_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        cursor = cursor + value_size;
+    }
+    return Ok(found);
+}
+
+// The content of the string of the given major type (Bytes or Text) at `at`.
+function read_string(data: ref u8[], at: u32, major: CborMajor) -> Span {
+    var head: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require head.major == major else IsoError.CtapUnexpectedType;
+    return Ok(Span { start: at + head.size, length: head.argument });
+}
+
+// The Boolean at `at`.
+function read_bool(data: ref u8[], at: u32) -> bool {
+    var head: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require head.major == CborMajor.Simple else IsoError.CtapUnexpectedType;
+    require (head.argument == 20) or (head.argument == 21) else IsoError.CtapUnexpectedType;
+    return Ok(head.argument == 21);
+}
+
+// The options map at `at`, or the defaults when `at` is 0 (the parameter is absent).
+function read_options(data: ref u8[], at: u32) -> Options {
+    var options: Options = Options { rk: false, up: true, uv: false };
+    if at == 0 {
+        return Ok(options);
+    }
+    var rk_at: u32 = attempt find_text_key(ref data, at, ref KEY_RK);
+    if rk_at != 0 {
+        options.rk = attempt read_bool(ref data, rk_at);
+    }
+    var up_at: u32 = attempt find_text_key(ref data, at, ref KEY_UP);
+    if up_at != 0 {
+        options.up = attempt read_bool(ref data, up_at);
+    }
+    var uv_at: u32 = attempt find_text_key(ref data, at, ref KEY_UV);
+    if uv_at != 0 {
+        options.uv = attempt read_bool(ref data, uv_at);
+    }
+    return Ok(options);
+}
+
+// Whether the map at `at` has "type": "public-key".
+function has_public_key_type(data: ref u8[], at: u32) -> bool {
+    var type_at: u32 = attempt find_text_key(ref data, at, ref KEY_TYPE);
+    if type_at == 0 {
+        return Ok(false);
+    }
+    var name: Span = attempt read_string(ref data, type_at, CborMajor.Text);
+    return Ok(equal(ref data[name.start..name.start + name.length], ref PUBLIC_KEY));
+}
+
+// Whether the pubKeyCredParams array at `at` offers ES256: {"alg": -7, "type": "public-key"}.
+function supports_es256(data: ref u8[], at: u32) -> bool {
+    var list: CborHead = attempt card.cbor.head(ref data[at..data.length]);
+    require list.major == CborMajor.Array else IsoError.CtapUnexpectedType;
+    var cursor: u32 = at + list.size;
+    var found: bool = false;
+    for item: u32 in 0..list.argument {
+        var alg_at: u32 = attempt find_text_key(ref data, cursor, ref KEY_ALG);
+        var type_ok: bool = attempt has_public_key_type(ref data, cursor);
+        if (alg_at != 0) and type_ok {
+            var alg: CborHead = attempt card.cbor.head(ref data[alg_at..data.length]);
+            if (alg.major == CborMajor.Negative) and (alg.argument == 6) {
+                found = true;
+            }
+        }
+        var item_size: u32 = attempt card.cbor.skip(ref data[cursor..data.length]);
+        cursor = cursor + item_size;
+    }
+    return Ok(found);
+}
+
+// Write the COSE key of a P-256 public point (65-byte SEC 1 form): {1: 2, 3: -7, -1: 1, -2: x, -3: y}.
+function write_cose_key(point: ref u8[], out: inout u8[]) -> u32 {
+    var at: u32 = attempt card.cbor.write_head(CborMajor.Map, 5, inout out[0..out.length]);
+    var n: u32 = attempt card.cbor.write_int(1, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(2, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(3, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(-7, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(-1, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(1, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_int(-2, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, 32, inout out[at..out.length]);
+    at = at + n;
+    out[at..at + 32] = point[1..33];
+    at = at + 32;
+    n = attempt card.cbor.write_int(-3, inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.cbor.write_head(CborMajor.Bytes, 32, inout out[at..out.length]);
+    at = at + n;
+    out[at..at + 32] = point[33..65];
+    at = at + 32;
+    return Ok(at);
+}
+
+// Write the DER form of a raw ECDSA signature r || s (profile BP-45).
+function der_signature(raw: ref u8[], out: inout u8[]) -> u32 {
+    var r_size: u32 = attempt card.der.integer_size(ref raw[0..32]);
+    var s_size: u32 = attempt card.der.integer_size(ref raw[32..64]);
+    var at: u32 = attempt card.der.write_head(0x30, r_size + s_size, inout out[0..out.length]);
+    var n: u32 = attempt card.der.write_integer(ref raw[0..32], inout out[at..out.length]);
+    at = at + n;
+    n = attempt card.der.write_integer(ref raw[32..64], inout out[at..out.length]);
+    at = at + n;
+    return Ok(at);
+}

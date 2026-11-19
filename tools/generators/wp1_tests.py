@@ -72,6 +72,11 @@ PROGRAM = """errors AppError {
 persistent stored: u8[4];
 session scratch: u8[2];
 
+function copy_view(source: ref u8[], target: inout u8[]) {
+    target[0..4] = source;
+    return Ok();
+}
+
 command process(request: ref u8[], response: inout u8[]) -> u32 {
     var operation: u8 = request[0];
     var buffer: u8[8] = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -115,6 +120,9 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
         wipe scratch;
         response[0..2] = scratch;
         return Ok(2);
+    } else if operation == 9 {
+        attempt copy_view(ref request[1..5], inout response[0..4]);
+        return Ok(4);
     } else if operation == 8 {
         transaction {
             stored[0..2] = [5, 6];
@@ -147,6 +155,8 @@ command 06
 expect ok 05 06 00 00
 command 07           # wipe stores the default
 expect ok 00 00
+command 09 0a 0b 0c 0d    # a whole view parameter as the source of a slice assignment (WP8 finding T1)
+expect ok 0a 0b 0c 0d
 """
 
 def hdr(rule, src, exp, note, kind="fragment"):

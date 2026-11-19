@@ -10,4 +10,14 @@ Changes already made after Draft 0.1, for reference: OI-45 (`attempt` and `requi
 | 2 | **No calls inside call arguments (EXP-49).** This forces temporaries, for example `truncate<u8>(compare(ref a, ref b))` is rejected | Review of Draft 0.1, 2026-11-17 | Revisit with the evidence from WP8 |
 | 3 | **A standard envelope for the raw binding.** The host-side encoding of the (category, code) pair is platform-defined (BP-53), so host software is not portable between raw platforms | WP7 review | A profile change, not a language change, if taken up |
 | 4 | **A user-presence API** for platforms with a button or sensor. BP-54 covers only contactless interfaces | WP7 review | A profile change |
-| 5 | **Findings from the FIDO2 check (WP8)** | WP8 | To be filled in from `plans_and_notes/WP8-fido2-findings.md` |
+| 5 | **Byte-string literals** (`b"public-key"` checking against `u8[N]`) | WP8 L1 | The strongest readability finding |
+| 6 | **Reading an application error's code** (`code_of(e)`), so errors can be translated without one match arm per member | WP8 L2 | Related to the one-error-set rule (L3) |
+| 7 | **Several error sets**, or binding-local ones | WP8 L3 | Changes OUT-16 |
+| 8 | **`attempt c else E.M`**: map any `Err` to an application error | WP8 L4 | Analogous to `require` |
+| 9 | **A short form for discarding an outcome** (`ignore c;`) | WP8 L5 | |
+| 10 | **Compound assignment** (`+=`, deferred in STM-6) | WP8 L6 | |
+| 11 | **A block-scoped view binding** | WP8 L7 | Must keep FUN-16's guarantee that views never escape |
+| 12 | **Command-lifetime keys** (`KeyStorage.Command`) | WP8 P1 | A profile change |
+| 13 | **`card.cbor.write_string`** | WP8 P2 | A profile change |
+
+Evidence against changing a rule: WP8 L8 found that EXP-49 and the mixed-operator rule cost little in a real applet. Item 2 (EXP-49) therefore has weaker support than it seemed.

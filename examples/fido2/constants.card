@@ -1,0 +1,63 @@
+// A FIDO2 (CTAP 2.0) authenticator in CardLang: constants, errors and state.
+// WP8 of plans_and_notes/base-api-plan.md. Binding-independent; see iso7816-entry.card for the entry point.
+
+// Persistent key identifiers (profile §7). MAC_KEY authenticates credential IDs; DERIVE_KEY derives credential keys.
+const MAC_KEY: u32 = 1;
+const DERIVE_KEY: u32 = 2;
+// A volatile key holding one credential's private key while it is in use.
+const TEMP_KEY: u32 = 3;
+
+// Text keys and values used in CTAP maps, as UTF-8 bytes.
+const KEY_ID: u8[2] = [0x69, 0x64];                                   // "id"
+const KEY_TYPE: u8[4] = [0x74, 0x79, 0x70, 0x65];                     // "type"
+const KEY_ALG: u8[3] = [0x61, 0x6C, 0x67];                            // "alg"
+const KEY_RK: u8[2] = [0x72, 0x6B];                                   // "rk"
+const KEY_UP: u8[2] = [0x75, 0x70];                                   // "up"
+const KEY_UV: u8[2] = [0x75, 0x76];                                   // "uv"
+const PUBLIC_KEY: u8[10] = [0x70, 0x75, 0x62, 0x6C, 0x69, 0x63, 0x2D, 0x6B, 0x65, 0x79];   // "public-key"
+const FMT_NONE: u8[4] = [0x6E, 0x6F, 0x6E, 0x65];                     // "none"
+
+// The AAGUID of this example authenticator: the ASCII bytes of "CardLangExample1".
+const AAGUID: u8[16] = [0x43, 0x61, 0x72, 0x64, 0x4C, 0x61, 0x6E, 0x67, 0x45, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x31];
+
+// The authenticatorGetInfo response, canonical CBOR:
+// {1: ["FIDO_2_0"], 3: AAGUID, 4: {"rk": false, "up": true, "plat": false}, 5: 1280}
+const GET_INFO: u8[50] = [0xA4, 0x01, 0x81, 0x68, 0x46, 0x49, 0x44, 0x4F, 0x5F, 0x32, 0x5F, 0x30, 0x03, 0x50, 0x43, 0x61,
+    0x72, 0x64, 0x4C, 0x61, 0x6E, 0x67, 0x45, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x31, 0x04, 0xA3, 0x62, 0x72, 0x6B, 0xF4,
+    0x62, 0x75, 0x70, 0xF5, 0x64, 0x70, 0x6C, 0x61, 0x74, 0xF4, 0x05, 0x19, 0x05, 0x00];
+
+// The one application error set (OUT-16). CTAP status codes travel inside the response with 9000, so these
+// Ctap* members are internal: the entry point turns each into a CTAP status byte. Their codes 91xx are valid
+// ISO status words (BP-52), so a member that escapes still reaches the host as a distinct status word.
+errors IsoError {
+    CtapInvalidCommand = 0x9101;
+    CtapInvalidParameter = 0x9102;
+    CtapInvalidLength = 0x9103;
+    CtapUnexpectedType = 0x9111;
+    CtapInvalidCbor = 0x9112;
+    CtapMissingParameter = 0x9114;
+    CtapCredentialExcluded = 0x9119;
+    CtapUnsupportedAlgorithm = 0x9126;
+    CtapUnsupportedOption = 0x912B;
+    CtapInvalidOption = 0x912C;
+    CtapNoCredentials = 0x912E;
+    CtapOther = 0x917F;
+    WrongLength = 0x6700;
+    InsNotSupported = 0x6D00;
+}
+
+// The signature counter, increased by every assertion.
+persistent sign_count: u32;
+
+// A string inside a CBOR message: where its content starts, and how long it is.
+struct Span {
+    start: u32;
+    length: u32;
+}
+
+// The CTAP options that this authenticator interprets.
+struct Options {
+    rk: bool;
+    up: bool;
+    uv: bool;
+}

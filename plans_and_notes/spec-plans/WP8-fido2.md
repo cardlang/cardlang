@@ -1,7 +1,7 @@
 # WP8 — The FIDO2 check: detailed sub-plan
 
 Parent: `plans_and_notes/base-api-plan.md` §7 (WP8: "everything that hurts is recorded as input to the language").
-Status: F1–F4 decided 2026-11-18 (§4).
+Status: F1–F4 decided 2026-11-18 (§4). **The core was drafted 2026-11-19:** `examples/fido2/` and `tools/fido/check_fido2.py` (21 checks), with the findings in `plans_and_notes/WP8-fido2-findings.md`. The PIN protocol is next.
 
 ## 1. Purpose
 
