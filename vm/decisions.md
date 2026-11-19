@@ -16,7 +16,13 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-10 | **One test harness for every backend** (`tools/harness/`): a shared scenario runner and a backend interface. The reference interpreter is the first backend | 2026-11-19 | VM0 | `tools/harness/` |
 | V-11 | **The prototypes live in `tools/vmproto/`;** the C VM in `vm/c/`. The compiler's long-term home is decided at VM7 | 2026-11-19 | VM0 | VM4, VM5, VM7 |
 | V-12 | **Acceptance criteria for a VM backend:** every runtime conformance test passes; `check_fido2` passes; every valid conformance program compiles to an image; and the backend reports its bytecode size, stack and frame figures, and from VM5 on its bookkeeping RAM against V-2 | 2026-11-19 | VM0 | `tools/run_checks.py`, VM5, VM7 |
+| V-13 | **Values are packed, unaligned and little-endian** in every region; enums are their ordinal in 1 byte (2 above 256 variants). Every default value is then all-zero bytes | 2026-11-19 | VM1 | VEX-4, VEX-5 |
+| V-14 | **An address is one 32-bit cell:** a 3-bit region tag and a 29-bit offset. A view is two cells (address, length). Instructions name the region when the compiler knows it | 2026-11-19 | VM1 | VEX-7, VEX-11 to VEX-13 |
+| V-15 | **Persistent writes are HAL atomic updates,** written in chunks; the VM never stages a destination in RAM | 2026-11-19 | VM1 | VEX-28 |
+| V-16 | **Natives reach application data through VM helpers;** persistent data passes through a 64-byte bounce buffer in the context, wiped after each call | 2026-11-19 | VM1 | VEX-34, VEX-36 |
+| V-17 | **The image is memory-mapped** and read through a read-only pointer | 2026-11-19 | VM1 | VEX-10 |
+| V-18 | **The execution budget is an instruction counter;** natives and aggregate intrinsics charge per call and per byte | 2026-11-19 | VM1 | VEX-42 |
 
 ## Open questions
 
-None yet. VM1 and VM2 will add theirs here.
+None. VM1 raised none; VM2 will add its own here.

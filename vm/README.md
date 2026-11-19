@@ -34,8 +34,8 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 
 | Document | Content | Work package | Status |
 |---|---|---|---|
-| `decisions.md` | The decision register (V-n) | all | V-1 to V-12 |
-| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`) | VM1 | not started |
+| `decisions.md` | The decision register (V-n) | all | V-1 to V-18 |
+| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | VM1 | drafted: VEX-1 to VEX-50 |
 | `hal.md` | The HAL interface (`HAL-n`) and `c/include/cl_hal.h` | VM2 | not started |
 | `bytecode.md` | The instruction set and its encoding (`BC-n`) | VM3 | not started |
 | `image-format.md` | The application image (`IMG-n`) | VM3 | not started |

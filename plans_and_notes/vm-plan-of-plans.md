@@ -1,6 +1,6 @@
 # CardLang VM — Plan of plans
 
-Status: V-1 to V-8 decided 2026-11-19 (V-5 to V-8 as recommended). **VM0 done 2026-11-19:** `vm/README.md`, `vm/decisions.md` (V-1 to V-12) and the shared harness `tools/harness/`. Next: VM1 and VM2. Parent: CardLang Draft 0.2 (`spec-draft-0.2`).
+Status: V-1 to V-8 decided 2026-11-19 (V-5 to V-8 as recommended). **VM0 done 2026-11-19:** `vm/README.md`, `vm/decisions.md` (V-1 to V-12) and the shared harness `tools/harness/`. **VM1 drafted 2026-11-19:** `vm/execution-model.md` (VEX-1 to VEX-50), V-13 to V-18. Next: VM2. Parent: CardLang Draft 0.2 (`spec-draft-0.2`).
 
 ## 1. Context
 
