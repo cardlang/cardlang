@@ -50,6 +50,7 @@ RUNS = [
     # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios and FIDO2 check (V-12).
     ("../harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),
     ("../fido/check_fido2.py", "--backend vmproto", "vmproto: the FIDO2 check on the prototype VM (V-12 item 2)"),
+    ("../vmproto/check_state.py", None, "vmproto: all VM state in its context, within 1 KiB (V-31, V-2)"),
 ]
 
 def main():

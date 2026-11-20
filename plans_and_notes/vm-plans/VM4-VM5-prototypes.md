@@ -41,7 +41,13 @@ The program is accepted first by the unmodified checker, because the typer relax
   - outputs that never report `Capacity` fail four tests;
   - command-lifetime operations that never end fail one test.
 
-Stage 5, the measurement report, remains.
+**Stage 5 done (2026-11-20):** `plans_and_notes/VM5-measurements.md`, from `tools/vmproto/measure.py`. `tools/vmproto/check_state.py` (V-31) runs in `run_checks`. VM4 and VM5 are complete.
+
+**Headline:**
+- the VM context is 216 bytes;
+- the FIDO2 code is 11.3 KB and its stack 1 KB;
+- frame access is 38% of all code;
+- frame-slot reuse is the main RAM lever, and short forms would cut about a third of the code.
 
 ## 1. Scope
 
