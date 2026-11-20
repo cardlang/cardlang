@@ -371,5 +371,3 @@ def entry(ctx, findex, cells, natives):
     except PowerLoss:
         cleanup_after_trap(ctx, natives); ctx.state = NO_SESSION; ctx.session[:] = bytes(len(ctx.session))
         return ("none",)
-    finally:
-        natives.end_command(ctx)

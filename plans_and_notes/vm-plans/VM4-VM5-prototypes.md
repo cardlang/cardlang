@@ -29,6 +29,20 @@ The program is accepted first by the unmodified checker, because the typer relax
 
 **Version-0 changes** (`vm/bytecode.md` §9): `ERRGET` and `ERRRAISE`; `operand_base` in IMG-6; test native numbers from `0xF000`.
 
+**Stages 3 and 4 done (2026-11-20):**
+- **The test HAL** (`hal.py`) adds the key store, with persistent keys joining transactions, and all cryptography, through the test-only implementations. It uses the same deterministic random generator as the interpreter.
+- **The native library** (`natives.py`) implements all 34 Base Profile APIs and the five test APIs. Its checks follow the interpreter's order, so outcomes are identical.
+- **Results:**
+  - all 28 runtime tests pass on `vmproto`;
+  - `check_fido2 --backend vmproto` passes all 59 checks;
+  - all 151 programs compile.
+- **Acceptance:** criteria 1 to 3 of V-12 now run in `run_checks`, as two new runs: the runtime scenarios and the FIDO2 check, both on `vmproto`.
+- **Mutations of the native library are caught:**
+  - outputs that never report `Capacity` fail four tests;
+  - command-lifetime operations that never end fail one test.
+
+Stage 5, the measurement report, remains.
+
 ## 1. Scope
 
 VM4 and VM5 are one feedback loop: the compiler produces version-0 images, and the prototype VM runs them. Both are in Python, in `tools/vmproto/` (V-11). They become the `vmproto` backend of the harness (V-10). The work is done when the backend meets the acceptance criteria of V-12:

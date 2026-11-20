@@ -47,12 +47,16 @@ RUNS = [
     # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
     ("../vmproto/typer.py", None, "vmproto typer: every valid, runtime and example program fully typed"),
     ("../vmproto/compile_all.py", None, "vmproto compiler: every valid, runtime and example program compiles (V-12 item 3)"),
+    # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios and FIDO2 check (V-12).
+    ("../harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),
+    ("../fido/check_fido2.py", "--backend vmproto", "vmproto: the FIDO2 check on the prototype VM (V-12 item 2)"),
 ]
 
 def main():
     failures = 0
     for script, glob, what in RUNS:
-        cmd = [sys.executable, "-I", str(CHECKERS / script), str(ROOT)] + ([glob] if glob else [])
+        extra = glob.split() if glob else []                 # e.g. "--backend vmproto"
+        cmd = [sys.executable, "-I", str(CHECKERS / script), str(ROOT)] + extra
         out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         lines = out.stdout.splitlines()
         passed = sum(1 for l in lines if l.startswith("PASS"))

@@ -84,6 +84,7 @@ class VmCard:
         req, resp = bytes(request), bytearray(capacity)
         self.ctx.request, self.ctx.request_len, self.ctx.response, self.ctx.response_cap = req, len(req), resp, capacity
         r = vm.entry(self.ctx, self.entries["command"], [REQUEST << 29, len(req), RESPONSE << 29, capacity], self.natives)
+        self.natives.end_command(self.ctx); self.hal.keys_drop("Command")                 # VEX-48, BP-14
         self.check_stack(); self.ctx.request = self.ctx.response = None
         if r[0] == "ok" and r[1] > capacity: return ("trap", "RESPONSE-COUNT")             # HEP-9, BC-29
         return self.outcome(r, resp)
