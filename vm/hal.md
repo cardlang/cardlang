@@ -158,6 +158,8 @@ While a transaction is active, every atomic update and every persistent key chan
 | `cl_hal_mac(key, alg, data, out)` | `card.crypto.mac` | `Capacity` |
 | `cl_hal_sign(key, alg, message, out)` | `card.crypto.sign` | `Capacity` |
 | `cl_hal_verify(key, alg, message, signature) → valid` | `card.crypto.verify` | — (an invalid signature is `valid = false`, BP-10) |
+| `cl_hal_sign_digest(key, alg, digest, out)` | `card.crypto.sign_digest` | `Capacity` |
+| `cl_hal_verify_digest(key, alg, digest, signature) → valid` | `card.crypto.verify_digest` | — (as `verify`) |
 | `cl_hal_agree(key, peer, out)` | `card.crypto.agree` | `Malformed` (a point not on the curve), `Capacity` |
 | `cl_hal_derive(alg, secret, salt, info, length, out)` | `card.crypto.derive` | `Capacity` |
 | `cl_hal_cipher(key, alg, direction, iv, input, out)` | `card.crypto.encrypt`, `card.crypto.decrypt` | `Capacity` |
@@ -227,7 +229,7 @@ A production HAL does not provide them.
 | H10 Test hooks | HAL-31 |
 | H11 `CardError` codes | HAL-7 |
 
-**The catalog map** (all 34 APIs):
+**The catalog map** (all 36 APIs):
 
 | Catalog API | Native library (no cryptography) | HAL |
 |---|---|---|
@@ -239,6 +241,8 @@ A production HAL does not provide them.
 | `card.crypto.mac` | Key exists and is `Hmac256` | `cl_hal_mac` |
 | `card.crypto.sign` | Key exists and is `EcP256Private` | `cl_hal_sign` |
 | `card.crypto.verify` | Key exists and is EC | `cl_hal_verify` |
+| `card.crypto.sign_digest` | Key exists and is `EcP256Private`; `digest` is 32 bytes | `cl_hal_sign_digest` |
+| `card.crypto.verify_digest` | Key exists and is EC; `digest` is 32 bytes | `cl_hal_verify_digest` |
 | `card.crypto.agree` | Key exists and is `EcP256Private`; `peer` is 65 bytes | `cl_hal_agree` |
 | `card.crypto.derive` | `length` from 1 to 8160 | `cl_hal_derive` |
 | `card.crypto.encrypt`, `decrypt` | Key exists and is AES; `iv` is 16 bytes; input length is a multiple of 16 | `cl_hal_cipher` |
@@ -252,4 +256,4 @@ A production HAL does not provide them.
 | `card.tlv.head`, `skip`, `validate` | All of it (HAL-2) | — |
 | `card.der.write_head`, `write_integer`, `integer_size` | All of it (HAL-2) | — |
 
-That is 21 APIs that call the HAL, and 13 handled entirely by the native library. A signature of the wrong length passed to `verify` or `finish_verify` is `false` (BP-10). The native library may decide that without calling the HAL, because it is a length check, not a verification.
+That is 23 APIs that call the HAL, and 13 handled entirely by the native library. A signature of the wrong length passed to `verify` or `finish_verify` is `false` (BP-10). The native library may decide that without calling the HAL, because it is a length check, not a verification.

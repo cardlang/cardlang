@@ -430,11 +430,16 @@ class Card:
             length = num(4)
             if not 1 <= length <= 8160: return err("Malformed")
             return write(5, testcrypto.hkdf_sha256(data(1), data(2), data(3), length))
-        if name in ("mac", "sign", "verify", "agree", "encrypt", "decrypt"):
+        if name in ("mac", "sign", "verify", "agree", "encrypt", "decrypt", "sign_digest", "verify_digest"):
             types = {"mac": ("Hmac256",), "sign": ("EcP256Private",), "verify": EC, "agree": ("EcP256Private",),
-                     "encrypt": AES, "decrypt": AES}[name]
+                     "encrypt": AES, "decrypt": AES, "sign_digest": ("EcP256Private",), "verify_digest": EC}[name]
             key, e = get_key(num(0), types)
             if e: return e
+            if name in ("sign_digest", "verify_digest"):                       # BP-29 (WP12): the digest as is
+                digest = data(2)
+                if len(digest) != 32: return err("Malformed")
+                if name == "sign_digest": return write(3, testcrypto.ecdsa_sign_digest(key[1], digest))
+                return ("ok", testcrypto.ecdsa_verify_digest(public(key), digest, data(3)))
             if name == "mac": return write(3, testcrypto.hmac_sha256(key[1], data(2)))
             if name == "sign": return write(3, testcrypto.ecdsa_sign(key[1], data(2)))
             if name == "verify": return ("ok", testcrypto.ecdsa_verify(public(key), data(2), data(3)))
@@ -751,8 +756,17 @@ class Card:
         """Test hook: the next commit is interrupted by a power loss."""
         self.interrupt_commit = True
 
+    def deselect(self):
+        """ISO 7816 binding: another application is selected, which ends this one's session (BP-55, BP-56)."""
+        self.session_end(); self.deselected = True
+
     def select(self):
-        """ISO 7816 binding: run on_select, if declared, for the SELECT response data (BP-50a)."""
+        """ISO 7816 binding: run on_select, if declared, for the SELECT response data (BP-50a). After a deselection,
+        the SELECT starts a new session first (BP-56)."""
+        if getattr(self, "deselected", False):
+            self.deselected = False
+            out = self.session_start()
+            if out[0] != "ok": return out
         if "on_select" not in self.funcs: return ("ok", [])
         resp = View([Int(0, "u8") for _ in range(256)], 0, 256)
         env = {"scopes": [], "ret": "u32", "card": {"budget": BUDGET}}

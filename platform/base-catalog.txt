@@ -356,3 +356,23 @@ api card.cbor.write_bool
     on-failure  nothing changes (BP-7)
     permission  -
     summary     Write a CBOR Boolean (0xF5 or 0xF4) and return 1 (BP-39).
+
+api card.crypto.sign_digest
+    params      key: u32, alg: SignatureAlgorithm, digest: ref u8[], signature: inout u8[]
+    payload     u32
+    transaction immediate
+    errors      NotFound, WrongResourceType, Malformed, Capacity
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Write the 64-byte ECDSA signature r || s of a 32-byte digest, without hashing it (BP-29; WP12).
+
+api card.crypto.verify_digest
+    params      key: u32, alg: SignatureAlgorithm, digest: ref u8[], signature: ref u8[]
+    payload     bool
+    transaction immediate
+    errors      NotFound, WrongResourceType, Malformed
+    resources   uses Key(key)
+    on-failure  nothing changes (BP-7)
+    permission  -
+    summary     Whether signature is a valid signature of a 32-byte digest (BP-29; WP12).

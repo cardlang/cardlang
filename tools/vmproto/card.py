@@ -71,7 +71,15 @@ class VmCard:
     def seed(self, data): self.hal.test_seed(data)
     def interrupt_next_commit(self): self.hal.test_interrupt_next_commit()
 
+    def deselect(self):
+        """ISO 7816: another application is selected; this one's session ends (BP-55, BP-56)."""
+        self.session_end(); self.deselected = True
+
     def select(self):
+        if getattr(self, "deselected", False):                      # the first SELECT after a deselection (BP-56)
+            self.deselected = False
+            out = self.session_start()
+            if out[0] != "ok": return out
         if self.entries["on_select"] == isa.NONE_ENTRY: return ("ok", [])
         resp = bytearray(256); self.ctx.response, self.ctx.response_cap = resp, 256
         r = vm.entry(self.ctx, self.entries["on_select"], [RESPONSE << 29, 256], self.natives); self.check_stack()

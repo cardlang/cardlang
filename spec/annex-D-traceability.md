@@ -358,7 +358,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | `exercised` | No test cites the rule, but the tests listed clearly depend on it |
 | `not testable` | No conformance test can check the rule, for the reason given |
 
-**Totals:** 305 rules: 227 cited, 44 exercised, 34 not testable.
+**Totals:** 305 rules: 228 cited, 44 exercised, 33 not testable.
 
 | Rule | Coverage | Tests or reason |
 |---|---|---|
@@ -575,9 +575,9 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | STA-1 | cited | sta-001-global-declarations |
 | STA-2 | cited | sta-001-global-declarations, sta-101-persistent-initializer, sta-102-session-fill-initializer, sta-103-persistent-zero-initializer, sta-104-session-false-initializer |
 | STA-3 | cited | run-008-state-lifecycle |
-| STA-4 | cited | run-008-state-lifecycle, run-012-wallet-application, run-026-raw-binding-sessions, sta-002-setup-helper |
+| STA-4 | cited | run-008-state-lifecycle, run-012-wallet-application, run-026-raw-binding-sessions, run-032-deselection-ends-session, sta-002-setup-helper |
 | STA-5 | cited | sta-002-setup-helper |
-| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, run-026-raw-binding-sessions, run-027-install-failure, run-028-session-start-failure, sta-004-lifecycle-handlers |
+| STA-6 | cited | run-008-state-lifecycle, run-016-signer-application, run-026-raw-binding-sessions, run-027-install-failure, run-028-session-start-failure, run-032-deselection-ends-session, sta-004-lifecycle-handlers |
 | STA-7 | cited | sta-004-lifecycle-handlers, sta-105-handler-with-payload, sta-106-handler-with-parameter |
 | STA-8 | cited | plt-011-on-select, plt-117-on-select-signature, plt-118-call-on-select, sta-108-constant-named-like-handler |
 | STA-9 | cited | sta-107-call-handler |
@@ -661,7 +661,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |
 | PLT-29 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
-| PLT-30 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |
+| PLT-30 | cited | run-031-digest-signatures |
 | PLT-31 | not testable | Timing is not observable by a conforming program; checked by platform evaluation |
 | PLT-32 | not testable | Side-channel and fault resistance is not observable by a conforming program; checked by platform evaluation |
 | PLT-33 | not testable | A platform obligation: it is checked by a platform's own conformance, not by language tests |

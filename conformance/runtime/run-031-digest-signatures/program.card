@@ -1,0 +1,71 @@
+// rule: PLT-30
+// source: platform/base-profile.md BP-29 (WP12, PIV step 0 Q1)
+// status: agreed
+// kind: application
+// expect: runtime
+// note: card.crypto.sign_digest and verify_digest, against sign and verify, with their errors.
+errors TestError {
+    UnknownOperation = 1;
+}
+
+const KEY: u32 = 1;
+const AES_KEY: u32 = 2;
+
+function on_install() {
+    attempt card.key.generate(KEY, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent });
+    attempt card.key.generate(AES_KEY, KeySpec { type: KeyType.Aes128, storage: KeyStorage.Persistent });
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        var n: u32 = attempt card.crypto.sign_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..request.length], inout response);
+        return Ok(n);
+    } else if operation == 2 {
+        var valid: bool = attempt card.crypto.verify_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], ref request[33..request.length]);
+        response[0] = 0;
+        if valid {
+            response[0] = 1;
+        }
+        return Ok(1);
+    } else if operation == 3 {
+        var digest: u8[32];
+        var dn: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref request[1..request.length], inout digest);
+        var signature: u8[64];
+        var sn: u32 = attempt card.crypto.sign_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref digest, inout signature);
+        var valid: bool = attempt card.crypto.verify(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..request.length], ref signature);
+        response[0] = 0;
+        if valid {
+            response[0] = 1;
+        }
+        return Ok(1);
+    } else if operation == 4 {
+        var signature: u8[64];
+        var sn: u32 = attempt card.crypto.sign_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], inout signature);
+        var same: bool = attempt card.crypto.verify_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], ref signature);
+        var other: bool = attempt card.crypto.verify_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[33..65], ref signature);
+        response[0] = 0;
+        response[1] = 0;
+        if same {
+            response[0] = 1;
+        }
+        if other {
+            response[1] = 1;
+        }
+        return Ok(2);
+    } else if operation == 5 {
+        var signature: u8[64];
+        var sn: u32 = attempt card.crypto.sign_digest(9, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], inout signature);
+        return Ok(0);
+    } else if operation == 6 {
+        var signature: u8[64];
+        var sn: u32 = attempt card.crypto.sign_digest(AES_KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], inout signature);
+        return Ok(0);
+    } else if operation == 7 {
+        var signature: u8[63];
+        var sn: u32 = attempt card.crypto.sign_digest(KEY, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], inout signature);
+        return Ok(0);
+    }
+    return Err(TestError.UnknownOperation);
+}

@@ -109,6 +109,7 @@ BASE_NATIVES = [
     "card.cbor.validate", "card.cbor.head", "card.cbor.skip", "card.cbor.write_head", "card.cbor.write_int",
     "card.tlv.head", "card.tlv.skip", "card.tlv.validate", "card.der.write_head", "card.der.write_integer",
     "card.der.integer_size", "card.cbor.write_string", "card.cbor.write_bool",
+    "card.crypto.sign_digest", "card.crypto.verify_digest",            # 35, 36 (WP12)
 ]
 TEST_NATIVES = ["card.test.resources.create", "card.test.resources.delete", "card.test.resources.read",
                 "card.test.resources.write", "card.test.sign"]

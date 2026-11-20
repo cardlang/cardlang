@@ -59,6 +59,7 @@ def run_scenario(card, text):
         elif step == "session_end": card.session_end()
         elif step == "reset": card.reset()
         elif step == "select": pending = card.select()
+        elif step == "deselect": card.deselect()                            # another application selected (BP-56)
         elif step == "interrupt": card.interrupt_next_commit()
         elif step == "seed": card.seed(bytes.fromhex("".join(line[1:])))
         elif step == "command":

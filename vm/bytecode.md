@@ -425,6 +425,8 @@ Nothing else changes it.
 | 8 | `card.crypto.verify` | 20 | `card.crypto.cancel` | 32 | `card.der.integer_size` |
 | 9 | `card.crypto.agree` | 21 | `card.random.fill` | 33 | `card.cbor.write_string` |
 | 10 | `card.crypto.derive` | 22 | `card.cbor.validate` | 34 | `card.cbor.write_bool` |
+| | | | | 35 | `card.crypto.sign_digest` |
+| | | | | 36 | `card.crypto.verify_digest` |
 | 11 | `card.crypto.encrypt` | 23 | `card.cbor.head` | | |
 | 12 | `card.crypto.decrypt` | 24 | `card.cbor.skip` | | |
 
@@ -486,6 +488,7 @@ The VM relies on these, and checks none of them (VEX-1).
 | 2026-11-20 | Added `ERRGET` (`71`) and `ERRRAISE` (`72`) to BC-19; BC-31's error-binding row uses them | VM4 stage 2: a catch-all arm may call other functions before `return Err(e)`, so the outcome register cannot be relied on (OUT-14) |
 | 2026-11-20 | IMG-6: the reserved field of a function entry is now `operand_base` | VM5 stage 2: `CALL` must know where the operand area starts (BC-25), and the frame size alone does not say |
 | 2026-11-20 | BC-32: numbers from `0xF000` reserved for the test-only catalog | V-33 |
+| 2026-11-20 | BC-32: natives 35 `card.crypto.sign_digest` and 36 `card.crypto.verify_digest`, appended | WP12 (PIV step 0, Q1) |
 | 2026-11-20 | **Version 1** (VM6): the short forms of §2.12 (`80`–`8B`) and the operand kind `rel8`; image format 1 | `plans_and_notes/VM5-measurements.md` §9: all code 30,872 → 21,776 bytes (−29.5%), FIDO2 10,646 → 7,021 (−34%) |
 
 ## Annex A: compiling the language constructs

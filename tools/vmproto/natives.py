@@ -139,6 +139,16 @@ class Natives:
     def n_crypto_verify(self, key, alg, message, signature):
         self.key(key, self.EC); return self.hal.verify(key, self.data(message), self.data(signature))
 
+    def n_crypto_sign_digest(self, key, alg, digest, signature):
+        self.key(key, ("EcP256Private",)); d = self.data(digest)
+        if len(d) != 32: raise NativeError("Malformed")
+        return self.out(signature, self.hal.sign_digest(key, d))
+
+    def n_crypto_verify_digest(self, key, alg, digest, signature):
+        self.key(key, self.EC); d = self.data(digest)
+        if len(d) != 32: raise NativeError("Malformed")
+        return self.hal.verify_digest(key, d, self.data(signature))
+
     def n_crypto_agree(self, key, peer, secret):
         self.key(key, ("EcP256Private",)); return self.out(secret, self.hal.agree(key, self.data(peer)))
 

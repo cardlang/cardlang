@@ -108,7 +108,10 @@ def _rfc6979_k(d, h1):
         k = mac(k, v + b"\x00"); v = mac(k, v)
 
 def ecdsa_sign(d, message):
-    h1 = hashlib.sha256(bytes(message)).digest(); e = int.from_bytes(h1, "big")
+    return ecdsa_sign_digest(d, hashlib.sha256(bytes(message)).digest())
+
+def ecdsa_sign_digest(d, digest):
+    h1 = bytes(digest); e = int.from_bytes(h1, "big")
     while True:
         k = _rfc6979_k(d, h1)
         r = p256.mul(k)[0] % p256.N
@@ -116,10 +119,13 @@ def ecdsa_sign(d, message):
         if r and s: return list(r.to_bytes(32, "big") + s.to_bytes(32, "big"))
 
 def ecdsa_verify(q, message, signature):
+    return ecdsa_verify_digest(q, hashlib.sha256(bytes(message)).digest(), signature)
+
+def ecdsa_verify_digest(q, digest, signature):
     if len(signature) != 64: return False
     r, s = int.from_bytes(bytes(signature[:32]), "big"), int.from_bytes(bytes(signature[32:]), "big")
     if not (1 <= r < p256.N and 1 <= s < p256.N): return False
-    e = int.from_bytes(hashlib.sha256(bytes(message)).digest(), "big"); w = pow(s, p256.N - 2, p256.N)
+    e = int.from_bytes(bytes(digest), "big"); w = pow(s, p256.N - 2, p256.N)
     pt = p256.add(p256.mul(e * w % p256.N), p256.mul(r * w % p256.N, q))
     return pt is not None and pt[0] % p256.N == r
 

@@ -1,0 +1,34 @@
+// rule: STA-4, STA-6
+// source: platform/base-profile.md BP-55, BP-56 (WP12, PIV step 0 Q2)
+// status: agreed
+// kind: application
+// binding: iso7816
+// expect: runtime
+// note: ISO 7816: deselection ends the session; the next SELECT starts a new one, and a re-SELECT changes nothing.
+errors IsoError {
+    Refused = 0x6985;
+}
+
+persistent sessions: u8;
+session counter: u8;
+
+function on_session_start() {
+    sessions += 1;
+    return Ok();
+}
+
+function on_select(response: inout u8[]) -> u32 {
+    response[0] = sessions;
+    response[1] = counter;
+    return Ok(2);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    if request.length < 4 {
+        return Err(IsoError.Refused);
+    }
+    counter += 1;
+    response[0] = counter;
+    response[1] = sessions;
+    return Ok(2);
+}

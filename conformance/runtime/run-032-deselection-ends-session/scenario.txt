@@ -1,0 +1,21 @@
+install
+power_on             # session 1
+select
+expect ok 01 00
+command 00 01 00 00
+expect ok 01 01
+command 00 01 00 00
+expect ok 02 01
+select               # a SELECT of the selected application changes nothing (BP-55)
+expect ok 01 02
+command 00 01 00 00
+expect ok 03 01
+deselect             # another application is selected: the session ends (BP-56)
+select               # a new session, then on_select
+expect ok 02 00
+command 00 01 00 00
+expect ok 01 02
+session_end          # power off
+power_on             # session 3
+select
+expect ok 03 00

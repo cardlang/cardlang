@@ -147,6 +147,11 @@ class TestHal:
     def verify(self, ident, message, signature):
         return testcrypto.ecdsa_verify(self.key(ident).public(), list(message), list(signature))
 
+    def sign_digest(self, ident, digest): return bytes(testcrypto.ecdsa_sign_digest(self.key(ident).material, list(digest)))
+
+    def verify_digest(self, ident, digest, signature):
+        return testcrypto.ecdsa_verify_digest(self.key(ident).public(), list(digest), list(signature))
+
     def agree(self, ident, peer):
         q = p256.decode_point(list(peer))
         if q is None: raise HalStatus(MALFORMED)

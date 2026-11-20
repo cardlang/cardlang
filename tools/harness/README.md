@@ -23,7 +23,8 @@ python -I tools/fido/check_fido2.py . --backend interp
 | `session_start()` | `session_start`, `power_on` | A session start (STA-4, profile BP-56); `on_session_start` runs. Returns its outcome; on `Err` or a trap the application is unavailable until the next session start (BP-55) |
 | `session_end()` | `session_end` | A session end: session state, volatile keys and session operations are discarded |
 | `reset()` | `reset` | A security reset (RTF-9) |
-| `select()` | `select` | ISO 7816 SELECT: runs `on_select`, if declared, and returns its outcome (BP-50a) |
+| `select()` | `select` | ISO 7816 SELECT: runs `on_select`, if declared, and returns its outcome (BP-50a). After a `deselect`, it first starts a new session (BP-56) |
+| `deselect()` | `deselect` | ISO 7816: another application is selected, which ends the session (BP-55, BP-56) |
 | `seed(data)` | `seed <hex>` | Test hook: seeds the deterministic random generator |
 | `interrupt_next_commit()` | `interrupt` | Test hook: the next commit is interrupted by a power loss |
 | `command(request, capacity)` | `command <hex> [capacity n]` | Runs the command handler; returns its outcome |

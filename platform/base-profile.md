@@ -196,6 +196,8 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 | `card.crypto.mac(key, alg, ref data, inout out) -> u32` | `Hmac256` | The 32-byte MAC of `data` |
 | `card.crypto.sign(key, alg, ref message, inout signature) -> u32` | `EcP256Private` | The 64-byte signature `r ‖ s`, each 32 bytes big-endian. The message is hashed by the API |
 | `card.crypto.verify(key, alg, ref message, ref signature) -> bool` | `EcP256Private`, `EcP256Public` | `true` exactly when `signature` is a valid 64-byte signature of `message`. Any other signature, including one of the wrong length, is `false` (BP-10) |
+| `card.crypto.sign_digest(key, alg, ref digest, inout signature) -> u32` | `EcP256Private` | As `sign`, but `digest` is the hash itself and is not hashed again. It must be 32 bytes for `EcdsaP256Sha256`, otherwise `Err(CardError.Malformed)`. Added for PIV, which hashes off-card (WP12) |
+| `card.crypto.verify_digest(key, alg, ref digest, ref signature) -> bool` | `EcP256Private`, `EcP256Public` | As `verify`, over a given digest. A `digest` that is not 32 bytes is `Err(CardError.Malformed)`; a bad signature is `false` (BP-10) |
 | `card.crypto.agree(key, ref peer, inout secret) -> u32` | `EcP256Private` | ECDH: the 32-byte x-coordinate of `d · peer`. `peer` is a 65-byte uncompressed point that must lie on the curve, otherwise `Err(CardError.Malformed)` |
 | `card.crypto.derive(alg, ref secret, ref salt, ref info, length, inout out) -> u32` | — | The first `length` bytes of HKDF output. `length` must be between 1 and 8160, otherwise `Err(CardError.Malformed)`. An empty `salt` means the default salt of RFC 5869 |
 | `card.crypto.encrypt(key, alg, ref iv, ref input, inout output) -> u32` | `Aes128`, `Aes256` | The CBC encryption of `input`, the same length as `input` |
@@ -373,13 +375,13 @@ The four categories are distinct (PLT-9). Whether a platform reports a trap's ki
 - **`on_install()`** runs once, when the application is installed, before any command. If it traps or returns `Err`, installation fails, and the application is not installed.
 - **`on_session_start()`** runs at every session start (STA-4, BP-56), after session state and volatile keys have been reset, and before the first command of the session. If it traps or returns `Err`, the application stays unavailable until the next session start, and the platform reports every command to it as it reports a trap.
 
-Deselection and logical channels are not visible to applications in this version. Session state and volatile resources survive deselection until the session ends.
+**Deselection ends the session** in the ISO 7816 binding (WP12, for PIV's application security status). When another application is selected, the application's session ends (STA-4): session state, volatile keys and session operations are discarded. The next SELECT of the application starts a new session; `on_session_start` runs before `on_select`. A SELECT of the application while it is already selected changes nothing. Logical channels are not visible to applications in this version.
 
 **BP-56 Session events (STA-4).** Each binding defines its session events:
 
 | Binding | A session starts | A session ends |
 |---|---|---|
-| ISO 7816 | At power-on, when the card receives its reset and sends its ATR | At power-off, or at a security reset |
+| ISO 7816 | At power-on, when the card receives its reset and sends its ATR; and at the first SELECT of the application after it was deselected | When another application is selected (deselection), at power-off, or at a security reset |
 | Raw | When the host opens a session (BP-53a) | When the host closes it, at a new open session (STA-4), at power-off, or at a security reset |
 
 In both bindings a security reset ends the session of every application (RTF-9).
@@ -396,7 +398,7 @@ In both bindings a security reset ends the session of every application (RTF-9).
 | Which received bytes form the request; the response capacity (HEP-5, HEP-6) | §11, BP-48 to BP-50 and BP-53 |
 | How outcome categories and codes reach the host (HEP-12, PLT-9) | §11, BP-51 (ISO 7816) and BP-53 (raw) |
 | Lifecycle events and handlers (STA-6, PLT-18) | §11, BP-50a and BP-55 |
-| Session state at deselection and on logical channels (STA-4) | §11, BP-55: not visible, and session state survives deselection |
+| Session state at deselection and on logical channels (STA-4) | §11, BP-55 and BP-56: deselection ends the session in the ISO 7816 binding; logical channels are not visible |
 | User presence | §11, BP-54 |
 | Side-channel and fault protection level (PLT-32) | Left to the implementation, which states its level |
 | Every other item | Left to the implementation |
