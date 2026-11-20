@@ -64,7 +64,7 @@ An *image* is one compiled CardLang application, as the platform's loader stores
 | 4 | 4 | `frame_size` | The whole frame in bytes: return information, parameters, locals, temporaries and the operand area (BC-22) |
 | 8 | 1 | `argc` | Parameter cells, including a hidden payload slot (BC-24, BC-27) |
 | 9 | 1 | `payload` | 0 for no payload, 1 for a scalar, 2 for an aggregate through a slot |
-| 10 | 2 | — | Reserved, 0 |
+| 10 | 2 | `operand_base` | Where the operand area starts, as an offset from the frame base: the size of the return information, parameters, locals and temporaries (BC-22, BC-25) |
 
 *Serves: V-24; VEX-17, VEX-18, BC-22, BC-25.*
 

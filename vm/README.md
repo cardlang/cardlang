@@ -41,7 +41,7 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 | `image-format.md` | The application image and the load-time checks (`IMG-n`) | VM3 | version 0 drafted: IMG-1 to IMG-13 |
 | `c/` | The product VM in C11, and a host HAL | VM7 | not started |
 
-The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11). So far: `typer.py`, the compiler's static typing pass (stage 1).
+The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11). So far: the typer, the compiler, the disassembler, the VM core and the storage part of the test HAL (stages 1 and 2). The harness backend is `vmproto`.
 
 ## Conventions
 

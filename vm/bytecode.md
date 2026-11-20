@@ -269,6 +269,8 @@ Jumps stay inside the current function. A function body larger than a `rel` can 
 | `6E` | `JERRIS` | `cat h rel` | `[→]` | Jump if the outcome register holds `Err` with category `cat` and code `h` |
 | `6F` | `JERRCAT` | `cat rel` | `[→]` | Jump if the outcome register holds `Err` of category `cat` |
 | `70` | `ERRCODE` | — | `[→ v]` | Push the code in the outcome register, as a `u16`. Used for `Err(Set(code))` (OUT-21) |
+| `71` | `ERRGET` | — | `[→ v]` | Push the whole error in the outcome register as one cell, `category << 16 \| code`. Used to save an error binding (OUT-14) |
+| `72` | `ERRRAISE` | — | `[v →]` | Return `Err` with the error in the cell, as saved by `ERRGET` |
 
 An aggregate `Ok` payload has already been written to the caller's slot when `RET` executes (BC-27). Every return erases the frame (BC-28).
 *Serves: VEX-17 to VEX-23, OUT-1 to OUT-22.*
@@ -372,7 +374,7 @@ Nothing else changes it.
 | `ignore c;` | `c`, then `DROP` of a scalar payload |
 | `return c;` | `c`, then `JERR` to `FWD`, else `RETV` or `RET` |
 | `return Err(M);` and `abort Err(M);` | `ERR M` (preceded by `TXN.ABORT` for `abort`) |
-| `return Err(e);` of an error binding | `FWD`: the register still holds `e` |
+| `return Err(e);` of an error binding | The arm saves `e` with `ERRGET` on entry; `return Err(e)` is `LDF` and `ERRRAISE`. The arm may call other functions first (OUT-14), which overwrite the register |
 | `match c { Ok(x) … Err(A.M) … Err(e) … }` | `c`; `JERRIS` for each specific arm; `JERR` to the catch-all; the `Ok` arm stores the payload into `x` |
 | `Err(Set(code))` | `JERRCAT app` to the arm, which stores `ERRCODE` into `code` |
 | `require c else M;` | `c`, `JNZ` over `ERR M` (with `TXN.ABORT` inside a transaction) |
@@ -398,7 +400,7 @@ Nothing else changes it.
 | 11 | `card.crypto.encrypt` | 23 | `card.cbor.head` | | |
 | 12 | `card.crypto.decrypt` | 24 | `card.cbor.skip` | | |
 
-Number 0 is never valid. The numbers follow the order of `platform/base-catalog.txt`.
+Number 0 is never valid. The numbers follow the order of `platform/base-catalog.txt`. Numbers from `0xF000` are reserved for the test-only catalog of the conformance suite (`card.test.*`, V-33). Only test builds of a VM provide them, so a production VM rejects an image that imports one (IMG-11).
 *Serves: V-26; PLT-25, BP-17.*
 
 **BC-33 The VM knows each native's signature.** Argument cells and payload kind are fixed by the catalog. The VM's native table records them, so `NATIVE` carries no argument count.
@@ -453,6 +455,9 @@ The VM relies on these, and checks none of them (VEX-1).
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-19 | Version 0 drafted (VM3) | — |
+| 2026-11-20 | Added `ERRGET` (`71`) and `ERRRAISE` (`72`) to BC-19; BC-31's error-binding row uses them | VM4 stage 2: a catch-all arm may call other functions before `return Err(e)`, so the outcome register cannot be relied on (OUT-14) |
+| 2026-11-20 | IMG-6: the reserved field of a function entry is now `operand_base` | VM5 stage 2: `CALL` must know where the operand area starts (BC-25), and the frame size alone does not say |
+| 2026-11-20 | BC-32: numbers from `0xF000` reserved for the test-only catalog | V-33 |
 
 ## Annex A: compiling the language constructs
 

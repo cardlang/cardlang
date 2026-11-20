@@ -16,6 +16,19 @@ Status: decisions E1 to E5 taken 2026-11-20, all as recommended (option (a)). Th
 
 The program is accepted first by the unmodified checker, because the typer relaxes the checker's position rules for slices.
 
+**Stage 2 done (2026-11-20):** `tools/vmproto/`:
+- `isa.py`, the shared instruction table;
+- `compiler.py` (layout, code generation, image writer, resource report) and `dis.py`, the disassembler;
+- `vm.py`, the VM core, with its context of 216 bytes on the 32-bit model;
+- `hal.py`, the storage part of the test HAL;
+- `card.py`, the `vmproto` backend; `natives.py` is a placeholder.
+
+**Results:**
+- all 18 runtime tests without platform APIs pass, and two mutations of the VM (`INDEX` without its bounds check, `ADD` without its overflow check) are caught;
+- all 151 programs already compile and decode, which meets V-12 item 3 early. `compile_all.py` runs in `run_checks`.
+
+**Version-0 changes** (`vm/bytecode.md` §9): `ERRGET` and `ERRRAISE`; `operand_base` in IMG-6; test native numbers from `0xF000`.
+
 ## 1. Scope
 
 VM4 and VM5 are one feedback loop: the compiler produces version-0 images, and the prototype VM runs them. Both are in Python, in `tools/vmproto/` (V-11). They become the `vmproto` backend of the harness (V-10). The work is done when the backend meets the acceptance criteria of V-12:

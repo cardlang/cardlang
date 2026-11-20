@@ -24,8 +24,15 @@ def _interp(files, binding):
     pltcheck.check_binding(toks, binding)                                       # profile BP-50a, BP-52
     return interp.Card(toks)
 
+def _vmproto(files, binding):
+    if str(TOOLS / "vmproto") not in sys.path: sys.path.insert(0, str(TOOLS / "vmproto"))
+    import card
+    pltcheck.check_binding(tokens(files), binding)                              # profile BP-50a, BP-52
+    return card.VmCard(files, binding)
+
 BACKENDS = {
     "interp": _interp,          # the reference interpreter (tools/interp/interp.py)
+    "vmproto": _vmproto,        # the prototype compiler and VM (tools/vmproto/, VM4 and VM5)
 }
 
 def build(name, files, binding=None):

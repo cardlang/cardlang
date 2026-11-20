@@ -46,6 +46,7 @@ RUNS = [
     ("../fido/check_fido2.py", None, "examples/fido2: a CTAP session, checked independently"),
     # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
     ("../vmproto/typer.py", None, "vmproto typer: every valid, runtime and example program fully typed"),
+    ("../vmproto/compile_all.py", None, "vmproto compiler: every valid, runtime and example program compiles (V-12 item 3)"),
 ]
 
 def main():
