@@ -69,7 +69,7 @@ def load(ctx, image, config, hal):
     h = isa.HEADER.unpack_from(image, 0)
     (magic, fmt, profile, binding, image_size, persistent_size, session_size, stack_need, max_atomic, fcount,
      e_cmd, e_inst, e_sess, e_sel, icount, foff, ioff, coff, csize, codeoff, codesize, doff, dsize) = h
-    if magic != isa.MAGIC or fmt != 0: raise LoadError("format")
+    if magic != isa.MAGIC or fmt != isa.FORMAT: raise LoadError("format")          # format 1 only (V-41)
     if profile != 1 or binding not in (0, config.get("binding", binding)): raise LoadError("profile or binding")
     if image_size != len(image): raise LoadError("size")
     if session_size > len(config["session"]) or stack_need > len(config["stack"]): raise LoadError("areas")
@@ -189,7 +189,24 @@ def leave(ctx, cat, code, value):
     if payload == 1: push(ctx, value if cat == 0 else 0)
     return None
 
+U32 = isa.TYPES["u32"]
+SHORT = {"LDF8": "LDF", "STF8": "STF", "PUSH0": "PUSH.B", "PUSH1": "PUSH.B", "JMP8": "JMP", "JZ8": "JZ", "JNZ8": "JNZ",
+         "JERR8": "JERR", "LDFW": "LDF", "STFW": "STF", "ADDRF": "ADDR"}
+
 def step(ctx, name, ops, next_pc, natives):
+    if name in SHORT:                                   # a short form: the same semantics as its long form (BC-39)
+        if name == "PUSH0": ops = [0]
+        elif name == "PUSH1": ops = [1]
+        elif name in ("LDFW", "STFW"): ops = [U32, ops[0]]
+        elif name == "ADDRF": ops = [STACK, ops[0]]
+        name = SHORT[name]
+    elif name == "SLICEF":                              # the frame view at base, from the u32 at start to its end
+        size, base, start = ops
+        a = load_scalar(ctx, (STACK << 29) | (ctx.fp + base), U32)
+        n = load_scalar(ctx, (STACK << 29) | (ctx.fp + base + 4), U32)
+        s = load_scalar(ctx, (STACK << 29) | (ctx.fp + start), U32)
+        if s > n: raise Trap("BOUNDS")
+        push(ctx, a + s * size); push(ctx, n - s); ctx.pc = next_pc; return None
     t = ops[0] if ops else None
     ctx_pc = next_pc
     if name in ("PUSH.B", "PUSH.H", "PUSH.W"): push(ctx, ops[0])

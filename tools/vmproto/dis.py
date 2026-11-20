@@ -33,7 +33,7 @@ def operand_text(name, kinds, ops, end):
         elif k == "R": out.append(isa.REGION_NAMES[v])
         elif k == "C": out.append({1: "app", 2: "platform"}[v])
         elif k == "O": out.append("BE" if v == 0 else "LE")
-        elif k == "r": out.append(f"-> {end + v:04x}")
+        elif k in ("r", "s"): out.append(f"-> {end + v:04x}")
         else: out.append(str(v))
     if name == "NATIVE": out.append(f"; {isa.NATIVE_NAMES.get(ops[0], '?')}")
     return " ".join(out)
@@ -70,5 +70,5 @@ if __name__ == "__main__":
         from scenario import program_files
         files = program_files(src) if src.is_dir() else [src]
         meta = header(files[0].read_bytes())
-        img = compiler.compile_files(files, meta.get("binding"), meta.get("kind", "fragment") == "fragment").image
+        img = compiler.compile_files(files, meta.get("binding"), meta.get("kind", "fragment" if "conformance" in str(src) else "application") == "fragment").image
     print(listing(img))

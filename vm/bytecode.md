@@ -1,10 +1,12 @@
-# CardLang VM — Bytecode, version 0
+# CardLang VM — Bytecode, version 1
 
 Work package VM3. Plan: `plans_and_notes/vm-plans/VM3-bytecode-and-image.md`. Decisions: `vm/decisions.md`. Image layout: `vm/image-format.md`.
 
 This document defines the instruction set that the VM executes: the encoding, each instruction's operands, stack effect, semantics, traps and budget charge, the calling convention, and the native numbers. Requirements are numbered `BC-n` and cite the decisions and the `VEX`, `HAL`, specification and profile rules they serve (V-9).
 
-**Version 0 is living** (V-28). The prototype compiler (VM4) and the prototype VM (VM5) may change it. Every change is recorded in §9, until VM6 freezes a measured revision. Version 0 favours completeness and simplicity over density.
+**Version 1** is version 0 plus the short forms of §2.12, chosen from the measurements of `plans_and_notes/VM5-measurements.md` (VM6).
+- **It stays living through VM7** (V-41). The C VM may still change it, and every change is recorded in §9. It is frozen when the C VM meets the acceptance criteria.
+- **Its image format is 1,** and a VM accepts only format 1 (IMG-11).
 
 ## 1. Encoding
 
@@ -19,6 +21,7 @@ This document defines the instruction set that the VM executes: the encoding, ea
 | `R` | 1 | A region tag (VEX-7) |
 | `b`, `h`, `w` | 1, 2, 4 | An unsigned immediate of 8, 16 or 32 bits |
 | `rel` | 2 | A signed offset, in bytes, from the end of the instruction to the jump target |
+| `rel8` | 1 | As `rel`, in 8 bits (§2.12) |
 | `cat` | 1 | An error category: 1 for application, 2 for platform |
 | `ord` | 1 | A byte order: 0 for big-endian, 1 for little-endian |
 
@@ -52,7 +55,8 @@ Every instruction that produces a value produces it normalized. Equality on norm
 | `0x68`–`0x73` | Calls and outcomes | §2.9 |
 | `0x74`–`0x77` | Transactions | §2.10 |
 | `0x78`–`0x7F` | Natives | §2.11 |
-| `0x80`–`0xFF` | Unassigned, for VM6 | — |
+| `0x80`–`0x8B` | Short forms | §2.12 |
+| `0x8C`–`0xFF` | Unassigned | — |
 
 Gaps inside a range are unassigned.
 
@@ -293,6 +297,30 @@ A trap while a transaction is active aborts it during cleanup (VEX-40). The comp
 **BC-21** `78` `NATIVE h`: call the catalog API with native number `h` (§5), with the arguments and results of BC-34. It charges an extra 8, plus `⌈k / 16⌉`, where `k` is the total length in bytes of its view arguments.
 *Serves: V-26; VEX-33, VEX-42.*
 
+### 2.12 Short forms
+
+**BC-39** Each short form is a shorter encoding of the instructions on the right. It has exactly their semantics, traps and stack effect. A compiler may use either form; the prototype compiler always uses the shortest that applies.
+
+| Op | Mnemonic | Operands | Same as |
+|---|---|---|---|
+| `80` | `LDF8` | `T b` | `LDF T` with an offset below 256 |
+| `81` | `STF8` | `T b` | `STF T` with an offset below 256 |
+| `82` | `LDFW` | `b` | `LDF u32` with an offset below 256 |
+| `83` | `STFW` | `b` | `STF u32` with an offset below 256 |
+| `84` | `ADDRF` | `b` | `ADDR STACK` with an offset below 256 |
+| `85` | `SLICEF` | `h b b'` | `LDF u32 b; LDF u32 b+4; LDF u32 b'; LDF u32 b+4; SLICE h`: the view whose cells are at frame offsets `b` and `b + 4`, sliced from the `u32` at frame offset `b'` to its end. If that start is above the view's length, the result is `trap(BOUNDS)` |
+| `86` | `PUSH0` | — | `PUSH.B 0` |
+| `87` | `PUSH1` | — | `PUSH.B 1` |
+| `88` | `JMP8` | `rel8` | `JMP` to a target within reach of 8 bits |
+| `89` | `JZ8` | `rel8` | `JZ`, likewise |
+| `8A` | `JNZ8` | `rel8` | `JNZ`, likewise |
+| `8B` | `JERR8` | `rel8` | `JERR`, likewise |
+
+- **The budget.** Each short form charges 1, like any instruction (BC-35). `SLICEF` therefore charges 1 where its long sequence charges 5. The charge is still determined by the program and its inputs (RTF-5).
+- **Why these forms.** They are the measured hot cases of the VM5 corpus. Frame access was 38% of all code; most frame offsets are below 256, and most frame cells are `u32`. Short forms are additions: the long forms stay, so a program unlike the corpus loses nothing.
+
+*Serves: V-38, V-39; VEX-11, VEX-13.*
+
 ## 3. Frames and calls
 
 **BC-22 Frame layout.** A frame begins at an absolute stack address `fp`, and has the size the function table records (IMG-6):
@@ -458,6 +486,7 @@ The VM relies on these, and checks none of them (VEX-1).
 | 2026-11-20 | Added `ERRGET` (`71`) and `ERRRAISE` (`72`) to BC-19; BC-31's error-binding row uses them | VM4 stage 2: a catch-all arm may call other functions before `return Err(e)`, so the outcome register cannot be relied on (OUT-14) |
 | 2026-11-20 | IMG-6: the reserved field of a function entry is now `operand_base` | VM5 stage 2: `CALL` must know where the operand area starts (BC-25), and the frame size alone does not say |
 | 2026-11-20 | BC-32: numbers from `0xF000` reserved for the test-only catalog | V-33 |
+| 2026-11-20 | **Version 1** (VM6): the short forms of §2.12 (`80`–`8B`) and the operand kind `rel8`; image format 1 | `plans_and_notes/VM5-measurements.md` §9: all code 30,872 → 21,776 bytes (−29.5%), FIDO2 10,646 → 7,021 (−34%) |
 
 ## Annex A: compiling the language constructs
 
@@ -492,168 +521,136 @@ Each construct from the paper check of `vm/execution-model.md`, and its instruct
 
 Every construct maps onto version 0. No VM state is needed beyond VEX-49.
 
-## Annex B: hand-compiled examples
+## Annex B: compiled examples
 
-These listings were produced by a throwaway assembler for version 0, so their offsets and sizes are exact. Each line shows the code offset, the encoded bytes, and the instruction.
+These listings are the prototype compiler's output (`tools/vmproto/dis.py`), for bytecode version 1. Each line shows the code offset, the encoded bytes, and the instruction. The version-0 listings that VM3 compiled by hand, and how the sizes moved, are recorded in `plans_and_notes/VM5-measurements.md` §3.4 and §9.
 
 ### B.1 The counter application (`conformance/runtime/run-011-counter-application`)
 
-**Layout:**
-- **`PERSISTENT`:** `counter` at 0 and `increments` at 4 (8 bytes).
-- **Function 0, `encode_counter(output)`:** `output` is at frame offsets 8 and 12. The local `bytes: u8[4]` is at 16, and `index: u32` at 20.
-- **Function 2, `process`:** `request` is at 8 and 12, `response` at 16 and 20, and `operation: u8` at 24.
+The layout is as in version 0: `counter` at `PERSISTENT` 0 and `increments` at 4; `encode_counter`'s `output` at frame offsets 8 and 12, `bytes` at 16, the loop index at 20 and its bound at 24; `process`'s `operation` at 24.
 
 ```text
-; function 0: encode_counter(output: inout u8[]) -> u32
-0000    10 02 0c 00            LDF u32 12          ; output.length
-0004    01 04                  PUSH.B 4
-0006    5b 02                  GE u32
-0008    62 04 00               JNZ ok1
-000b    6b 01 03 00            ERR app 3           ; CounterError.ResponseTooSmall
-                               ok1:
-000f    18 03 10 00 00 00      ADDR STACK 16       ; &bytes
-0015    15 02 00 00 00 00      LDP u32 0           ; counter
-001b    31 02 00               ENCODE u32 BE       ; bytes = encode_be(counter)
-001e    01 00                  PUSH.B 0
-0020    11 02 14 00            STF u32 20          ; index = 0
-                               loop:
-0024    10 02 14 00            LDF u32 20
-0028    01 04                  PUSH.B 4
-002a    58 02                  LT u32
-002c    61 33 00               JZ done
-002f    10 02 08 00            LDF u32 8           ; output.address
-0033    10 02 0c 00            LDF u32 12          ; output.length
-0037    10 02 14 00            LDF u32 20          ; index
-003b    1a 01 00               INDEXV 1            ; &output[index]
-003e    18 03 10 00 00 00      ADDR STACK 16
-0044    10 02 14 00            LDF u32 20
-0048    19 01 00 04 00 00 00   INDEX 1 4           ; &bytes[index]
-004f    20 00                  LDI u8
-0051    21 00                  STI u8              ; output[index] = bytes[index]
-0053    10 02 14 00            LDF u32 20
-0057    01 01                  PUSH.B 1
-0059    40 02                  ADD u32
-005b    11 02 14 00            STF u32 20          ; next index
-005f    60 c2 ff               JMP loop
-                               done:
-0062    01 04                  PUSH.B 4
-0064    6a                     RETV                ; Ok(4)
+; function 0: encode_counter  (frame 40, argc 2, payload 1, operands from 28, code 74 bytes)
+0000  82 0c                    LDFW 12
+0002  01 04                    PUSH.B 4
+0004  5b 02                    GE u32
+0006  8a 04                    JNZ8 -> 000c
+0008  6b 01 03 00              ERR app 3
+000c  84 10                    ADDRF 16
+000e  15 02 00 00 00 00        LDP u32 0
+0014  31 02 00                 ENCODE u32 BE
+0017  86                       PUSH0
+0018  83 14                    STFW 20
+001a  01 04                    PUSH.B 4
+001c  83 18                    STFW 24
+001e  82 14                    LDFW 20
+0020  82 18                    LDFW 24
+0022  58 02                    LT u32
+0024  89 21                    JZ8 -> 0047
+0026  82 08                    LDFW 8
+0028  82 0c                    LDFW 12
+002a  82 14                    LDFW 20
+002c  1a 01 00                 INDEXV 1
+002f  84 10                    ADDRF 16
+0031  82 14                    LDFW 20
+0033  19 01 00 04 00 00 00     INDEX 1 4
+003a  20 00                    LDI u8
+003c  21 00                    STI u8
+003e  82 14                    LDFW 20
+0040  87                       PUSH1
+0041  40 02                    ADD u32
+0043  83 14                    STFW 20
+0045  88 d7                    JMP8 -> 001e
+0047  01 04                    PUSH.B 4
+0049  6a                       RETV
 
-; function 1: increment()
-0000    74                     TXN.BEGIN
-0001    15 02 00 00 00 00      LDP u32 0
-0007    01 01                  PUSH.B 1
-0009    40 02                  ADD u32
-000b    16 02 00 00 00 00      STP u32 0           ; counter = counter + 1
-0011    15 02 04 00 00 00      LDP u32 4
-0017    01 01                  PUSH.B 1
-0019    40 02                  ADD u32
-001b    16 02 04 00 00 00      STP u32 4           ; increments = increments + 1
-0021    75                     TXN.COMMIT
-0022    69                     RET                 ; Ok()
+; function 1: increment  (frame 16, argc 0, payload 0, operands from 8, code 33 bytes)
+004a  74                       TXN.BEGIN
+004b  15 02 00 00 00 00        LDP u32 0
+0051  87                       PUSH1
+0052  40 02                    ADD u32
+0054  16 02 00 00 00 00        STP u32 0
+005a  15 02 04 00 00 00        LDP u32 4
+0060  87                       PUSH1
+0061  40 02                    ADD u32
+0063  16 02 04 00 00 00        STP u32 4
+0069  75                       TXN.COMMIT
+006a  69                       RET
 
-; function 2: command process(request: ref u8[], response: inout u8[]) -> u32
-0000    10 02 0c 00            LDF u32 12          ; request.length
-0004    01 01                  PUSH.B 1
-0006    56                     EQ
-0007    62 04 00               JNZ ok1
-000a    6b 01 01 00            ERR app 1           ; CounterError.MalformedRequest
-                               ok1:
-000e    10 02 08 00            LDF u32 8
-0012    10 02 0c 00            LDF u32 12
-0016    01 00                  PUSH.B 0
-0018    1a 01 00               INDEXV 1            ; &request[0]
-001b    20 00                  LDI u8
-001d    11 00 18 00            STF u8 24           ; operation = request[0]
-0021    10 00 18 00            LDF u8 24
-0025    01 02                  PUSH.B 2            ; OP_INCREMENT, folded
-0027    56                     EQ
-0028    61 09 00               JZ else
-002b    68 01 00               CALL 1              ; attempt increment()
-002e    6d 20 00               JERR fwd
-0031    60 0e 00               JMP tail
-                               else:
-0034    10 00 18 00            LDF u8 24
-0038    01 01                  PUSH.B 1            ; OP_READ
-003a    57                     NE
-003b    61 04 00               JZ tail
-003e    6b 01 02 00            ERR app 2           ; CounterError.UnsupportedOperation
-                               tail:
-0042    10 02 10 00            LDF u32 16          ; response.address
-0046    10 02 14 00            LDF u32 20          ; response.length
-004a    68 00 00               CALL 0              ; return encode_counter(inout response)
-004d    6d 01 00               JERR fwd
-0050    6a                     RETV
-                               fwd:
-0051    6c                     FWD
+; function 2: process  (frame 37, argc 4, payload 1, operands from 25, code 61 bytes)
+006b  82 0c                    LDFW 12
+006d  87                       PUSH1
+006e  56                       EQ
+006f  8a 04                    JNZ8 -> 0075
+0071  6b 01 01 00              ERR app 1
+0075  82 08                    LDFW 8
+0077  82 0c                    LDFW 12
+0079  86                       PUSH0
+007a  1a 01 00                 INDEXV 1
+007d  20 00                    LDI u8
+007f  81 00 18                 STF8 u8 24
+0082  80 00 18                 LDF8 u8 24
+0085  01 02                    PUSH.B 2
+0087  56                       EQ
+0088  89 07                    JZ8 -> 0091
+008a  68 01 00                 CALL 1
+008d  8b 17                    JERR8 -> 00a6
+008f  88 0b                    JMP8 -> 009c
+0091  80 00 18                 LDF8 u8 24
+0094  87                       PUSH1
+0095  57                       NE
+0096  89 04                    JZ8 -> 009c
+0098  6b 01 02 00              ERR app 2
+009c  82 10                    LDFW 16
+009e  82 14                    LDFW 20
+00a0  68 00 00                 CALL 0
+00a3  8b 02                    JERR8 -> 00a7
+00a5  6a                       RETV
+00a6  6c                       FWD
+00a7  6c                       FWD
 ```
 
-**Sizes:** 101 + 35 + 82 = **218 bytes** of code.
-
-**Frame sizes,** each the fixed part plus the operand area:
-
-| Function | Fixed part | Operand area | Frame |
-|---|---|---|---:|
-| 0 | 24 bytes | 3 cells | 36 bytes |
-| 1 | 8 bytes | 2 cells | 16 bytes |
-| 2 | 25 bytes | 3 cells | 37 bytes |
-
-The fixed part of `process` is 25 bytes, unaligned (V-13). The stack need is at most the deepest path: `process` calls `encode_counter`, so it is 37 + 36 = **73 bytes**. It is less in practice, because a callee's frame starts where the caller's arguments were popped (BC-25).
-
-**Notes on the listing:**
-- The loop's bound `4` is a constant, so it needs no temporary.
-- The `ADD` that advances `index` can never trap (STM-14). It is still the checked instruction, because removing it would need a proof (EXP-22).
+**Sizes.** 74 + 33 + 61 = **168 bytes** of code. Version 0 by hand was 218 bytes, and version 0 compiled was 259. There are two `FWD`s at the end of `process`, because a trampoline is shared only by error paths at the same operand depth (BC-38).
 
 ### B.2 FIDO2 `get_info` (`examples/fido2/ctap.card`)
 
-**Layout:** `response` is at frame offsets 8 and 12, and the local `at: u32` is at 16. The constants `VERSION`, `AAGUID` and the four map keys are in `CONST`. `pin_set` is a persistent `bool`; offset `0x40` is used for illustration.
-
-The function writes the 1-byte status and then 22 CBOR items. Every item follows the same pattern, shown here for the first two:
+The function writes the status byte and then 22 CBOR items. The first three items and the end:
 
 ```text
-0000    10 02 08 00            LDF u32 8
-0004    10 02 0c 00            LDF u32 12
-0008    01 00                  PUSH.B 0
-000a    1a 01 00               INDEXV 1
-000d    01 00                  PUSH.B 0
-000f    21 00                  STI u8          ; response[0] = 0
-0011    01 01                  PUSH.B 1
-0013    11 02 10 00            STF u32 16      ; var at: u32 = 1
-0017    10 02 10 00            LDF u32 16      ; at += attempt card.cbor.write_head(CborMajor.Map, 5, ...)
-001b    01 05                  PUSH.B 5        ; CborMajor.Map
-001d    01 05                  PUSH.B 5
-001f    10 02 08 00            LDF u32 8
-0023    10 02 0c 00            LDF u32 12
-0027    10 02 10 00            LDF u32 16
-002b    10 02 0c 00            LDF u32 12
-002f    25 01 00               SLICE 1         ; response[at..response.length]
-0032    78 19 00               NATIVE 25
-0035    6d 61 03               JERR fwd
-0038    40 02                  ADD u32
-003a    11 02 10 00            STF u32 16
-003e    10 02 10 00            LDF u32 16      ; at += attempt card.cbor.write_int(1, ...)
-0042    01 01                  PUSH.B 1
-0044    10 02 08 00            LDF u32 8
-0048    10 02 0c 00            LDF u32 12
-004c    10 02 10 00            LDF u32 16
-0050    10 02 0c 00            LDF u32 12
-0054    25 01 00               SLICE 1
-0057    78 1a 00               NATIVE 26
-005a    6d 3c 03               JERR fwd
-005d    40 02                  ADD u32
-005f    11 02 10 00            STF u32 16
-        …                                      ; 20 more items in the same pattern
-0394    10 02 10 00            LDF u32 16
-0398    6a                     RETV            ; Ok(at)
-                               fwd:
-0399    6c                     FWD
+; function 28: get_info  (frame 52, argc 2, payload 1, operands from 20, code 502 bytes)
+114a  82 08                    LDFW 8
+114c  82 0c                    LDFW 12
+114e  86                       PUSH0
+114f  1a 01 00                 INDEXV 1
+1152  86                       PUSH0
+1153  21 00                    STI u8
+1155  87                       PUSH1
+1156  83 10                    STFW 16
+1158  82 10                    LDFW 16
+115a  01 05                    PUSH.B 5
+115c  01 05                    PUSH.B 5
+115e  85 01 00 08 10           SLICEF 1 8 16
+1163  78 19 00                 NATIVE 25 ; card.cbor.write_head
+1166  6d d6 01                 JERR -> 133f
+1169  40 02                    ADD u32
+116b  83 10                    STFW 16
+116d  82 10                    LDFW 16
+116f  87                       PUSH1
+1170  85 01 00 08 10           SLICEF 1 8 16
+1175  78 1a 00                 NATIVE 26 ; card.cbor.write_int
+1178  6d c4 01                 JERR -> 133f
+117b  40 02                    ADD u32
+117d  83 10                    STFW 16
+117f  82 10                    LDFW 16
+1181  01 04                    PUSH.B 4
+1183  87                       PUSH1
+1184  85 01 00 08 10           SLICEF 1 8 16
+        …
+133c  82 10                    LDFW 16
+133e  6a                       RETV
+133f  6c                       FWD
 ```
 
-**Sizes:**
-- The function is **922 bytes**: 23 bytes of set-up, about 41 bytes per encoded item, and 6 bytes at the end.
-- Its deepest operand stack is 8 cells, during a `write_string` call. With 20 bytes of fixed part, the frame is 52 bytes.
-
-**Input for VM6:**
-- **The cost.** Of the 41 bytes per item, 32 are the same boilerplate each time, from the idiom `at += attempt <native>(…, inout response[at..response.length])`.
-- **The repeated part.** It is the load of `at` (4 bytes), the slice of `response` from `at` to its end (five instructions, 19 bytes), and `JERR`, `ADD` and `STF` (9 bytes).
-- **The candidates.** A short-form `LDF` with a one-byte offset, and a "slice to end" instruction, would roughly halve this function. VM5 measures how common the pattern is across the applet before VM6 decides.
+**Sizes.**
+- The function is **502 bytes**, against 922 in version 0. Each item is now about 18 bytes; `SLICEF` replaces the five-instruction slice of `response` from `at` to its end.
+- **The `JERR`s stay long,** because the shared error trampoline is at the end of the function, beyond 8-bit reach. Placing trampolines nearer their jumps is a possible compiler improvement; it needs no bytecode change.

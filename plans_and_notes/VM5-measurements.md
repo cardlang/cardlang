@@ -144,6 +144,8 @@ Locals and temporaries account for 2,318 bytes over the applet's 35 functions. T
 
 These are estimates from the static counts above, not measurements of an implementation. They are listed by expected effect.
 
+**What the corpus does and does not show.** The corpus is one applet, FIDO2, plus the conformance tests. It shows what is worth making shorter or faster. It is no evidence that something unused is unneeded, because other applets may rely on it (user, 2026-11-20).
+
 | # | Change | Kind | Estimated effect |
 |---|---|---|---|
 | 1 | **Frame-slot reuse.** Allocate locals and temporaries by scope and lifetime, and share slots that are never live at the same time | Compiler | The largest RAM saving. FIDO2's frames are mostly locals and temporaries (2,318 bytes); a large part could be shared. To be measured |
@@ -162,7 +164,7 @@ These are estimates from the static counts above, not measurements of an impleme
 - `OVER`, `DUP2`, `DROP2`, `FIELD` and `FILLB`;
 - `CDIV`, `CMUL`, `CNEG`, `WSUB` and `WMUL`.
 
-The last five are there for language completeness, but no test exercises them. VM6 should add tests rather than remove the opcodes. `FIELD` is unused only because the compiler folds field offsets into static addresses whenever it can; a field reached through a reference would use it, and no test does.
+The last five are there for language completeness, but no test exercised them. The right response was to add tests, done in VM4b, not to remove the opcodes. The same holds for the stack opcodes: unused here says nothing about other applets. `FIELD` is unused only because the compiler folds field offsets into static addresses whenever it can; a field reached through a reference would use it, and no test does.
 
 ## 8. VM4b: compiler improvements (2026-11-20)
 
@@ -187,9 +189,45 @@ All figures are in bytes.
 **Slot reuse is safe, but saves less than hoped:**
 - **It is checked.** A mutant that frees a local's slot right after its declaration makes 14 of the 30 runtime tests, and the FIDO2 check, fail.
 - **It saves less than §4 suggested.** The largest frames are dominated by locals declared at the top level of the function, whose scope is the whole function. `make_credential` declares 419 bytes of them: `auth` (180), `point` (65), `credential_id` (48), `p` (44), `rp_hash` (32) and smaller ones. Its frame is now 475 bytes.
-- **Liveness analysis** could overlap locals whose last use comes before another's first use. That is option (b) of F1, kept for later, and worth its complexity only if the C VM's targets need it. The alternative needs no compiler work: write such functions with narrower scopes.
+- **Liveness analysis** could overlap locals whose last use comes before another's first use. That is option (b) of F1, kept for later, and worth its complexity only if the C VM's targets need it. The alternative needs no compiler work: write such functions with narrower scopes. FIDO2's shape (large top-level buffers) may not be typical, so this should be re-measured on a second applet before it is decided.
 
 **Effect on the VM6 candidates.** The figures of §3 still hold in proportion, so VM6 measures against this compiler.
+
+## 9. VM6: bytecode version 1 (2026-11-20)
+
+Plan: `plans_and_notes/vm-plans/VM6-bytecode-revision.md`. The short forms are those of `vm/bytecode.md` §2.12. They are measured cumulatively, in the planned order, on the VM4b compiler, over all 153 programs:
+
+| Step | All programs | Saved | FIDO2 | Saved |
+|---|---:|---:|---:|---:|
+| Version 0, with the VM4b compiler | 30,872 | — | 10,646 | — |
+| + short frame access (`LDF8`, `STF8`, `LDFW`, `STFW`) | 25,316 | 5,556 (18.0%) | 8,518 | 2,128 (20.0%) |
+| + `ADDRF` | 23,988 | 1,328 (4.3%) | 7,890 | 628 (5.9%) |
+| + `SLICEF` | 23,526 | 462 (1.5%) | 7,506 | 384 (3.6%) |
+| + `PUSH0`, `PUSH1` | 22,527 | 999 (3.2%) | 7,288 | 218 (2.0%) |
+| + 8-bit jumps | 21,776 | 751 (2.4%) | 7,021 | 267 (2.5%) |
+| **Version 1, total** | **21,776** | **−29.5%** | **7,021** | **−34.0%** |
+
+The figures are bytes of code. Each saving is relative to the version-0 baseline.
+
+**Use in FIDO2,** in its version-1 image:
+
+| Form | Count |
+|---|---:|
+| `LDFW`, `STFW` | 624, 136 |
+| `LDF8`, `STF8` | 49, 47 |
+| `ADDRF` | 157 |
+| `PUSH0`, `PUSH1` | 147, 71 |
+| `SLICEF` | 64 |
+| `JERR8`, `JNZ8`, `JZ8`, `JMP8` | 99, 61, 58, 49 |
+| Long forms left: `LDF`, `STF`, `ADDR` | 39, 26, 34 |
+| Long forms left: `JERR`, `JZ`, `JMP` | 92, 5, 2 |
+
+**Observations:**
+- **The estimates of §6 were close,** except where candidates overlap. `SLICEF` saved 462 bytes rather than the 1.2 KB estimated in FIDO2 alone, because short `LDFW`s had already shrunk the idiom it replaces. It still fires 64 times in FIDO2, not 82: a slice whose start is not a `u32` frame slot keeps the long sequence.
+- **Most remaining long `JERR`s jump to the function's shared error trampoline,** at the end of the function. Placing trampolines nearer their jumps is a compiler change that could make most of them short. It is noted for later.
+- **Compiled against hand-written.** `get_info` is now 502 bytes; it was 922 in version 0, by hand and compiled alike. The counter's three functions are 168 bytes, against 218 by hand in version 0.
+- **Budget charges fall a little.** `SLICEF` charges 1 where its sequence charged 5 (BC-39). All tests still pass, including the budget test.
+- **The rule of this report applies:** these figures come from one applet and the conformance tests. They justify the short forms, which are additions, and they say nothing against the long forms.
 
 ## 7. Acceptance status (V-12)
 

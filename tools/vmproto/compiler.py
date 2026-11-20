@@ -590,21 +590,52 @@ class FuncGen:
         self.frame_size = self.high + 4 * self.max_depth
         return self
 
+    def shorten(self):
+        """Select the version-1 short forms (V-38, bytecode.md section 2.12). Semantics are unchanged."""
+        S = self.c.shorten; U32 = TYPES["u32"]; out = []
+        code = self.code; i = 0
+        while i < len(code):
+            item = code[i]
+            # SLICEF: a view in the frame, sliced from a u32 frame slot to its end (candidate 4)
+            if "slice" in S and i + 4 < len(code) and all(x[0] == "op" for x in code[i:i + 5]):
+                ops = [x[1] for x in code[i:i + 5]]; a = [x[2] for x in code[i:i + 5]]
+                if (ops == ["LDF", "LDF", "LDF", "LDF", "SLICE"] and all(x[0] == U32 for x in a[:4])
+                        and a[1][1] == a[0][1] + 4 and a[3][1] == a[1][1] and a[0][1] < 256 and a[2][1] < 256):
+                    out.append(("op", "SLICEF", [a[4][0], a[0][1], a[2][1]])); i += 5; continue
+            if item[0] == "op":
+                op, ar = item[1], item[2]
+                if "frame" in S and op in ("LDF", "STF") and ar[1] < 256:          # candidate 2
+                    item = ("op", ("LDFW" if op == "LDF" else "STFW"), [ar[1]]) if ar[0] == U32 else ("op", op + "8", ar)
+                elif "addr" in S and op == "ADDR" and ar[0] == REGIONS["STACK"] and ar[1] < 256:   # candidate 3
+                    item = ("op", "ADDRF", [ar[1]])
+                elif "push" in S and op == "PUSH.B" and ar[0] in (0, 1):            # candidate 5
+                    item = ("op", "PUSH0" if ar[0] == 0 else "PUSH1", [])
+            out.append(item); i += 1
+        self.code = out
+
     def assemble(self):
-        """Resolve labels: returns the code bytes."""
-        pos, pc = {}, 0
-        for item in self.code:
-            if item[0] == "label": pos[item[1]] = pc
-            else: pc += isa.size_of(item[1], item[2])
+        """Resolve labels, relaxing jumps to their 8-bit forms where they reach (candidate 6): returns the code."""
+        self.shorten()
+        short = {k for k, item in enumerate(self.code)
+                 if "jump" in self.c.shorten and item[0] == "op" and item[1] in isa.SHORT_JUMP}
+        def name_of(k, item): return isa.SHORT_JUMP[item[1]] if k in short else item[1]
+        while True:                                       # start short, lengthen what does not reach, repeat
+            pos, ends, pc = {}, {}, 0
+            for k, item in enumerate(self.code):
+                if item[0] == "label": pos[item[1]] = pc; continue
+                pc += isa.size_of(name_of(k, item), item[2]); ends[k] = pc
+            far = {k for k in short if not -128 <= pos[self.code[k][2][-1]] - ends[k] <= 127}
+            if not far: break
+            short -= far
         out = bytearray(); pc = 0
-        for item in self.code:
+        for k, item in enumerate(self.code):
             if item[0] == "label": continue
-            size = isa.size_of(item[1], item[2]); end = pc + size
+            name = name_of(k, item); size = isa.size_of(name, item[2]); end = pc + size
             def rel(lab, end=end):
                 r = pos[lab] - end
                 if not -32768 <= r < 32768: raise CompileError(f"{self.name}: jump out of range")
                 return r
-            out += isa.encode(item[1], item[2], rel); pc = end
+            out += isa.encode(name, item[2], rel); pc = end
         return bytes(out)
 
 # stack effects (pops, pushes); CALL and NATIVE pass theirs explicitly
@@ -632,6 +663,7 @@ class Compiler:
         self.chk = self.typed.chk; self.layout = Layout(self.chk); self.binding = binding
         self.const_data = bytearray(); self.natives = set()
         self.reuse, self.reuse_mutant = True, False    # slot reuse (V-34); the mutant frees live locals
+        self.shorten = {"frame", "addr", "slice", "push", "jump"}   # the version-1 short forms (V-38)
         self.app_codes = {k: v for k, v in pltcheck_error_codes(self.chk.toks).items()}
         names = list(self.typed.bodies)
         self.findex = {n: i for i, n in enumerate(names)}
@@ -684,7 +716,7 @@ class Compiler:
         const_off = imports_off + len(imports); code_off = const_off + len(self.const_data); debug_off = code_off + len(code)
         size = debug_off + len(debug)
         entry = lambda h: self.findex.get(h, isa.NONE_ENTRY)
-        header = isa.HEADER.pack(isa.MAGIC, 0, 1, isa.BINDINGS[self.binding], size, self.persistent_size,
+        header = isa.HEADER.pack(isa.MAGIC, isa.FORMAT, 1, isa.BINDINGS[self.binding], size, self.persistent_size,
                                  self.session_size, stack, max_atomic, len(self.gens), self.findex[self.typed.command],
                                  entry("on_install"), entry("on_session_start"), entry("on_select"), len(self.natives),
                                  functions_off, imports_off, const_off, len(self.const_data), code_off, len(code),
@@ -717,7 +749,7 @@ if __name__ == "__main__":
     from scenario import program_files
     src = pathlib.Path(sys.argv[1]); files = program_files(src) if src.is_dir() else [src]
     meta = header(files[0].read_bytes())
-    c = compile_files(files, meta.get("binding"), meta.get("kind", "fragment") == "fragment")
+    c = compile_files(files, meta.get("binding"), meta.get("kind", "fragment" if "conformance" in str(src) else "application") == "fragment")
     if "-o" in sys.argv: pathlib.Path(sys.argv[sys.argv.index("-o") + 1]).write_bytes(c.image)
     if "--report" in sys.argv or "-o" not in sys.argv:
         import json; print(json.dumps(c.report, indent=2))

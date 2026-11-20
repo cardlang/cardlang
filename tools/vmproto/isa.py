@@ -2,7 +2,7 @@
 
 The authority is vm/bytecode.md. Each entry is: mnemonic -> (opcode, operand kinds), with the kinds of BC-2:
     T type code   R region tag   C error category   O byte order
-    b u8   h u16   w u32   r rel16 (signed, from the end of the instruction)
+    b u8   h u16   w u32   r rel16 (signed, from the end of the instruction)   s rel8 (signed, likewise)
 SWITCH is special: an h count followed by that many rel16 offsets.
 """
 import struct
@@ -50,9 +50,16 @@ OPS = {
     "TXN.BEGIN": (0x74, ""), "TXN.COMMIT": (0x75, ""), "TXN.ABORT": (0x76, ""),
     # 2.11 natives
     "NATIVE": (0x78, "h"),
+    # 2.12 short forms (version 1, VM6): shorter encodings of the instructions above, with the same semantics
+    "LDF8": (0x80, "Tb"), "STF8": (0x81, "Tb"), "LDFW": (0x82, "b"), "STFW": (0x83, "b"),
+    "ADDRF": (0x84, "b"), "SLICEF": (0x85, "hbb"), "PUSH0": (0x86, ""), "PUSH1": (0x87, ""),
+    "JMP8": (0x88, "s"), "JZ8": (0x89, "s"), "JNZ8": (0x8A, "s"), "JERR8": (0x8B, "s"),
 }
+SHORT_JUMP = {"JMP": "JMP8", "JZ": "JZ8", "JNZ": "JNZ8", "JERR": "JERR8"}
+LONG_JUMP = {v: k for k, v in SHORT_JUMP.items()}
+FORMAT = 1                                               # the image format and bytecode version (IMG-3)
 BY_OPCODE = {op: (name, kinds) for name, (op, kinds) in OPS.items()}
-SIZE = {"T": 1, "R": 1, "C": 1, "O": 1, "b": 1, "h": 2, "w": 4, "r": 2}
+SIZE = {"T": 1, "R": 1, "C": 1, "O": 1, "b": 1, "h": 2, "w": 4, "r": 2, "s": 1}
 
 def size_of(name, operands=()):
     kinds = OPS[name][1]
@@ -73,6 +80,7 @@ def encode(name, operands, rel_of=None):
         elif k == "h": out += struct.pack("<H", v)
         elif k == "w": out += struct.pack("<I", v & 0xFFFFFFFF)
         elif k == "r": out += struct.pack("<h", rel_of(v))
+        elif k == "s": out += struct.pack("<b", rel_of(v))
     return bytes(out)
 
 def decode(code, pc):
@@ -88,6 +96,7 @@ def decode(code, pc):
         elif k == "h": ops.append(struct.unpack_from("<H", code, i)[0]); i += 2
         elif k == "w": ops.append(struct.unpack_from("<I", code, i)[0]); i += 4
         elif k == "r": ops.append(struct.unpack_from("<h", code, i)[0]); i += 2
+        elif k == "s": ops.append(struct.unpack_from("<b", code, i)[0]); i += 1
     return name, ops, i - pc
 
 # ------------------------------------------------------------------ natives (BC-32, V-33)

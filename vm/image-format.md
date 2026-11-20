@@ -1,8 +1,8 @@
-# CardLang VM — Image format, version 0
+# CardLang VM — Image format, version 1
 
 Work package VM3. Plan: `plans_and_notes/vm-plans/VM3-bytecode-and-image.md`. Instructions: `vm/bytecode.md`.
 
-An *image* is one compiled CardLang application, as the platform's loader stores it and `cl_vm_load` receives it (VEX-45). Requirements are numbered `IMG-n` and cite the decisions and the rules they serve (V-9). Like the bytecode, version 0 of the format is living until VM6 (V-28). Changes are recorded in the change log of `vm/bytecode.md` §9.
+An *image* is one compiled CardLang application, as the platform's loader stores it and `cl_vm_load` receives it (VEX-45). Requirements are numbered `IMG-n` and cite the decisions and the rules they serve (V-9). Like the bytecode, version 1 of the format stays living through VM7 (V-41). Changes are recorded in the change log of `vm/bytecode.md` §9.
 
 ## 1. General
 
@@ -23,7 +23,7 @@ An *image* is one compiled CardLang application, as the platform's loader stores
 | Offset | Size | Field | Meaning |
 |---:|---:|---|---|
 | 0 | 4 | `magic` | The bytes `43 4C 56 4D` ("CLVM") |
-| 4 | 2 | `format` | The format and bytecode version: 0 |
+| 4 | 2 | `format` | The format and bytecode version: 1 |
 | 6 | 1 | `profile` | The platform profile: 1 for Base Profile 1 |
 | 7 | 1 | `binding` | 0 none, 1 ISO 7816, 2 raw (IMG-4) |
 | 8 | 4 | `image_size` | The size of the whole image, including any debug section |

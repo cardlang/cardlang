@@ -31,7 +31,7 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-25 | **One opcode per operation, with a one-byte type operand** for integer types; VM6 may specialise frequent pairs | 2026-11-19 | VM3 | BC-3, BC-8, BC-13 to BC-17 |
 | V-26 | **Natives have fixed numbers** per catalog API, used directly by `NATIVE n`; the image's import list serves only the load-time check | 2026-11-19 | VM3 | BC-21, BC-32 to BC-34, IMG-7 |
 | V-27 | **An optional debug section** (files, function names, line table), ignored by the device VM and strippable | 2026-11-19 | VM3 | IMG-10 |
-| V-28 | **Bytecode and image version 0 are living** until VM6: VM4 and VM5 may change them, recording each change in the change log | 2026-11-19 | VM3 | `vm/bytecode.md` §9 |
+| V-28 | **Bytecode and image version 0 are living** until VM6 (superseded by V-41): VM4 and VM5 may change them, recording each change in the change log | 2026-11-19 | VM3 | `vm/bytecode.md` §9 |
 | V-29 | **The prototype compiler's front end** reuses the reference checkers (acceptance, declarations) and the shared statement parser, plus a static typer that reuses the checker's own type synthesis and assumes validity | 2026-11-20 | VM4 | `tools/vmproto/typer.py`, `tools/checkers/stmtparse.py` |
 | V-30 | **The prototype VM executes the binary image,** decoded as the C VM will | 2026-11-20 | VM5 | VM5 |
 | V-31 | **The prototype VM keeps all its mutable state in one context object** with declared C field sizes; a test checks that it keeps no other state | 2026-11-20 | VM5 | VM5 |
@@ -41,6 +41,10 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-35 | **The compiler emits nothing that cannot be reached:** nothing between a terminator and the next jump target | 2026-11-20 | VM4b | `tools/vmproto/compiler.py` |
 | V-36 | **Aggregates are built in place** for `var` initialisers and `return Ok(aggregate)`; assignments keep the temporary (STM-9, VEX-30) | 2026-11-20 | VM4b | `tools/vmproto/compiler.py` |
 | V-37 | **Runtime tests for the untested intrinsics and structure access** (`run-029`, `run-030`) are added before the instruction set is frozen | 2026-11-20 | VM4b | `tools/generators/wp13_tests.py` |
+| V-38 | **Bytecode version 1 adds dedicated short forms** for the measured hot cases (`LDF8`, `STF8`, `LDFW`, `STFW`, `ADDRF`, `SLICEF`, `PUSH0`, `PUSH1`, and 8-bit jumps), in `0x80`–`0x8B`; the long forms stay, and the compiler picks the shortest | 2026-11-20 | VM6 | BC-39 |
+| V-39 | **All five short-form candidates are taken.** Each is measured cumulatively for the report, but none is dropped on its figures (user) | 2026-11-20 | VM6 | `plans_and_notes/VM5-measurements.md` §9 |
+| V-40 | **`OVER`, `DUP2` and `DROP2` stay** in version 1, although no compiler path emits them. Unused in the corpus is not unneeded (user) | 2026-11-20 | VM6 | BC-7 |
+| V-41 | **Version 1 stays living through VM7,** with a change log, and is frozen when the C VM meets the acceptance criteria. The image format is 1, and a VM accepts only format 1. Supersedes V-28 (user) | 2026-11-20 | VM6 | `vm/bytecode.md` §9, IMG-3, IMG-11 |
 
 ## Open questions
 
