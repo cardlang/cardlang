@@ -1,0 +1,40 @@
+// The ISO 7816 binding entry point (profile §11.1) of the PIV Card Application (SP 800-73-5 Part 2 §3).
+
+// Test defaults (WP12 H2), set once at installation.
+function on_install() {
+    attempt card.key.import(KEY_ADMIN, KeySpec { type: KeyType.Aes128, storage: KeyStorage.Persistent }, ref DEFAULT_ADMIN_KEY);
+    return Ok();
+}
+
+// SELECT returns the application property template (Part 2 §3.1.1). The platform matches the full or right-truncated
+// AID (BP-50); a SELECT after a deselection starts a new session, so the security status is reset (BP-56).
+function on_select(response: inout u8[]) -> u32 {
+    response[0..49] = APT;
+    return Ok(49);
+}
+
+// GENERAL AUTHENTICATE (Part 2 §3.2.4): CLA 87 <algorithm> <key>, data 7C L {...}.
+function general_authenticate(request: ref u8[], response: inout u8[]) -> u32 {
+    var outer: TlvHead = attempt card.tlv.head(ref request[4..request.length]) else Sw.WrongData;
+    require outer.tag == 0x7C else Sw.WrongData;
+    var start: u32 = 4 + outer.size;
+    var key: u32 = convert<u32>(request[3]);
+    if key == KEY_ADMIN {
+        return admin_authenticate(request[2], ref request[start..start + outer.length], inout response);
+    }
+    return Err(Sw.RefNotFound);
+}
+
+// request: CLA INS P1 P2, then the reassembled data field (BP-50).
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 4 else Sw.WrongLength;
+    var ins: u8 = request[1];
+    if ins == 0xCB {
+        return get_data(ref request, inout response);
+    } else if ins == 0xDB {
+        return put_data(ref request, inout response);
+    } else if ins == 0x87 {
+        return general_authenticate(ref request, inout response);
+    }
+    return Err(Sw.InsNotSupported);
+}

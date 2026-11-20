@@ -1,0 +1,86 @@
+// The PIV Card Application Administration Key '9B' (Part 2, Appendix A.1 and A.2): AES-128 (algorithm '08', WP12
+// H3), one block in ECB mode. ECB on one block is CBC with a zero IV, so the profile's AES-CBC serves (PIV step 0).
+
+const ZERO_IV: u8[16] = fill(0);
+
+// The child with the given tag inside a template's value, such as 80, 81 or 82 inside 7C.
+function find_child(template: ref u8[], tag: u32) -> Child {
+    var at: u32 = 0;
+    while at < template.length {
+        var head: TlvHead = attempt card.tlv.head(ref template[at..template.length]) else Sw.WrongData;
+        if head.tag == tag {
+            return Ok(Child { present: true, start: at + head.size, length: head.length });
+        }
+        at += head.size + head.length;
+    }
+    return Ok(Child { present: false, start: 0, length: 0 });
+}
+
+// Write a dynamic authentication template holding one 16-byte value: 7C 12 <tag> 10 <value>.
+function template16(tag: u8, value: ref u8[], response: inout u8[]) -> u32 {
+    response[0] = 0x7C;
+    response[1] = 0x12;
+    response[2] = tag;
+    response[3] = 0x10;
+    response[4..20] = value;
+    return Ok(20);
+}
+
+// Forget a pending protocol step, and the administrator's status if the step failed (Part 2 §2.4.2).
+function admin_fail() {
+    admin_ok = false;
+    admin_step = 0;
+    wipe admin_nonce;
+    return Ok();
+}
+
+// GENERAL AUTHENTICATE with the administration key: `template` is the value of 7C.
+function admin_authenticate(algorithm: u8, template: ref u8[], response: inout u8[]) -> u32 {
+    require algorithm == ALG_AES128 else Sw.WrongP1P2;
+    var witness: Child = attempt find_child(ref template, 0x80);
+    var challenge: Child = attempt find_child(ref template, 0x81);
+    var reply: Child = attempt find_child(ref template, 0x82);
+    var block: u8[16];
+    if witness.present and (witness.length == 0) {
+        // A.2, first step: a witness, the encryption of a fresh random block.
+        var n: u32 = attempt card.random.fill(inout admin_nonce);
+        n = attempt card.crypto.encrypt(KEY_ADMIN, CipherAlgorithm.AesCbcNoPadding, ref ZERO_IV, ref admin_nonce, inout block);
+        admin_step = 2;
+        return template16(0x80, ref block, inout response);
+    }
+    if challenge.present and (challenge.length == 0) {
+        // A.1, first step: a challenge in the clear.
+        var n: u32 = attempt card.random.fill(inout admin_nonce);
+        admin_step = 1;
+        return template16(0x81, ref admin_nonce, inout response);
+    }
+    if reply.present and (reply.length == 16) and (admin_step == 1) {
+        // A.1, second step: the client encrypted the challenge; decrypt it and compare.
+        var n: u32 = attempt card.crypto.decrypt(KEY_ADMIN, CipherAlgorithm.AesCbcNoPadding, ref ZERO_IV, ref template[reply.start..reply.start + 16], inout block);
+        var matches: bool = equal(ref block, ref admin_nonce);
+        wipe block;
+        if not matches {
+            attempt admin_fail();
+            return Err(Sw.SecurityNotSatisfied);
+        }
+        admin_ok = true;
+        admin_step = 0;
+        wipe admin_nonce;
+        return Ok(0);
+    }
+    if witness.present and (witness.length == 16) and (admin_step == 2) and challenge.present and (challenge.length == 16) {
+        // A.2, second step: the client decrypted the witness and sends a challenge of its own.
+        var matches: bool = equal(ref template[witness.start..witness.start + 16], ref admin_nonce);
+        if not matches {
+            attempt admin_fail();
+            return Err(Sw.SecurityNotSatisfied);
+        }
+        admin_ok = true;
+        admin_step = 0;
+        wipe admin_nonce;
+        var n: u32 = attempt card.crypto.encrypt(KEY_ADMIN, CipherAlgorithm.AesCbcNoPadding, ref ZERO_IV, ref template[challenge.start..challenge.start + 16], inout block);
+        return template16(0x82, ref block, inout response);
+    }
+    attempt admin_fail();
+    return Err(Sw.WrongData);
+}

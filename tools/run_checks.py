@@ -51,6 +51,9 @@ RUNS = [
     ("../harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),
     ("../fido/check_fido2.py", "--backend vmproto", "vmproto: the FIDO2 check on the prototype VM (V-12 item 2)"),
     ("../vmproto/check_state.py", None, "vmproto: all VM state in its context, within 1 KiB (V-31, V-2)"),
+    # The PIV example applet (WP12), checked independently, on both backends.
+    ("../piv/check_piv.py", None, "examples/piv: a PIV session, checked independently"),
+    ("../piv/check_piv.py", "--backend vmproto", "examples/piv on the prototype VM"),
 ]
 
 def main():

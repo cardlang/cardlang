@@ -7,7 +7,18 @@ Status: decisions H1 to H4 taken 2026-11-20, all as recommended (option (a)). **
 - deselection ends the session in the ISO 7816 binding (BP-55, BP-56), with the scenario step `deselect` and test `run-032`;
 - both tests pass on both backends, and all checks pass.
 
-Next: step 2, the applet core.
+**Step 2 done (2026-11-20):** `examples/piv/` has `constants.card`, `objects.card`, `admin.card` and `iso7816-entry.card` (354 lines):
+- SELECT with the application property template;
+- GET DATA and PUT DATA for eight objects, including the bare Discovery Object;
+- the administration key `9B` with AES-128, both the challenge (A.1) and the mutual authentication (A.2).
+
+`tools/piv/check_piv.py` was started early, so that the core is checked from the start. It runs 22 checks, which pass on both backends and are two runs in `run_checks`. Compiled, the core is 2,344 bytes of code, with a stack need of 281 bytes and 9,984 bytes of persistent storage.
+
+**Findings so far,** for `WP12-piv-findings.md` in step 6:
+- **The buffer is chosen with an `if` chain.** An object's buffer must be chosen by an `if` chain in every function that touches it (`read_object`, `write_object`, `object_capacity`). CardLang cannot select one of several globals as a value, or pass one of them through a variable. A 2-D array would waste space, because the objects' sizes differ.
+- **`63CX` needs 11 error members** (Q5), rather than 16, because the retry counters are at most 10.
+
+Next: step 3, the PIN and PUK.
 
 ## 1. Goals
 

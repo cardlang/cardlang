@@ -1,0 +1,140 @@
+// The PIV data objects (Part 1 §3): one persistent buffer and length per object (WP12 H1); GET DATA and PUT DATA
+// (Part 2 §3.1.2, §3.3.1). Every object in this subset is readable over contact without a PIN (Part 1, Table 2).
+
+// The object a BER-TLV tag names, or OBJ_NONE.
+function object_index(tag: u32) -> u8 {
+    if tag == 0x5FC107 {
+        return Ok(OBJ_CCC);
+    } else if tag == 0x5FC102 {
+        return Ok(OBJ_CHUID);
+    } else if tag == 0x5FC106 {
+        return Ok(OBJ_SECURITY);
+    } else if tag == 0x5FC105 {
+        return Ok(OBJ_CERT_9A);
+    } else if tag == 0x5FC10A {
+        return Ok(OBJ_CERT_9C);
+    } else if tag == 0x5FC10B {
+        return Ok(OBJ_CERT_9D);
+    } else if tag == 0x5FC101 {
+        return Ok(OBJ_CERT_9E);
+    } else if tag == 0x7E {
+        return Ok(OBJ_DISCOVERY);
+    }
+    return Ok(OBJ_NONE);
+}
+
+// The capacity of an object's buffer.
+function object_capacity(index: u8) -> u32 {
+    if index == OBJ_CCC {
+        return Ok(ccc.length);
+    } else if index == OBJ_CHUID {
+        return Ok(chuid.length);
+    } else if index == OBJ_SECURITY {
+        return Ok(security_object.length);
+    } else if index == OBJ_DISCOVERY {
+        return Ok(discovery.length);
+    }
+    return Ok(cert_9a.length);
+}
+
+// The tag value inside a tag list (5C), as a u32: "5C 03 5F C1 05" gives 0x5FC105.
+function read_tag(data: ref u8[], at: u32, length: u32) -> u32 {
+    require (length >= 1) and (length <= 3) else Sw.WrongData;
+    var tag: u32 = 0;
+    for i: u32 in 0..length {
+        tag = (tag << 8) | convert<u32>(data[at + i]);
+    }
+    return Ok(tag);
+}
+
+// Copy an object's content into out, after a 53 header unless it is the Discovery Object (Part 2 §3.1.2).
+function read_object(index: u8, out: inout u8[]) -> u32 {
+    var length: u32 = convert<u32>(lengths[index]);
+    require length > 0 else Sw.NotFound;
+    var at: u32 = 0;
+    if index != OBJ_DISCOVERY {
+        at = attempt card.der.write_head(0x53, length, inout out) else Sw.WrongLength;
+    }
+    require (at + length) <= out.length else Sw.WrongLength;
+    var end: u32 = at + length;
+    if index == OBJ_CCC {
+        out[at..end] = ccc[0..length];
+    } else if index == OBJ_CHUID {
+        out[at..end] = chuid[0..length];
+    } else if index == OBJ_SECURITY {
+        out[at..end] = security_object[0..length];
+    } else if index == OBJ_CERT_9A {
+        out[at..end] = cert_9a[0..length];
+    } else if index == OBJ_CERT_9C {
+        out[at..end] = cert_9c[0..length];
+    } else if index == OBJ_CERT_9D {
+        out[at..end] = cert_9d[0..length];
+    } else if index == OBJ_CERT_9E {
+        out[at..end] = cert_9e[0..length];
+    } else {
+        out[at..end] = discovery[0..length];
+    }
+    return Ok(end);
+}
+
+// Replace an object's content, buffer and length together (Part 2 §3.3.1: PUT DATA replaces it completely).
+function write_object(index: u8, content: ref u8[]) {
+    var capacity: u32 = attempt object_capacity(index);
+    require content.length <= capacity else Sw.NoMemory;
+    var n: u32 = content.length;
+    transaction {
+        if index == OBJ_CCC {
+            ccc[0..n] = content;
+        } else if index == OBJ_CHUID {
+            chuid[0..n] = content;
+        } else if index == OBJ_SECURITY {
+            security_object[0..n] = content;
+        } else if index == OBJ_CERT_9A {
+            cert_9a[0..n] = content;
+        } else if index == OBJ_CERT_9C {
+            cert_9c[0..n] = content;
+        } else if index == OBJ_CERT_9D {
+            cert_9d[0..n] = content;
+        } else if index == OBJ_CERT_9E {
+            cert_9e[0..n] = content;
+        } else {
+            discovery[0..n] = content;
+        }
+        lengths[index] = truncate<u16>(n);
+    }
+    return Ok();
+}
+
+// GET DATA: CLA CB 3F FF, data 5C L tag (Part 2 §3.1.2).
+function get_data(request: ref u8[], response: inout u8[]) -> u32 {
+    require (request[2] == 0x3F) and (request[3] == 0xFF) else Sw.WrongP1P2;
+    var list: TlvHead = attempt card.tlv.head(ref request[4..request.length]) else Sw.WrongData;
+    require list.tag == 0x5C else Sw.WrongData;
+    var tag: u32 = attempt read_tag(ref request, 4 + list.size, list.length);
+    var index: u8 = attempt object_index(tag);
+    require index != OBJ_NONE else Sw.NotFound;
+    return read_object(index, inout response);
+}
+
+// PUT DATA: CLA DB 3F FF, data 5C L tag 53 L content, or the bare 7E Discovery Object (Part 2 §3.3.1).
+// Only the administrator may write (Part 2, Table 2).
+function put_data(request: ref u8[], response: inout u8[]) -> u32 {
+    require admin_ok else Sw.SecurityNotSatisfied;
+    require (request[2] == 0x3F) and (request[3] == 0xFF) else Sw.WrongP1P2;
+    var first: TlvHead = attempt card.tlv.head(ref request[4..request.length]) else Sw.WrongData;
+    if first.tag == 0x7E {
+        var whole: u32 = first.size + first.length;
+        attempt write_object(OBJ_DISCOVERY, ref request[4..4 + whole]);
+        return Ok(0);
+    }
+    require first.tag == 0x5C else Sw.WrongData;
+    var tag: u32 = attempt read_tag(ref request, 4 + first.size, first.length);
+    var index: u8 = attempt object_index(tag);
+    require (index != OBJ_NONE) and (index != OBJ_DISCOVERY) else Sw.NotSupported;
+    var at: u32 = 4 + first.size + first.length;
+    var data: TlvHead = attempt card.tlv.head(ref request[at..request.length]) else Sw.WrongData;
+    require data.tag == 0x53 else Sw.WrongData;
+    var start: u32 = at + data.size;
+    attempt write_object(index, ref request[start..start + data.length]);
+    return Ok(0);
+}
