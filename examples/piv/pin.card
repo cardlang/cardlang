@@ -1,0 +1,151 @@
+// The PIN and the PUK (Part 2 §2.4.3, §3.2.1 to §3.2.3): VERIFY, CHANGE REFERENCE DATA and RESET RETRY COUNTER.
+// Each comparison first spends a retry, in its own atomic update, and only then compares: a power loss during a
+// wrong attempt cannot leave the counter as it was. A correct value gives the retry back.
+
+// 63CX: the retries left, as a status word (PIV step 0, L1 and Q5).
+function retries_left(x: u8) -> u32 {
+    if x == 0 {
+        return Err(Sw.Retries0);
+    } else if x == 1 {
+        return Err(Sw.Retries1);
+    } else if x == 2 {
+        return Err(Sw.Retries2);
+    } else if x == 3 {
+        return Err(Sw.Retries3);
+    } else if x == 4 {
+        return Err(Sw.Retries4);
+    } else if x == 5 {
+        return Err(Sw.Retries5);
+    } else if x == 6 {
+        return Err(Sw.Retries6);
+    } else if x == 7 {
+        return Err(Sw.Retries7);
+    } else if x == 8 {
+        return Err(Sw.Retries8);
+    } else if x == 9 {
+        return Err(Sw.Retries9);
+    }
+    return Err(Sw.Retries10);
+}
+
+// Whether 8 bytes are a well-formed PIN (Part 2 §2.4.3): 6 to 8 ASCII digits, padded with FF to 8 bytes.
+function pin_format(value: ref u8[]) -> bool {
+    if value.length != 8 {
+        return Ok(false);
+    }
+    var padding: bool = false;
+    for i: u32 in 0..8 {
+        var b: u8 = value[i];
+        var digit: bool = (b >= 0x30) and (b <= 0x39);
+        if b == 0xFF {
+            if i < 6 {
+                return Ok(false);
+            }
+            padding = true;
+        } else if padding or (not digit) {
+            return Ok(false);
+        }
+    }
+    return Ok(true);
+}
+
+// Spend one PIN retry, then compare in constant time (PLT-31). On a match the PIN is verified and the retries
+// are restored; otherwise the security status is FALSE (Part 2 §3.2.1.1).
+function check_pin(candidate: ref u8[]) -> bool {
+    var left: u8 = pin_retries;
+    pin_retries = left - 1;
+    var matches: bool = equal(ref candidate, ref pin);
+    if matches {
+        pin_retries = PIN_TRIES;
+        pin_ok = true;
+    } else {
+        pin_ok = false;
+    }
+    return Ok(matches);
+}
+
+// The same for the PUK, which has no security status of its own in this subset.
+function check_puk(candidate: ref u8[]) -> bool {
+    var left: u8 = puk_retries;
+    puk_retries = left - 1;
+    var matches: bool = equal(ref candidate, ref puk);
+    if matches {
+        puk_retries = PUK_TRIES;
+    }
+    return Ok(matches);
+}
+
+// VERIFY: CLA 20 P1 80, P1 '00' (verify, or with no data ask the status) or 'FF' (reset the status).
+function verify(request: ref u8[], response: inout u8[]) -> u32 {
+    var p1: u8 = request[2];
+    require (p1 == 0x00) or (p1 == 0xFF) else Sw.WrongP1P2;
+    require request[3] == 0x80 else Sw.RefNotFound;
+    var data: u32 = request.length - 4;
+    if p1 == 0xFF {
+        require data == 0 else Sw.WrongData;
+        pin_ok = false;
+        return Ok(0);
+    }
+    if data == 0 {
+        if pin_ok {
+            return Ok(0);
+        }
+        return retries_left(pin_retries);
+    }
+    require pin_retries > 0 else Sw.Blocked;
+    var well_formed: bool = attempt pin_format(ref request[4..request.length]);
+    require well_formed else Sw.WrongData;
+    var matches: bool = attempt check_pin(ref request[4..12]);
+    if matches {
+        return Ok(0);
+    }
+    return retries_left(pin_retries);
+}
+
+// CHANGE REFERENCE DATA: CLA 24 00 <80 PIN | 81 PUK>, data old || new (Part 2 §3.2.2).
+function change_reference(request: ref u8[], response: inout u8[]) -> u32 {
+    require request[2] == 0x00 else Sw.WrongP1P2;
+    var reference: u8 = request[3];
+    require (reference == 0x80) or (reference == 0x81) else Sw.RefNotFound;
+    require request.length == 20 else Sw.WrongData;
+    if reference == 0x80 {
+        require pin_retries > 0 else Sw.Blocked;
+        var old_ok: bool = attempt pin_format(ref request[4..12]);
+        var new_ok: bool = attempt pin_format(ref request[12..20]);
+        require old_ok and new_ok else Sw.WrongData;
+        var matches: bool = attempt check_pin(ref request[4..12]);
+        if not matches {
+            return retries_left(pin_retries);
+        }
+        pin[0..8] = request[12..20];
+        return Ok(0);
+    }
+    require puk_retries > 0 else Sw.Blocked;
+    var matches: bool = attempt check_puk(ref request[4..12]);
+    if not matches {
+        return retries_left(puk_retries);
+    }
+    puk[0..8] = request[12..20];
+    return Ok(0);
+}
+
+// RESET RETRY COUNTER: CLA 2C 00 80, data PUK || new PIN (Part 2 §3.2.3). The PIN's security status is unchanged
+// on success, and FALSE after a wrong PUK.
+function reset_retry_counter(request: ref u8[], response: inout u8[]) -> u32 {
+    require request[2] == 0x00 else Sw.WrongP1P2;
+    require request[3] == 0x80 else Sw.RefNotFound;
+    require request.length == 20 else Sw.WrongData;
+    require puk_retries > 0 else Sw.Blocked;
+    var new_ok: bool = attempt pin_format(ref request[12..20]);
+    require new_ok else Sw.WrongData;
+    var matches: bool = attempt check_puk(ref request[4..12]);
+    if not matches {
+        pin_ok = false;
+        return retries_left(puk_retries);
+    }
+    transaction {
+        pin[0..8] = request[12..20];
+        pin_retries = PIN_TRIES;
+    }
+    return Ok(0);
+}

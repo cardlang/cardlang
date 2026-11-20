@@ -18,7 +18,16 @@ Status: decisions H1 to H4 taken 2026-11-20, all as recommended (option (a)). **
 - **The buffer is chosen with an `if` chain.** An object's buffer must be chosen by an `if` chain in every function that touches it (`read_object`, `write_object`, `object_capacity`). CardLang cannot select one of several globals as a value, or pass one of them through a variable. A 2-D array would waste space, because the objects' sizes differ.
 - **`63CX` needs 11 error members** (Q5), rather than 16, because the retry counters are at most 10.
 
-Next: step 3, the PIN and PUK.
+**Step 3 done (2026-11-20):** `pin.card` implements:
+- VERIFY in all its P1 forms, the format checks and blocking;
+- CHANGE REFERENCE DATA for the PIN (`80`) and the PUK (`81`);
+- RESET RETRY COUNTER.
+
+Each comparison spends a retry before it compares, as anti-tearing, and gives it back on a match. `check_piv.py` has 27 more checks, 49 in all, which pass on both backends. The applet is 527 lines, with 3,520 bytes of code.
+
+**Finding:** the order of the format and match errors needs care. PIV allows `6A80` or `63CX` when both the old and the new value are bad, and the applet checks both formats first, so it never spends a retry on a malformed request.
+
+Next: step 4, the keys and GENERAL AUTHENTICATE.
 
 ## 1. Goals
 

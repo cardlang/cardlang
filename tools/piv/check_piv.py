@@ -144,9 +144,56 @@ def core_checks(s):
     s.card.session_end(); s.card.session_start(); s.card.select()
     check("objects survive a power cycle", s.get_data(0x5FC102)[0] == 0x9000)
 
+def pin(text):
+    """A PIN as presented to the card: ASCII digits padded with FF to 8 bytes (Part 2 §2.4.3)."""
+    return text.encode() + b"\xFF" * (8 - len(text))
+
+def pin_checks(s):
+    s.card.select()
+    verify = lambda data=b"", p1=0x00, p2=0x80: s.apdu(0x20, p1, p2, data)[0]
+    check("VERIFY with no data reports 3 retries (63C3) before verification", verify() == 0x63C3)
+    check("a wrong PIN leaves 2 retries (63C2)", verify(pin("000000")) == 0x63C2)
+    check("a malformed PIN (5 digits) is 6A80", verify(pin("12345")) == 0x6A80)
+    check("and spends no retry", verify() == 0x63C2)
+    check("a PIN with a digit after the padding is 6A80", verify(b"123456\xFF1") == 0x6A80)
+    check("the right PIN verifies (9000)", verify(pin("123456")) == 0x9000)
+    check("VERIFY with no data is 9000 once verified", verify() == 0x9000)
+    check("and the retries are restored", (verify(p1=0xFF), verify())[1] == 0x63C3)
+    check("VERIFY P1=FF resets the security status", verify() == 0x63C3)
+    check("the global PIN (00) is not supported (6A88)", verify(pin("123456"), p2=0x00) == 0x6A88)
+    check("P1 other than 00 or FF is 6A86", verify(pin("123456"), p1=0x01) == 0x6A86)
+    for left in (2, 1, 0):
+        verify(pin("999999"))
+    check("three wrong PINs block it (63C0)", verify() == 0x63C0)
+    check("a blocked PIN is 6983, even when right", verify(pin("123456")) == 0x6983)
+
+    reset = lambda puk, new: s.apdu(0x2C, 0x00, 0x80, puk + new)[0]
+    check("RESET RETRY COUNTER with a wrong PUK is 63C2", reset(b"00000000", pin("654321")) == 0x63C2)
+    check("RESET RETRY COUNTER with a malformed new PIN is 6A80", reset(b"12345678", pin("12")) == 0x6A80)
+    check("RESET RETRY COUNTER with the PUK sets a new PIN", reset(b"12345678", pin("654321")) == 0x9000)
+    check("the new PIN verifies", verify(pin("654321")) == 0x9000)
+    check("and the old one does not", verify(pin("123456")) == 0x63C2)
+
+    change = lambda ref, old, new: s.apdu(0x24, 0x00, ref, old + new)[0]
+    check("CHANGE REFERENCE DATA with a wrong old PIN is 63C1", change(0x80, pin("000000"), pin("111111")) == 0x63C1)
+    check("CHANGE REFERENCE DATA with a malformed new PIN is 6A80", change(0x80, pin("654321"), b"\x00" * 8) == 0x6A80)
+    check("CHANGE REFERENCE DATA changes the PIN", change(0x80, pin("654321"), pin("11223344")) == 0x9000)
+    check("the changed PIN is verified by the change itself", verify() == 0x9000)
+    check("CHANGE REFERENCE DATA changes the PUK (81)", change(0x81, b"12345678", b"87654321") == 0x9000)
+    check("the new PUK resets the PIN", reset(b"87654321", pin("123456")) == 0x9000)
+    check("CHANGE REFERENCE DATA of 00 is 6A88", change(0x00, pin("123456"), pin("123456")) == 0x6A88)
+
+    verify(pin("123456"))
+    s.card.deselect(); s.card.select()
+    check("after deselection and a new SELECT, the PIN must be verified again", verify() == 0x63C3)
+    verify(pin("000000"))
+    s.card.session_end(); s.card.session_start(); s.card.select()
+    check("the retry counter survives a power cycle", verify() == 0x63C2)
+
 def main():
     s = Session()
     core_checks(s)
+    pin_checks(Session())
     print("ALL PASS" if all(results) else "FAILURES")
 
 if __name__ == "__main__":

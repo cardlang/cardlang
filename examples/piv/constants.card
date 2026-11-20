@@ -72,6 +72,18 @@ persistent cert_9e: u8[1900];
 persistent discovery: u8[64];
 persistent lengths: u16[8];
 
+// The PIV Card Application PIN (key reference 80) and the PIN Unblocking Key (81), each 8 bytes as presented to the
+// card (Part 2 §2.4.3), with their retry counters. The test defaults (WP12 H2) are "123456" padded with FF, and
+// "12345678". Both counters start at 3; FIPS 201 allows at most 10.
+const PIN_TRIES: u8 = 3;
+const PUK_TRIES: u8 = 3;
+const DEFAULT_PIN: u8[8] = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0xFF, 0xFF];
+const DEFAULT_PUK: u8[8] = b"12345678";
+persistent pin: u8[8];
+persistent puk: u8[8];
+persistent pin_retries: u8;
+persistent puk_retries: u8;
+
 // Application security status (Part 2 §2.4.2). Session state: it ends when the application is deselected (BP-56).
 session admin_ok: bool;
 session pin_ok: bool;

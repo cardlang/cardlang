@@ -3,6 +3,10 @@
 // Test defaults (WP12 H2), set once at installation.
 function on_install() {
     attempt card.key.import(KEY_ADMIN, KeySpec { type: KeyType.Aes128, storage: KeyStorage.Persistent }, ref DEFAULT_ADMIN_KEY);
+    pin = DEFAULT_PIN;
+    puk = DEFAULT_PUK;
+    pin_retries = PIN_TRIES;
+    puk_retries = PUK_TRIES;
     return Ok();
 }
 
@@ -35,6 +39,12 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
         return put_data(ref request, inout response);
     } else if ins == 0x87 {
         return general_authenticate(ref request, inout response);
+    } else if ins == 0x20 {
+        return verify(ref request, inout response);
+    } else if ins == 0x24 {
+        return change_reference(ref request, inout response);
+    } else if ins == 0x2C {
+        return reset_retry_counter(ref request, inout response);
     }
     return Err(Sw.InsNotSupported);
 }
