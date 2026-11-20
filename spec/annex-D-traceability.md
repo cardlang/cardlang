@@ -474,8 +474,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-26 | cited | run-001-integer-traps |
 | EXP-27 | cited | run-017-evaluation-and-copies |
 | EXP-28 | exercised | exp-007-equality-bool-enum, exp-117-ordering-bool |
-| EXP-29 | cited | exp-014-checked-in-match, exp-142-checked-no-context, run-002-checked-and-conversions |
-| EXP-30 | cited | exp-013-wrapping, run-001-integer-traps |
+| EXP-29 | cited | exp-014-checked-in-match, exp-142-checked-no-context, run-002-checked-and-conversions, run-029-checked-and-wrapping |
+| EXP-30 | cited | exp-013-wrapping, run-001-integer-traps, run-029-checked-and-wrapping |
 | EXP-31 | cited | exp-006-guaranteed-conversions, exp-112-convert-unknown-source, exp-136-truncate-unknown-source |
 | EXP-32 | cited | exp-006-guaranteed-conversions, exp-111-convert-narrowing |
 | EXP-33 | cited | exp-017-checked-convert, run-002-checked-and-conversions |
@@ -489,7 +489,7 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | EXP-41 | cited | exp-134-unknown-field, exp-140-length-on-integer |
 | EXP-42 | exercised | fun-007-slices-and-views, fun-114-slice-in-initializer |
 | EXP-43 | cited | exp-128-list-too-short, exp-129-list-too-long |
-| EXP-44 | cited | exp-011-fill-forms, exp-130-fill-without-context |
+| EXP-44 | cited | exp-011-fill-forms, exp-130-fill-without-context, run-030-fields-through-references |
 | EXP-45 | cited | exp-012-constructor-order, exp-131-constructor-missing-field, exp-132-constructor-unknown-field, exp-133-constructor-duplicate-field |
 | EXP-46 | cited | run-017-evaluation-and-copies |
 | EXP-47 | cited | exp-138-argument-count, exp-139-call-non-function, hep-108-call-command, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool |
@@ -548,13 +548,13 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | FUN-20 | cited | fun-007-slices-and-views, fun-120-constant-slice-out-of-range, fun-121-constant-slice-reversed, run-006-aliasing-and-slices |
 | FUN-21 | cited | fun-007-slices-and-views, fun-008-narrowing-views |
 | FUN-22 | exercised | sta-002-setup-helper, txn-004-callee-writes |
-| FUN-23 | cited | run-017-evaluation-and-copies |
+| FUN-23 | cited | run-017-evaluation-and-copies, run-030-fields-through-references |
 | FUN-24 | cited | fun-011-slice-assignment, fun-123-slice-assignment-length, fun-124-slice-assignment-into-ref, fun-125-slice-assignment-element-type, run-018-array-operations, run-021-cbor |
 | OUT-1 | exercised | out-001-match-ok-err, out-002-no-payload-match |
 | OUT-2 | cited | out-124-outcome-in-initializer |
 | OUT-3 | cited | out-103-ok-value-in-no-payload, out-104-ok-empty-in-payload |
 | OUT-4 | cited | out-106-err-integer, out-107-err-enum-variant, out-108-originate-card-error |
-| OUT-5 | cited | out-005-forwarding, out-105-forward-mismatch |
+| OUT-5 | cited | out-005-forwarding, out-105-forward-mismatch, run-030-fields-through-references |
 | OUT-6 | cited | out-131-ok-as-value |
 | OUT-7 | cited | out-101-bare-call-statement, out-102-bare-checked-statement |
 | OUT-8 | cited | out-008-no-error-set, out-110-attempt-non-call |

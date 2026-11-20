@@ -153,7 +153,7 @@ These are estimates from the static counts above, not measurements of an impleme
 | 5 | **`PUSH0` and `PUSH1`** | Bytecode | About 1 KB in all |
 | 6 | **Short jumps** with an 8-bit offset | Bytecode | About 0.8 KB in all |
 | 7 | **No dead `JMP` after a terminator** | Compiler | 636 bytes in all, 75 in FIDO2 |
-| 8 | **Bounce buffer back to 64 bytes**, now that descriptors carry the crypto operands (V-23) | VM | 64 bytes less context |
+| 8 | **Bounce buffer back to 64 bytes**, now that descriptors carry the crypto operands (V-23) | VM | 64 bytes less context. **Not taken** (2026-11-20): insignificant against the 1 KiB bound, and 128 bytes leaves room for intrinsics over persistent data |
 | 9 | **The `encode_*` result written straight to its destination** when the destination is a frame slot | Compiler | Small; visible in `encode_counter` |
 
 **Taken together,** items 2 to 7 would shrink the FIDO2 bytecode from about 11.3 KB to roughly 7 KB. Items 2 and 4 overlap, because the slice idiom is made of frame loads. Item 1 is the change that matters most for RAM, which is the stated priority (V-2). It touches only the compiler, so it needs no change to the VM.
@@ -163,6 +163,33 @@ These are estimates from the static counts above, not measurements of an impleme
 - `CDIV`, `CMUL`, `CNEG`, `WSUB` and `WMUL`.
 
 The last five are there for language completeness, but no test exercises them. VM6 should add tests rather than remove the opcodes. `FIELD` is unused only because the compiler folds field offsets into static addresses whenever it can; a field reached through a reference would use it, and no test does.
+
+## 8. VM4b: compiler improvements (2026-11-20)
+
+Plan: `plans_and_notes/vm-plans/VM4b-compiler-improvements.md`. These are compiler-only changes, with no change to the bytecode, the image or the VM.
+
+**The baseline is re-measured.** The two new runtime tests (`run-029`, `run-030`) bring the corpus to 153 programs, so the baseline below is taken again, before any compiler change. They exercise seven opcodes no program used before: `CDIV`, `CMUL`, `CNEG`, `WSUB`, `WMUL`, `FIELD` and `FILLB`.
+
+| | Baseline | No unreachable code (V-35) | Built in place (V-36) | Slot reuse (V-34) | Change |
+|---|---:|---:|---:|---:|---:|
+| Code, all 153 programs | 32,973 | 32,348 | 30,872 | 30,872 | −6.4% |
+| Stack need, summed over all programs | 7,715 | 7,715 | 7,122 | 6,674 | −13.5% |
+| FIDO2 code | 11,271 | 11,208 | 10,646 | 10,646 | −5.5% |
+| FIDO2 stack need | 1,003 | 1,003 | 916 | 837 | −16.6% |
+| FIDO2 frames, summed over its 35 functions | 3,914 | 3,914 | 3,619 | 3,434 | −12.3% |
+
+All figures are in bytes.
+
+**The two code-size changes:**
+- **No unreachable code** removes the dead jumps: 625 bytes in all.
+- **Building in place** removes a temporary and a `COPY` for every aggregate `var` initialiser and `return Ok(aggregate)`: 1,476 bytes of code, and the temporaries' frame space.
+
+**Slot reuse is safe, but saves less than hoped:**
+- **It is checked.** A mutant that frees a local's slot right after its declaration makes 14 of the 30 runtime tests, and the FIDO2 check, fail.
+- **It saves less than §4 suggested.** The largest frames are dominated by locals declared at the top level of the function, whose scope is the whole function. `make_credential` declares 419 bytes of them: `auth` (180), `point` (65), `credential_id` (48), `p` (44), `rp_hash` (32) and smaller ones. Its frame is now 475 bytes.
+- **Liveness analysis** could overlap locals whose last use comes before another's first use. That is option (b) of F1, kept for later, and worth its complexity only if the C VM's targets need it. The alternative needs no compiler work: write such functions with narrower scopes.
+
+**Effect on the VM6 candidates.** The figures of §3 still hold in proportion, so VM6 measures against this compiler.
 
 ## 7. Acceptance status (V-12)
 

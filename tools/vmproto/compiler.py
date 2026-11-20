@@ -105,20 +105,20 @@ class FuncGen:
         if self.ret != "none" and not self.L.is_scalar(self.ret):
             self.slot_param = off; off += 4                            # hidden payload slot (BC-27)
         self.argc = (off - 8) // 4
-        self.locals_end = off
+        self.cur = self.high = off              # the allocation point and its high-water mark (V-34)
 
     # ---- emission
     def label(self):
         self.nlabels += 1; return f"L{self.nlabels}"
 
     def place_label(self, lab):
-        if self.depth is None: self.depth = self.label_depth.get(lab)
+        if self.depth is None: self.depth = self.label_depth.get(lab)     # reachable again only if jumped to
         elif lab in self.label_depth: assert self.label_depth[lab] == self.depth, (self.name, lab)
-        self.label_depth.setdefault(lab, self.depth)
+        if self.depth is not None: self.label_depth.setdefault(lab, self.depth)
         self.code.append(("label", lab))
 
     def emit(self, op, *operands, pops=0, pushes=0):
-        if self.depth is None: self.depth = 0          # unreachable code still gets a consistent depth
+        if self.depth is None: return                  # unreachable: emit nothing (V-35)
         effect = STACK.get(op)
         if effect is not None: pops, pushes = effect
         self.depth -= pops
@@ -135,7 +135,7 @@ class FuncGen:
         op, ops = push_op(v); self.emit(op, *ops)
 
     def alloc(self, size):
-        off = self.locals_end; self.locals_end += size; return off
+        off = self.cur; self.cur += size; self.high = max(self.high, self.cur); return off
 
     # ---- names
     def lookup(self, name):
@@ -282,46 +282,66 @@ class FuncGen:
         raise CompileError(f"value of call {name}")
 
     # ---- aggregates: build an rvalue into a fresh frame temporary; returns its frame offset
+    @staticmethod
+    def is_rvalue(e):
+        """An aggregate expression that is built rather than read from a place."""
+        return e[0] in ("list", "ctor", "attempt") or (
+            e[0] == "call" and e[1][0] == "name" and e[1][1] in ("fill", "encode_be", "encode_le"))
+
     def materialise(self, e, t):
+        """Build an rvalue aggregate into a fresh frame temporary; returns its frame offset."""
+        tmp = self.alloc(self.L.size(t)); self.build(e, t, ("F", tmp)); return tmp
+
+    # A destination is ("F", frame offset), or ("S", offset) inside the caller's payload slot (BC-27).
+    def dest_addr(self, dest, extra=0):
+        kind, base = dest
+        if kind == "F": self.emit("ADDR", REGIONS["STACK"], base + extra); return
+        self.emit("LDF", TYPES["u32"], self.slot_param)
+        if base + extra: self.emit("FIELD", base + extra)
+
+    def build(self, e, t, dest):
+        """Build the rvalue aggregate e of type t directly in dest (V-36)."""
         k = e[0]; size = self.L.size(t)
         if k == "list":
             if all(self.const_scalar(x) is not None for x in e[1]) and self.L.is_scalar(t[1]):
                 off = self.c.add_const(b"".join(self.L.encode_value(self.const_scalar(x), t[1]) for x in e[1]))
-                tmp = self.alloc(size); self.emit("ADDR", REGIONS["STACK"], tmp); self.emit("ADDR", REGIONS["CONST"], off)
-                self.emit("COPY", size); return tmp
-            tmp = self.alloc(size); esz = self.L.size(t[1])
-            for i, x in enumerate(e[1]): self.build_into(tmp + i * esz, x, t[1])
-            return tmp
+                self.dest_addr(dest); self.emit("ADDR", REGIONS["CONST"], off); self.emit("COPY", size); return
+            esz = self.L.size(t[1])
+            for i, x in enumerate(e[1]): self.build_into(dest, i * esz, x, t[1])
+            return
         if k == "ctor":
-            tmp = self.alloc(size)
             for f, x in e[2]:
-                off, ft = self.L.field(t, f); self.build_into(tmp + off, x, ft)
-            return tmp
+                off, ft = self.L.field(t, f); self.build_into(dest, off, x, ft)
+            return
         if k == "call" and e[1] == ("name", "fill"):
-            tmp = self.alloc(size); et = t[1]; x = e[3][0][1]
+            et = t[1]; x = e[3][0][1]
             if self.L.is_scalar(et):
-                self.emit("ADDR", REGIONS["STACK"], tmp); self.value(x); self.emit("FILL", self.L.tcode(et), t[2])
+                self.dest_addr(dest); self.value(x); self.emit("FILL", self.L.tcode(et), t[2])
             else:
-                self.emit("ADDR", REGIONS["STACK"], tmp); self.address(x); self.emit("FILLB", self.L.size(et), t[2])
-            return tmp
+                self.dest_addr(dest); self.address(x); self.emit("FILLB", self.L.size(et), t[2])
+            return
         if k == "call" and e[1][0] == "name" and e[1][1] in ("encode_be", "encode_le"):
-            tmp = self.alloc(size); x = e[3][0][1]
-            self.emit("ADDR", REGIONS["STACK"], tmp); self.value(x)
-            self.emit("ENCODE", self.L.tcode(self.type_of(x)), 0 if e[1][1].endswith("be") else 1); return tmp
+            x = e[3][0][1]; self.dest_addr(dest); self.value(x)
+            self.emit("ENCODE", self.L.tcode(self.type_of(x)), 0 if e[1][1].endswith("be") else 1); return
         if k == "attempt":
+            if dest[0] == "F":
+                self.call(e[1], slot_at=dest[1]); self.on_error(e[2] if len(e) > 2 else None); return
             kind = self.call(e[1]); self.on_error(e[2] if len(e) > 2 else None)
-            assert kind[0] == "slot"; return kind[1]
-        raise CompileError(f"materialise {k}")
+            self.dest_addr(dest); self.emit("ADDR", REGIONS["STACK"], kind[1]); self.emit("COPY", size); return
+        raise CompileError(f"build {k}")
 
-    def build_into(self, off, x, t):
-        """Store the value of x into the frame at off (used while building a temporary)."""
+    def build_into(self, dest, extra, x, t):
+        """Store the value of x at offset extra of dest."""
         if self.L.is_scalar(t):
-            self.value(x); self.emit("STF", self.L.tcode(t), off)
+            if dest[0] == "F": self.value(x); self.emit("STF", self.L.tcode(t), dest[1] + extra)
+            else: self.dest_addr(dest, extra); self.value(x); self.emit("STI", self.L.tcode(t))
+        elif self.is_rvalue(x):
+            self.build(x, t, (dest[0], dest[1] + extra))
         else:
-            self.emit("ADDR", REGIONS["STACK"], off); self.address(x); self.emit("COPY", self.L.size(t))
+            self.dest_addr(dest, extra); self.address(x); self.emit("COPY", self.L.size(t))
 
     # ---- calls: returns ('none',) | ('scalar',) with the payload cell pushed | ('slot', frame offset)
-    def call(self, e):
+    def call(self, e, slot_at=None):
         target, args = e[1], e[3]
         path = pltcheck.platform_path(target)
         if path is not None:
@@ -329,7 +349,7 @@ class FuncGen:
             cells = self.arguments(args, params)
             slot = None
             if ret != "none" and not self.L.is_scalar(ret):
-                slot = self.alloc(self.L.size(ret)); self.emit("ADDR", REGIONS["STACK"], slot); cells += 1
+                slot = self.alloc(self.L.size(ret)) if slot_at is None else slot_at; self.emit("ADDR", REGIONS["STACK"], slot); cells += 1
             self.c.natives.add(isa.NATIVE_NUMBERS[path])
             scalar = ret != "none" and slot is None
             self.emit("NATIVE", isa.NATIVE_NUMBERS[path], pops=cells, pushes=1 if scalar else 0)
@@ -346,7 +366,7 @@ class FuncGen:
         cells = self.arguments(args, params)
         slot = None
         if ret != "none" and not self.L.is_scalar(ret):
-            slot = self.alloc(self.L.size(ret)); self.emit("ADDR", REGIONS["STACK"], slot); cells += 1
+            slot = self.alloc(self.L.size(ret)) if slot_at is None else slot_at; self.emit("ADDR", REGIONS["STACK"], slot); cells += 1
         self.callees.add(name)
         scalar = ret != "none" and slot is None
         self.emit("CALL", self.c.findex[name], pops=cells, pushes=1 if scalar else 0)
@@ -367,15 +387,17 @@ class FuncGen:
 
     def on_error(self, else_member):
         """After a call: on Err, propagate (or map to else_member), aborting an enclosing transaction (TXN-18)."""
+        if self.depth is None: return                  # unreachable
         key = (self.depth, self.in_txn, None if else_member is None else self.err_member(else_member))
         if key not in self.tramp: self.tramp[key] = self.label()
         self.emit("JERR", self.tramp[key])
 
     # ---- statements
     def block(self, body):
-        self.scopes.append({})
+        self.scopes.append({}); mark = self.cur
         for s in body: self.stmt(s)
         self.scopes.pop()
+        if self.c.reuse: self.cur = mark                 # a block's locals end with it (V-34)
 
     def bind(self, name, b): self.scopes[-1][name] = b
 
@@ -408,20 +430,25 @@ class FuncGen:
         except CompileError: return None
 
     def stmt(self, s):
+        mark = self.cur
+        var_end = self.stmt_body(s)                       # a var's own slot lives on with its block
+        if self.c.reuse:                                  # a statement's temporaries end with it (V-34)
+            self.cur = var_end if var_end is not None and not self.c.reuse_mutant else mark
+
+    def stmt_body(self, s):
         k = s[0]
         if k == "var":
-            t = self.typed.decls[id(s)]; off = self.alloc(self.L.size(t))
+            t = self.typed.decls[id(s)]; off = self.alloc(self.L.size(t)); var_end = self.cur
             if s[3] is None:
                 if self.L.is_scalar(t): self.push(0); self.emit("STF", self.L.tcode(t), off)
                 else: self.emit("ADDR", REGIONS["STACK"], off); self.emit("ZERO", self.L.size(t))
             elif self.L.is_scalar(t):
                 self.value(s[3]); self.emit("STF", self.L.tcode(t), off)
+            elif self.is_rvalue(s[3]):
+                self.build(s[3], t, ("F", off))                     # in place (V-36)
             else:
-                self.emit("ADDR", REGIONS["STACK"], off)
-                if s[3][0] in ("name", "field", "index"): self.address(s[3])
-                else: tmp = self.materialise(s[3], t); self.emit("ADDR", REGIONS["STACK"], tmp)
-                self.emit("COPY", self.L.size(t))
-            self.bind(s[1], ("frame", off, t))
+                self.emit("ADDR", REGIONS["STACK"], off); self.address(s[3]); self.emit("COPY", self.L.size(t))
+            self.bind(s[1], ("frame", off, t)); return var_end
         elif k == "assign": self.assign(s[1], s[2])
         elif k == "compound":
             dest, op, src = s[1], s[2], s[3]; dt = self.type_of(dest)
@@ -461,10 +488,10 @@ class FuncGen:
         elif k == "return_ok":
             if s[1] is None: self.emit("RET")
             elif self.L.is_scalar(self.ret): self.value(s[1]); self.emit("RETV")
+            elif self.is_rvalue(s[1]):
+                self.build(s[1], self.ret, ("S", 0)); self.emit("RET")    # straight into the caller's slot (V-36)
             else:
-                self.emit("LDF", TYPES["u32"], self.slot_param)
-                if s[1][0] in ("name", "field", "index"): self.address(s[1])
-                else: tmp = self.materialise(s[1], self.ret); self.emit("ADDR", REGIONS["STACK"], tmp)
+                self.emit("LDF", TYPES["u32"], self.slot_param); self.address(s[1])
                 self.emit("COPY", self.L.size(self.ret)); self.emit("RET")
         elif k in ("return_err", "abort"):
             if k == "abort": self.emit("TXN.ABORT")
@@ -559,8 +586,8 @@ class FuncGen:
             if txn: self.emit("TXN.ABORT")
             if member is None: self.emit("FWD")
             else: self.emit("ERR", *member)
-        self.operand_base = self.locals_end
-        self.frame_size = self.locals_end + 4 * self.max_depth
+        self.operand_base = self.high
+        self.frame_size = self.high + 4 * self.max_depth
         return self
 
     def assemble(self):
@@ -604,6 +631,7 @@ class Compiler:
         self.typed = typer.type_program(toks)
         self.chk = self.typed.chk; self.layout = Layout(self.chk); self.binding = binding
         self.const_data = bytearray(); self.natives = set()
+        self.reuse, self.reuse_mutant = True, False    # slot reuse (V-34); the mutant frees live locals
         self.app_codes = {k: v for k, v in pltcheck_error_codes(self.chk.toks).items()}
         names = list(self.typed.bodies)
         self.findex = {n: i for i, n in enumerate(names)}

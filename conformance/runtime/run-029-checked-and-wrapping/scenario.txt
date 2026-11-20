@@ -1,0 +1,38 @@
+install
+session_start
+command 01 0f 11     # 15 * 17 = 255
+expect ok ff
+command 01 10 10     # 16 * 16 = 256 does not fit u8
+expect err platform Overflow
+command 02 c0 02     # -64 * 2 = -128, the i8 minimum
+expect ok 80
+command 02 c0 03     # -64 * 3 = -192
+expect err platform Underflow
+command 02 40 02     # 64 * 2 = 128
+expect err platform Overflow
+command 03 80 ff     # the minimum divided by -1 (EXP-29)
+expect err platform Overflow
+command 03 07 00
+expect err platform DivisionByZero
+command 03 f9 02     # -7 / 2 truncates toward zero: -3
+expect ok fd
+command 04 80        # the negation of the minimum
+expect err platform Overflow
+command 04 05
+expect ok fb
+command 05 01 02     # 1 - 2 wraps to 255 (EXP-30)
+expect ok ff
+command 06 80 01     # -128 - 1 wraps to 127
+expect ok 7f
+command 07 01 00 01 00   # 256 * 256 wraps to 0
+expect ok 00 00
+command 07 ff ff 00 02   # 65535 * 2 wraps to 65534
+expect ok ff fe
+command 08 40 04     # 64 * 4 wraps to 0
+expect ok 00
+command 08 c0 03     # -64 * 3 = -192 wraps to 64
+expect ok 40
+command 09 c0 00 00 02   # -16384 * 2 = -32768, the i16 minimum
+expect ok 80 00
+command 09 c0 00 00 03   # -16384 * 3
+expect err platform Underflow

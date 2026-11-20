@@ -35,8 +35,12 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-29 | **The prototype compiler's front end** reuses the reference checkers (acceptance, declarations) and the shared statement parser, plus a static typer that reuses the checker's own type synthesis and assumes validity | 2026-11-20 | VM4 | `tools/vmproto/typer.py`, `tools/checkers/stmtparse.py` |
 | V-30 | **The prototype VM executes the binary image,** decoded as the C VM will | 2026-11-20 | VM5 | VM5 |
 | V-31 | **The prototype VM keeps all its mutable state in one context object** with declared C field sizes; a test checks that it keeps no other state | 2026-11-20 | VM5 | VM5 |
-| V-32 | **The prototype compiler folds constants and makes no other optimisation,** so that VM5's measurements are a plain baseline for VM6 | 2026-11-20 | VM4 | VM4 |
+| V-32 | **The prototype compiler folds constants and makes no other optimisation,** so that VM5's measurements are a plain baseline for VM6. *Amended 2026-11-20 (VM4b):* with the baseline on record in `plans_and_notes/VM5-measurements.md`, the compiler may optimise, provided each optimisation is added together with its measured effect | 2026-11-20 | VM4, VM4b | VM4, VM4b |
 | V-33 | **The test-only catalog** (`card.test.*`) gets native numbers from `0xF000`, implemented only in test builds; production VMs reject such images at load | 2026-11-20 | VM4 | `vm/bytecode.md` BC-32 |
+| V-34 | **Frame slots are allocated stack-like by block and statement:** locals are freed at the end of their block, temporaries at the end of their statement, and a binding's temporaries belong to the binding's block. The frame size is the high-water mark | 2026-11-20 | VM4b | `tools/vmproto/compiler.py` |
+| V-35 | **The compiler emits nothing that cannot be reached:** nothing between a terminator and the next jump target | 2026-11-20 | VM4b | `tools/vmproto/compiler.py` |
+| V-36 | **Aggregates are built in place** for `var` initialisers and `return Ok(aggregate)`; assignments keep the temporary (STM-9, VEX-30) | 2026-11-20 | VM4b | `tools/vmproto/compiler.py` |
+| V-37 | **Runtime tests for the untested intrinsics and structure access** (`run-029`, `run-030`) are added before the instruction set is frozen | 2026-11-20 | VM4b | `tools/generators/wp13_tests.py` |
 
 ## Open questions
 

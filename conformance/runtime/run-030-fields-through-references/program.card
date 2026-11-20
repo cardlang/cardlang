@@ -1,0 +1,77 @@
+// rule: FUN-23, EXP-44, OUT-5
+// source: VM4b (plans_and_notes/VM5-measurements.md §6)
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Structure fields through ref and inout references, nested and persistent; fill of structures; a forwarded aggregate payload.
+errors TestError {
+    UnknownOperation = 1;
+}
+
+struct Point {
+    x: u8;
+    y: u16;
+}
+
+struct Box {
+    low: Point;
+    high: Point;
+    tag: u8;
+}
+
+persistent stored: Box;
+persistent points: Point[3];
+
+function bump(p: inout Point, by: u8) {
+    p.x += by;
+    p.y = p.y + 1;
+    return Ok();
+}
+
+function grow(b: inout Box) {
+    attempt bump(inout b.low, 1);
+    attempt bump(inout b.high, 2);
+    b.tag = b.low.x + b.high.x;
+    return Ok();
+}
+
+function read_x(p: ref Point) -> u8 {
+    return Ok(p.x);
+}
+
+function make(seed: u8) -> Box {
+    return Ok(Box { low: Point { x: seed, y: 0 }, high: Point { x: seed, y: 1 }, tag: 0 });
+}
+
+function forward(seed: u8) -> Box {
+    return make(seed);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    if operation == 1 {
+        var b: Box = attempt forward(request[1]);
+        attempt grow(inout b);
+        response[0] = b.low.x;
+        response[1] = b.high.x;
+        response[2] = b.tag;
+        response[3] = truncate<u8>(b.high.y);
+        return Ok(4);
+    } else if operation == 2 {
+        attempt grow(inout stored);
+        response[0] = stored.low.x;
+        response[1] = stored.tag;
+        var x: u8 = attempt read_x(ref stored.high);
+        response[2] = x;
+        return Ok(3);
+    } else if operation == 3 {
+        points = fill(Point { x: request[1], y: 7 });
+        attempt bump(inout points[1], 5);
+        response[0] = points[0].x;
+        response[1] = points[1].x;
+        response[2] = truncate<u8>(points[1].y);
+        response[3] = points[2].x;
+        return Ok(4);
+    }
+    return Err(TestError.UnknownOperation);
+}

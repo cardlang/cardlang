@@ -1,0 +1,12 @@
+install
+session_start
+command 01 05        # a Box forwarded through two calls, then fields changed through inout references
+expect ok 06 07 0d 02
+command 01 7f        # the tag overflows u8: 128 + 129
+expect trap OVERFLOW
+command 02           # the same through persistent storage; a field read through a ref
+expect ok 01 03 02
+command 02
+expect ok 02 06 04
+command 03 09        # fill of an array of structures; an element changed through a reference
+expect ok 09 0e 08 09
