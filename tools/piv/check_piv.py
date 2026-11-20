@@ -190,10 +190,89 @@ def pin_checks(s):
     s.card.session_end(); s.card.session_start(); s.card.select()
     check("the retry counter survives a power cycle", verify() == 0x63C2)
 
+def der_to_raw(der):
+    """Ecdsa-Sig-Value (SEQUENCE of two INTEGERs) to r || s, 32 bytes each; None if it is not well formed."""
+    top = parse(der)
+    if len(top) != 1 or top[0][0] != 0x30: return None
+    ints = parse(top[0][1])
+    if [t for t, _ in ints] != [0x02, 0x02]: return None
+    return b"".join(int.from_bytes(v, "big").to_bytes(32, "big") for _, v in ints)
+
+def key_checks(s):
+    import hashlib, p256
+    s.card.select()
+    generate = lambda key, mech=0x11: s.apdu(0x47, 0x00, key, tlv(0xAC, tlv(0x80, bytes([mech]))))
+    verify_pin = lambda: s.apdu(0x20, 0x00, 0x80, pin("123456"))[0]
+
+    def public_point(resp):
+        outer = dict(parse(resp)).get(0x7F49, b"")
+        point = dict(parse(outer)).get(0x86, b"")
+        if len(point) != 65 or point[0] != 4: return None
+        q = (int.from_bytes(point[1:33], "big"), int.from_bytes(point[33:], "big"))
+        return q if p256.on_curve(q) else None
+
+    def sign(key, digest):
+        sw, resp = s.general_authenticate(0x11, key, [(0x82, b""), (0x81, digest)])
+        return sw, (dict(parse(dict(parse(resp)).get(0x7C, b""))).get(0x82) if sw == 0x9000 else None)
+
+    check("GENERATE without the administrator is 6982", generate(0x9A)[0] == 0x6982)
+    s.admin_auth()
+    check("GENERATE of an RSA key (mechanism 07) is 6A80", generate(0x9A, 0x07)[0] == 0x6A80)
+    check("GENERATE for the administration key 9B is 6A86", generate(0x9B)[0] == 0x6A86)
+    keys = {}
+    for key in (0x9A, 0x9C, 0x9D, 0x9E):
+        sw, resp = generate(key)
+        keys[key] = public_point(resp) if sw == 0x9000 else None
+    check("GENERATE returns 7F49 {86 04||X||Y} on P-256 for 9A, 9C, 9D and 9E", all(keys.values()), repr(keys)[:120])
+    sw, resp = generate(0x9A)
+    check("GENERATE again replaces the key", sw == 0x9000 and public_point(resp) not in (None, keys[0x9A]))
+    keys[0x9A] = public_point(resp)
+
+    digest = hashlib.sha256(b"PIV signs a digest computed off-card").digest()
+    check("signing with 9A needs the PIN (6982)", sign(0x9A, digest)[0] == 0x6982)
+    check("signing with 9E needs no PIN", sign(0x9E, digest)[0] == 0x9000)
+    verify_pin()
+    for key in (0x9A, 0x9E):
+        sw, der = sign(key, digest)
+        raw = der_to_raw(der) if der else None
+        check(f"{key:02X} signs the digest as is: the DER signature verifies with its public key",
+              raw is not None and testcrypto.ecdsa_verify_digest(keys[key], list(digest), list(raw)), f"{sw:04x}")
+    sw, der = sign(0x9C, digest)
+    raw = der_to_raw(der) if der else None
+    check("9C signs right after VERIFY", raw is not None and testcrypto.ecdsa_verify_digest(keys[0x9C], list(digest), list(raw)), f"{sw:04x}")
+    check("9C is PIN Always: a second signature needs a new VERIFY (6982)", sign(0x9C, digest)[0] == 0x6982)
+    check("9A still works: its condition is the PIN, not PIN Always", sign(0x9A, digest)[0] == 0x9000)
+    verify_pin()
+    check("after a new VERIFY, 9C signs again", sign(0x9C, digest)[0] == 0x9000)
+    check("a 31-byte digest is 6A80", sign(0x9A, digest[:31])[0] == 0x6A80)
+    check("P-384 (14) is not supported: 6A86", s.general_authenticate(0x14, 0x9A, [(0x82, b""), (0x81, digest)])[0] == 0x6A86)
+
+    host_d = 0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF % p256.N
+    hq = p256.mul(host_d)
+    host_point = b"\x04" + hq[0].to_bytes(32, "big") + hq[1].to_bytes(32, "big")
+    sw, resp = s.general_authenticate(0x11, 0x9D, [(0x82, b""), (0x85, host_point)])
+    z = dict(parse(dict(parse(resp)).get(0x7C, b""))).get(0x82) if sw == 0x9000 else None
+    check("9D performs ECDH: Z is the x-coordinate of d.Q (A.5.2)", z == p256.mul(host_d, keys[0x9D])[0].to_bytes(32, "big"), f"{sw:04x}")
+    bad_point = host_point[:64] + bytes([host_point[64] ^ 1])
+    check("a point not on the curve is 6A80", s.general_authenticate(0x11, 0x9D, [(0x82, b""), (0x85, bad_point)])[0] == 0x6A80)
+
+    s.card.deselect(); s.card.select()
+    check("after deselection, 9A needs the PIN again", sign(0x9A, digest)[0] == 0x6982)
+    s.card.session_end(); s.card.session_start(); s.card.select()
+    verify_pin()
+    sw, der = sign(0x9A, digest)
+    raw = der_to_raw(der) if der else None
+    check("keys survive a power cycle", raw is not None and testcrypto.ecdsa_verify_digest(keys[0x9A], list(digest), list(raw)))
+
+    fresh = Session(); fresh.card.select(); fresh.apdu(0x20, 0x00, 0x80, pin("123456"))
+    check("a key that was never generated is 6A88",
+          fresh.general_authenticate(0x11, 0x9D, [(0x82, b""), (0x85, host_point)])[0] == 0x6A88)
+
 def main():
     s = Session()
     core_checks(s)
     pin_checks(Session())
+    key_checks(Session())
     print("ALL PASS" if all(results) else "FAILURES")
 
 if __name__ == "__main__":

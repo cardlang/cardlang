@@ -58,8 +58,10 @@ function check_pin(candidate: ref u8[]) -> bool {
     if matches {
         pin_retries = PIN_TRIES;
         pin_ok = true;
+        sign_ready = true;
     } else {
         pin_ok = false;
+        sign_ready = false;
     }
     return Ok(matches);
 }
@@ -84,6 +86,7 @@ function verify(request: ref u8[], response: inout u8[]) -> u32 {
     if p1 == 0xFF {
         require data == 0 else Sw.WrongData;
         pin_ok = false;
+        sign_ready = false;
         return Ok(0);
     }
     if data == 0 {

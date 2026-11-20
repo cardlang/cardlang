@@ -1,0 +1,100 @@
+// The asymmetric keys (Part 1, Table 5): GENERATE ASYMMETRIC KEY PAIR (Part 2 §3.3.2) and GENERAL AUTHENTICATE with
+// them (§3.2.4, Appendix A.4.2 and A.5.2). ECC P-256 only (algorithm '11'). The signing keys 9A, 9C and 9E sign a
+// digest computed off-card (card.crypto.sign_digest, PIV step 0 Q1); 9D performs ECDH (card.crypto.agree).
+
+// Whether a key reference names an asymmetric key of this subset.
+function asymmetric(key: u32) -> bool {
+    return Ok((key == KEY_PIV_AUTH) or (key == KEY_SIGNATURE) or (key == KEY_MANAGEMENT) or (key == KEY_CARD_AUTH));
+}
+
+// The security condition for using a key over contact (Part 1, Table 5). 9C is "PIN Always": a VERIFY must come
+// immediately before each signature, so sign_ready is set by VERIFY and spent by the signature.
+function may_use(key: u32) -> bool {
+    if key == KEY_CARD_AUTH {
+        return Ok(true);
+    } else if key == KEY_SIGNATURE {
+        return Ok(pin_ok and sign_ready);
+    }
+    return Ok(pin_ok);
+}
+
+// GENERATE ASYMMETRIC KEY PAIR: CLA 47 00 <key>, data AC L {80 01 11}. The response is 7F49 L {86 41 04||X||Y}.
+// An existing key is replaced in full; deleting and generating are one transaction (profile BP-24).
+function generate_key_pair(request: ref u8[], response: inout u8[]) -> u32 {
+    require admin_ok else Sw.SecurityNotSatisfied;
+    require request[2] == 0x00 else Sw.WrongP1P2;
+    var key: u32 = convert<u32>(request[3]);
+    var supported: bool = attempt asymmetric(key);
+    require supported else Sw.WrongP1P2;
+    var template: TlvHead = attempt card.tlv.head(ref request[4..request.length]) else Sw.WrongData;
+    require template.tag == 0xAC else Sw.WrongData;
+    var start: u32 = 4 + template.size;
+    var mechanism: Child = attempt find_child(ref request[start..start + template.length], 0x80);
+    require mechanism.present and (mechanism.length == 1) else Sw.WrongData;
+    require request[start + mechanism.start] == ALG_P256 else Sw.WrongData;
+    transaction {
+        ignore card.key.delete(key);
+        attempt card.key.generate(key, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent }) else Sw.NoMemory;
+    }
+    var at: u32 = attempt card.der.write_head(0x7F49, 67, inout response);
+    at += attempt card.der.write_head(0x86, 65, inout response[at..response.length]);
+    at += attempt card.key.export_public(key, inout response[at..response.length]);
+    return Ok(at);
+}
+
+// An ECDSA signature r || s, DER-encoded as Ecdsa-Sig-Value (Appendix A.4.2).
+function der_signature(raw: ref u8[], out: inout u8[]) -> u32 {
+    var r_size: u32 = attempt card.der.integer_size(ref raw[0..32]);
+    var s_size: u32 = attempt card.der.integer_size(ref raw[32..64]);
+    var at: u32 = attempt card.der.write_head(0x30, r_size + s_size, inout out);
+    at += attempt card.der.write_integer(ref raw[0..32], inout out[at..out.length]);
+    at += attempt card.der.write_integer(ref raw[32..64], inout out[at..out.length]);
+    return Ok(at);
+}
+
+// GENERAL AUTHENTICATE with an asymmetric key: `template` is the value of 7C. Signing is 82 (empty) and 81 (the
+// digest); ECDH is 82 (empty) and 85 (the other party's point). The response is 7C L {82 L result}.
+function asymmetric_authenticate(algorithm: u8, key: u32, template: ref u8[], response: inout u8[]) -> u32 {
+    require algorithm == ALG_P256 else Sw.WrongP1P2;
+    var allowed: bool = attempt may_use(key);
+    require allowed else Sw.SecurityNotSatisfied;
+    var reply: Child = attempt find_child(ref template, 0x82);
+    var challenge: Child = attempt find_child(ref template, 0x81);
+    var exponent: Child = attempt find_child(ref template, 0x85);
+    require reply.present and (reply.length == 0) else Sw.WrongData;
+    if key == KEY_MANAGEMENT {
+        require exponent.present and (exponent.length == 65) else Sw.WrongData;
+        var z: u8[32];
+        var start: u32 = exponent.start;
+        match card.crypto.agree(key, ref template[start..start + 65], inout z) {
+            Ok(n) => {
+                response[0] = 0x7C;
+                response[1] = 0x22;
+                response[2] = 0x82;
+                response[3] = 0x20;
+                response[4..36] = z;
+                wipe z;
+                return Ok(36);
+            }
+            Err(CardError.NotFound) => {
+                return Err(Sw.RefNotFound);
+            }
+            Err(error) => {
+                return Err(Sw.WrongData);
+            }
+        }
+    }
+    require challenge.present and (challenge.length == 32) else Sw.WrongData;
+    var raw: u8[64];
+    var start: u32 = challenge.start;
+    var n: u32 = attempt card.crypto.sign_digest(key, SignatureAlgorithm.EcdsaP256Sha256, ref template[start..start + 32], inout raw) else Sw.RefNotFound;
+    if key == KEY_SIGNATURE {
+        sign_ready = false;
+    }
+    var length: u32 = attempt der_signature(ref raw, inout response[4..response.length]);
+    response[0] = 0x7C;
+    response[1] = truncate<u8>(length + 2);
+    response[2] = 0x82;
+    response[3] = truncate<u8>(length);
+    return Ok(length + 4);
+}

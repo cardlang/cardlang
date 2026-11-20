@@ -27,7 +27,16 @@ Each comparison spends a retry before it compares, as anti-tearing, and gives it
 
 **Finding:** the order of the format and match errors needs care. PIV allows `6A80` or `63CX` when both the old and the new value are bad, and the applet checks both formats first, so it never spends a retry on a malformed request.
 
-Next: step 4, the keys and GENERAL AUTHENTICATE.
+**Step 4 done (2026-11-20):** `keys.card` implements:
+- GENERATE ASYMMETRIC KEY PAIR for `9A`, `9C`, `9D` and `9E`, where the delete and the generation form one transaction;
+- GENERAL AUTHENTICATE signing a given digest with `9A`, `9C` and `9E`, as DER `Ecdsa-Sig-Value`, through `card.crypto.sign_digest`. `9C` is *PIN Always*, through the `sign_ready` session flag;
+- ECDH with `9D`.
+
+`check_piv.py` has 20 more checks, 69 in all, which pass on both backends. The signatures are verified on the host over the digest, and Z is compared with the host's own ECDH. The applet is complete for the subset: 636 lines, 4,505 bytes of code, a stack need of 344 bytes, and 10,002 bytes persistent.
+
+**A first contrast with FIDO2**, for §10 of the report: PIV's largest frame is 164 bytes (`asymmetric_authenticate`), against FIDO2's 475. PIV's stack need is 344 bytes, against 837. Its large data lives in persistent buffers, not in frames.
+
+Steps 5 (the check) and 6 (measurement and findings) remain. Most of step 5 is already done, because the check grew with steps 2 to 4.
 
 ## 1. Goals
 

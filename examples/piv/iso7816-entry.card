@@ -26,7 +26,9 @@ function general_authenticate(request: ref u8[], response: inout u8[]) -> u32 {
     if key == KEY_ADMIN {
         return admin_authenticate(request[2], ref request[start..start + outer.length], inout response);
     }
-    return Err(Sw.RefNotFound);
+    var supported: bool = attempt asymmetric(key);
+    require supported else Sw.RefNotFound;
+    return asymmetric_authenticate(request[2], key, ref request[start..start + outer.length], inout response);
 }
 
 // request: CLA INS P1 P2, then the reassembled data field (BP-50).
@@ -45,6 +47,8 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
         return change_reference(ref request, inout response);
     } else if ins == 0x2C {
         return reset_retry_counter(ref request, inout response);
+    } else if ins == 0x47 {
+        return generate_key_pair(ref request, inout response);
     }
     return Err(Sw.InsNotSupported);
 }
