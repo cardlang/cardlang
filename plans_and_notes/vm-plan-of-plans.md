@@ -1,6 +1,6 @@
 # CardLang VM — Plan of plans
 
-Status: V-1 to V-8 decided 2026-11-19 (V-5 to V-8 as recommended). **VM0 done 2026-11-19:** `vm/README.md`, `vm/decisions.md` (V-1 to V-12) and the shared harness `tools/harness/`. **VM1 drafted 2026-11-19:** `vm/execution-model.md` (VEX-1 to VEX-50), V-13 to V-18. **VM2 drafted 2026-11-19:** `vm/hal.md` (HAL-1 to HAL-31), the draft headers, V-19 to V-23. **VM3 drafted 2026-11-19:** `vm/bytecode.md` (BC-1 to BC-38) and `vm/image-format.md` (IMG-1 to IMG-13), version 0, V-24 to V-28. Next: VM4 and VM5. Parent: CardLang Draft 0.2 (`spec-draft-0.2`).
+Status: V-1 to V-8 decided 2026-11-19 (V-5 to V-8 as recommended). **VM0 done 2026-11-19:** `vm/README.md`, `vm/decisions.md` (V-1 to V-12) and the shared harness `tools/harness/`. **VM1 drafted 2026-11-19:** `vm/execution-model.md` (VEX-1 to VEX-50), V-13 to V-18. **VM2 drafted 2026-11-19:** `vm/hal.md` (HAL-1 to HAL-31), the draft headers, V-19 to V-23. **VM3 drafted 2026-11-19:** `vm/bytecode.md` (BC-1 to BC-38) and `vm/image-format.md` (IMG-1 to IMG-13), version 0, V-24 to V-28. **VM4/VM5 stage 1 done 2026-11-20** (the typer). Next: stage 2, the core. Parent: CardLang Draft 0.2 (`spec-draft-0.2`).
 
 ## 1. Context
 
