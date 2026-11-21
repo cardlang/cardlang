@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
 import funcheck, expcheck, consteval
 from expcheck import CE, P, p_expr, p_postfix
 
@@ -19,17 +20,17 @@ class OutChecker(funcheck.FunChecker):
         while i < len(toks):
             if toks[i][1] == "errors" and (i == 0 or toks[i-1][1] in ("}", ";")):
                 sets += 1
-                if sets > 1: raise CE("CE-OUT-7")
+                if sets > 1: raise srcpos.at(CE("CE-OUT-7"), toks[i])
                 j = i + 3; codes = set(); members = 0
                 while toks[j][1] != "}":
                     members += 1
                     val = toks[j+2]
-                    if toks[j+3][1] != ";" or val[0] != "int": raise CE("CE-OUT-7")
+                    if toks[j+3][1] != ";" or val[0] != "int": raise srcpos.at(CE("CE-OUT-7"), toks[j])
                     code = consteval.primary(consteval.P([val]))[1]
                     if code > 65535: raise CE("CE-EXP-2")
-                    if code == 0 or code in codes: raise CE("CE-OUT-7")
+                    if code == 0 or code in codes: raise srcpos.at(CE("CE-OUT-7"), val)
                     codes.add(code); j += 4
-                if members == 0: raise CE("CE-OUT-7")
+                if members == 0: raise srcpos.at(CE("CE-OUT-7"), toks[i])
                 i = j
             i += 1
 

@@ -136,3 +136,18 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
 **Step 3b, semantic colouring,** comes after the language server of step 3. It is done when every identifier in both applets and in the runtime tests gets a kind, and a check in `run_checks` compares the kinds in one sample file with the expected ones.
 
 **Node.js:** v26.13.1 and npm 11.20.0, installed by the user in `C:\Program Files\nodejs`. The tools take `PATH` from the registry, as `vm/c/build.py` does, because a session started before the installation does not see it.
+
+## 5. Progress
+
+**Step 1 done (2026-11-21): source positions and messages.**
+- **Positions.** `lexcheck.lex(data, file)` now returns `Tok` tuples. A `Tok` is still `(kind, value)` for every checker, and also carries `.pos = (file, line, column)`. The two parser classes, in `expcheck` and `consteval`, note each token they examine, so an error is placed at the token being examined when it was raised (`tools/checkers/srcpos.py`).
+- **Whole-program checks** name their token explicitly. These are recursion, transaction nesting, error sets, global initializers, handler rules, the entry point's signature, and the profile rules BP-50a and BP-52. `typecheck` gained `check_located`.
+- **`tools/checkers/diagnose.py`** is the one front end for tools. It runs the lexer, Annex A's grammar (which places syntax errors exactly), the type rules with the Base Profile's prelude, the composed checker, and then constant evaluation. It returns the code, the message from `spec/00-index.md`, and the file, line and column.
+- **`tools/checkers/poscheck.py`,** in `run_checks`, passes 400 checks:
+  - every valid test, runtime program and applet is clean;
+  - every invalid test gets its code, in its own file;
+  - 18 tests are pinned to the exact line they report, each checked by hand;
+  - with token noting disabled, 162 of its checks fail.
+- **Placement:** most errors land on the offending token. Some land at the end of their construct, such as a `match` missing an arm, which is reported at the match's closing brace.
+- **Finding T1: the compiler accepts some invalid programs.** `compiler.compile_files` runs only the composed checker. That checker skips the type rules of chapter 4, the constant evaluation of chapter 5 (`CE-CEX`), and the syntax check of Annex A. `clc build` will therefore run `diagnose.check` first.
+- **Finding T2: 14 name rules of chapter 3 have no reference checker.** They cover duplicates, shadowing, redeclaring intrinsics, `card` or primitives, and global `var`. Eleven invalid `nam-*` tests are accepted, and three get another code. `poscheck` lists them as known gaps, so a new miss still fails. A name-rule checker is worth a small work package of its own. The language server inherits the gap until then.

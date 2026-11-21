@@ -5,6 +5,7 @@ Loads the test-only catalog conformance/platform/test-catalog.txt (Annex B, PLT-
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
 import hepcheck, expcheck, consteval
 from expcheck import CE
 
@@ -94,7 +95,9 @@ def token_paths(toks):
 class PltChecker(hepcheck.HepChecker):
     def __init__(self, toks, catalog=None):
         self.catalog = catalog if catalog is not None else load_catalog()
-        if declared_names(toks) & PRELUDE_NAMES: raise CE("CE-NAM-5")       # base types are predeclared (BP-11)
+        clash = declared_names(toks) & PRELUDE_NAMES                          # base types are predeclared (BP-11)
+        if clash:
+            srcpos.set_declarations(toks); raise srcpos.at(CE("CE-NAM-5"), srcpos.decl(sorted(clash)[0]))
         super().__init__(PRELUDE + toks)
 
     def run(self):
@@ -123,7 +126,7 @@ class PltChecker(hepcheck.HepChecker):
                     j += 1
                 inner = body[i + 2:j]
                 if any(p in forbidden for p in token_paths(inner)) or any(reaches(g) for g in self.calls_in(inner)):
-                    raise CE("CE-TXN-4")
+                    raise srcpos.at(CE("CE-TXN-4"), body[i])
 
     def call(self, e, L, T):
         path = platform_path(e[1])
@@ -144,14 +147,15 @@ def literal_value(text):
     text = text.replace("_", "")
     return int(text, 0) if text[:2].lower() in ("0x", "0b") else int(text, 10)
 
-def error_codes(toks):
-    """The codes of the application error set: errors Name { Member = literal; ... }."""
+def error_codes(toks, with_tokens=False):
+    """The codes of the application error set: errors Name { Member = literal; ... }; with their literal tokens."""
     codes = []
     for i, (_, v) in enumerate(toks):
         if v == "errors" and i + 2 < len(toks) and toks[i + 2][1] == "{":
             j = i + 3
             while j < len(toks) and toks[j][1] != "}":
-                if toks[j][1] == "=" and toks[j + 1][0] == "int": codes.append(literal_value(toks[j + 1][1]))
+                if toks[j][1] == "=" and toks[j + 1][0] == "int":
+                    c = literal_value(toks[j + 1][1]); codes.append((c, toks[j + 1]) if with_tokens else c)
                 j += 1
     return codes
 
@@ -164,17 +168,17 @@ def check_on_select(toks):
         if i > 0 and toks[i - 1][1] == "function":
             sig = [x for _, x in toks[i + 1:i + 1 + len(ON_SELECT)]]
             if [s if p != "?" else "?" for s, p in zip(sig, ON_SELECT)] != ON_SELECT or toks[i + 2][0] != "id":
-                raise ProfileError("BP-50a")
+                raise srcpos.at(ProfileError("BP-50a"), toks[i])
         elif i + 1 < len(toks) and toks[i + 1][1] == "(":
-            raise ProfileError("BP-50a")                  # a call: lifecycle handlers are not callable
+            raise srcpos.at(ProfileError("BP-50a"), toks[i])  # a call: lifecycle handlers are not callable
 
 def check_binding(toks, binding):
     """BP-50a and BP-52 for the ISO 7816 binding: the on_select handler, and application error codes that are
     status words in 6200-6EFF or 9100-9FFF."""
     if binding == "iso7816":
         check_on_select(toks)
-        for c in error_codes(toks):
-            if not (0x6200 <= c <= 0x6EFF or 0x9100 <= c <= 0x9FFF): raise ProfileError("BP-52")
+        for c, tok in error_codes(toks, True):
+            if not (0x6200 <= c <= 0x6EFF or 0x9100 <= c <= 0x9FFF): raise srcpos.at(ProfileError("BP-52"), tok)
     elif binding not in (None, "raw"):
         raise ValueError("unknown binding " + binding)
 

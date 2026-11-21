@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
 import stacheck, expcheck, consteval
 from expcheck import CE, P, p_expr
 
@@ -37,8 +38,9 @@ class TxnChecker(stacheck.StaChecker):
                         if depth == 0: break
                     j += 1
                 inner = body[start + 1:j]
-                if any(v2 == "transaction" for _, v2 in inner): raise CE("CE-TXN-3")
-                if any(has_txn(g) for g in self.calls_in(inner)): raise CE("CE-TXN-3")
+                nested = next((t for t in inner if t[1] == "transaction"), None)
+                if nested is not None: raise srcpos.at(CE("CE-TXN-3"), nested)
+                if any(has_txn(g) for g in self.calls_in(inner)): raise srcpos.at(CE("CE-TXN-3"), body[i])
 
     def sstmt(self, p, L, ret, ro, loops):
         v = p.peek()

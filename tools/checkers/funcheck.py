@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
 import stmcheck, expcheck, consteval
 from expcheck import CE, UNS, p_expr
 
@@ -15,18 +16,18 @@ class FunChecker(stmcheck.StmChecker):
 
     # FUN-5: cycles in the static call graph
     def check_call_graph(self):
-        edges = {}
+        edges, sites = {}, {}
         for name, (_, _, body) in self.funcs.items():
             callees = set()
             for i, (k, v) in enumerate(body):
                 if v in self.funcs and i + 1 < len(body) and body[i+1][1] == "(" and (i == 0 or body[i-1][1] != "."):
-                    callees.add(v)
+                    callees.add(v); sites.setdefault((name, v), body[i])          # where the call is (TL1)
             edges[name] = callees
         state = {}
         def visit(n):
             state[n] = 1
             for m in edges.get(n, ()):
-                if state.get(m) == 1: raise CE("CE-FUN-1")
+                if state.get(m) == 1: raise srcpos.at(CE("CE-FUN-1"), sites.get((n, m)))
                 if m not in state: visit(m)
             state[n] = 2
         for n in edges:

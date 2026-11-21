@@ -2,6 +2,8 @@
 import re, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
+from srcpos import note
 
 RANGES = {"u8": (0, 255), "u16": (0, 65535), "u32": (0, 2**32 - 1),
           "i8": (-128, 127), "i16": (-32768, 32767), "i32": (-2**31, 2**31 - 1)}
@@ -17,8 +19,11 @@ RT = object()  # runtime-dependent marker
 # ---------- parsing ----------
 class P:
     def __init__(self, toks): self.t = toks; self.i = 0
-    def peek(self, k=0): return self.t[self.i + k][1] if self.i + k < len(self.t) else None
-    def take(self): v = self.t[self.i]; self.i += 1; return v
+    def peek(self, k=0):
+        if self.i + k >= len(self.t): return None
+        if k == 0: note(self.t[self.i])                     # the token being examined (TL1: error positions)
+        return self.t[self.i + k][1]
+    def take(self): v = self.t[self.i]; note(v); self.i += 1; return v
     def expect(self, v):
         assert self.peek() == v, (v, self.t[self.i:self.i+5]); self.i += 1
 
@@ -155,7 +160,7 @@ class Prog:
     # ----- constants -----
     def const_value(self, name):
         if name in self.cache: return self.cache[name]
-        if name in self.active: raise CE("CE-CEX-5")
+        if name in self.active: raise srcpos.at(CE("CE-CEX-5"), srcpos.decl(name))
         self.active.add(name)
         ty, init = self.consts[name]
         if init is None: raise CE("CE-CEX-1")
@@ -167,7 +172,7 @@ class Prog:
     def global_type(self, name):
         key = "g:" + name
         if key in self.cache: return self.cache[key]
-        if key in self.active: raise CE("CE-CEX-5")
+        if key in self.active: raise srcpos.at(CE("CE-CEX-5"), srcpos.decl(name))
         self.active.add(key); t = self.resolve_type(self.globals[name][0]); self.active.discard(key)
         self.cache[key] = t; return t
 

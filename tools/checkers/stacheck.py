@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import srcpos
 import outcheck, expcheck, consteval
 from expcheck import CE
 
@@ -10,16 +11,17 @@ HANDLERS = {"on_install", "on_session_start"}   # placeholders, D-438
 class StaChecker(outcheck.OutChecker):
     def run(self):
         for name, (_, init) in self.cp.globals.items():
-            if init is not None: raise CE("CE-STA-1")                       # STA-2
+            if init is not None: raise srcpos.at(CE("CE-STA-1"), srcpos.decl(name))   # STA-2
         for group in (self.consts, self.globals, self.structs, self.enums, self.errors):
-            if HANDLERS & set(group): raise CE("CE-NAM-5")                  # STA-8
+            if HANDLERS & set(group):                                       # STA-8
+                raise srcpos.at(CE("CE-NAM-5"), srcpos.decl(sorted(HANDLERS & set(group))[0]))
         for name in HANDLERS & set(self.funcs):
             params, ret, _ = self.funcs[name]
-            if params or ret != "none": raise CE("CE-STA-2")              # STA-7
+            if params or ret != "none": raise srcpos.at(CE("CE-STA-2"), srcpos.decl(name))   # STA-7
         for name, (_, _, body) in self.funcs.items():
             for i, (k, v) in enumerate(body):
                 if v in HANDLERS and i + 1 < len(body) and body[i+1][1] == "(":
-                    raise CE("CE-STA-3")                                    # STA-9
+                    raise srcpos.at(CE("CE-STA-3"), body[i])                # STA-9
         super().run()
 
 def run(toks):

@@ -7,6 +7,7 @@ import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
 import txncheck, expcheck, consteval
+import srcpos
 from expcheck import CE
 
 SCAFFOLD = b"command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {\n    return Ok(0);\n}\n"
@@ -23,11 +24,11 @@ class HepChecker(txncheck.TxnChecker):
 
     def run(self):
         if not self._commands: raise CE("CE-HEP-1")                              # HEP-1
-        if len(self._commands) > 1: raise CE("CE-HEP-2")
+        if len(self._commands) > 1: raise srcpos.at(CE("CE-HEP-2"), srcpos.decl(self._commands[1]))
         params, ret, _ = self.funcs[self._commands[0]]
         shape = [(mode, t) for _, mode, t in params]
         if shape != [("ref", U8_VIEW), ("inout", U8_VIEW)] or ret != "u32":       # HEP-2
-            raise CE("CE-HEP-3")
+            raise srcpos.at(CE("CE-HEP-3"), srcpos.decl(self._commands[0]))
         super().run()
 
     def call(self, e, L, T):

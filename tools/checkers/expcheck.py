@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+from srcpos import note
 import consteval
 
 INT = ["u8", "u16", "u32", "i8", "i16", "i32"]
@@ -23,9 +24,12 @@ class CE(Exception):
 # ---------------- parsing ----------------
 class P:
     def __init__(self, toks): self.t = toks; self.i = 0
-    def peek(self, k=0): return self.t[self.i + k][1] if self.i + k < len(self.t) else None
+    def peek(self, k=0):
+        if self.i + k >= len(self.t): return None
+        if k == 0: note(self.t[self.i])                     # the token being examined (TL1: error positions)
+        return self.t[self.i + k][1]
     def kind(self, k=0): return self.t[self.i + k][0] if self.i + k < len(self.t) else None
-    def take(self): v = self.t[self.i]; self.i += 1; return v[1]
+    def take(self): v = self.t[self.i]; note(v); self.i += 1; return v[1]
     def expect(self, v):
         if self.peek() != v: raise CE("CE-SYN-1")
         self.i += 1
