@@ -40,6 +40,7 @@ RUNS = [
     ("../vmproto/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code (TL1)"),
     ("../lsp/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
     ("../lsp/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
+    ("../dap/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
     ("../vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
     # Consistency of the specification text itself (SP14).
     ("speccheck.py", None, "rules, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index"),

@@ -249,3 +249,26 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - the sample's variables, globals and breakpoint offsets are pinned;
   - run-001's two traps report lines 16 and 20.
 - **Images are larger** only by their debug section; a tool may strip it (IMG-10).
+
+**Step 4 committed (`046e264`).**
+
+**Step 5 done (2026-11-21): the debug adapter, `tools/dap/cardlang_dap.py`.**
+- **The protocol:** the Debug Adapter Protocol over standard input and output, on the same framing as the language server (`tools/lsp/jsonrpc.py`).
+- **What runs:** the launch configuration names a scenario and, optionally, the program, which defaults to the scenario's directory. The adapter checks the program first. It then runs the scenario on the prototype VM in a thread, and the debug console shows every step, outcome and `expect`.
+- **How it stops:** a hook wraps the VM's instruction step, and stops for:
+  - a breakpoint offset, from the line table; a line without a statement moves to the next one that has one;
+  - stepping by statement: over and out compare frame pointers;
+  - a pause.
+
+  The trap cleanup is wrapped too, so a trap stops with the faulting frame still intact (the `traps` exception filter). A failed `expect` stops as well (the `expect` filter), and a scenario line can take a breakpoint of its own.
+- **What it shows:**
+  - **The call stack,** read from the frames' saved return addresses and frame pointers (BC-22), with the scenario step as the bottom frame.
+  - **Variables:** the parameters and locals in scope, read through `ref` and view cells. Struct fields and array or view elements expand as children.
+  - **Globals:** session, persistent, constant aggregates and constant scalars.
+  - **Hover:** evaluating a name.
+- **Breakpoints set before the build** are verified afterwards with `breakpoint` `changed` events.
+- **The scenario runner** gained a `before` hook, for scenario breakpoints.
+- **Checks:** `tools/dap/dap_check.py`, in `run_checks`, passes 14 checks on two runtime tests:
+  - **The wallet:** a breakpoint in `credit`, the stack `credit ← process ← scenario step`, `amount` = 1000 and the globals, hover, step over to line 58 with the new local in scope, step in to the `Ok` arm, step out to `process`, a breakpoint removed, and a run to the end that passes.
+  - **The integer traps:** a breakpoint set before launch is verified afterwards; the overflow stops on line 16 with `a` = 255; continuing passes.
+- **A bug found by the check, and fixed:** removing a file's breakpoints did not clear their offsets.
