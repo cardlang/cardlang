@@ -85,16 +85,17 @@ A build that warns on either compiler fails. Visual Studio's CMake and Ninja are
 
 The C VM follows the prototype. Each C module is written against its specification document, with the Python module as the working model, and is accepted when the same tests pass:
 
+VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements.md` §10.4 wait for version 2 (VM7b).
+
 1. **Toolchain** (J1): check MSVC, CMake and Ninja from Visual Studio 2026, and clang from llvm-mingw. A first `CMakeLists.txt` builds an empty library with both: MSVC with the Ninja generator, and llvm-mingw with a CMake toolchain file.
-2. **No bytecode changes** (J4, revised). The candidates of `VM5-measurements.md` §10.4 wait for version 2, after VM7.
-3. **Headers and the core:** `cl_vm.h`; the loader with the IMG-11 checks; the interpreter with every instruction of version 1; the storage part of the host HAL. Done when the 18 runtime tests without natives pass on `cvm`.
-4. **The native library and the rest of the host HAL:** keys, crypto, and the test catalog (V-33). Done when all 32 runtime tests pass.
-5. **The applets:** `check_fido2` and `check_piv` on `cvm`.
-6. **Measure,** into `plans_and_notes/VM7-measurements.md`:
+2. **Headers and the core:** `cl_vm.h`; the loader with the IMG-11 checks; the interpreter with every instruction of version 1; the storage part of the host HAL. Done when the 18 runtime tests without natives pass on `cvm`.
+3. **The native library and the rest of the host HAL:** keys, crypto, and the test catalog (V-33). Done when all 32 runtime tests pass.
+4. **The applets:** `check_fido2` and `check_piv` on `cvm`.
+5. **Measure,** into `plans_and_notes/VM7-measurements.md`:
    - `sizeof(cl_vm)` on the host, against the prototype's 216 bytes (V-2, VEX-50);
    - the interpreter's code size (`.text` of `vm.c` and `natives.c`) on the host and, if the toolchain can cross-compile, for a 32-bit Cortex-M at `-Os`;
    - the host's speed in instructions per second, for scale only.
-7. **Accept and freeze:** with the V-12 criteria met on `cvm`, version 1 is frozen (V-41), and V-42 onward record VM7's decisions.
+6. **Accept and freeze:** with the V-12 criteria met on `cvm`, version 1 is frozen (V-41), and V-42 onward record VM7's decisions.
 
 **Differential testing.** The three backends run the same scenarios. Any difference between the interpreter, the prototype VM and the C VM is a bug in one of them.
 

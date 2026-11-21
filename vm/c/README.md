@@ -29,7 +29,8 @@ This builds with both toolchains (J1). Build trees go to `vm/c/build/<toolchain>
 | Step | Status |
 |---|---|
 | 1. Toolchains and the CMake project; the HAL headers compile on both compilers | Done |
-| 3. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | — |
-| 4. The native library; the keys and crypto of the host HAL (Mbed TLS) | — |
-| 5. The applets: `check_fido2` and `check_piv` on the `cvm` backend | — |
-| 6. Measurement | — |
+| 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | — |
+| 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | — |
+| 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | — |
+| 5. Measurement | — |
+| 6. Acceptance, and freezing version 1 | — |
