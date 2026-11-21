@@ -139,3 +139,71 @@ VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements
 | J2 | The host HAL's crypto backend. The HAL does all cryptography (V-19), and any backend may sit behind it | (a) Mbed TLS (its PSA Crypto API), vendored into a git-ignored folder: a production-grade, constant-time backend, and a real example of PSA behind the HAL; (b) small permissively licensed single-file libraries (for example micro-ecc for P-256, tiny-AES-c, a public-domain SHA-256), vendored; (c) test-only C written by us, matching the Python test crypto | (b) for VM7. It is small, builds with no build system, and is enough for a test HAL. (a) is the better example of a real backend, but brings a CMake build, so it fits VM9 better. (c) means writing and checking P-256 in C ourselves for no lasting value |
 | J3 | How the harness drives the C VM | (a) a shared library with a small C interface (load, install, session start and end, select, deselect, command, test hooks), called through `ctypes`; (b) a separate executable speaking a line protocol over standard input and output | (a). It is the most direct, and needs no protocol. (b) is closer to what the VM9 bridge will need, and can be added then |
 | J4 | The version-1 candidates (b) to (e) | (a) decide them in the prototype first, measured on both applets, then implement the result in C; (b) implement version 1 as it is in C, and consider them later | (a). Measuring in Python is cheap, and the C VM then implements one instruction set |
+
+## 5. Step 6: acceptance and the freeze (planned 2026-11-21)
+
+**Goal.** Show that the C VM meets V-12, then freeze bytecode version 1 and image format 1 (V-41). Record VM7's decisions as V-42 onward, and bring the specification documents in line with what the C VM taught us. No instruction, encoding or image field changes.
+
+**6.1 Acceptance evidence,** in a new §7 of `VM7-measurements.md`, one row per V-12 item:
+
+| V-12 item | Evidence on `cvm-msvc` and `cvm-clang` |
+|---|---|
+| Every runtime conformance test passes | `scenario.py`: 32 of 32 on each |
+| `check_fido2` passes | 59 checks on each; `check_piv` too, 69 checks |
+| Every valid conformance program compiles to an image | `compile_all.py`, for the compiler. New (K1): every image also *loads* in the C VM, with `cl_vm_load` returning `CL_LOAD_OK` |
+| The bytecode size, stack and frame figures, and bookkeeping RAM against V-2 | `VM7-measurements.md` §1 to §5 |
+
+**6.2 Close the gaps found in VM7, before freezing:**
+- **K2: seeded generation.** No test pins generated keys or random bytes beyond the first 32-byte block of the generator. A new runtime test, `run-033-seeded-generation`, would fix the expected bytes for:
+  - `random.fill` across several blocks;
+  - the public keys of generated P-256 keys;
+  - an RFC 6979 signature made with a generated key;
+  - a MAC and a ciphertext under generated HMAC and AES keys.
+
+  It would run on all three backends and the reference interpreter. V-37 is the precedent: tests are added before a freeze.
+- **K3: `finish` followed by a trap.** If `finish` writes into a persistent output and that write traps with `TXN-CAPACITY`, the C HAL has already ended the operation, while the prototype keeps it alive. One behaviour must be specified.
+
+**6.3 The specification documents:**
+- **`vm/decisions.md`:** V-41's status becomes "frozen", and the VM7 decisions are added:
+
+| ID | Decision |
+|---|---|
+| V-42 | Version 1 and image format 1 are frozen; any later change is version 2 (VM7b) |
+| V-43 | The C toolchains: MSVC and llvm-mingw clang, CMake and Ninja, warnings as errors (J1) |
+| V-44 | The host HAL's crypto is Mbed TLS 3.6 LTS through PSA, fetched once and pinned by SHA-256 (J2) |
+| V-45 | The harness drives the C VM as a shared library through `cffi` (J3) |
+| V-46 | VM7 is a pure port; the candidates wait for VM7b (J4, revised) |
+| V-47 | The VM's C stack is VM bookkeeping too: it is measured on every target, and its bound recorded next to `sizeof(cl_vm)` (F1) |
+| V-48 | The resource area: `CL_OP_SLOTS` = 2, and no internal slot |
+| V-49 | A persistent output's atomic update opens at the HAL's first write |
+
+- **`vm/bytecode.md` and `vm/image-format.md`:** "living" becomes "frozen", and the change log gets its freeze entry. VM7 changed no instruction.
+- **`vm/hal.md`:**
+  - HAL-12: the writer opens its update at the first write, which comes only once the call can no longer fail;
+  - HAL-27: 2 slots, with the internal slot dropped (V-48);
+  - HAL-31: the test catalog's resource hooks;
+  - HAL-26: K3's answer.
+- **`vm/execution-model.md`:**
+  - VEX-50: the measured 252 bytes on 32-bit targets replaces the estimate;
+  - VEX-2: the measured C stack bound, 856 bytes on Cortex-M4, with the method (V-47);
+  - VEX-45 or `cl_config`: the resource area fields.
+- **Open items, carried forward:**
+  - F2, 64-bit arithmetic, to VM8;
+  - the extra internal slot, should a version-2 native ever need one.
+
+**6.4 Close VM7:** the README's status, memory, and the plan's step 6 entry. Optionally a git tag for the freeze (K4).
+
+**Done when:** `run_checks` passes with the new load check and K2's test; the documents say "frozen"; V-42 onward are recorded; and every K decision is answered.
+
+| ID | Question | Options | Recommendation |
+|---|---|---|---|
+| K1 | Check that the C VM loads every compiled image? | (a) Yes: a `--backend` option for `compile_all.py`, run for `cvm-msvc` and `cvm-clang` in `run_checks`; (b) no, the 32 runtime tests and two applets are enough | (a). It is cheap, and it exercises the loader's IMG-11 checks on all 156 compiled programs, not 34 |
+| K2 | Add `run-033-seeded-generation` before the freeze? | (a) Yes, with its bytes taken from the prototype and checked against the reference interpreter; (b) later | (a). It closes the only gap found by mutation, and it binds every future backend to the same generator |
+| K3 | After `finish` writes and the write traps, does the operation survive? | (a) No, it has ended: the prototype changes to match the C VM; HAL-26 says `finish` ends the operation once the result is computed, so a failed write loses it; (b) yes: the C HAL clones the PSA hash state and ends the operation only after a successful write, which a MAC operation cannot do; (c) record it as unspecified | (a). It is what a real HAL can do, and a trap already discards the command's work. (b) is impossible for MACs in PSA |
+| K4 | Tag the freeze? | (a) `bytecode-v1`, like `spec-draft-0.2`; (b) no tag | (a). It names the exact sources of the frozen version |
+
+**Answered (user, 2026-11-21):**
+- **K1 (a):** every compiled image also loads in the C VM;
+- **K2 (a):** `run-033-seeded-generation` is added before the freeze;
+- **K3 (a):** an operation ends once `finish` has computed its result, and the prototype changes to match;
+- **K4 (a):** the freeze is tagged `bytecode-v1`, locally.
