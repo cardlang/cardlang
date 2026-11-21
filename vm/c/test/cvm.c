@@ -83,5 +83,7 @@ CVM_API void cvm_command(cvm *c, const uint8_t *req, uint32_t len, uint8_t *resp
     *out = cl_vm_command(&c->vm, req, len, resp, cap);
 }
 
+CVM_API uint32_t cvm_budget_used(cvm *c) { return c->vm.budget_cfg - c->vm.budget; }   /* by the last entry */
+
 CVM_API int cvm_seed(cvm *c, const uint8_t *seed, uint32_t len) { return (int)cl_hal_test_seed(c->hal, seed, len); }
 CVM_API void cvm_interrupt_next_commit(cvm *c) { (void)cl_hal_test_interrupt_next_commit(c->hal); }

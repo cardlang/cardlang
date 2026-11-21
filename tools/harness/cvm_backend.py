@@ -30,6 +30,7 @@ void cvm_deselect(cvm *c);
 void cvm_select(cvm *c, uint8_t *resp, uint32_t cap, cl_result *out);
 void cvm_command(cvm *c, const uint8_t *req, uint32_t len, uint8_t *resp, uint32_t cap, cl_result *out);
 int cvm_seed(cvm *c, const uint8_t *seed, uint32_t len);
+uint32_t cvm_budget_used(cvm *c);
 void cvm_interrupt_next_commit(cvm *c);
 """
 ffi = FFI(); ffi.cdef(CDEF)
@@ -77,6 +78,7 @@ class CvmCard:
     def deselect(self): self.lib.cvm_deselect(self.c)
     def seed(self, data): self.lib.cvm_seed(self.c, bytes(data), len(data))
     def interrupt_next_commit(self): self.lib.cvm_interrupt_next_commit(self.c)
+    def budget_used(self): return self.lib.cvm_budget_used(self.c)      # by the last entry (measurement)
 
     def select(self):
         resp = ffi.new("uint8_t[]", 256)

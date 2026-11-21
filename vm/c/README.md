@@ -34,5 +34,5 @@ The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) f
 | 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | Done: the 18 runtime tests without natives pass on `cvm-msvc` and `cvm-clang`; `sizeof(cl_vm)` is 272 bytes on 64-bit Windows |
 | 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | Done: all 32 runtime tests pass on both backends |
 | 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | Done with step 3: both pass on both backends; `tools/run_checks.py` runs all of it |
-| 5. Measurement | — |
+| 5. Measurement | Done: `plans_and_notes/VM7-measurements.md`, by `vm/c/measure.py`. `cl_vm` is 252 bytes on 32-bit targets; the C stack is at most 1,040 bytes on Cortex-M4; 16.2 KB of code there |
 | 6. Acceptance, and freezing version 1 | — |

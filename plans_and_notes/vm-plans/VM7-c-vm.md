@@ -109,6 +109,14 @@ The C VM follows the prototype. Each C module is written against its specificati
   - HAL-27's extra internal operation slot is not used; nothing in version 1 needs it;
   - when `finish` writes into a persistent output and that write traps with `TXN-CAPACITY`, the C HAL has already ended the operation, while the prototype keeps it.
 
+**Step 5 done (2026-11-21):** `plans_and_notes/VM7-measurements.md`, produced by `vm/c/measure.py`.
+- **Context:** `sizeof(cl_vm)` is 252 bytes on 32-bit targets and 296 on 64-bit, against the prototype's 216. The difference is the entry table, the constant section's size, and the operation table with its area pointer.
+- **Code:** 16.2 KB on Cortex-M4 at `-Os`, 19.8 KB on Cortex-M0+.
+- **Confirmed:** zero mutable data and bss on every target (V-8); an acyclic call graph with static frames only (VEX-19).
+- **Speed:** about 250 million instructions a second on the host, against the prototype's 0.71 million. The benchmark is `vm/c/test/bench.card`, and both VMs execute exactly the same number of instructions.
+- **Finding F1:** the VM's C stack, never bounded before, reaches 1,040 bytes on Cortex-M4. Most of it is `cbor_validate`'s 16-level stack (472 bytes) and the inlined `dispatch` (320 bytes). Changes to the C code alone could take it to about 600 bytes.
+- **Finding F2:** 64-bit integer arithmetic brings in `__aeabi_*` helper calls, which matter most on M0+. That is for VM8.
+
 VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements.md` §10.4 wait for version 2 (VM7b).
 
 1. **Toolchain** (J1): check MSVC, CMake and Ninja from Visual Studio 2026, and clang from llvm-mingw. A first `CMakeLists.txt` builds an empty library with both: MSVC with the Ninja generator, and llvm-mingw with a CMake toolchain file.

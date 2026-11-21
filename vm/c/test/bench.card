@@ -1,0 +1,24 @@
+// The speed benchmark of VM7 step 5 (vm/c/measure.py): a loop of locals, arithmetic, array reads and writes, and a
+// small copy, with no natives, so the budget used is the number of instructions executed. Request: the number of
+// rounds, big-endian, in two bytes.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var rounds: u32 = (convert<u32>(request[0]) * 256) + convert<u32>(request[1]);
+    var data: u8[32] = fill(0);
+    var copy: u8[8] = fill(0);
+    var sum: u32 = 0;
+    var j: u8 = 0;
+    for i: u32 in 0..rounds {
+        j = wrapping_add(j, 7);
+        var k: u8 = j % 32;
+        data[k] = wrapping_add(data[k], j);
+        var wide: u32 = convert<u32>(data[k]);
+        sum = wrapping_add(sum, wide);
+        if (i % 16) == 0 {
+            copy[0..8] = data[8..16];
+        }
+    }
+    response[0] = copy[0];
+    response[1] = data[31];
+    response[2] = truncate<u8>(sum);
+    return Ok(3);
+}
