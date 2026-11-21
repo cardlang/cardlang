@@ -36,7 +36,13 @@ Each comparison spends a retry before it compares, as anti-tearing, and gives it
 
 **A first contrast with FIDO2**, for §10 of the report: PIV's largest frame is 164 bytes (`asymmetric_authenticate`), against FIDO2's 475. PIV's stack need is 344 bytes, against 837. Its large data lives in persistent buffers, not in frames.
 
-Steps 5 (the check) and 6 (measurement and findings) remain. Most of step 5 is already done, because the check grew with steps 2 to 4.
+**Steps 5 and 6 done (2026-11-21):**
+- the check is complete, with 69 checks;
+- `VM5-measurements.md` §10 compares PIV with FIDO2;
+- `plans_and_notes/WP12-piv-findings.md` records the findings;
+- candidates 23 and 24 are added.
+
+**WP12 is complete.**
 
 ## 1. Goals
 

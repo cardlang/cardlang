@@ -229,6 +229,59 @@ The figures are bytes of code. Each saving is relative to the version-0 baseline
 - **Budget charges fall a little.** `SLICEF` charges 1 where its sequence charged 5 (BC-39). All tests still pass, including the budget test.
 - **The rule of this report applies:** these figures come from one applet and the conformance tests. They justify the short forms, which are additions, and they say nothing against the long forms.
 
+## 10. A second applet: PIV against FIDO2 (2026-11-21)
+
+**What was measured.** WP12 (`plans_and_notes/spec-plans/WP12-piv.md`) added a PIV card application (`examples/piv`), chosen to broaden the corpus beyond FIDO2.
+- **The code:** both applets compiled by the current compiler (VM4b, bytecode version 1).
+- **The runs:** the dynamic figures come from each applet's independent check, run on `vmproto`: the 59 checks of `check_fido2` and the 69 of `check_piv`.
+
+### 10.1 Side by side
+
+| | FIDO2 | PIV |
+|---|---:|---:|
+| Source lines | 778 | 636 |
+| Functions | 35 | 27 |
+| Code, bytes (bytes per line) | 7,021 (9.0) | 4,505 (7.1) |
+| Image, bytes | 8,220 | 5,405 |
+| Natives used | 22 | 13 |
+| `PERSISTENT` | 22 B | 10,002 B |
+| Largest persistent destination (`max_atomic`) | 16 B | 1,900 B |
+| `SESSION` | 33 B | 20 B |
+| Stack need / deepest observed | 837 / 745 B (89%) | 344 / 264 B (77%) |
+| Frames, summed / their locals and temporaries | 3,434 / 1,862 B | 1,376 / 364 B |
+| Largest frame | `make_credential`, 475 B | `asymmetric_authenticate`, 164 B |
+| Frame access (all forms), share of code | 29.5% | 27.9% |
+| Instructions executed by the check / entries | 96,181 / 143 | 21,650 / 101 |
+| Largest budget used by one entry | 3,882 | 912 |
+| `LDFW`, share of executed instructions | 24.3% | 23.4% |
+
+### 10.2 What holds for both
+
+- **Frame access dominates.** It is the largest share of code in both applets, at 28% to 30% even after the short forms. Short frame access (`LDFW` and the others) is the most frequent instruction in both, statically and dynamically, and it is the best-justified short form of version 1.
+- **Short jumps and `PUSH0`/`PUSH1` pay off in both.**
+- **The VM's own state is the same,** 216 bytes, whatever the applet. Application RAM is the frames and `SESSION`, and both stay small. PIV's 344-byte stack and FIDO2's 837 are both far from anything that would trouble a 4 KB RAM budget (Annex B §B.11).
+- **The budget is generous.** The heaviest entry of either applet uses under 4,000 instructions; 20,000 remains a reasonable default for the C VM (§5).
+
+### 10.3 What was FIDO2-specific
+
+- **Large frames.** FIDO2 keeps big buffers as locals (`auth`, `point`, `credential_id`); PIV keeps its large data in persistent buffers. PIV's locals and temporaries total 364 bytes over 27 functions. The question left open in §8, scope-based slot reuse against liveness analysis, is therefore **not settled in favour of liveness**: in one applet of two it would gain little. It stays deferred, to be revisited if a later applet resembles FIDO2.
+- **`SLICEF`.** It is FIDO2-shaped. PIV's 60 long slices almost all start at a constant (`request[4..request.length]`), so it fires only 6 times in PIV, against 64 times in FIDO2.
+- **Long `JERR`s.** FIDO2 has 92, against PIV's 26.
+
+### 10.4 What PIV shows that FIDO2 did not
+
+These are candidates for version 1, which stays living through VM7, or for the compiler. All are additions or compiler changes, and none removes anything (`fido2-not-universal`):
+
+| # | Observation | Candidate | Kind | Estimate (PIV) |
+|---|---|---|---|---|
+| a | **Error exits repeat.** PIV has 68 `ERR`s (272 bytes, 6% of its code). 24 of them are the same `6A80`, from many `require … else Sw.WrongData` | Share one error exit per error code, as the error trampolines are already shared (`JZ8` to it, instead of `JNZ8` over an `ERR`) | Compiler | About 200 bytes (4%); FIDO2 has 64 `ERR`s, so it gains too |
+| b | **Comparing with a constant and branching** (`PUSH.B` `EQ` `JZ8`, and `LDF8 … PUSH.B EQ`) is a frequent sequence in both. In PIV it comes from the instruction and tag dispatch | A compare-immediate-and-branch instruction | Bytecode | To be measured on both |
+| c | **Slices from a constant start** (`request[4..request.length]`) | Generalise `SLICEF` to a constant start | Bytecode | Up to about 60 × 6 bytes in PIV |
+| d | **Persistent and session addresses.** 41 long `ADDR`s remain in PIV: its buffers are at persistent offsets up to 10 KB, beyond `ADDRF`'s stack-only, 8-bit reach | `ADDR` with a 16-bit offset, for any region | Bytecode | About 80 bytes |
+| e | **Byte-sized frame loads.** `LDF8 u8` appears 86 times (258 bytes, 5.7%), for request bytes and flags | A `u8` form with no type byte, like `LDFW` | Bytecode | About 86 bytes |
+
+**Where they are decided.** The bytecode candidates (b to e) belong with VM7's possible changes to version 1, and should be measured on both applets there. Candidate (a) is compiler-only and can be done at any time.
+
 ## 7. Acceptance status (V-12)
 
 | Criterion | Status |

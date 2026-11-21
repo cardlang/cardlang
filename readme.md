@@ -63,6 +63,7 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`conformance/`](conformance/README.md) | 350 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
 | [`platform/`](platform/base-profile.md) | The CardLang Base Profile 1, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes, keys, crypto, CBOR, TLV, transport bindings and the API catalog (`base-catalog.txt`) |
 | [`examples/fido2/`](examples/fido2/) | A FIDO2 (CTAP 2.0) authenticator in CardLang, with PIN protocols two and one, checked by `tools/fido/check_fido2.py` |
+| [`examples/piv/`](examples/piv/) | A PIV card application (NIST SP 800-73-5, contact-interface subset), checked by `tools/piv/check_piv.py` |
 | [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
 | [`plans_and_notes/`](plans_and_notes/) | The source design notes, the decision register, the plan of plans with one sub-plan per chapter, and the SP14 consolidation report |
 
