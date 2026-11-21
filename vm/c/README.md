@@ -35,4 +35,4 @@ The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) f
 | 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | Done: all 32 runtime tests pass on both backends |
 | 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | Done with step 3: both pass on both backends; `tools/run_checks.py` runs all of it |
 | 5. Measurement | Done: `plans_and_notes/VM7-measurements.md`, by `vm/c/measure.py`. `cl_vm` is 252 bytes on 32-bit targets; the C stack is at most 856 bytes on Cortex-M4 (after F1); 16.3 KB of code there |
-| 6. Acceptance, and freezing version 1 | — |
+| 6. Acceptance, and freezing version 1 | Done: V-12 is met on both compilers (`plans_and_notes/VM7-measurements.md` §7); version 1 is frozen (V-42) and tagged `bytecode-v1` |

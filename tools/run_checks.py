@@ -56,6 +56,8 @@ RUNS = [
     ("../piv/check_piv.py", None, "examples/piv: a PIV session, checked independently"),
     ("../piv/check_piv.py", "--backend vmproto", "examples/piv on the prototype VM"),
     # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios and applet checks.
+    ("../vmproto/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3, K1)"),
+    ("../vmproto/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3, K1)"),
     ("../harness/scenario.py", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
     ("../harness/scenario.py", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
     ("../fido/check_fido2.py", "--backend cvm-msvc", "cvm-msvc: the FIDO2 check on the C VM"),

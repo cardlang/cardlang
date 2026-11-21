@@ -82,7 +82,7 @@ The native library supplies a pointer whenever the data is in a RAM region or in
 - a pointer to contiguous writable bytes; or
 - a *writer*: a function that stores `n` bytes at a given offset of the output.
 
-A writer stands for persistent data: the native library opens an atomic update before the call, and closes it after `CL_OK` or aborts it after any other status (VEX-28, HAL-8). Each function reports the number of bytes it wrote.
+A writer stands for persistent data. The native library opens an atomic update at the writer's first call, over the result's expected length. It closes the update after `CL_OK`, or aborts it after any other status (VEX-28, HAL-8). A HAL writes only once the call can no longer fail, so the update never turns an error into a trap (V-49). Each function reports the number of bytes it wrote.
 *Serves: V-23; VEX-28, BP-6, BP-7.*
 
 **HAL-13 Overlap.** An output may overlap an input of the same call. The result is as if every input were read completely before any output is written. With writers this holds by HAL-20: reads do not see an open atomic update.
@@ -184,13 +184,14 @@ The native library checks first: the identifiers, the key types, `length` from 1
 | `cl_hal_op_abort(ctx)` | `cancel`, and the end of a lifetime | — |
 
 - **Success:** `finish`, `finish_verify` and `abort` end the operation, and erase the context.
+- **`finish` ends the operation once its result is computed,** before the result is written. If writing it then traps, for example with `TXN-CAPACITY` into a persistent output, the operation is gone. `finish` checks the output's capacity first, so `Capacity` leaves the operation as it was (V-50).
 - **Failure:** on any error status, the context is unchanged (HAL-8), so `finish` can be repeated with a larger output (BP-31).
 - **A deleted key:** an operation whose key has been deleted reports `InvalidState`, even if a new key now has the same identifier. That is why the HAL, not the native library, detects it.
 - **The native library** keeps each operation's identifier, purpose and lifetime. It reports `NotFound`, `AlreadyExists`, `Malformed` (identifier 0), and `InvalidState` for a finish of the wrong purpose.
 
 *Serves: H9; BP-31, BP-13, BP-14.*
 
-**HAL-27 Context memory.** `cl_hal.h` defines `CL_HAL_OP_CTX_SIZE` and `CL_HAL_OP_CTX_ALIGN`: the size and the alignment of the largest context. The native library keeps its operation slots in the resource area of `cl_config`, which the platform provides with that alignment. It has at least 2 slots (BP-16) plus one for internal use. The area belongs to no application region. A HAL whose engine keeps operation state itself may use the context as a handle to it.
+**HAL-27 Context memory.** `cl_hal.h` defines `CL_HAL_OP_CTX_SIZE` and `CL_HAL_OP_CTX_ALIGN`: the size and the alignment of the largest context. The native library keeps its operation slots in the resource area of `cl_config`, which the platform provides with that alignment. It has `CL_OP_SLOTS` slots: 2, the minimum of BP-16. Version 1 needs no internal slot (V-48). The area belongs to no application region. A HAL whose engine keeps operation state itself may use the context as a handle to it.
 *Serves: V-20; VEX-35, BP-16, PLT-33.*
 
 **HAL-28 Randomness.** `cl_hal_random(out)` fills the output with bytes from a cryptographically secure generator (BP-32). It also supplies the randomness for key generation and for signature nonces that are not deterministic (BP-30).
@@ -207,6 +208,7 @@ The native library checks first: the identifiers, the key types, `length` from 1
 **HAL-31 Test interface.** `cl_hal_test.h` declares the hooks a test HAL provides, so that every backend runs the same scenarios (V-10, V-12):
 - **`cl_hal_test_seed(data)`** makes the random generator deterministic from this seed, for every later call (the `seed` step).
 - **`cl_hal_test_interrupt_next_commit()`** makes the next commit behave as a power loss during the commit, followed by recovery (the `interrupt` step).
+- **`cl_hal_test_resource_create`, `_get`, `_set` and `_delete`** keep the fictional resources of the test-only catalog (`card.test.*`, V-33). These are at most 4, each with a kind and a value, in the same identifier space as keys and operations (VM7).
 
 A production HAL does not provide them.
 *Serves: H10; V-10, V-12.*

@@ -207,3 +207,15 @@ VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements
 - **K2 (a):** `run-033-seeded-generation` is added before the freeze;
 - **K3 (a):** an operation ends once `finish` has computed its result, and the prototype changes to match;
 - **K4 (a):** the freeze is tagged `bytecode-v1`, locally.
+
+**Step 6 done (2026-11-21). VM7 is complete.**
+- **K1:** every one of the 157 compiled images loads on both builds.
+- **K2:** `run-033-seeded-generation` passes on all four backends, and catches the generator mutant.
+- **K3:** the prototype and the reference interpreter now end the operation in `finish` before writing, as the C VM does.
+- **Documents:**
+  - `bytecode.md` and `image-format.md` say "frozen", and the change log has the freeze entry;
+  - `hal.md` changes HAL-12, HAL-26, HAL-27 and HAL-31;
+  - `execution-model.md` changes VEX-2, VEX-45 and VEX-50;
+  - `decisions.md` records V-42 to V-50.
+- **The evidence** is in `VM7-measurements.md` §7.
+- **The tag** `bytecode-v1` goes on the commit that records this.

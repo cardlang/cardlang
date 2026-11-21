@@ -126,3 +126,33 @@ These are for scale only: a desktop CPU, through `cffi`. A smart-card CPU at ten
 - **No recursion, no dynamic frames** (VEX-19): the call graph from every entry point is acyclic, and clang reports every frame as static.
 - **Same work** as the prototype: for the benchmark, both the result and the instruction count are identical.
 - **Endianness** (V-13): not checked by running, because there is no big-endian target to run on. The code decodes every multi-byte value byte by byte.
+
+## 7. Acceptance (V-12), and the freeze
+
+VM7 step 6, 2026-11-21. The C VM meets every item of V-12 with both compilers. Every figure comes from `tools/run_checks.py`, which passes in full.
+
+| V-12 item | Evidence on `cvm-msvc` | Evidence on `cvm-clang` |
+|---|---|---|
+| Every runtime conformance test passes | 33 of 33 | 33 of 33 |
+| `check_fido2` passes | 59 checks | 59 checks |
+| (also) `check_piv` passes | 69 checks | 69 checks |
+| Every valid conformance program compiles to an image, and the C VM loads it (K1) | 157 of 157 images load | 157 of 157 |
+| The bytecode size, stack and frame figures, and bookkeeping RAM against V-2 | §1 to §5 | §1 to §5 |
+
+**Added before the freeze:**
+- **The load check (K1):** `compile_all.py --backend cvm-…` loads every compiled image with `cl_vm_load`, not only the 34 that the tests run.
+- **`run-033-seeded-generation` (K2):** it pins the exact bytes of seeded generation:
+  - random data over four generator blocks;
+  - two generated P-256 public keys;
+  - an RFC 6979 signature and a digest signature;
+  - an AES-CBC ciphertext and an HMAC under generated keys.
+
+  It passes on all four backends: the reference interpreter, the prototype and both C builds. The generator mutant that every earlier test missed now fails it.
+- **`finish` (K3):** the operation ends once the result is computed (V-50). The prototype and the reference interpreter were changed to match the C VM.
+
+**The freeze.** Bytecode version 1 and image format 1 are frozen (V-42). The C VM needed no change to either: every difference found while porting was in the Python harness wrapper or in the HAL's behaviour, never in the instruction set. VM7's decisions are V-42 to V-50. The freeze is tagged `bytecode-v1`.
+
+**Carried forward:**
+- **F2,** 64-bit arithmetic and the helper calls it brings in, to VM8;
+- **an internal operation slot,** should a version-2 native need one (V-48);
+- **the version-2 candidates,** to VM7b.

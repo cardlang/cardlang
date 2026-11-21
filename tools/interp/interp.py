@@ -484,9 +484,9 @@ class Card:
             out = {"digest": lambda: list(hashlib.sha256(bytes(o["data"])).digest()),
                    "mac": lambda: testcrypto.hmac_sha256(key[1], o["data"]),
                    "sign": lambda: testcrypto.ecdsa_sign(key[1], o["data"])}[o["purpose"]]()
-            r = write(1, out)
-            if r[0] == "ok": del ops[op]
-            return r
+            if view(1).length < len(out): return err("Capacity")       # the operation continues (BP-31)
+            del ops[op]                       # it ends once its result is computed, before the write (HAL-26, K3)
+            return write(1, out)
         if name == "finish_verify":
             if o["purpose"] != "verify": return err("InvalidState")
             result = testcrypto.ecdsa_verify(public(key), o["data"], data(1))

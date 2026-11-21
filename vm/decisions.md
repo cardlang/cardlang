@@ -45,6 +45,15 @@ Each row is one decision about the VM. The requirements in the `vm/` documents c
 | V-39 | **All five short-form candidates are taken.** Each is measured cumulatively for the report, but none is dropped on its figures (user) | 2026-11-20 | VM6 | `plans_and_notes/VM5-measurements.md` §9 |
 | V-40 | **`OVER`, `DUP2` and `DROP2` stay** in version 1, although no compiler path emits them. Unused in the corpus is not unneeded (user) | 2026-11-20 | VM6 | BC-7 |
 | V-41 | **Version 1 stays living through VM7,** with a change log, and is frozen when the C VM meets the acceptance criteria. The image format is 1, and a VM accepts only format 1. Supersedes V-28 (user) | 2026-11-20 | VM6 | `vm/bytecode.md` §9, IMG-3, IMG-11 |
+| V-42 | **Bytecode version 1 and image format 1 are frozen.** The C VM meets V-12 on both compilers: the 33 runtime tests, `check_fido2` and `check_piv` pass, every compiled image loads, and the figures are in `plans_and_notes/VM7-measurements.md`. VM7 changed no instruction. Any change from now on is version 2 (VM7b). Tagged `bytecode-v1`. Supersedes V-41's living status | 2026-11-21 | VM7 | `vm/bytecode.md` §9, `plans_and_notes/VM7-measurements.md` §7 |
+| V-43 | **The C VM is built with two compilers,** MSVC and clang from llvm-mingw, through CMake and Ninja. Warnings are errors on both (J1, user) | 2026-11-21 | VM7 | `vm/c/CMakeLists.txt`, `vm/c/build.py` |
+| V-44 | **The host HAL's crypto is Mbed TLS 3.6 LTS** through PSA, plus `mbedtls_hkdf` and its bignum module. CMake downloads the release archive once and checks it against its published SHA-256. It is never committed (J2, user) | 2026-11-21 | VM7 | `vm/c/CMakeLists.txt`, `vm/c/hal-host/` |
+| V-45 | **The harness drives the C VM as a shared library through `cffi`,** as the backends `cvm-msvc` and `cvm-clang` (J3, user) | 2026-11-21 | VM7 | `tools/harness/cvm_backend.py`, `vm/c/test/cvm.c` |
+| V-46 | **VM7 is a pure port** of version 1. The bytecode candidates wait for version 2, in VM7b (J4 revised, user) | 2026-11-21 | VM7 | `plans_and_notes/vm-plans/VM7-c-vm.md` |
+| V-47 | **The VM's C stack is VM bookkeeping.** It is measured on every target, from frame sizes along the call graph, and reported next to `sizeof(cl_vm)` | 2026-11-21 | VM7 | VEX-2, `vm/c/measure.py` |
+| V-48 | **The resource area has `CL_OP_SLOTS` = 2 operation slots,** the minimum of BP-16. HAL-27's internal slot is dropped, because version 1 needs none | 2026-11-21 | VM7 | HAL-27, `cl_vm.h` |
+| V-49 | **A persistent output's atomic update opens at the HAL's first write,** over the result's expected length, so an error is never turned into a trap | 2026-11-21 | VM7 | HAL-12, `vm/c/src/natives.c` |
+| V-50 | **`finish` ends its operation once the result is computed,** before writing it. A trap during the write loses the operation; `Capacity` does not (K3, user) | 2026-11-21 | VM7 | HAL-26 |
 
 ## Open questions
 

@@ -655,8 +655,8 @@ Every rule has at least one conformance test, or a stated reason why no conforma
 | PLT-21 | cited | plt-003-base-types |
 | PLT-22 | cited | run-015-resource-identifiers, run-016-signer-application, run-019-keys, run-025-command-keys-and-strings |
 | PLT-23 | cited | run-015-resource-identifiers, run-025-command-keys-and-strings |
-| PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys, run-020-crypto |
-| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-008-tlv-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool, run-020-crypto, run-021-cbor, run-022-tlv |
+| PLT-24 | cited | plt-002-immediate-api-in-transaction, plt-005-key-in-transaction, run-019-keys, run-020-crypto, run-033-seeded-generation |
+| PLT-25 | cited | plt-001-platform-call, plt-004-key-apis, plt-006-crypto-apis, plt-007-cbor-apis, plt-008-tlv-apis, plt-102-wrong-argument-type, plt-103-wrong-argument-count, plt-104-missing-ref-mode, plt-108-key-import-missing-ref, plt-109-key-spec-wrong-type, plt-111-wrong-algorithm-family, plt-112-crypto-missing-inout, plt-113-cbor-major-as-integer, plt-114-der-length-as-bool, run-020-crypto, run-021-cbor, run-022-tlv, run-033-seeded-generation |
 | PLT-26 | exercised | plt-001-platform-call and every test that uses the test-only catalog |
 | PLT-27 | exercised | run-002-checked-and-conversions, run-015-resource-identifiers |
 | PLT-28 | exercised | run-001-integer-traps, run-013-execution-budget |

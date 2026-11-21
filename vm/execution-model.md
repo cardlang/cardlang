@@ -9,7 +9,7 @@ This document states how a CardLang program's values, storage, calls, outcomes a
 **VEX-1 Trusted bytecode.** The VM executes an image without verifying it. Every static guarantee of the language (types, definite completion, the call graph, transaction nesting, permissions of references) is established before the image reaches the device. The VM checks only the image header against its configuration (VEX-9) and whatever is cheap, such as an opcode outside the instruction set (VEX-41).
 *Serves: V-1; RTF-4 (`VM`), PLT-28.*
 
-**VEX-2 Bounded bookkeeping.** All state the VM itself keeps is in one context structure, `cl_vm`, whose size is a compile-time constant of the VM, independent of the application (VEX-50). The VM allocates no memory, keeps no C globals, and its C stack use is a constant independent of the application.
+**VEX-2 Bounded bookkeeping.** All state the VM itself keeps is in one context structure, `cl_vm`, whose size is a compile-time constant of the VM, independent of the application (VEX-50). The VM allocates no memory, keeps no C globals, and its C stack use is a constant independent of the application. That stack is VM bookkeeping too, and is measured with the context (V-47). VM7 measured the C VM's at most 856 bytes on Cortex-M4 and 904 on Cortex-M0+, below the HAL's own frames (`plans_and_notes/VM7-measurements.md` §3).
 *Serves: V-2, V-8.*
 
 **VEX-3 One context, one application.** A context runs one application. Several contexts may coexist; they share nothing that the VM owns.
@@ -209,11 +209,11 @@ Session state, persistent writes outside a transaction, and other resources are 
 **VEX-44 Lifecycle state.** The context records which of these states the application is in: not installed, installed with no session, in a session, unavailable for the rest of the session (BP-55), and, for the ISO 7816 binding, whether it is selected. This is part of `cl_vm` (VEX-50).
 *Serves: STA-4 to STA-10, BP-55, BP-56.*
 
-**VEX-45 Entry points.** The VM is a library; the platform's main loop calls it (V-6). In outline (signatures are fixed in VM7):
+**VEX-45 Entry points.** The VM is a library; the platform's main loop calls it (V-6). The signatures are in `vm/c/include/cl_vm.h` (VM7):
 
 | Entry | What the VM does |
 |---|---|
-| `cl_vm_load(vm, config, image, size)` | Sets up the context; runs the load-time checks (VEX-9) |
+| `cl_vm_load(vm, config, image, size, hal)` | Sets up the context; runs the load-time checks (VEX-9, IMG-11). The configuration supplies the `SESSION` and `STACK` areas, the budget, the binding, whether test natives are allowed, and the resource area (HAL-27) |
 | `cl_vm_install(vm)` | The new partition already reads as zero, which is every default (HAL-15, VEX-5); runs `on_install` if declared. If it traps or returns `Err`, installation fails and the result says so (BP-55) |
 | `cl_vm_session_start(vm)` | Ends any open session; zero-fills `SESSION`; tells the HAL to drop volatile keys and session operations; runs `on_session_start` if declared. If it traps or returns `Err`, the application is unavailable until the next session start (BP-55) |
 | `cl_vm_session_end(vm)` | Zero-fills `SESSION`; tells the HAL to drop volatile keys and session operations (STA-4, BP-14) |
@@ -246,7 +246,7 @@ Session state, persistent writes outside a transaction, and other resources are 
 
 *Serves: V-2.*
 
-**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. The estimate for a 32-bit target is about 200 bytes, of which 128 are the bounce buffer (V-22). VM5 reports what the prototype needs and VM8 measures the C VM.
+**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. Measured by VM7: 252 bytes on 32-bit targets, of which 128 are the bounce buffer (V-22), and 296 on 64-bit hosts. The prototype's context was 216 bytes (VM5).
 *Serves: V-2, V-12.*
 
 ## 12. What the HAL must provide (input to VM2)

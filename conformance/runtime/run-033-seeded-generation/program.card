@@ -1,0 +1,34 @@
+// rule: PLT-24, PLT-25
+// source: platform/base-profile.md BP-19, BP-29, BP-32; vm/hal.md HAL-31
+// status: agreed
+// kind: application
+// expect: runtime
+// note: Seeded generation gives the same bytes on every backend: random data over several generator blocks, generated P-256 keys (their public points, a signature and a digest signature), and generated AES and HMAC keys used once each.
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    var operation: u8 = request[0];
+    var length: u32 = 0;
+    var iv: u8[16] = fill(0);
+    var zero: u8[32] = fill(0);
+    if operation == 1 {
+        length = attempt card.random.fill(inout response[0..100]);
+        return Ok(length);
+    } else if operation == 2 {
+        var id: u32 = convert<u32>(request[1]);
+        attempt card.key.generate(id, KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent });
+        length = attempt card.key.export_public(id, inout response);
+        return Ok(length);
+    } else if operation == 3 {
+        length = attempt card.crypto.sign(3, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..request.length], inout response);
+        return Ok(length);
+    } else if operation == 4 {
+        length = attempt card.crypto.sign_digest(4, SignatureAlgorithm.EcdsaP256Sha256, ref request[1..33], inout response);
+        return Ok(length);
+    } else if operation == 5 {
+        attempt card.key.generate(7, KeySpec { type: KeyType.Aes256, storage: KeyStorage.Volatile });
+        length = attempt card.crypto.encrypt(7, CipherAlgorithm.AesCbcNoPadding, ref iv, ref zero, inout response);
+        return Ok(length);
+    }
+    attempt card.key.generate(8, KeySpec { type: KeyType.Hmac256, storage: KeyStorage.Volatile });
+    length = attempt card.crypto.mac(8, MacAlgorithm.HmacSha256, ref request[1..request.length], inout response);
+    return Ok(length);
+}

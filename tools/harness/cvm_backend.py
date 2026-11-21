@@ -89,6 +89,14 @@ class CvmCard:
         r = self._call(self.lib.cvm_command, req, len(req), resp, capacity)
         return self.outcome(r, resp)
 
+def load_status(image, toolchain="msvc"):
+    """What cl_vm_load says of an image, by name: "OK" or the IMG-11 check that failed (VM7 step 6, K1)."""
+    lib = library(toolchain); status = ffi.new("int *")
+    binding = image[7] or 1                               # an image for any binding is loaded as ISO 7816
+    c = lib.cvm_new(image, len(image), 1_000_000, binding, status)
+    if c != ffi.NULL: lib.cvm_free(c)
+    return LOAD[status[0]] if status[0] < len(LOAD) else str(status[0])
+
 def context_size(toolchain="msvc"):
     return library(toolchain).cvm_context_size()
 

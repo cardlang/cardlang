@@ -195,7 +195,9 @@ class Natives:
     def n_crypto_finish(self, op, out):
         o = self.operation(op); self.hal._op_key(o["ctx"])
         if o["purpose"] == "verify": raise NativeError("InvalidState")
-        n = self.out(out, self.hal.op_finish(o["ctx"])); self.drop(op); return n
+        result = self.hal.op_finish(o["ctx"])
+        if out[1] < len(result): raise NativeError("Capacity")           # the operation continues (BP-31)
+        self.drop(op); return self.out(out, result)  # it has ended before the write, which may trap (HAL-26, K3)
 
     def n_crypto_finish_verify(self, op, signature):
         o = self.operation(op); self.hal._op_key(o["ctx"])
