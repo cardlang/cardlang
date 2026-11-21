@@ -590,46 +590,108 @@ class FuncGen:
         self.frame_size = self.high + 4 * self.max_depth
         return self
 
+    # VM7b (b): a comparison with PUSH.B k as its right operand, then JNZ or JZ, as one compare-and-branch.
+    # JZ jumps when the comparison is false, so it takes the opposite form.
+    CMP_BRANCH = {("EQ", "JNZ"): "JEQI8", ("EQ", "JZ"): "JNEI8", ("NE", "JNZ"): "JNEI8", ("NE", "JZ"): "JEQI8",
+                  ("LT", "JNZ"): "JLTI8", ("LT", "JZ"): "JGEI8", ("LE", "JNZ"): "JLEI8", ("LE", "JZ"): "JGTI8",
+                  ("GT", "JNZ"): "JGTI8", ("GT", "JZ"): "JLEI8", ("GE", "JNZ"): "JGEI8", ("GE", "JZ"): "JLTI8"}
+
     def shorten(self):
-        """Select the version-1 short forms (V-38, bytecode.md section 2.12). Semantics are unchanged."""
+        """Select the short forms (V-38, bytecode.md sections 2.12 and 2.13). Semantics are unchanged.
+        A compare-and-branch becomes a ("fused", name, operands, long items) entry: assemble() uses the short form
+        when its 8-bit jump reaches, and the original three instructions otherwise."""
         S = self.c.shorten; U32 = TYPES["u32"]; out = []
         code = self.code; i = 0
         while i < len(code):
             item = code[i]
+            if "cmpjump" in S and i + 2 < len(code) and all(x[0] == "op" for x in code[i:i + 3]):
+                p, c, j = code[i:i + 3]
+                if p[1] == "PUSH.B" and (c[1], j[1]) in self.CMP_BRANCH:
+                    name = self.CMP_BRANCH[(c[1], j[1])]; k = p[2][0]; lab = j[2][-1]
+                    ops = [k, lab] if name in ("JEQI8", "JNEI8") else [c[2][0], k, lab]
+                    push = ("op", "PUSH0" if k == 0 else "PUSH1", []) if "push" in S and k in (0, 1) else p
+                    out.append(("fused", name, ops, [push, c, j])); i += 3; continue
             # SLICEF: a view in the frame, sliced from a u32 frame slot to its end (candidate 4)
             if "slice" in S and i + 4 < len(code) and all(x[0] == "op" for x in code[i:i + 5]):
                 ops = [x[1] for x in code[i:i + 5]]; a = [x[2] for x in code[i:i + 5]]
                 if (ops == ["LDF", "LDF", "LDF", "LDF", "SLICE"] and all(x[0] == U32 for x in a[:4])
                         and a[1][1] == a[0][1] + 4 and a[3][1] == a[1][1] and a[0][1] < 256 and a[2][1] < 256):
                     out.append(("op", "SLICEF", [a[4][0], a[0][1], a[2][1]])); i += 5; continue
+                # VM7b (c) SLICEFK: the same, from a constant start below 256
+                if ("slicek" in S and ops == ["LDF", "LDF", "PUSH.B", "LDF", "SLICE"] and a[0][0] == U32 and a[1][0] == U32
+                        and a[3][0] == U32 and a[1][1] == a[0][1] + 4 and a[3][1] == a[1][1] and a[0][1] < 256):
+                    out.append(("op", "SLICEFK", [a[4][0], a[0][1], a[2][0]])); i += 5; continue
             if item[0] == "op":
                 op, ar = item[1], item[2]
                 if "frame" in S and op in ("LDF", "STF") and ar[1] < 256:          # candidate 2
-                    item = ("op", ("LDFW" if op == "LDF" else "STFW"), [ar[1]]) if ar[0] == U32 else ("op", op + "8", ar)
+                    if ar[0] == U32: item = ("op", ("LDFW" if op == "LDF" else "STFW"), [ar[1]])
+                    elif "byte" in S and ar[0] == TYPES["u8"]: item = ("op", ("LDFB" if op == "LDF" else "STFB"), [ar[1]])   # VM7b (e)
+                    else: item = ("op", op + "8", ar)
                 elif "addr" in S and op == "ADDR" and ar[0] == REGIONS["STACK"] and ar[1] < 256:   # candidate 3
                     item = ("op", "ADDRF", [ar[1]])
+                elif "addr16" in S and op == "ADDR" and ar[1] < 0x10000:            # VM7b (d)
+                    item = ("op", "ADDRH", ar)
                 elif "push" in S and op == "PUSH.B" and ar[0] in (0, 1):            # candidate 5
                     item = ("op", "PUSH0" if ar[0] == 0 else "PUSH1", [])
             out.append(item); i += 1
         self.code = out
 
+    def share_exits(self):
+        """VM7b (a): repeated error exits within a function become one. Each `J… ok; [TXN.ABORT]; ERR c; ok:`
+        whose exit occurs more than once becomes `J(opposite) shared`, and one copy of the exit is placed after the
+        function's last instruction, which is a terminator, so nothing falls into it."""
+        code = self.code
+        if not code or code[-1][0] != "op" or code[-1][1] not in TERMINATORS: return
+        sites = {}
+        for k in range(len(code) - 2):
+            j = code[k]
+            if j[0] != "op" or j[1] not in ("JZ", "JNZ"): continue
+            for n in (1, 2):
+                body = code[k + 1:k + 1 + n]
+                if (k + 1 + n < len(code) and code[k + 1 + n] == ("label", j[2][0]) and all(x[0] == "op" for x in body)
+                        and body[-1][1] == "ERR" and (n == 1 or body[0][1] == "TXN.ABORT")):
+                    sites.setdefault(tuple((x[1], tuple(x[2])) for x in body), []).append((k, n)); break
+        shared = {key: v for key, v in sites.items() if len(v) > 1}
+        if not shared: return
+        replace, drop, tail = {}, set(), []
+        for key, v in shared.items():
+            exit_label = self.label()
+            for k, n in v:
+                replace[k] = ("op", "JNZ" if code[k][1] == "JZ" else "JZ", [exit_label]); drop.update(range(k + 1, k + 1 + n))
+            tail.append(("label", exit_label)); tail += [("op", name, list(ops)) for name, ops in key]
+        self.code = [replace.get(k, x) for k, x in enumerate(code) if k not in drop] + tail
+
     def assemble(self):
         """Resolve labels, relaxing jumps to their 8-bit forms where they reach (candidate 6): returns the code."""
+        if "errexit" in self.c.shorten: self.share_exits()
         self.shorten()
         short = {k for k, item in enumerate(self.code)
                  if "jump" in self.c.shorten and item[0] == "op" and item[1] in isa.SHORT_JUMP}
-        def name_of(k, item): return isa.SHORT_JUMP[item[1]] if k in short else item[1]
+        short |= {k for k, item in enumerate(self.code) if item[0] == "fused"}
+        def name_of(k, item): return isa.SHORT_JUMP[item[1]] if k in short and item[0] == "op" else item[1]
+        def size(k, item):
+            if item[0] == "fused" and k not in short: return sum(isa.size_of(x[1], x[2]) for x in item[3])
+            return isa.size_of(name_of(k, item), item[2])
         while True:                                       # start short, lengthen what does not reach, repeat
             pos, ends, pc = {}, {}, 0
             for k, item in enumerate(self.code):
                 if item[0] == "label": pos[item[1]] = pc; continue
-                pc += isa.size_of(name_of(k, item), item[2]); ends[k] = pc
+                pc += size(k, item); ends[k] = pc
             far = {k for k in short if not -128 <= pos[self.code[k][2][-1]] - ends[k] <= 127}
             if not far: break
             short -= far
         out = bytearray(); pc = 0
         for k, item in enumerate(self.code):
             if item[0] == "label": continue
+            if item[0] == "fused" and k not in short:      # out of 8-bit reach: the original instructions
+                for x in item[3]:
+                    end = pc + isa.size_of(x[1], x[2])
+                    def rel_long(lab, end=end):
+                        r = pos[lab] - end
+                        if not -32768 <= r < 32768: raise CompileError(f"{self.name}: jump out of range")
+                        return r
+                    out += isa.encode(x[1], x[2], rel_long); pc = end
+                continue
             name = name_of(k, item); size = isa.size_of(name, item[2]); end = pc + size
             def rel(lab, end=end):
                 r = pos[lab] - end
@@ -663,7 +725,9 @@ class Compiler:
         self.chk = self.typed.chk; self.layout = Layout(self.chk); self.binding = binding
         self.const_data = bytearray(); self.natives = set()
         self.reuse, self.reuse_mutant = True, False    # slot reuse (V-34); the mutant frees live locals
-        self.shorten = {"frame", "addr", "slice", "push", "jump"}   # the version-1 short forms (V-38)
+        self.shorten = {"frame", "addr", "slice", "push", "jump",    # the short forms of VM6 (V-38)
+                        "byte", "addr16", "cmpjump", "slicek",       # and of VM7b (vm/bytecode.md §2.13),
+                        "errexit"}                                    # with its shared error exits
         self.app_codes = {k: v for k, v in pltcheck_error_codes(self.chk.toks).items()}
         names = list(self.typed.bodies)
         self.findex = {n: i for i, n in enumerate(names)}

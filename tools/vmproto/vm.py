@@ -191,20 +191,30 @@ def leave(ctx, cat, code, value):
 
 U32 = isa.TYPES["u32"]
 SHORT = {"LDF8": "LDF", "STF8": "STF", "PUSH0": "PUSH.B", "PUSH1": "PUSH.B", "JMP8": "JMP", "JZ8": "JZ", "JNZ8": "JNZ",
-         "JERR8": "JERR", "LDFW": "LDF", "STFW": "STF", "ADDRF": "ADDR"}
+         "JERR8": "JERR", "LDFW": "LDF", "STFW": "STF", "ADDRF": "ADDR", "LDFB": "LDF", "STFB": "STF", "ADDRH": "ADDR"}
+
+CMP_BRANCH = {"JEQI8", "JNEI8", "JLTI8", "JLEI8", "JGTI8", "JGEI8"}
 
 def step(ctx, name, ops, next_pc, natives):
     if name in SHORT:                                   # a short form: the same semantics as its long form (BC-39)
         if name == "PUSH0": ops = [0]
         elif name == "PUSH1": ops = [1]
         elif name in ("LDFW", "STFW"): ops = [U32, ops[0]]
+        elif name in ("LDFB", "STFB"): ops = [isa.TYPES["u8"], ops[0]]
         elif name == "ADDRF": ops = [STACK, ops[0]]
         name = SHORT[name]
-    elif name == "SLICEF":                              # the frame view at base, from the u32 at start to its end
-        size, base, start = ops
+    elif name in CMP_BRANCH:                            # PUSH.B k; the comparison; JNZ (VM7b, bytecode.md 2.13)
+        x = pop(ctx); k = ops[-2]
+        if name in ("JEQI8", "JNEI8"): taken = (x == k) == (name == "JEQI8")
+        else:
+            xv, kv = val(x, ops[0]), val(k, ops[0])
+            taken = {"JLTI8": xv < kv, "JLEI8": xv <= kv, "JGTI8": xv > kv, "JGEI8": xv >= kv}[name]
+        ctx.pc = next_pc + ops[-1] if taken else next_pc; return None
+    elif name in ("SLICEF", "SLICEFK"):                 # the frame view at base, from the u32 at start (SLICEF) or
+        size, base, start = ops                         # from the constant start (SLICEFK, VM7b) to its end
         a = load_scalar(ctx, (STACK << 29) | (ctx.fp + base), U32)
         n = load_scalar(ctx, (STACK << 29) | (ctx.fp + base + 4), U32)
-        s = load_scalar(ctx, (STACK << 29) | (ctx.fp + start), U32)
+        s = start if name == "SLICEFK" else load_scalar(ctx, (STACK << 29) | (ctx.fp + start), U32)
         if s > n: raise Trap("BOUNDS")
         push(ctx, a + s * size); push(ctx, n - s); ctx.pc = next_pc; return None
     t = ops[0] if ops else None

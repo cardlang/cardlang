@@ -5,7 +5,7 @@ Work package VM3. Plan: `plans_and_notes/vm-plans/VM3-bytecode-and-image.md`. De
 This document defines the instruction set that the VM executes: the encoding, each instruction's operands, stack effect, semantics, traps and budget charge, the calling convention, and the native numbers. Requirements are numbered `BC-n` and cite the decisions and the `VEX`, `HAL`, specification and profile rules they serve (V-9).
 
 **Version 1** is version 0 plus the short forms of §2.12, chosen from the measurements of `plans_and_notes/VM5-measurements.md` (VM6).
-- **It is frozen** (V-42, 2026-11-21). The C VM met the acceptance criteria (V-12) without any change to it: VM7 changed no instruction. Any change from now on is version 2 (VM7b).
+- **It is living until a public release** (V-51, user, 2026-11-21). The project is pre-alpha: changes are made in place, recorded in §9, with no new version number and no compatibility with older images. VM7 accepted it unchanged (V-42); that freeze is withdrawn. The tag `bytecode-v1` marks the state VM7 accepted. VM7b adds the forms of §2.13.
 - **Its image format is 1,** and a VM accepts only format 1 (IMG-11).
 
 ## 1. Encoding
@@ -56,7 +56,8 @@ Every instruction that produces a value produces it normalized. Equality on norm
 | `0x74`–`0x77` | Transactions | §2.10 |
 | `0x78`–`0x7F` | Natives | §2.11 |
 | `0x80`–`0x8B` | Short forms | §2.12 |
-| `0x8C`–`0xFF` | Unassigned | — |
+| `0x8C`–`0x95` | The second revision's forms (VM7b) | §2.13 |
+| `0x96`–`0xFF` | Unassigned | — |
 
 Gaps inside a range are unassigned.
 
@@ -321,6 +322,25 @@ A trap while a transaction is active aborts it during cleanup (VEX-40). The comp
 
 *Serves: V-38, V-39; VEX-11, VEX-13.*
 
+### 2.13 The second revision (VM7b)
+
+**BC-40** VM7b adds these forms, measured on both applets (`plans_and_notes/VM7b-measurements.md`). Like the short forms of §2.12, each has exactly the semantics, traps and stack effect of what it replaces, and charges 1 (BC-35). The prototype compiler uses each wherever it applies. The bytecode keeps its version number: it is living until a public release (V-51).
+
+| Op | Mnemonic | Operands | Same as |
+|---|---|---|---|
+| `8C` | `LDFB` | `b` | `LDF u8` with an offset below 256 |
+| `8D` | `STFB` | `b` | `STF u8` with an offset below 256 |
+| `8E` | `ADDRH` | `R h` | `ADDR R` with an offset below 65,536, in any region |
+| `8F` | `JEQI8` | `b rel8` | `PUSH.B b; EQ; JNZ8 rel8`: pop a cell, and jump if it equals `b`, zero-extended |
+| `90` | `JNEI8` | `b rel8` | `PUSH.B b; NE; JNZ8 rel8` |
+| `91` | `JLTI8` | `T b rel8` | `PUSH.B b; LT T; JNZ8 rel8`: pop a cell, and jump if it is below `b` as values of type `T` |
+| `92` | `JLEI8` | `T b rel8` | `PUSH.B b; LE T; JNZ8 rel8` |
+| `93` | `JGTI8` | `T b rel8` | `PUSH.B b; GT T; JNZ8 rel8` |
+| `94` | `JGEI8` | `T b rel8` | `PUSH.B b; GE T; JNZ8 rel8` |
+| `95` | `SLICEFK` | `h b k` | `LDF u32 b; LDF u32 b+4; PUSH.B k; LDF u32 b+4; SLICE h`: as `SLICEF`, sliced from the constant `k` to its end. If `k` is above the view's length, the result is `trap(BOUNDS)` |
+
+*Serves: V-51; VEX-11, VEX-13.*
+
 ## 3. Frames and calls
 
 **BC-22 Frame layout.** A frame begins at an absolute stack address `fp`, and has the size the function table records (IMG-6):
@@ -491,6 +511,12 @@ The VM relies on these, and checks none of them (VEX-1).
 | 2026-11-20 | BC-32: natives 35 `card.crypto.sign_digest` and 36 `card.crypto.verify_digest`, appended | WP12 (PIV step 0, Q1) |
 | 2026-11-20 | **Version 1** (VM6): the short forms of §2.12 (`80`–`8B`) and the operand kind `rel8`; image format 1 | `plans_and_notes/VM5-measurements.md` §9: all code 30,872 → 21,776 bytes (−29.5%), FIDO2 10,646 → 7,021 (−34%) |
 | 2026-11-21 | **Version 1 and image format 1 frozen** (VM7, V-42): the C VM meets V-12 with no change to the instruction set or the image format | `plans_and_notes/VM7-measurements.md` §7 |
+| 2026-11-21 | **The freeze withdrawn** (V-51, user): the bytecode and the image format are living, under version 1 and format 1, until a public release. No version changes and no compatibility before then | `vm/decisions.md` V-51 |
+| 2026-11-21 | VM7b (e): `LDFB` and `STFB` (`8C`, `8D`), BC-40 | `plans_and_notes/VM7b-measurements.md`: all code 27,268 → 26,583 (−2.5%) |
+| 2026-11-21 | VM7b (d): `ADDRH` (`8E`) | All code 26,583 → 26,257 |
+| 2026-11-21 | VM7b (b): `JEQI8`, `JNEI8`, `JLTI8`, `JLEI8`, `JGTI8`, `JGEI8` (`8F`–`94`) | All code 26,257 → 25,693 |
+| 2026-11-21 | VM7b (c): `SLICEFK` (`95`) | All code 25,693 → 25,499 |
+| 2026-11-21 | VM7b (a), compiler only: shared error exits, no new instruction | All code 25,499 → 25,443. VM7b in all: 27,268 → 25,443 (−6.7%); FIDO2 7,021 → 6,687 (−4.8%); PIV 4,505 → 4,104 (−8.9%) |
 
 ## Annex A: compiling the language constructs
 

@@ -28,7 +28,7 @@ Measured 2026-11-21 with the version-1 compiler: the sites where each candidate 
 | # | Candidate | Proposed encoding | FIDO2 (7,021 bytes) | PIV (4,505 bytes) | All programs (27,268 bytes) |
 |---|---|---|---|---|---|
 | a | **Shared error exits** (compiler only): within a function, repeated `J… over ERR c` for the same error become one `ERR` that the jumps reach | No new instruction | 15 sites, 60 bytes | 10 sites, 40 | 25 sites, 100 |
-| b | **Compare with a small constant and branch**: `PUSH0`, `PUSH1` or `PUSH.B k`, then a comparison, then a conditional jump | Equality: `JEQI8 k s` and `JNEI8 k s` compare the top cell with `k`, sign-extended as by `PUSH.B`, pop it, and jump. 3 bytes instead of 4 or 5; sites with a long jump keep the long sequence | 57 sites, 78 bytes | 69 sites, 124 | 298 sites, 507 |
+| b | **Compare with a small constant and branch**: `PUSH0`, `PUSH1` or `PUSH.B k`, then a comparison, then a conditional jump | Equality: `JEQI8 k s` and `JNEI8 k s` compare the top cell with `k`, zero-extended as by `PUSH.B`, pop it, and jump. 3 bytes instead of 4 or 5; sites with a long jump keep the long sequence | 57 sites, 78 bytes | 69 sites, 124 | 298 sites, 507 |
 | c | **Slice a frame view from a constant start to its end** (`request[4..request.length]`) | `SLICEFK h b k`: like `SLICEF`, with the start a constant byte. 5 bytes instead of 11 to 12 | 9 sites, 48 bytes | 6 sites, 36 | 36 sites, 191 |
 | d | **`ADDR` with a 16-bit offset,** for any region: persistent buffers past `ADDRF`'s 8-bit, stack-only reach | `ADDRH R h`: 4 bytes instead of 6 | 34 sites, 68 bytes | 41 sites, 82 | 162 sites, 324 |
 | e | **Byte frame loads and stores without the type byte,** like `LDFW` for `u32` | `LDFB b` and `STFB b`, `u8` only: 2 bytes instead of 3 | 91 sites, 91 bytes | 116 sites, 116 | 679 sites, 679 |
@@ -93,3 +93,15 @@ As in VM6 (G2) and V-39: all candidates are taken, each is measured cumulatively
 - **L2 (b):** the ordered forms are added as well.
 - **L3:** no version change at all. Quoting the user: "We at an extremely early stage of development. We should not burden ourselves with backward compatibility until a public release is made."
 - **L4:** nothing is frozen. Quoting the user: "Do not freeze anything. We are pre-alfa." V-51 withdraws V-42's freeze.
+
+**Done (2026-11-21).**
+- **Steps 2 to 6:** all five candidates are in, in the order (e), (d), (b), (c), (a), as eleven new forms (`8C`–`95`) plus the shared error exits.
+- **Size:**
+  - application code drops by 6.7% over the corpus: FIDO2 by 4.8%, PIV by 8.9%;
+  - the C decoder grows by 378 bytes on Cortex-M4;
+  - `sizeof(cl_vm)` and the C stack bound are unchanged.
+- **Checks:** every step passes `run_checks` on all four backends, and its C mutant (or compiler mutant, for (a)) is caught.
+- **Records:**
+  - V-51 (no freezes and no version changes before a public release) and V-52;
+  - `vm/bytecode.md` §2.13 (BC-40), with its change log;
+  - `plans_and_notes/VM7b-measurements.md`.

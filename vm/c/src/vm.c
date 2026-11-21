@@ -302,9 +302,11 @@ static cl_result run(cl_vm *vm, uint16_t findex, const uint32_t *cells, uint32_t
         case 0x10: TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP16(2)), OP8(1), &x)); PUSH(x); vm->pc = pc + 4; break;
         case 0x80: TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(2)), OP8(1), &x)); PUSH(x); vm->pc = pc + 3; break;
         case 0x82: TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(1)), CL_T_U32, &x)); PUSH(x); vm->pc = pc + 2; break;
+        case 0x8C: TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(1)), CL_T_U8, &x)); PUSH(x); vm->pc = pc + 2; break;   /* LDFB */
         case 0x11: POP(x); TRY(store_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP16(2)), OP8(1), x)); vm->pc = pc + 4; break;
         case 0x81: POP(x); TRY(store_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(2)), OP8(1), x)); vm->pc = pc + 3; break;
         case 0x83: POP(x); TRY(store_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(1)), CL_T_U32, x)); vm->pc = pc + 2; break;
+        case 0x8D: POP(x); TRY(store_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(1)), CL_T_U8, x)); vm->pc = pc + 2; break;   /* STFB */
         case 0x12: TRY(load_scalar(vm, CL_ADDR(CL_R_SESSION, OP32(2)), OP8(1), &x)); PUSH(x); vm->pc = pc + 6; break;
         case 0x13: POP(x); TRY(store_scalar(vm, CL_ADDR(CL_R_SESSION, OP32(2)), OP8(1), x)); vm->pc = pc + 6; break;
         case 0x14: TRY(load_scalar(vm, CL_ADDR(CL_R_CONST, OP32(2)), OP8(1), &x)); PUSH(x); vm->pc = pc + 6; break;
@@ -314,6 +316,10 @@ static cl_result run(cl_vm *vm, uint16_t findex, const uint32_t *cells, uint32_t
         case 0x18: {
             uint32_t r = OP8(1), off = OP32(2);
             PUSH(CL_ADDR(r, r == CL_R_STACK ? vm->fp + off : off)); vm->pc = pc + 6; break;
+        }
+        case 0x8E: {                                                                         /* ADDRH */
+            uint32_t r = OP8(1), off = OP16(2);
+            PUSH(CL_ADDR(r, r == CL_R_STACK ? vm->fp + off : off)); vm->pc = pc + 4; break;
         }
         case 0x84: PUSH(CL_ADDR(CL_R_STACK, vm->fp + OP8(1))); vm->pc = pc + 2; break;     /* ADDRF */
         case 0x19: POP(x); POP(a); if (x >= OP32(3)) { trap = CL_TRAP_BOUNDS; goto trapped; }
@@ -326,13 +332,14 @@ static cl_result run(cl_vm *vm, uint16_t findex, const uint32_t *cells, uint32_t
         case 0x21: POP(x); POP(a); TRY(store_scalar(vm, a, OP8(1), x)); vm->pc = pc + 2; break;
         /* 2.5 views */
         case 0x24: PUSH(OP32(1)); vm->pc = pc + 5; break;                                  /* VIEW */
-        case 0x25: case 0x85: {                                                              /* SLICE, SLICEF */
+        case 0x25: case 0x85: case 0x95: {                                                   /* SLICE, SLICEF, SLICEFK */
             uint32_t size = OP16(1), s, en, n, base;
             if (op == 0x25) { POP(en); POP(s); POP(n); POP(base); vm->pc = pc + 3; }
             else {
                 TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(3)), CL_T_U32, &base));
                 TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(3) + 4), CL_T_U32, &n));
-                TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(4)), CL_T_U32, &s));
+                if (op == 0x95) s = OP8(4);
+                else TRY(load_scalar(vm, CL_ADDR(CL_R_STACK, vm->fp + OP8(4)), CL_T_U32, &s));
                 en = n; vm->pc = pc + 5;
             }
             if (s > en || en > n) { trap = CL_TRAP_BOUNDS; goto trapped; }
@@ -496,6 +503,14 @@ static cl_result run(cl_vm *vm, uint16_t findex, const uint32_t *cells, uint32_t
         case 0x61: case 0x62: POP(a);
             vm->pc = ((a == 0) == (op == 0x61)) ? (uint32_t)((int64_t)pc + 3 + (int16_t)OP16(1)) : pc + 3; break;
         case 0x88: vm->pc = (uint32_t)((int64_t)pc + 2 + (int8_t)OP8(1)); break;
+        case 0x8F: case 0x90: POP(a);                                                        /* JEQI8, JNEI8 */
+            vm->pc = ((a == OP8(1)) == (op == 0x8F)) ? (uint32_t)((int64_t)pc + 3 + (int8_t)OP8(2)) : pc + 3; break;
+        case 0x91: case 0x92: case 0x93: case 0x94: {                                        /* JLTI8 ... JGEI8 */
+            unsigned t = OP8(1); POP(a);
+            int64_t xv = val(a, t), kv = val(OP8(2), t);
+            bool r = op == 0x91 ? xv < kv : op == 0x92 ? xv <= kv : op == 0x93 ? xv > kv : xv >= kv;
+            vm->pc = r ? (uint32_t)((int64_t)pc + 4 + (int8_t)OP8(3)) : pc + 4; break;
+        }
         case 0x89: case 0x8A: POP(a);
             vm->pc = ((a == 0) == (op == 0x89)) ? (uint32_t)((int64_t)pc + 2 + (int8_t)OP8(1)) : pc + 2; break;
         case 0x63: {                                                                         /* SWITCH */

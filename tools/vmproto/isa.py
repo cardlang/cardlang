@@ -54,6 +54,11 @@ OPS = {
     "LDF8": (0x80, "Tb"), "STF8": (0x81, "Tb"), "LDFW": (0x82, "b"), "STFW": (0x83, "b"),
     "ADDRF": (0x84, "b"), "SLICEF": (0x85, "hbb"), "PUSH0": (0x86, ""), "PUSH1": (0x87, ""),
     "JMP8": (0x88, "s"), "JZ8": (0x89, "s"), "JNZ8": (0x8A, "s"), "JERR8": (0x8B, "s"),
+    # 2.13 the second revision (VM7b): further short forms, from the PIV measurements
+    "LDFB": (0x8C, "b"), "STFB": (0x8D, "b"), "ADDRH": (0x8E, "Rh"),
+    "JEQI8": (0x8F, "bs"), "JNEI8": (0x90, "bs"),
+    "JLTI8": (0x91, "Tbs"), "JLEI8": (0x92, "Tbs"), "JGTI8": (0x93, "Tbs"), "JGEI8": (0x94, "Tbs"),
+    "SLICEFK": (0x95, "hbb"),
 }
 SHORT_JUMP = {"JMP": "JMP8", "JZ": "JZ8", "JNZ": "JNZ8", "JERR": "JERR8"}
 LONG_JUMP = {v: k for k, v in SHORT_JUMP.items()}
