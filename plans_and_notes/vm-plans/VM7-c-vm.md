@@ -20,6 +20,11 @@ Status: decisions taken 2026-11-21, by the user. They become V-42 to V-45 at dra
 
 §2 to §4 are amended below; the decision table keeps the options as they were offered.
 
+**Step 1 done (2026-11-21):**
+- `vm/c/CMakeLists.txt`, `cmake/llvm-mingw-x86_64.cmake`, `build.py` and `README.md`;
+- `src/header_check.c` builds into `cardlang_vm` warning-free with MSVC 19.52 and clang 23.1.6, both in strict C11;
+- `cl_hal.h` and `cl_hal_test.h` compile as VM2 wrote them, with static assertions on the status codes and enum ordinals.
+
 ## 1. Scope
 
 VM7 writes the product VM in portable C11, a host (PC) HAL to run it, and a harness backend `cvm`, so that the C VM runs the same tests as the two other backends (V-10, V-12).
@@ -71,6 +76,7 @@ A build that warns on either compiler fails. Visual Studio's CMake and Ninja are
 | CMake | Visual Studio 2026, `Common7\IDE\CommonExtensions\Microsoft\CMake` | 4.3.1-msvc1 | |
 | Ninja | The same folder | 1.13.2 | |
 | clang | `<workspace>\llvm-mingw-20261117-ucrt-i686` | 23.1.6 | The default target is `i686`. The DLL must be built with `x86_64-w64-mingw32-clang`, because the uv Python is 64-bit (AMD64). It also has `armv7` and `aarch64` cross-compilers |
+| Global CMake and Ninja (for clang) | `C:\Program Files\CMake\bin`; Ninja in its winget package folder | 4.4.4, 1.13.2 | Installed by the user, 2026-11-21, so that the clang build needs no Visual Studio. MSVC builds keep Visual Studio's CMake and Ninja |
 | Python | The project's uv environment (`.venv`, `uv run python`) | 3.13.14, 64-bit | The only Python used (user, 2026-11-21) |
 
 **A first test passed.** A small C11 program builds warning-free with both compilers, and gives the same output: MSVC at `/std:c11 /W4 /WX`, clang at `-std=c11 -Wall -Wextra -Wpedantic -Werror`. One quirk: in this environment `cmd` does not run programs from the current folder by name, so scripts must give a path such as `.\prog.exe`.
