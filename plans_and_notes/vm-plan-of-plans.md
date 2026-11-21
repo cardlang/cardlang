@@ -67,6 +67,9 @@ Each package gets its own sub-plan in `plans_and_notes/vm-plans/VMn-*.md`, revie
 | **VM6 Bytecode revision** | A measured revision of VM3: encoding density, specialised and combined instructions, from the VM5 figures, mainly on the FIDO2 applet | VM5 |
 | **VM7 C11 VM and a host HAL** | `vm/c/`: the product VM in portable C11, a host (PC) HAL implementation, and a harness that runs the same scenarios and `check_fido2` against it | VM6 |
 | **VM8 Footprint report** | Measured RAM bookkeeping (V-2), stack and code figures for the FIDO2 applet; optionally a first embedded port | VM7 |
+| **VM7b Bytecode version 2** (added 2026-11-21) | The PIV candidates of `VM5-measurements.md` §10.4 (compare-and-branch, `SLICEF` from a constant start, `ADDR` with a 16-bit offset, a typeless byte load), measured on both applets with the C VM, which shows each one's decoder cost as well as its code saving. Plus the shared error exits, which are compiler-only | VM7 |
+| **VM9 Real-world bridge** (added 2026-11-21) | A host build of the C VM behind a virtual smartcard reader, such as vsmartcard's virtual PC/SC reader, so that real host software drives the applets: a browser and FIDO2 test sites for FIDO2, OpenSC and `pkcs11-tool` for PIV, GnuPG for OpenPGP | VM7 |
+| **WP13 OpenPGP card applet** (added 2026-11-21) | A third applet: the OpenPGP card functional specification 3.4, P-256 subset, tested from day one with GnuPG through the bridge. It is done after VM7, because PIV already covers its shape (TLV data objects, PINs, P-256), and because its main payoff is the end-to-end test with GnuPG. What it adds: application lifecycle (TERMINATE DF, ACTIVATE FILE), private-key import, a persistent signature counter, PIN modes, and likely pressure for a second curve family (Ed25519, Curve25519) | VM7, VM9 |
 
 **Order:** VM0, then VM1 and VM2 together, then VM3 to VM8 in sequence. VM4 and VM5 are one feedback loop and may be planned together.
 
