@@ -11,6 +11,8 @@ uv run python -I vm/c/build.py all --clean
 ```
 
 This builds with both toolchains (J1). Build trees go to `vm/c/build/<toolchain>/`, which git ignores.
+
+The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) from its GitHub releases into `vm/c/build/downloads/`, and checks it against the SHA-256 the release publishes. Both build trees share that one archive.
 - **`msvc`:** MSVC from the newest Visual Studio, found with `vswhere`, with Visual Studio's CMake and Ninja.
 - **`clang`:** clang from llvm-mingw, targeting 64-bit Windows (`cmake/llvm-mingw-x86_64.cmake`), with the global CMake and Ninja from the `PATH`. It needs no Visual Studio. `build.py` refreshes the `PATH` from the registry, so tools installed after the shell started are found. The folder is `CARDLANG_LLVM_MINGW`, or else the newest `llvm-mingw-*` next to the repository.
 
@@ -30,7 +32,7 @@ This builds with both toolchains (J1). Build trees go to `vm/c/build/<toolchain>
 |---|---|
 | 1. Toolchains and the CMake project; the HAL headers compile on both compilers | Done |
 | 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | Done: the 18 runtime tests without natives pass on `cvm-msvc` and `cvm-clang`; `sizeof(cl_vm)` is 272 bytes on 64-bit Windows |
-| 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | — |
-| 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | — |
+| 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | Done: all 32 runtime tests pass on both backends |
+| 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | Done with step 3: both pass on both backends; `tools/run_checks.py` runs all of it |
 | 5. Measurement | — |
 | 6. Acceptance, and freezing version 1 | — |

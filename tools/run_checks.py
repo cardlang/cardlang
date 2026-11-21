@@ -1,7 +1,8 @@
 """Run every reference checker over the conformance tests it covers.
 
-Usage (from the repository root):
-    python -I tools/run_checks.py
+Usage (from the repository root), after building the C VM:
+    uv run python -I vm/c/build.py all
+    uv run python -I tools/run_checks.py
 
 Exit status 0 means every test produced its expected result.
 """
@@ -54,6 +55,13 @@ RUNS = [
     # The PIV example applet (WP12), checked independently, on both backends.
     ("../piv/check_piv.py", None, "examples/piv: a PIV session, checked independently"),
     ("../piv/check_piv.py", "--backend vmproto", "examples/piv on the prototype VM"),
+    # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios and applet checks.
+    ("../harness/scenario.py", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
+    ("../harness/scenario.py", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
+    ("../fido/check_fido2.py", "--backend cvm-msvc", "cvm-msvc: the FIDO2 check on the C VM"),
+    ("../fido/check_fido2.py", "--backend cvm-clang", "cvm-clang: the FIDO2 check on the C VM"),
+    ("../piv/check_piv.py", "--backend cvm-msvc", "cvm-msvc: examples/piv on the C VM"),
+    ("../piv/check_piv.py", "--backend cvm-clang", "cvm-clang: examples/piv on the C VM"),
 ]
 
 def main():

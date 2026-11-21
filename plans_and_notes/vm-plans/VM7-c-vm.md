@@ -92,6 +92,23 @@ The C VM follows the prototype. Each C module is written against its specificati
 - **Size:** `sizeof(cl_vm)` is 272 bytes on 64-bit Windows with both compilers; its six pointers take 8 bytes each there.
 - **Renamed:** the prototype's `dis.py` is now `disasm.py`, because it shadowed the standard `dis` module, which `cffi` imports.
 
+**Step 3 done (2026-11-21), and with it step 4:**
+- **Mbed TLS 3.6.8 LTS** (user's choice over 4.3.0). CMake downloads the release archive once into `vm/c/build/downloads/`, checked against the published SHA-256 `bc54b818…595b`, and builds `mbedcrypto` from it with FetchContent. Its default configuration is used.
+- **`src/natives.c`:** a port of `natives.py`, check for check: the argument cells (one signature string per native), the identifier space, the operation table (`CL_OP_SLOTS` = 2) with its lifetimes, and the error precedence. CBOR, BER-TLV and DER are in C, without recursion: `validate` keeps the nesting, at most 16 levels, on an explicit stack. The test-only catalog is compiled in with `CL_TEST_CATALOG`.
+- **Descriptors (HAL-11, HAL-12):** RAM and `CONST` views go to the HAL as pointers, persistent views as readers and writers. A writer opens its atomic update at the HAL's first write, which comes only once the call can no longer fail. So an error is never turned into a trap, and the update covers exactly the result, as in the prototype.
+- **The host HAL:** keys are kept as raw material, so a transaction's snapshot of the persistent keys is a plain copy. Each key is imported into PSA as a volatile key for one call only. The crypto is PSA (SHA-256, HMAC, deterministic ECDSA, ECDH, AES-CBC), plus `mbedtls_hkdf`, plus the bignum module for the prototype's key generation. The test hooks now include the test catalog's resources (`cl_hal_test.h`).
+- **`cl_config`** gains the resource area (`ops`, `ops_size`) of HAL-27. `cl_vm` gains its pointer and the 2-entry operation table: `sizeof(cl_vm)` is now 296 bytes on 64-bit Windows, against 272 before.
+- **The host's operation context is 416 bytes,** a PSA hash or MAC operation under Mbed TLS's default configuration. That is more than `cl_hal.h`'s default `CL_HAL_OP_CTX_SIZE` of 256, so the build sets it, and `hal_host.c` checks that it fits. It belongs to the platform's resource area, not to the VM's bookkeeping.
+- **Results:**
+  - all 32 runtime tests pass on `cvm-msvc` and `cvm-clang`, warning-free, at the first run;
+  - so do `check_fido2` (59 checks) and `check_piv` (69 checks);
+  - `tools/run_checks.py` now runs these six rows too, after `vm/c/build.py all`.
+- **The tests reach the new code.** With the CBOR map-key order check removed, run-021 fails.
+- **A gap in the corpus.** A generator mutant (the counter little-endian) passed every test: no scenario checks generated key bytes or random output beyond the first 32-byte block. An ad hoc differential check compared the prototype and both C builds instead: random streams, generated EC, AES and HMAC keys, RFC 6979 signatures, MACs and ciphertexts all came out byte-identical. A runtime test with fixed expected bytes for seeded generation would close the gap on every backend.
+- **Known differences from the prototype,** both outside every test:
+  - HAL-27's extra internal operation slot is not used; nothing in version 1 needs it;
+  - when `finish` writes into a persistent output and that write traps with `TXN-CAPACITY`, the C HAL has already ended the operation, while the prototype keeps it.
+
 VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements.md` §10.4 wait for version 2 (VM7b).
 
 1. **Toolchain** (J1): check MSVC, CMake and Ninja from Visual Studio 2026, and clang from llvm-mingw. A first `CMakeLists.txt` builds an empty library with both: MSVC with the Ninja generator, and llvm-mingw with a CMake toolchain file.

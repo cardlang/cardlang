@@ -20,7 +20,7 @@
 typedef struct cvm {
     cl_vm vm;
     cl_hal *hal;
-    uint8_t *image, *session, *stack;
+    uint8_t *image, *session, *stack, *ops;
     uint32_t persistent_size;
     bool deselected;
 } cvm;
@@ -30,10 +30,11 @@ static uint32_t le32(const uint8_t *p) {
 }
 
 CVM_API uint32_t cvm_context_size(void) { return (uint32_t)sizeof(cl_vm); }
+CVM_API uint32_t cvm_op_context_size(void) { return cl_host_op_size(); }      /* the HAL's, not the VM's */
 
 CVM_API void cvm_free(cvm *c) {
     if (c == NULL) return;
-    free(c->hal); free(c->image); free(c->session); free(c->stack); free(c);
+    free(c->hal); free(c->image); free(c->session); free(c->stack); free(c->ops); free(c);
 }
 
 CVM_API cvm *cvm_new(const uint8_t *image, uint32_t size, uint32_t budget, int binding, int *load_status) {
@@ -47,10 +48,12 @@ CVM_API cvm *cvm_new(const uint8_t *image, uint32_t size, uint32_t budget, int b
     c->image = malloc(size);
     c->session = calloc(session ? session : 1, 1);
     c->stack = calloc(stack ? stack : 1, 1);
-    if (!c->hal || !c->image || !c->session || !c->stack) { cvm_free(c); return NULL; }
+    c->ops = malloc(CL_OP_SLOTS * CL_HAL_OP_CTX_SIZE);                 /* malloc aligns for any type (HAL-27) */
+    if (!c->hal || !c->image || !c->session || !c->stack || !c->ops) { cvm_free(c); return NULL; }
     memcpy(c->image, image, size);
-    cl_host_hal_init(c->hal);
-    cl_config cfg = {c->session, session, c->stack, stack, budget, (uint8_t)binding, true};
+    if (!cl_host_hal_init(c->hal)) { cvm_free(c); return NULL; }
+    cl_config cfg = {c->session, session, c->stack, stack, budget, (uint8_t)binding, true,
+                     c->ops, CL_OP_SLOTS * CL_HAL_OP_CTX_SIZE};
     *load_status = (int)cl_vm_load(&c->vm, &cfg, c->image, size, c->hal);
     if (*load_status != CL_LOAD_OK) { cvm_free(c); return NULL; }
     return c;

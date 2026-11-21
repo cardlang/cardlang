@@ -19,6 +19,7 @@ CDEF = """
 typedef struct { uint8_t kind; uint8_t category; uint16_t code; bool has_count; uint32_t count; } cl_result;
 typedef struct cvm cvm;
 uint32_t cvm_context_size(void);
+uint32_t cvm_op_context_size(void);
 cvm *cvm_new(const uint8_t *image, uint32_t size, uint32_t budget, int binding, int *load_status);
 void cvm_free(cvm *c);
 void cvm_install(cvm *c, cl_result *out);
@@ -88,3 +89,6 @@ class CvmCard:
 
 def context_size(toolchain="msvc"):
     return library(toolchain).cvm_context_size()
+
+def op_context_size(toolchain="msvc"):
+    return library(toolchain).cvm_op_context_size()

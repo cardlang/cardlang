@@ -20,6 +20,7 @@ enum { CL_R_CONST = 0, CL_R_PERSISTENT = 1, CL_R_SESSION = 2, CL_R_STACK = 3, CL
 /* Type codes (BC-3). */
 enum { CL_T_U8 = 0, CL_T_U16, CL_T_U32, CL_T_I8, CL_T_I16, CL_T_I32 };
 
+uint8_t *cl_region(cl_vm *vm, uint32_t a, uint32_t n, bool writing);   /* RAM or CONST bytes, or NULL */
 int cl_hal_trap(cl_status s);                       /* a HAL status as a trap code (BC-37) */
 int cl_read(cl_vm *vm, uint32_t a, uint8_t *dst, uint32_t n);
 int cl_write(cl_vm *vm, uint32_t a, const uint8_t *src, uint32_t n);

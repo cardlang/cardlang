@@ -29,6 +29,8 @@ typedef struct {
     uint32_t budget;          /* instructions per entry (VEX-42) */
     uint8_t binding;          /* 1 ISO 7816, 2 raw (IMG-4) */
     bool test_natives;        /* a test build: the test-only catalog's natives from 0xF000 (V-33) */
+    void *ops;                /* the resource area: CL_OP_SLOTS operation contexts (HAL-27) */
+    uint32_t ops_size;        /* at least CL_OP_SLOTS * CL_HAL_OP_CTX_SIZE, aligned to CL_HAL_OP_CTX_ALIGN */
 } cl_config;
 
 /* ------------------------------------------------------------------ loading (IMG-11) */
@@ -38,7 +40,7 @@ typedef enum {
     CL_LOAD_FORMAT,           /* magic or format version */
     CL_LOAD_PROFILE,          /* profile or binding */
     CL_LOAD_LAYOUT,           /* image size, sections, entries or function table */
-    CL_LOAD_AREAS,            /* SESSION or STACK larger than the configuration */
+    CL_LOAD_AREAS,            /* SESSION, STACK or the resource area too small */
     CL_LOAD_STORAGE,          /* PERSISTENT larger than the HAL's partition */
     CL_LOAD_ATOMIC,           /* a static persistent destination above the atomic capacity */
     CL_LOAD_NATIVE            /* an imported native the VM does not provide */
@@ -72,6 +74,10 @@ typedef enum {
 /* ------------------------------------------------------------------ the context (VEX-49) */
 
 #define CL_BOUNCE 128u        /* the bounce buffer (V-22) */
+#define CL_OP_SLOTS 2u        /* multi-part operations at a time (BP-16) */
+
+/* One entry of the native library's operation table (HAL-26); its context is slot i of the resource area. */
+typedef struct { uint32_t id; uint8_t used, purpose, lifetime; } cl_op;
 
 typedef struct cl_vm {
     const uint8_t *image;
@@ -93,6 +99,8 @@ typedef struct cl_vm {
     uint8_t txn, atomic, state;
     uint32_t budget, budget_cfg;
     cl_hal *hal;
+    uint8_t *ops;             /* the resource area (HAL-27) */
+    cl_op op[CL_OP_SLOTS];
     uint8_t bounce[CL_BOUNCE];
 } cl_vm;
 

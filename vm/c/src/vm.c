@@ -59,7 +59,7 @@ int cl_hal_trap(cl_status s) {
 /* ------------------------------------------------------------------ memory (VEX-7, VEX-26 to VEX-28, VEX-34) */
 
 /* A direct pointer to n bytes of a RAM or CONST region, or NULL for PERSISTENT or out of range. */
-static uint8_t *region(cl_vm *vm, uint32_t a, uint32_t n, bool writing) {
+uint8_t *cl_region(cl_vm *vm, uint32_t a, uint32_t n, bool writing) {
     uint32_t off = CL_OFF(a);
     switch (CL_TAG(a)) {
     case CL_R_CONST:
@@ -88,7 +88,7 @@ int cl_read(cl_vm *vm, uint32_t a, uint8_t *dst, uint32_t n) {
         memset(vm->bounce, 0, CL_BOUNCE);
         return 0;
     }
-    const uint8_t *p = region(vm, a, n, false);
+    const uint8_t *p = cl_region(vm, a, n, false);
     if (p == NULL) return CL_TRAP_VM;
     memmove(dst, p, n);
     return 0;
@@ -110,7 +110,7 @@ int cl_write(cl_vm *vm, uint32_t a, const uint8_t *src, uint32_t n) {
         vm->atomic = 0;
         return t;
     }
-    uint8_t *p = region(vm, a, n, true);
+    uint8_t *p = cl_region(vm, a, n, true);
     if (p == NULL) return CL_TRAP_VM;
     memmove(p, src, n);
     return 0;
@@ -138,7 +138,7 @@ static int write_pattern(cl_vm *vm, uint32_t a, const uint8_t *pattern, uint32_t
         vm->atomic = 0;
         return t;
     }
-    uint8_t *p = region(vm, a, total, true);
+    uint8_t *p = cl_region(vm, a, total, true);
     if (p == NULL) return CL_TRAP_VM;
     for (uint32_t i = 0; i < total; i++) p[i] = pattern[i % w];
     return 0;
@@ -149,10 +149,10 @@ static int copy(cl_vm *vm, uint32_t d, uint32_t s, uint32_t n) {
     bool dp = CL_TAG(d) == CL_R_PERSISTENT, sp = CL_TAG(s) == CL_R_PERSISTENT;
     if (dp && sp) return cl_hal_trap(cl_hal_copy(vm->hal, CL_OFF(d), CL_OFF(s), n));
     if (dp) {                                           /* RAM or CONST into PERSISTENT */
-        const uint8_t *src = region(vm, s, n, false);
+        const uint8_t *src = cl_region(vm, s, n, false);
         return src ? cl_write(vm, d, src, n) : CL_TRAP_VM;
     }
-    uint8_t *dst = region(vm, d, n, true);
+    uint8_t *dst = cl_region(vm, d, n, true);
     if (dst == NULL) return CL_TRAP_VM;
     return cl_read(vm, s, dst, n);                      /* memmove for RAM to RAM; chunks from PERSISTENT */
 }
@@ -218,6 +218,8 @@ cl_load_status cl_vm_load(cl_vm *vm, const cl_config *cfg, const uint8_t *image,
     }
     if (vm->entry[0] == NONE_ENTRY) return CL_LOAD_LAYOUT;
     if (session > cfg->session_size || stack > cfg->stack_size) return CL_LOAD_AREAS;
+    if (cfg->ops == NULL || cfg->ops_size < CL_OP_SLOTS * CL_HAL_OP_CTX_SIZE ||
+        (uintptr_t)cfg->ops % CL_HAL_OP_CTX_ALIGN != 0) return CL_LOAD_AREAS;              /* HAL-27 */
     if (persistent > cl_hal_storage_size(hal)) return CL_LOAD_STORAGE;
     if (max_atomic > cl_hal_atomic_capacity(hal)) return CL_LOAD_ATOMIC;
     for (uint16_t i = 0; i < icount; i++)
@@ -232,6 +234,7 @@ cl_load_status cl_vm_load(cl_vm *vm, const cl_config *cfg, const uint8_t *image,
     vm->session = cfg->session; vm->session_size = session;
     vm->stack = cfg->stack; vm->stack_size = cfg->stack_size;
     vm->budget_cfg = cfg->budget; vm->hal = hal;
+    vm->ops = (uint8_t *)cfg->ops; memset(vm->ops, 0, CL_OP_SLOTS * CL_HAL_OP_CTX_SIZE);
     vm->state = CL_STATE_NOT_INSTALLED;
     return CL_LOAD_OK;
 }
