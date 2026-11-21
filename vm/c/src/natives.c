@@ -18,6 +18,11 @@
 #define ERR(code) (0x10000 | (int)(code))
 #define IS_ERR(r) (((r) & 0x10000) != 0)
 #define TRY(e) do { int t_ = (e); if (t_) return t_; } while (0)
+#if defined(_MSC_VER)
+#define NOINLINE __declspec(noinline)
+#else
+#define NOINLINE __attribute__((noinline))
+#endif
 
 #define CAT_PLATFORM 2u
 #define MAX_DEPTH 16u                     /* the nesting validate must support (BP-36, BP-45) */
@@ -252,15 +257,24 @@ static bool less(src *s, uint32_t a0, uint32_t a1, uint32_t b0, uint32_t b1) {
     return a0 == a1 && b0 < b1;
 }
 
-typedef struct { uint64_t remaining; uint8_t major; bool want_value, has_prev; uint32_t prev0, prev1, key0; } cbor_level;
+/* One open array, map or tag: 16 bytes, so 16 levels take 256 bytes of C stack (VM7-measurements.md, F1).
+ * - remaining: items still to read (pairs, for a map), saturated at len + 1. Each item takes at least a byte, so
+ *   a saturated count fails exactly where the true one would, as in cbor_skip. Views are below 2^29 bytes, which
+ *   leaves the top two bits for LV_MAP (a map, not an array or tag) and LV_VALUE (the map's next item is a value).
+ * - key0, prev0, prev1: where the current key starts, and the previous key's range. prev1 is 0 until a map has
+ *   read its first key, since every key ends after the map's head. A tag is an array of one item. */
+#define LV_MAP 0x80000000u
+#define LV_VALUE 0x40000000u
+#define LV_COUNT 0x3FFFFFFFu
+typedef struct { uint32_t remaining, key0, prev0, prev1; } cbor_level;
 
 /* The strict check of BP-36, depth first in the order of testcbor._validate, with the nesting as a stack. */
-static int cbor_validate(src *s, uint32_t *end) {
+static NOINLINE int cbor_validate(src *s, uint32_t *end) {
     cbor_level lv[MAX_DEPTH];
-    uint32_t depth = 0, pos = 0;
+    uint32_t depth = 0, pos = 0, cap = s->len + 1;
     for (;;) {
         if (depth + 1 > MAX_DEPTH) return ERR(CL_ERR_UNSUPPORTED);
-        if (depth && lv[depth - 1].major == 5 && !lv[depth - 1].want_value) lv[depth - 1].key0 = pos;
+        if (depth && (lv[depth - 1].remaining & (LV_MAP | LV_VALUE)) == LV_MAP) lv[depth - 1].key0 = pos;
         uint8_t major; uint64_t val; uint32_t size;
         TRY(cbor_read_head(s, pos, &major, &val, &size));
         pos += size;
@@ -268,25 +282,22 @@ static int cbor_validate(src *s, uint32_t *end) {
             if (val > s->len - pos) return ERR(CL_ERR_MALFORMED);
             if (major == 3 && !utf8_ok(s, pos, (uint32_t)val)) return ERR(CL_ERR_MALFORMED);
             pos += (uint32_t)val;
-        } else if ((major == 4 || major == 5) && val > 0) {
+        } else if ((major == 4 || major == 5 || major == 6) && (major == 6 || val > 0)) {
             cbor_level *l = &lv[depth++];
-            l->remaining = val; l->major = major; l->want_value = false; l->has_prev = false;
-            continue;
-        } else if (major == 6) {
-            cbor_level *l = &lv[depth++];
-            l->remaining = 1; l->major = 6;
+            uint32_t count = major == 6 ? 1u : (val > cap ? cap : (uint32_t)val);
+            l->remaining = count | (major == 5 ? LV_MAP : 0u); l->prev1 = 0;
             continue;
         }
         /* An item ended at pos: climb out of every container it completes. */
         while (depth) {
             cbor_level *l = &lv[depth - 1];
-            if (l->major == 5 && !l->want_value) {               /* a key ended: keys strictly increase */
-                if (l->has_prev && !less(s, l->prev0, l->prev1, l->key0, pos)) return ERR(CL_ERR_MALFORMED);
-                l->prev0 = l->key0; l->prev1 = pos; l->has_prev = true; l->want_value = true;
+            if ((l->remaining & (LV_MAP | LV_VALUE)) == LV_MAP) {    /* a key ended: keys strictly increase */
+                if (l->prev1 && !less(s, l->prev0, l->prev1, l->key0, pos)) return ERR(CL_ERR_MALFORMED);
+                l->prev0 = l->key0; l->prev1 = pos; l->remaining |= LV_VALUE;
                 break;
             }
-            l->want_value = false;
-            if (--l->remaining) break;
+            l->remaining &= ~LV_VALUE;
+            if (--l->remaining & LV_COUNT) break;
             depth--;
         }
         if (depth == 0) { *end = pos; return 0; }
@@ -339,7 +350,7 @@ static int tlv_head(src *s, uint32_t i, uint32_t end, tlv *t) {
 }
 
 /* testtlv._validate, with the enclosing objects' ends as a stack. */
-static int tlv_validate(src *s, uint32_t *end) {
+static NOINLINE int tlv_validate(src *s, uint32_t *end) {
     uint32_t ends[MAX_DEPTH];
     uint32_t depth = 0, pos = 0, first = 0;
     for (;;) {
@@ -490,15 +501,13 @@ static int begin(cl_vm *vm, uint32_t op, cl_op_purpose purpose, uint32_t key, ui
         *res = n_;                                                            \
     } while (0)
 
-static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+/* Each family of natives has its own function and frame, so only one family's locals are on the C stack at a
+ * time (VM7-measurements.md, F1). */
+/* card.key (BP-18 to BP-25) */
+static NOINLINE int keys(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
     cl_hal *hal = vm->hal;
-    cl_in in, in2, in3; rd_ctx r, r2, r3;
     cl_key_type kt;
-    bool valid = false;
-    int op, e;
-    src s;
-    uint8_t buf[16];
-    uint32_t n = 0, z = 0, v = 0;
+    (void)hal; (void)number; (void)res; (void)slot;
     switch (number) {
     /* card.key */
     case 1: return create_key(vm, c[0], c[1], true, 0, 0);
@@ -510,6 +519,17 @@ static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res
         HAL_OUT(c[1], c[2], 65, cl_hal_key_export_public(hal, c[0], &out, &n_));
         return 0;
     case 4: TRY(need_key(vm, c[0], M_ALL, NULL)); return st(cl_hal_key_delete(hal, c[0]));
+    default: return CL_TRAP_VM;
+    }
+}
+
+/* One-shot cryptography (BP-29) */
+static NOINLINE int one_shot(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+    cl_hal *hal = vm->hal;
+    cl_in in, in2, in3; rd_ctx r, r2, r3;
+    bool valid = false;
+    (void)hal; (void)number; (void)res; (void)slot;
+    switch (number) {
     /* one-shot cryptography */
     case 5:
         TRY(in_view(vm, c[1], c[2], &in, &r));
@@ -553,6 +573,18 @@ static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res
         HAL_OUT(c[6], c[7], c[5], cl_hal_cipher(hal, c[0], (cl_cipher_alg)c[1], number == 11 ? CL_ENCRYPT : CL_DECRYPT,
                                                 &in, &in2, &out, &n_));
         return 0;
+    default: return CL_TRAP_VM;
+    }
+}
+
+/* Multi-part cryptography and randomness (BP-31, BP-32) */
+static NOINLINE int multi_part(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+    cl_hal *hal = vm->hal;
+    cl_in in; rd_ctx r;
+    bool valid = false;
+    int op;
+    (void)hal; (void)number; (void)res; (void)slot;
+    switch (number) {
     /* multi-part cryptography */
     case 13: return begin(vm, c[0], CL_OP_DIGEST, 0, c[1], c[2]);
     case 14: return begin(vm, c[0], CL_OP_MAC, c[1], c[2], c[3]);
@@ -577,6 +609,19 @@ static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res
         *res = valid; return 0;
     case 20: TRY(operation(vm, c[0], &op)); op_drop(vm, op); return 0;
     case 21: HAL_OUT(c[0], c[1], c[1], cl_hal_random(hal, &out)); *res = c[1]; return 0;
+    default: return CL_TRAP_VM;
+    }
+}
+
+/* CBOR, BER-TLV and DER (BP-34 to BP-46) */
+static NOINLINE int codecs(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+    cl_hal *hal = vm->hal;
+    int e;
+    src s;
+    uint8_t buf[16];
+    uint32_t n = 0, z = 0, v = 0;
+    (void)hal; (void)number; (void)res; (void)slot;
+    switch (number) {
     /* card.cbor */
     case 22: case 24:
         TRY(src_open(vm, c[0], c[1], &s));
@@ -642,7 +687,17 @@ static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res
         v = n + (c[1] - z);
         if (number == 32) { *res = v; return 0; }
         TRY(emit(vm, c[2], c[3], buf, n, c[0] + z, c[1] - z, 0)); *res = v; return 0;
+    default: return CL_TRAP_VM;
+    }
+}
+
 #ifdef CL_TEST_CATALOG
+/* The test-only catalog (conformance/platform/test-catalog.txt, V-33) */
+static NOINLINE int test_catalog(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+    cl_hal *hal = vm->hal;
+    uint32_t n = 0, v = 0;
+    (void)hal; (void)number; (void)res; (void)slot;
+    switch (number) {
     /* the test-only catalog (conformance/platform/test-catalog.txt, V-33) */
     case 0xF000: return st(cl_hal_test_resource_create(hal, c[0], c[1]));
     case 0xF001: TRY(st(cl_hal_test_resource_get(hal, c[0], &n, &v))); return st(cl_hal_test_resource_delete(hal, c[0]));
@@ -658,9 +713,21 @@ static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res
         TRY(st(cl_hal_test_resource_get(hal, c[0], &n, &v)));
         if (n != 2) return ERR(CL_ERR_WRONG_RESOURCE);
         TRY(emit(vm, c[3], c[4], NULL, 0, c[1], c[2], 0x5A)); *res = c[2]; return 0;
-#endif
     default: return CL_TRAP_VM;
     }
+}
+
+#endif
+
+static int dispatch(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
+    if (number <= 4) return keys(vm, number, c, res, slot);
+    if (number <= 12 || number == 35 || number == 36) return one_shot(vm, number, c, res, slot);
+    if (number <= 21) return multi_part(vm, number, c, res, slot);
+    if (number <= 34) return codecs(vm, number, c, res, slot);
+#ifdef CL_TEST_CATALOG
+    if (number >= 0xF000) return test_catalog(vm, number, c, res, slot);
+#endif
+    return CL_TRAP_VM;
 }
 
 /* NATIVE n (BC-21, BC-34): pop the arguments, charge the budget, run, and report the outcome through out_cat and

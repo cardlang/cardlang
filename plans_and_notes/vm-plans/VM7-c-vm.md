@@ -114,7 +114,7 @@ The C VM follows the prototype. Each C module is written against its specificati
 - **Code:** 16.2 KB on Cortex-M4 at `-Os`, 19.8 KB on Cortex-M0+.
 - **Confirmed:** zero mutable data and bss on every target (V-8); an acyclic call graph with static frames only (VEX-19).
 - **Speed:** about 250 million instructions a second on the host, against the prototype's 0.71 million. The benchmark is `vm/c/test/bench.card`, and both VMs execute exactly the same number of instructions.
-- **Finding F1:** the VM's C stack, never bounded before, reaches 1,040 bytes on Cortex-M4. Most of it is `cbor_validate`'s 16-level stack (472 bytes) and the inlined `dispatch` (320 bytes). Changes to the C code alone could take it to about 600 bytes.
+- **Finding F1:** the VM's C stack, never bounded before, reaches 1,040 bytes on Cortex-M4. Most of it is `cbor_validate`'s 16-level stack (472 bytes) and the inlined `dispatch` (320 bytes). Changes to the C code alone could take it to about 600 bytes. **Fixed:** packed codec levels, and one frame per family of natives, bring it to 856 bytes on Cortex-M4 and 904 on M0+. That is above the 600 estimated: the 16 required levels alone take 256 bytes.
 - **Finding F2:** 64-bit integer arithmetic brings in `__aeabi_*` helper calls, which matter most on M0+. That is for VM8.
 
 VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements.md` §10.4 wait for version 2 (VM7b).

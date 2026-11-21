@@ -12,9 +12,9 @@ uv run python -I vm/c/measure.py > measurements.json
 | Measure | Result | Against |
 |---|---|---|
 | **VM context, `sizeof(cl_vm)`** | **252 bytes** on 32-bit targets; 296 on 64-bit Windows | The prototype's 216 bytes; V-2's bound of 1 KiB |
-| **The VM's C stack, worst case** | **1,040 bytes** on Cortex-M4, 1,080 on Cortex-M0+, beneath the HAL's own frames | Not estimated before. See §3: a finding |
-| **Code, Cortex-M4, `-Os`** | 16.2 KB of code and 262 bytes of constants (`vm.c` 9.3 KB, `natives.c` 7.0 KB) | Not a primary concern (the user's goals) |
-| **Code, Cortex-M0+, `-Os`** | 19.8 KB of code and 262 bytes of constants | |
+| **The VM's C stack, worst case** | **856 bytes** on Cortex-M4, 904 on Cortex-M0+, beneath the HAL's own frames; 1,040 and 1,080 before the F1 fix | Not estimated before. See §3 |
+| **Code, Cortex-M4, `-Os`** | 16.3 KB of code and 262 bytes of constants (`vm.c` 9.3 KB, `natives.c` 7.1 KB) | Not a primary concern (the user's goals) |
+| **Code, Cortex-M0+, `-Os`** | 20.0 KB of code and 262 bytes of constants | |
 | **Mutable data and bss** | **0 bytes** in every build, on every target | V-8: no global state |
 | **Recursion, dynamic stack frames** | **None**: the call graph is acyclic, and every frame is static | VEX-19 |
 | **Speed on the host** | 253 million instructions a second (MSVC), 229 million (clang) | The prototype's 0.71 million: about 350 times faster |
@@ -66,6 +66,29 @@ The VM runs on the platform's C stack, below the HAL's own frames. Nothing in th
 
 The two together should bring the worst path to about 600 bytes.
 
+**F1, fixed (2026-11-21).** Both changes are made, in `natives.c` only:
+- a codec level is now 16 bytes: a saturated 30-bit count with the two flags in its top bits, plus three positions;
+- `keys`, `one_shot`, `multi_part`, `codecs` and `test_catalog` are separate functions that are never inlined, and so are `cbor_validate` and `tlv_validate`.
+
+| Entry point | Cortex-M4, before | Cortex-M4, after | Cortex-M0+, before | Cortex-M0+, after |
+|---|---|---|---|---|
+| `cl_vm_command` | 1,040 | **856** | 1,080 | **904** |
+| `cl_vm_install`, `cl_vm_session_start`, `cl_vm_select` | 1,024 | 840 | 1,064 to 1,072 | 888 to 896 |
+
+The deepest path is still the CBOR check:
+
+| Frame on that path (Cortex-M4) | Before | After |
+|---|---|---|
+| `cl_native_call` | 320, with `dispatch` inlined | 96 |
+| `codecs` | — | 168 |
+| `cbor_validate` | 472 | 344 |
+
+The estimate of 600 bytes was not reached, for two reasons. The 16 levels the profile requires take 256 bytes at 16 bytes each, which is the floor for a check that remembers each map's previous key. And every frame on the path carries its own saved registers and locals.
+
+Code grew by 120 bytes on Cortex-M4 and 154 on Cortex-M0+. All checks still pass on both backends. Two further checks:
+- with the map-key order check removed, run-021 still fails;
+- a differential fuzz of `cbor.validate`, `cbor.skip`, `tlv.validate` and `tlv.skip` found no difference between the C VM and the prototype in 3,782 inputs. The inputs were nested, truncated and random, with counts up to 2^64−1, and covered `ok`, `Malformed` and `Unsupported` for all four calls.
+
 The HAL's frames come on top, and are the port's. On the host, Mbed TLS's ECDSA dominates them.
 
 ## 4. Code size
@@ -74,8 +97,8 @@ The HAL's frames come on top, and are the port's. On the host, Mbed TLS's ECDSA 
 |---|---|---|---|---|
 | Host, MSVC `/O2`, with the test-only catalog | 22,582 | 17,124 | 451 | 0, 0 |
 | Host, clang `-O2`, with the test-only catalog | 13,648 | 19,334 | 1,380 | 0, 0 |
-| Cortex-M4, clang `-Os`, without it | 9,254 | 6,966 | 262 | 0, 0 |
-| Cortex-M0+, clang `-Os`, without it | 12,738 | 7,090 | 262 | 0, 0 |
+| Cortex-M4, clang `-Os`, without it | 9,254 | 6,966 (7,086 after the F1 fix) | 262 | 0, 0 |
+| Cortex-M0+, clang `-Os`, without it | 12,738 | 7,090 (7,244 after the F1 fix) | 262 | 0, 0 |
 
 The cross builds are freestanding. A shim declares the five `<string.h>` functions the VM calls: `memcpy`, `memmove`, `memset`, `memcmp` and `strlen`.
 
