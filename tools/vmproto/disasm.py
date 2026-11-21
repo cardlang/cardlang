@@ -39,6 +39,14 @@ def operand_text(name, kinds, ops, end):
     return " ".join(out)
 
 def listing(img):
+    """The annotated listing; with debug information (TL1), each statement's source line and each variable's scope."""
+    import debuginfo
+    info = debuginfo.DebugInfo.of(img)
+    marks = {}
+    for off, f, line in info.lines: marks.setdefault(off, []).append(f"; {pathlib.Path(info.files[f]).name}:{line}")
+    for v in info.vars:
+        if not v["param"]:
+            marks.setdefault(v["start"], []).append(f";   {v['name']}: {info.type_name(v['type'])} at frame +{v['offset']} ({v['kind']})")
     h, funcs, imports, names = read_image(img)
     code = img[h["code_offset"]:h["code_offset"] + h["code_size"]]
     lines = [f"image {h['image_size']} bytes, format {h['format']}, profile {h['profile']}, binding {h['binding']}",
@@ -49,8 +57,12 @@ def listing(img):
     for i, f in enumerate(funcs):
         lines.append(f"\n; function {i}: {names[i]}  (frame {f['frame_size']}, argc {f['argc']}, payload {f['payload']}, "
                      f"operands from {f['operand_base']}, code {bounds[i + 1] - f['code']} bytes)")
+        for v in info.vars:
+            if v["function"] == i and v["param"]:
+                lines.append(f";   parameter {v['name']}: {info.type_name(v['type'])} at frame +{v['offset']} ({v['kind']})")
         pc = f["code"]
         while pc < bounds[i + 1]:
+            lines.extend(marks.get(pc, []))
             name, ops, size = isa.decode(code, pc)
             kinds = isa.OPS[name][1]
             if kinds == "S": text = "[" + ", ".join(f"{pc + size + r:04x}" for r in ops) + "]"

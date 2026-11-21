@@ -221,3 +221,31 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - `tools/lsp/testdata/semantic-sample.card` is pinned token by token, 76 tokens reviewed by hand;
   - the server's response equals the encoded classification.
 - **One bug fixed on the way:** `return Ok(sum);` looked like a match binding (`Ok(count) =>`). Bindings now need their `=>`.
+
+**Step 3b committed (`2c16c2f`), after the user checked it in VS Code.**
+
+**Step 4 done (2026-11-21): debug information in the image.**
+- **Statements carry positions:** `stmtparse` returns `Node` tuples with `.pos`.
+- **The compiler** drops `("debug", …)` items into each function's code:
+  - a line marker per reachable statement;
+  - a marker each time a variable comes into or goes out of scope.
+
+  The items have no size. The peephole passes and the jump relaxation skip them, and the assembler records the code offset of each one.
+- **The debug section** (IMG-10, extended in place under V-51) now holds:
+  - the source files and the function names;
+  - a filled line table;
+  - a type table;
+  - every parameter and local, with its frame offset, kind and scope range;
+  - the globals: persistent, session and constant.
+- **`tools/vmproto/debuginfo.py`** decodes it: positions, breakpoint offsets, the variables in scope, and type names.
+- **What uses it:**
+  - `clc disasm` prints `; file:line` before each statement, and each variable's scope;
+  - the prototype VM's card records where a trap happened, and `clc run` prints `trap OVERFLOW at program.card:16`;
+  - the compiler and the typer now pass file names to the lexer.
+- **Checks:** `tools/vmproto/debug_check.py`, in `run_checks`, passes 8 checks:
+  - all 157 programs keep byte-identical code with debug information on and off;
+  - all 2,240 reachable statements have a row, and every row is a real line;
+  - every section decodes, and every scope lies inside its function;
+  - the sample's variables, globals and breakpoint offsets are pinned;
+  - run-001's two traps report lines 16 and 20.
+- **Images are larger** only by their debug section; a tool may strip it (IMG-10).

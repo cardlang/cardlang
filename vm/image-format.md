@@ -83,10 +83,40 @@ An *image* is one compiled CardLang application, as the platform's loader stores
 |---|---|
 | A count of source files, then each file's name | A `u16` count, then for each file a `u16` length followed by UTF-8 bytes |
 | A count of functions, then each function's name | A `u16` count, equal to `function_count`, then names as above |
-| A line table | A `u32` count of rows, then rows of `code offset u32`, `file u16`, `line u32`, sorted by code offset |
+| A line table | A `u32` count of rows, then rows of `code offset u32`, `file u16`, `line u32`, sorted by code offset: one row where each statement's code starts |
+| Types (TL1) | A `u16` count, then each type as a tag `u8`, followed by its fields as shown below |
+| Variables (TL1) | A `u32` count, then each parameter and local: `function u16`, its name, `kind u8`, `parameter u8` (1 or 0), `type u16`, `frame offset u16`, then `start u32` and `end u32`, the code range of its scope |
+| Globals (TL1) | A `u16` count, then each: its name, `kind u8`, `type u16`, `offset or value u32` |
 
-A row applies from its code offset up to the next row's. The prototype VM and the test harness use the section to report a trap with its source position.
-*Serves: V-27.*
+The type tags:
+- **0, integer:** a `u8` type code (BC-3).
+- **1, `bool`.**
+- **2, enum:** its name, a `u16` count, and the member names in ordinal order.
+- **3, struct:** its name, a `u16` count, and each field's name, `type u16` and `offset u16`.
+- **4, array:** `element type u16` and `count u32`.
+- **5, view:** `element type u16`.
+
+Names are a `u16` length followed by UTF-8 bytes. Types refer to earlier types by index.
+
+A variable's `kind` says where its value is, relative to the frame pointer:
+- 0, the value itself;
+- 1, a cell holding its address (`ref` and `inout` parameters);
+- 2, two cells, the address and the length (a view);
+- 3, a `u32` error value (a match's error binding).
+
+A global's `kind`:
+- 0, a constant aggregate at an offset in `CONST`;
+- 1, persistent, at an offset;
+- 2, session, at an offset;
+- 3, a constant scalar, whose last field is its value.
+
+A row applies from its code offset up to the next row's. A statement that emits no code, because it is unreachable (V-35), has no row. The tools use the section in three ways:
+- the prototype VM's card reports a trap with its statement's position;
+- `clc disasm` shows source lines and variable scopes;
+- the debugger sets breakpoints and reads variables through it.
+
+`tools/vmproto/debuginfo.py` decodes it. Debug information never changes the code: `tools/vmproto/debug_check.py` compiles every program with it and without it, and compares.
+*Serves: V-27; TL1.*
 
 ## 3. Loading
 

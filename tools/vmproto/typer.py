@@ -200,15 +200,15 @@ def programs(repo):
     for f in sorted((conf / "valid").iterdir()):
         files = program_files(f) if f.is_dir() else [f] if f.suffix == ".card" else []
         if not files: continue
-        toks = sum((lex(x.read_bytes()) for x in files), [])
-        if header(files[0].read_bytes()).get("kind", "fragment") == "fragment": toks = toks + lex(hepcheck.SCAFFOLD)
+        toks = sum((lex(x.read_bytes(), str(x)) for x in files), [])
+        if header(files[0].read_bytes()).get("kind", "fragment") == "fragment": toks = toks + lex(hepcheck.SCAFFOLD, "<scaffold>")
         yield f.stem if f.is_file() else f.name, toks
     for d in sorted((conf / "runtime").glob("run-*")):
-        yield d.name, sum((lex(f.read_bytes()) for f in program_files(d)), [])
+        yield d.name, sum((lex(f.read_bytes(), str(f)) for f in program_files(d)), [])
     for d in sorted((repo / "examples").iterdir()):
         if (d / "cardlang.json").exists():
             import project
-            yield "examples/" + d.name, sum((lex(f.read_bytes()) for f in project.program_files(d)), [])
+            yield "examples/" + d.name, sum((lex(f.read_bytes(), str(f)) for f in project.program_files(d)), [])
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True

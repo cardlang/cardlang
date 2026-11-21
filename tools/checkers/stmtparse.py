@@ -29,7 +29,17 @@ def parse_pattern(p):
         p.take(); return ("wild",)
     owner = p.take(); p.expect("."); return ("enum", owner, p.take())
 
+class Node(tuple):
+    """A statement: still a tuple for every consumer, with .pos = (file, line, column) of its first token (TL1)."""
+    def __new__(cls, t, pos):
+        n = tuple.__new__(cls, t); n.pos = pos; return n
+
 def parse_stmt(p):
+    first = p.t[p.i] if p.i < len(p.t) else None
+    s = _parse_stmt(p)
+    return Node(s, getattr(first, "pos", None))
+
+def _parse_stmt(p):
     v = p.peek()
     if v == "var":
         p.take(); name = p.take(); p.expect(":"); ty = p_type(p); init = None

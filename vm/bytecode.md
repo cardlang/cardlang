@@ -517,6 +517,7 @@ The VM relies on these, and checks none of them (VEX-1).
 | 2026-11-21 | VM7b (b): `JEQI8`, `JNEI8`, `JLTI8`, `JLEI8`, `JGTI8`, `JGEI8` (`8F`–`94`) | All code 26,257 → 25,693 |
 | 2026-11-21 | VM7b (c): `SLICEFK` (`95`) | All code 25,693 → 25,499 |
 | 2026-11-21 | VM7b (a), compiler only: shared error exits, no new instruction | All code 25,499 → 25,443. VM7b in all: 27,268 → 25,443 (−6.7%); FIDO2 7,021 → 6,687 (−4.8%); PIV 4,505 → 4,104 (−8.9%) |
+| 2026-11-21 | TL1 step 4: the debug section (IMG-10) gains a filled line table, types, variables and globals; no change to the code | `tools/vmproto/debug_check.py` |
 
 ## Annex A: compiling the language constructs
 

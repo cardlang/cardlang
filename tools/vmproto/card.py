@@ -29,12 +29,20 @@ class VmCard:
 
     # ---- results as the harness reports them
     def outcome(self, r, response=None):
+        self.trap_pc = self.ctx.pc if r[0] == "trap" else None        # where it trapped (TL1: trap positions)
         if r[0] == "ok":
             if response is None: return ("ok", [])
             return ("ok", list(response[:r[1]]))
         if r[0] == "err":
             return ("err", "app", r[2]) if r[1] == isa.CAT_APP else ("err", "platform", CARD_ERROR_NAMES[r[2]])
         return r
+
+    def trap_position(self):
+        """(file, line) of the statement where the last outcome trapped, from the debug section, or None."""
+        if getattr(self, "trap_pc", None) is None: return None
+        import debuginfo
+        if not hasattr(self, "_debug"): self._debug = debuginfo.DebugInfo.of(self.image)
+        return self._debug.position(self.trap_pc)
 
     def handler(self, name):
         i = self.entries[name]

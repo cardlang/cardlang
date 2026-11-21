@@ -92,6 +92,9 @@ class FuncGen:
         self.callees = set()
         # parameters (BC-24)
         self.scopes = [{}]; off = 8; self.prologue = []
+        self.vars = []                      # debug information (TL1): every parameter and local, with its scope
+        self.unreachable = []               # statements that emit no code, so get no line-table row
+        self.scope_vars = [[]]              # the vars bound in each open scope
         for pn, mode, pt in params:
             if self.L.is_view(pt):
                 self.scopes[0][pn] = ("view", off, pt); off += 8
@@ -101,11 +104,23 @@ class FuncGen:
                 self.scopes[0][pn] = ("frame", off, pt); off += 4
             else:
                 self.prologue.append((pn, off, pt)); off += 4          # by-value aggregate: copied on entry
+            if pn in self.scopes[0]:
+                self.vars.append({"name": pn, "binding": self.scopes[0][pn], "param": True, "start": 0, "end": None})
         self.slot_param = None
         if self.ret != "none" and not self.L.is_scalar(self.ret):
             self.slot_param = off; off += 4                            # hidden payload slot (BC-27)
         self.argc = (off - 8) // 4
         self.cur = self.high = off              # the allocation point and its high-water mark (V-34)
+
+    # ---- debug information (TL1): ("debug", kind, data) items, of no size, whose code offsets assemble() records
+    def mark(self, kind, data):
+        if self.c.debug: self.code.append(("debug", kind, data))
+
+    def push_scope(self): self.scopes.append({}); self.scope_vars.append([])
+
+    def pop_scope(self):
+        self.scopes.pop()
+        for idx in self.scope_vars.pop(): self.mark("unbind", idx)
 
     # ---- emission
     def label(self):
@@ -394,12 +409,15 @@ class FuncGen:
 
     # ---- statements
     def block(self, body):
-        self.scopes.append({}); mark = self.cur
+        self.push_scope(); mark = self.cur
         for s in body: self.stmt(s)
-        self.scopes.pop()
+        self.pop_scope()
         if self.c.reuse: self.cur = mark                 # a block's locals end with it (V-34)
 
-    def bind(self, name, b): self.scopes[-1][name] = b
+    def bind(self, name, b):
+        self.scopes[-1][name] = b
+        idx = len(self.vars); self.vars.append({"name": name, "binding": b, "param": False, "start": None, "end": None})
+        self.scope_vars[-1].append(idx); self.mark("bind", idx)
 
     def assign(self, dest, src):
         dt = self.type_of(dest)
@@ -430,6 +448,9 @@ class FuncGen:
         except CompileError: return None
 
     def stmt(self, s):
+        if getattr(s, "pos", None):                                                         # the line table (TL1)
+            if self.depth is not None: self.mark("line", s.pos)
+            else: self.unreachable.append(s.pos)              # emits no code (V-35), so it has no row
         mark = self.cur
         var_end = self.stmt_body(s)                       # a var's own slot lives on with its block
         if self.c.reuse:                                  # a statement's temporaries end with it (V-34)
@@ -478,8 +499,8 @@ class FuncGen:
             self.value(s[3]); self.emit("STF", tc, idx); self.value(s[4]); self.emit("STF", tc, hi)
             top, step, end = self.label(), self.label(), self.label()
             self.place_label(top); self.emit("LDF", tc, idx); self.emit("LDF", tc, hi); self.emit("LT", tc); self.emit("JZ", end)
-            self.scopes.append({s[1]: ("frame", idx, t)}); self.loops.append((end, step))
-            self.block(s[5]); self.loops.pop(); self.scopes.pop()
+            self.push_scope(); self.bind(s[1], ("frame", idx, t)); self.loops.append((end, step))
+            self.block(s[5]); self.loops.pop(); self.pop_scope()
             self.place_label(step); self.emit("LDF", tc, idx); self.push(1); self.emit("ADD", tc); self.emit("STF", tc, idx)
             self.emit("JMP", top); self.place_label(end)
         elif k == "break": self.emit("JMP", self.loops[-1][0])
@@ -562,7 +583,7 @@ class FuncGen:
         if catch is not None: self.emit("JERR", catch)
         self.emit("JMP", ok_arm)
         for lab, pat, body in arms:
-            self.place_label(lab); self.scopes.append({})
+            self.place_label(lab); self.push_scope()
             if pat[0] == "ok" and pat[1] not in (None, "_"): self.bind(pat[1], ("frame", payload, st[1]))
             if pat[0] == "err_set" and pat[2] != "_":
                 slot = self.alloc(2); self.emit("ERRCODE"); self.emit("STF", TYPES["u16"], slot)
@@ -570,7 +591,7 @@ class FuncGen:
             if pat[0] == "err_bind" and pat[1] != "_":
                 slot = self.alloc(4); self.emit("ERRGET"); self.emit("STF", TYPES["u32"], slot)
                 self.bind(pat[1], ("errbind", slot))
-            self.block(body); self.scopes.pop(); self.emit("JMP", end)
+            self.block(body); self.pop_scope(); self.emit("JMP", end)
         self.place_label(end)
 
     # ---- the whole function
@@ -580,6 +601,8 @@ class FuncGen:
             local = self.alloc(self.L.size(pt))
             self.emit("ADDR", REGIONS["STACK"], local); self.emit("LDF", TYPES["u32"], off); self.emit("COPY", self.L.size(pt))
             self.scopes[0][pn] = ("frame", local, pt)
+            for v in self.vars:
+                if v["param"] and v["name"] == pn: v["binding"] = ("frame", local, pt)
         self.block(self.typed.bodies[self.name])
         for (depth, txn, member), lab in self.tramp.items():
             self.depth = None; self.label_depth[lab] = depth; self.place_label(lab)
@@ -641,7 +664,8 @@ class FuncGen:
         whose exit occurs more than once becomes `J(opposite) shared`, and one copy of the exit is placed after the
         function's last instruction, which is a terminator, so nothing falls into it."""
         code = self.code
-        if not code or code[-1][0] != "op" or code[-1][1] not in TERMINATORS: return
+        last = next((x for x in reversed(code) if x[0] != "debug"), None)
+        if last is None or last[0] != "op" or last[1] not in TERMINATORS: return
         sites = {}
         for k in range(len(code) - 2):
             j = code[k]
@@ -670,6 +694,7 @@ class FuncGen:
         short |= {k for k, item in enumerate(self.code) if item[0] == "fused"}
         def name_of(k, item): return isa.SHORT_JUMP[item[1]] if k in short and item[0] == "op" else item[1]
         def size(k, item):
+            if item[0] == "debug": return 0
             if item[0] == "fused" and k not in short: return sum(isa.size_of(x[1], x[2]) for x in item[3])
             return isa.size_of(name_of(k, item), item[2])
         while True:                                       # start short, lengthen what does not reach, repeat
@@ -680,9 +705,14 @@ class FuncGen:
             far = {k for k in short if not -128 <= pos[self.code[k][2][-1]] - ends[k] <= 127}
             if not far: break
             short -= far
-        out = bytearray(); pc = 0
+        out = bytearray(); pc = 0; self.lines = []
         for k, item in enumerate(self.code):
             if item[0] == "label": continue
+            if item[0] == "debug":                          # TL1: the line table and the variables' scopes
+                if item[1] == "line": self.lines.append((pc, item[2]))
+                elif item[1] == "bind": self.vars[item[2]]["start"] = pc
+                else: self.vars[item[2]]["end"] = pc
+                continue
             if item[0] == "fused" and k not in short:      # out of 8-bit reach: the original instructions
                 for x in item[3]:
                     end = pc + isa.size_of(x[1], x[2])
@@ -698,6 +728,9 @@ class FuncGen:
                 if not -32768 <= r < 32768: raise CompileError(f"{self.name}: jump out of range")
                 return r
             out += isa.encode(name, item[2], rel); pc = end
+        for v in self.vars:
+            if v["end"] is None: v["end"] = pc                  # parameters, and scopes still open at the end
+            if v["start"] is None: v["start"] = v["end"]
         return bytes(out)
 
 # stack effects (pops, pushes); CALL and NATIVE pass theirs explicitly
@@ -725,6 +758,7 @@ class Compiler:
         self.chk = self.typed.chk; self.layout = Layout(self.chk); self.binding = binding
         self.const_data = bytearray(); self.natives = set()
         self.reuse, self.reuse_mutant = True, False    # slot reuse (V-34); the mutant frees live locals
+        self.debug = True                               # debug information (TL1); it never changes the code
         self.shorten = {"frame", "addr", "slice", "push", "jump",    # the short forms of VM6 (V-38)
                         "byte", "addr16", "cmpjump", "slicek",       # and of VM7b (vm/bytecode.md §2.13),
                         "errexit"}                                    # with its shared error exits
@@ -773,8 +807,7 @@ class Compiler:
                                            0 if g.ret == "none" else 1 if self.layout.is_scalar(g.ret) else 2,
                                            g.operand_base) for n, g in self.gens.items())
         imports = b"".join(struct.pack("<H", n) for n in sorted(self.natives))
-        debug = struct.pack("<H", 0) + struct.pack("<H", len(self.gens)) + b"".join(
-            struct.pack("<H", len(n.encode())) + n.encode() for n in self.gens) + struct.pack("<I", 0)
+        debug = self.debug_section(offsets)
         max_atomic = max([self.layout.size(t) for _, t in self.persistent.values()] or [0])
         functions_off = isa.HEADER.size; imports_off = functions_off + len(functions)
         const_off = imports_off + len(imports); code_off = const_off + len(self.const_data); debug_off = code_off + len(code)
@@ -792,6 +825,63 @@ class Compiler:
                        "max_atomic": max_atomic, "natives": sorted(self.natives)}
         return self.image
 
+def _str(s):
+    b = s.encode("utf-8"); return struct.pack("<H", len(b)) + b
+
+def debug_section(self, offsets):
+    """IMG-10, the debug section: files, function names, the line table, then (TL1) types, variables and globals.
+    The device VM never reads it; tools/vmproto/debuginfo.py decodes it."""
+    L = self.layout; types, index = [], {}
+    def tid(t):
+        key = repr(t)
+        if key in index: return index[key]
+        if t in INTS: enc = struct.pack("<BB", 0, L.tcode(t))
+        elif t == "bool": enc = struct.pack("<B", 1)
+        elif L.is_enum(t):
+            enc = struct.pack("<B", 2) + _str(t) + struct.pack("<H", len(L.enum_order[t])) + b"".join(_str(m) for m in L.enum_order[t])
+        elif L.is_struct(t):
+            fields = b""; off = 0
+            for fname, ft in L.struct_fields[t]:
+                fields += _str(fname) + struct.pack("<HH", tid(ft), off); off += L.size(ft)
+            enc = struct.pack("<B", 3) + _str(t) + struct.pack("<H", len(L.struct_fields[t])) + fields
+        elif isinstance(t, tuple) and t[0] == "arr" and t[2] is not None: enc = struct.pack("<BHI", 4, tid(t[1]), t[2])
+        elif isinstance(t, tuple) and t[0] == "arr": enc = struct.pack("<BH", 5, tid(t[1]))
+        else: raise CompileError(f"no debug type for {t!r}")
+        index[key] = len(types); types.append(enc); return index[key]
+    files, file_index = [], {}
+    def fid(name):
+        if name not in file_index: file_index[name] = len(files); files.append(name or "")
+        return file_index[name]
+    rows = []
+    for n, g in self.gens.items():
+        for pc, pos in g.lines: rows.append((offsets[n] + pc, fid(pos[0]), pos[1]))
+    rows.sort(key=lambda r: r[0])
+    KIND = {"frame": 0, "ref": 1, "view": 2, "errbind": 3}
+    var_rows = []
+    for fi, (n, g) in enumerate(self.gens.items()):
+        for v in g.vars:
+            b = v["binding"]; kind = KIND[b[0]]
+            t = "u32" if b[0] == "errbind" else b[2]
+            var_rows.append(struct.pack("<H", fi) + _str(v["name"]) + struct.pack("<BBHHII", kind, 1 if v["param"] else 0, tid(t), b[1],
+                                                                              offsets[n] + v["start"], offsets[n] + v["end"]))
+    globs = []
+    for name, (off, t) in self.persistent.items(): globs.append(_str(name) + struct.pack("<BHI", 1, tid(t), off))
+    for name, (off, t) in self.session.items(): globs.append(_str(name) + struct.pack("<BHI", 2, tid(t), off))
+    for name, (off, t) in self.const_agg.items(): globs.append(_str(name) + struct.pack("<BHI", 0, tid(t), off))
+    for name, v in self.const_scalar.items():
+        t = self.chk.cp.const_value(name)[1]
+        globs.append(_str(name) + struct.pack("<BHI", 3, tid(t), v & 0xFFFFFFFF))
+    names = list(self.gens)
+    out = struct.pack("<H", len(files)) + b"".join(_str(f) for f in files)
+    out += struct.pack("<H", len(names)) + b"".join(_str(n) for n in names)
+    out += struct.pack("<I", len(rows)) + b"".join(struct.pack("<IHI", *r) for r in rows)
+    out += struct.pack("<H", len(types)) + b"".join(types)
+    out += struct.pack("<I", len(var_rows)) + b"".join(var_rows)
+    out += struct.pack("<H", len(globs)) + b"".join(globs)
+    return out
+
+Compiler.debug_section = debug_section
+
 def pltcheck_error_codes(toks):
     codes = {}
     for i, (_, v) in enumerate(toks):
@@ -804,8 +894,8 @@ def pltcheck_error_codes(toks):
 def compile_files(files, binding=None, fragment=False):
     from lexcheck import lex
     import hepcheck
-    toks = sum((lex(f.read_bytes()) for f in files), [])
-    if fragment: toks = toks + lex(hepcheck.SCAFFOLD)
+    toks = sum((lex(f.read_bytes(), str(f)) for f in files), [])
+    if fragment: toks = toks + lex(hepcheck.SCAFFOLD, "<scaffold>")
     c = Compiler(toks, binding); c.compile(); return c
 
 if __name__ == "__main__":

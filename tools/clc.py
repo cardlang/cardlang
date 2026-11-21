@@ -118,6 +118,8 @@ def cmd_run(a):
             print(f"{sc.name}:{lineno}: {mark} expect {' '.join(words)}" + ("" if want == got else f"  (got {got})"))
         else:
             shown = " ".join(words); res = describe(outcome)
+            if outcome and outcome[0] == "trap" and hasattr(card, "trap_position") and card.trap_position():
+                f, line = card.trap_position(); res += f" at {pathlib.Path(f).name}:{line}"
             print(f"{sc.name}:{lineno}: {step} {shown[:60]}{'...' if len(shown) > 60 else ''}" + (f"  -> {res}" if res else ""))
     problem = scenario.run_scenario(card, sc.read_text(encoding="utf-8"), trace)
     print(f"{sc.name}: " + ("passed" if problem is None else "FAILED, " + problem) + f" ({a.backend})")
