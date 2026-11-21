@@ -15,7 +15,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
 for d in (HERE, TOOLS / "checkers"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import jsonrpc, diagnose, project
+import jsonrpc, diagnose, project, semantic
 from lexcheck import header
 
 DEBOUNCE = 0.3                          # seconds of quiet before checking
@@ -71,7 +71,10 @@ class Server:
     def handle(self, m):
         method, params, mid = m.get("method"), m.get("params") or {}, m.get("id")
         if method == "initialize":
-            self.respond(mid, {"capabilities": {"textDocumentSync": {"openClose": True, "change": 1, "save": {"includeText": False}}},
+            self.respond(mid, {"capabilities": {"textDocumentSync": {"openClose": True, "change": 1, "save": {"includeText": False}},
+                                                "semanticTokensProvider": {"legend": {"tokenTypes": semantic.TYPES,
+                                                                                      "tokenModifiers": semantic.MODIFIERS},
+                                                                           "full": True}},
                                "serverInfo": {"name": "cardlang-lsp", "version": "0.1"}})
         elif method == "shutdown": self.shutting_down = True; self.respond(mid, None)
         elif method == "exit": self.exit(0 if self.shutting_down else 1)
@@ -87,6 +90,8 @@ class Server:
             prog = program_of(p)
             if len(prog.files) == 1: self.notify("textDocument/publishDiagnostics", {"uri": path_to_uri(p), "diagnostics": []})
             else: self.pending.add(p)
+        elif method == "textDocument/semanticTokens/full":
+            self.respond(mid, {"data": self.semantic_tokens(uri_to_path(params["textDocument"]["uri"]))})
         elif mid is not None and method is not None:
             self.respond(mid, error={"code": -32601, "message": f"not supported: {method}"})
 
@@ -96,6 +101,16 @@ class Server:
         if k in self.docs: return self.docs[k]
         try: return pathlib.Path(path).read_text(encoding="utf-8", errors="replace")
         except OSError: return ""
+
+    def semantic_tokens(self, path):
+        """Step 3b: the identifiers of one file, coloured by what they are, from the program's current texts."""
+        prog = program_of(path, self.docs.get(key(path)))
+        texts = {str(f): self.text_of(f) for f in prog.files}
+        target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))
+        texts.setdefault(target, self.text_of(path))
+        try: return semantic.encode(semantic.classify(target, texts))
+        except Exception:
+            self.log("cardlang-lsp: semantic tokens failed: " + traceback.format_exc()); return []
 
     def check(self, path):
         prog = program_of(path, self.docs.get(key(path)))

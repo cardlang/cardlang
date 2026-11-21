@@ -11,6 +11,25 @@
   "main": "./extension.js",
   "activationEvents": ["workspaceContains:**/cardlang.json"],
   "contributes": {
+    "semanticTokenModifiers": [
+      { "id": "persistent", "description": "Lives in persistent storage: a persistent global" }
+    ],
+    "semanticTokenScopes": [
+      {
+        "language": "cardlang",
+        "scopes": {
+          "variable.persistent": ["variable.other.persistent.cardlang"],
+          "variable.static": ["variable.other.session.cardlang"],
+          "macro.defaultLibrary": ["support.function.intrinsic.cardlang"],
+          "namespace.defaultLibrary": ["support.class.platform.cardlang"],
+          "function.defaultLibrary": ["support.function.platform.cardlang"],
+          "type.defaultLibrary": ["support.type.primitive.cardlang"]
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "[cardlang]": { "editor.semanticHighlighting.enabled": true }
+    },
     "languages": [
       {
         "id": "cardlang",

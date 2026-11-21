@@ -1,0 +1,36 @@
+// A sample for tools/lsp/semantic_check.py (TL1 step 3b): every kind of identifier the language server colours.
+// The check pins the kind of each name on the lines below, so keep the line numbers when editing.
+errors AppError {
+    Busy = 1;
+}
+
+enum Mode {
+    Idle;
+    Active;
+}
+
+struct Pair {
+    first: u32;
+    second: u32;
+}
+
+const LIMIT: u32 = 8;
+session mode: Mode;
+persistent total: u32;
+
+function add(values: ref u8[], extra: u32) -> u32 {
+    var sum: u32 = extra;
+    for index: u32 in 0..values.length {
+        var value: u32 = convert<u32>(values[index]);
+        sum = attempt checked_add(sum, value) else AppError.Busy;
+    }
+    return Ok(sum);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require mode == Mode.Idle else AppError.Busy;
+    var pair: Pair = Pair { first: LIMIT, second: 0 };
+    var digest: u32 = attempt card.crypto.digest(DigestAlgorithm.Sha256, ref request, inout response) else AppError.Busy;
+    total = attempt add(ref request, pair.first);
+    return Ok(digest);
+}

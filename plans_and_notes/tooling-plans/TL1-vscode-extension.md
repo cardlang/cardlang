@@ -199,3 +199,25 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - `tools/lsp/lsp_check.py`: a scripted editor session, open, edit, undo, a single file and shutdown, passes 7 checks;
   - `tools/vscode/check_extension.py`: the JSON parses, the grammar's keywords and intrinsics equal the checkers', its scenario steps equal the runner's, and every applet keyword is coloured. It passes 11 checks.
 - **Not yet verified:** the extension loading in VS Code itself; that needs a reload of VS Code by the user.
+
+**Step 3 committed (`49e53de`), after the user tried it in VS Code.**
+
+**Step 3b built (2026-11-21): semantic colouring.**
+- **`tools/lsp/semantic.py`** classifies each identifier from the tokens of every file of the program and the Base Profile's prelude, with `CardError` taken from the profile's table. It needs no successful check, so a program with errors is still coloured.
+- **The kinds:**
+  - `function`, `struct`, `enum`, `enumMember`, `parameter`, `variable` and `property`;
+  - `macro`, for intrinsics;
+  - `namespace` and `function`, for `card` API paths;
+  - `type`, for primitives.
+- **The modifiers:**
+  - `declaration`, where a name is declared;
+  - `readonly`, for a `const` or a `ref` parameter;
+  - `static`, for a `session` global;
+  - `persistent`, a custom modifier declared in `package.json`;
+  - `defaultLibrary`, for the language's own names.
+- **The server** answers `textDocument/semanticTokens/full`. `package.json` gives fallback TextMate scopes for themes without semantic colours, and switches semantic highlighting on for CardLang files.
+- **Checks:** `tools/lsp/semantic_check.py`, in `run_checks`:
+  - every identifier of both applets and all 33 runtime programs gets a kind: 2,529 in FIDO2 and 1,334 in PIV;
+  - `tools/lsp/testdata/semantic-sample.card` is pinned token by token, 76 tokens reviewed by hand;
+  - the server's response equals the encoded classification.
+- **One bug fixed on the way:** `return Ok(sum);` looked like a match binding (`Ok(count) =>`). Bindings now need their `=>`.
