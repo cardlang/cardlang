@@ -1,6 +1,7 @@
 """Write SP1 conformance tests byte-exactly."""
 import sys, pathlib
 root = pathlib.Path(sys.argv[1]) / "conformance"
+PROJECT_AB = '{' + chr(10) + '  "files": [' + chr(10) + '    "a.card",' + chr(10) + '    "b.card"' + chr(10) + '  ]' + chr(10) + '}' + chr(10)   # TL1: cardlang.json
 
 def hdr(rule, source, expect, note, kind="fragment", status="agreed", also=None):
     h = [f"// rule: {rule}", f"// source: {source}", f"// status: {status}", f"// kind: {kind}", f"// expect: {expect}"]
@@ -30,7 +31,7 @@ w(V+"lex-005-longest-match.card", hdr("LEX-10, LEX-22", "DN §3.0, §3.6", "ok",
   "const LIMIT: u32 = 16;\nconst SMALL: bool = LIMIT<=32;\nsession buffer: u8[16];\n"
   "function clear_buffer(){for index: u8 in 0..16{buffer[index]=0;}return Ok();}\n"
   "function limit()->u32{return Ok(LIMIT);}\n")
-w(V+"lex-006-two-files/files.txt", "a.card\nb.card\n")
+w(V+"lex-006-two-files/cardlang.json", PROJECT_AB)
 w(V+"lex-006-two-files/a.card", hdr("LEX-7, LEX-11", "DN §3.0, §4.1", "ok",
   "a.card ends with a line comment and no final line break; b.card must not be consumed. Must pass in either file order.") +
   "const A: u32 = B; // the comment ends at the end of this file")
@@ -60,7 +61,7 @@ w(I+"lex-110-keyword-as-identifier.card", hdr("LEX-13", "DN §3.0; D-404", "comp
   "const match: u8 = 1;\n")
 w(I+"lex-111-underscore-as-name.card", hdr("LEX-14", "DN §3.0", "compile-error CE-SYN-1", "A lone `_` used as a declaration name.") +
   "const _: u8 = 1;\n")
-w(I+"lex-112-comment-across-files/files.txt", "a.card\nb.card\n")
+w(I+"lex-112-comment-across-files/cardlang.json", PROJECT_AB)
 w(I+"lex-112-comment-across-files/a.card", hdr("LEX-8, LEX-11", "DN §3.0, §4.1", "compile-error CE-LEX-3",
   "A block comment opened in a.card cannot be closed in b.card.", also="CE-SYN-1") +
   "const A: u32 = 1;\n/* opened in this file\n")

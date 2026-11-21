@@ -1,4 +1,4 @@
-import re, sys, pathlib
+import re, sys, pathlib, json
 # Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
 SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
@@ -85,7 +85,8 @@ for path, (rule, src, exp, note, code) in T.items():
     (conf / path).write_text(hdr(rule, src, exp, note) + code, encoding="utf-8", newline="\n")
 for path, (rule, src, exp, note, files) in MULTI.items():
     d = conf / path; d.mkdir(parents=True, exist_ok=True)
-    (d / "files.txt").write_text("".join(n + "\n" for n, _ in files), encoding="utf-8", newline="\n")
+    (d / "cardlang.json").write_text(json.dumps({"files": [n for n, _ in files]}, indent=2) + "\n",   # TL1
+                                     encoding="utf-8", newline="\n")
     for k, (n, body) in enumerate(files):
         (d / n).write_text((hdr(rule, src, exp, note) if k == 0 else "") + body, encoding="utf-8", newline="\n")
 refs = set(re.findall(r"`((?:valid|invalid)/fun-[\w-]+(?:\.card|/))`", ch)) - SP14_OWNED

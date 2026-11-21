@@ -5,6 +5,7 @@ Loads the test-only catalog conformance/platform/test-catalog.txt (Annex B, PLT-
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import project
 import srcpos
 import hepcheck, expcheck, consteval
 from expcheck import CE
@@ -191,7 +192,7 @@ def run(toks, kind="fragment", binding=None):
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True; glob = sys.argv[2] if len(sys.argv) > 2 else "*/plt-*"
     for t in sorted((repo / "conformance").glob(glob)):
-        files = [t / f for f in (t / "files.txt").read_text().split()] if t.is_dir() else [t]
+        files = project.program_files(t)
         toks = sum((lex(f.read_bytes()) for f in files), [])
         meta = header(files[0].read_bytes()); exp = meta["expect"]
         try:

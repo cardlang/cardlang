@@ -206,8 +206,9 @@ def programs(repo):
     for d in sorted((conf / "runtime").glob("run-*")):
         yield d.name, sum((lex(f.read_bytes()) for f in program_files(d)), [])
     for d in sorted((repo / "examples").iterdir()):
-        if (d / "files.txt").exists():
-            yield "examples/" + d.name, sum((lex((d / x).read_bytes()) for x in (d / "files.txt").read_text().split()), [])
+        if (d / "cardlang.json").exists():
+            import project
+            yield "examples/" + d.name, sum((lex(f.read_bytes()) for f in project.program_files(d)), [])
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True

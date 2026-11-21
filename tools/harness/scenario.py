@@ -47,13 +47,15 @@ def parse_expect(words):
     raise ValueError(words)
 
 # ------------------------------------------------------------------ the runner
-def run_scenario(card, text):
-    """Run one scenario against a backend. Returns None on success, or a description of the first mismatch."""
+def run_scenario(card, text, trace=None):
+    """Run one scenario against a backend. Returns None on success, or a description of the first mismatch.
+    trace, if given, is called after each step as trace(lineno, step, words, outcome); outcome is None for a step
+    that has none, and for `expect` it is ("expect", want, got) (TL1: `clc run` and the debugger)."""
     pending = None
     for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.split("#")[0].split()
         if not line: continue
-        step = line[0]
+        step = line[0]; before = pending
         if step == "install": pending = card.install()                      # the outcome of on_install (BP-55)
         elif step in ("power_on", "session_start"): pending = card.session_start()   # STA-4; power_on is the ISO name
         elif step == "session_end": card.session_end()
@@ -70,16 +72,19 @@ def run_scenario(card, text):
         elif step == "expect":
             want = parse_expect(line[1:])
             got = ("sw", status_word(pending)) if want[0] == "sw" else ("raw", raw_envelope(pending)) if want[0] == "raw" else pending
+            if trace: trace(lineno, step, line[1:], ("expect", want, got))
             if got != want:
                 return f"line {lineno}: expected {want}, got {got}"
-            pending = None
+            pending = None; continue
         else:
             return f"line {lineno}: unknown step {step}"
+        if trace: trace(lineno, step, line[1:], pending if pending is not before else None)
     return None
 
 def program_files(d):
     """The source files of a test or example directory, in build order."""
-    return [d / f for f in (d / "files.txt").read_text().split()] if (d / "files.txt").exists() else sorted(d.glob("*.card"))
+    import project                                      # tools/checkers: cardlang.json, or the .card files (TL1)
+    return project.program_files(d)
 
 def take_backend(argv, default="interp"):
     """Remove `--backend NAME` from argv; return (name, remaining arguments)."""

@@ -33,9 +33,8 @@ PINNED = {
 }
 
 def files_of(t):
-    if not t.is_dir(): return [t]
-    if (t / "files.txt").exists(): return [t / f for f in (t / "files.txt").read_text().split()]
-    return sorted(t.glob("*.card"))
+    import project
+    return project.program_files(t)
 
 def main(repo):
     ok = True; gaps = 0

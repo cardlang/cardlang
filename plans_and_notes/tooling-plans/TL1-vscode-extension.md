@@ -151,3 +151,31 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
 - **Placement:** most errors land on the offending token. Some land at the end of their construct, such as a `match` missing an arm, which is reported at the match's closing brace.
 - **Finding T1: the compiler accepts some invalid programs.** `compiler.compile_files` runs only the composed checker. That checker skips the type rules of chapter 4, the constant evaluation of chapter 5 (`CE-CEX`), and the syntax check of Annex A. `clc build` will therefore run `diagnose.check` first.
 - **Finding T2: 14 name rules of chapter 3 have no reference checker.** They cover duplicates, shadowing, redeclaring intrinsics, `card` or primitives, and global `var`. Eleven invalid `nam-*` tests are accepted, and three get another code. `poscheck` lists them as known gaps, so a new miss still fails. A name-rule checker is worth a small work package of its own. The language server inherits the gap until then.
+
+**Step 2 done (2026-11-21): `tools/clc.py`.**
+- **Commands:**
+  - `check` reports diagnostics as `file:line:col: CE-…: message`, or as JSON;
+  - `build` checks first (finding T1), then writes `build/<name>.clvm`, or the `-o` path, and prints the figures;
+  - `disasm` lists an image or a program;
+  - `run` runs a scenario on any backend, printing every step, its outcome and each `expect`.
+- **What a program is:** a directory with a `cardlang.json` project file `{name, files, binding}`, which now exists for both applets; else a directory with `files.txt`; else `.card` files.
+- **The scenario runner** (`tools/harness/scenario.py`) takes an optional `trace` callback, which `clc run` uses, and the debugger will too.
+- **Checks:** `tools/clc_check.py`, in `run_checks`, runs clc as the extension will, as a subprocess. It passes 12 checks:
+  - the applets check, build and disassemble;
+  - an error is reported with its position;
+  - `build` refuses a program that the compiler alone accepts;
+  - a scenario runs on three backends;
+  - a wrong expectation fails, with exit status 1.
+- **Output is ASCII,** because the Windows console's code page cannot show arrows or dashes.
+
+**`files.txt` retired (user, 2026-11-21).** `cardlang.json` is the one project file: `tools/checkers/project.py` reads it for every tool.
+- **Converted:** the 10 `files.txt` files, those of both applets and eight multi-file conformance tests.
+- **Switched to the helper:**
+  - the dozen checkers;
+  - `grammar`, `poscheck` and `typer`;
+  - the scenario runner, `check_fido2`, `check_piv` and `clc`;
+  - the three test generators.
+- **Documents:** `conformance/README.md` says `cardlang.json`.
+- **Checks:**
+  - the generators, run into a temporary folder, write project files byte-identical to the converted ones;
+  - `run_checks` passes.

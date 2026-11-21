@@ -103,10 +103,11 @@ def header(data):
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1])
     conf = repo / "conformance"
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); import project   # run as a script with -I
     ok = True
     tests = sorted(p for p in conf.glob("*/[a-z][a-z][a-z]-*") )
     for t in tests:
-        files = ([t / f for f in (t / "files.txt").read_text().split()] if (t / "files.txt").exists() else sorted(t.glob("*.card"))) if t.is_dir() else [t]
+        files = project.program_files(t)
         meta = header(files[0].read_bytes())
         got = "ok"
         for f in files:

@@ -1,4 +1,4 @@
-import re, sys, pathlib
+import re, sys, pathlib, json
 # Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
 SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
@@ -53,12 +53,13 @@ assert done == set(RULES), set(RULES) ^ done
 
 def multi(path, rule, src, expect, note, files):
     d = conf / path; d.mkdir(parents=True, exist_ok=True)
-    (d / "files.txt").write_text("".join(n + "\n" for n, _ in files), encoding="utf-8", newline="\n")
+    (d / "cardlang.json").write_text(json.dumps({"files": [n for n, _ in files]}, indent=2) + "\n",   # TL1
+                                     encoding="utf-8", newline="\n")
     for k, (name, body) in enumerate(files):
         (d / name).write_text((hdr(rule, src, expect, note) if k == 0 else "") + body, encoding="utf-8", newline="\n")
 
 multi("valid/nam-002-multi-file-any-order", "NAM-4, NAM-11, NAM-13", "DN §4.1", "ok",
-      "Declarations used across three files. Must pass for every order of files.txt.", [
+      "Declarations used across three files. Must pass for every order of the project's files.", [
  ("a.card", "function total() -> u32 {\n    var base: u32 = attempt base_value();\n    return Ok(base + EXTRA);\n}\n"),
  ("b.card", "function base_value() -> u32 {\n    return Ok(BASE);\n}\n"),
  ("c.card", "const BASE: u32 = 32;\nconst EXTRA: u32 = BASE * 2;\n")])

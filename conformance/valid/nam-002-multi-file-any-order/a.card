@@ -3,7 +3,7 @@
 // status: agreed
 // kind: fragment
 // expect: ok
-// note: Declarations used across three files. Must pass for every order of files.txt.
+// note: Declarations used across three files. Must pass for every order of the project's files.
 function total() -> u32 {
     var base: u32 = attempt base_value();
     return Ok(base + EXTRA);

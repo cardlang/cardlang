@@ -127,9 +127,8 @@ def load_grammar(repo=ROOT):
     return Grammar(load_productions((repo / "spec" / "annex-A-grammar.md").read_text(encoding="utf-8")))
 
 def test_files(t):
-    if not t.is_dir(): return [t]
-    if (t / "files.txt").exists(): return [t / f for f in (t / "files.txt").read_text().split()]
-    return sorted(t.glob("*.card"))
+    import project
+    return project.program_files(t)
 
 def check_notes(repo, g):
     """Every design-note code block that the full checker accepts as a fragment must derive SourceFile."""

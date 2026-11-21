@@ -50,7 +50,7 @@ def aes_ecb(key, block, decrypt=False):
 class Session:
     def __init__(self):
         d = ROOT / "examples" / "piv"
-        files = [d / f for f in (d / "files.txt").read_text().split()]
+        import project; files = project.program_files(d)
         g = grammar.load_grammar()
         for f in files:
             assert g.recognize(lex(f.read_bytes()))[0], f"{f.name} does not derive from Annex A"

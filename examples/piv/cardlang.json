@@ -1,0 +1,12 @@
+{
+  "name": "piv",
+  "files": [
+    "constants.card",
+    "objects.card",
+    "admin.card",
+    "pin.card",
+    "keys.card",
+    "iso7816-entry.card"
+  ],
+  "binding": "iso7816"
+}

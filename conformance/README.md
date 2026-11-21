@@ -13,12 +13,12 @@ Each test in this folder is a CardLang example from the specification, plus meta
 ## Naming
 
 - **Single-file test:** `<prefix>-<nnn>-<slug>.card`, where `<prefix>` is the lowercase rule prefix of the main rule tested. Example: `exp-014-mixed-operators.card`.
-- **Multi-file test:** a directory with the same naming pattern. It contains its `.card` files and a `files.txt` that lists them one per line, in the order given to the build. This mirrors the build-supplied source-file list (DN §4.1). Because file order must not affect name resolution (D-040), a multi-file test may say it must pass for every order of `files.txt`.
+- **Multi-file test:** a directory with the same naming pattern. It contains its `.card` files and a `cardlang.json` project file, whose `files` list gives them in the order given to the build. This mirrors the build-supplied source-file list (DN §4.1). Because file order must not affect name resolution (D-040), a multi-file test may say it must pass for every order of that list. `cardlang.json` is the project file that the tools use for every program (TL1); it replaced the earlier `files.txt`.
 - Numbers are never reused.
 
 ## Header metadata
 
-Every test file starts with a block of `//` comment lines, one field per line. For a multi-file test, the block is in the first file listed in `files.txt`.
+Every test file starts with a block of `//` comment lines, one field per line. For a multi-file test, the block is in the first file listed in `cardlang.json`.
 
 ```text
 // rule: EXP-14, EXP-15
@@ -63,7 +63,7 @@ A fragment test must therefore not declare a `command` itself, and must not use 
 
 A runtime test is a directory in `runtime/`. It contains:
 
-- `program.card`, or several `.card` files plus `files.txt`. This is a complete application (`kind: application`).
+- `program.card`, or several `.card` files plus `cardlang.json`. This is a complete application (`kind: application`).
 - `scenario.txt`, which lists the steps to run, one per line.
 
 The program's header uses `expect: runtime`. It may also carry `requires: fault-injection`, for tests that only a harness able to inject faults can run. A harness without fault injection reports such tests as skipped.
