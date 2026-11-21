@@ -1,8 +1,8 @@
-"""Disassembler for version-0 images (VM4): prints the header, the function table and annotated listings.
+"""Disassembler for images (VM4; named disasm, not dis, so as not to shadow the standard module): prints the header, the function table and annotated listings.
 
 Usage:
-    python -I tools/vmproto/dis.py <image.bin>
-    python -I tools/vmproto/dis.py <program dir or .card file>      (compiles it first)
+    uv run python -I tools/vmproto/disasm.py <image.bin>
+    uv run python -I tools/vmproto/disasm.py <program dir or .card file>      (compiles it first)
 """
 import sys, pathlib, struct
 HERE = pathlib.Path(__file__).resolve().parent

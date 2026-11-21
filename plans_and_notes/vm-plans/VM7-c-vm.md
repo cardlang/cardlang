@@ -85,6 +85,13 @@ A build that warns on either compiler fails. Visual Studio's CMake and Ninja are
 
 The C VM follows the prototype. Each C module is written against its specification document, with the Python module as the working model, and is accepted when the same tests pass:
 
+**Step 2 done (2026-11-21):**
+- **Written:** `include/cl_vm.h`; `src/vm.c`, the loader (IMG-11) and the interpreter for all of version 1, ported from `vm.py`; `src/natives.c`, which so far only knows the native numbers; `hal-host/`, the storage part; `test/cvm.c`, the DLL.
+- **The harness:** two backends, `cvm-msvc` and `cvm-clang` (`tools/harness/cvm_backend.py`, through `cffi`, which was added with `uv add`).
+- **Results:** all 18 runtime tests without natives pass on both, at their first run. The only fixes were in the Python wrapper. A mutant without the `INDEX` bounds check is caught; the C VM's defensive region check turns the out-of-range access into `trap(VM)`.
+- **Size:** `sizeof(cl_vm)` is 272 bytes on 64-bit Windows with both compilers; its six pointers take 8 bytes each there.
+- **Renamed:** the prototype's `dis.py` is now `disasm.py`, because it shadowed the standard `dis` module, which `cffi` imports.
+
 VM7 makes no bytecode changes (J4, revised): the candidates of `VM5-measurements.md` §10.4 wait for version 2 (VM7b).
 
 1. **Toolchain** (J1): check MSVC, CMake and Ninja from Visual Studio 2026, and clang from llvm-mingw. A first `CMakeLists.txt` builds an empty library with both: MSVC with the Ninja generator, and llvm-mingw with a CMake toolchain file.

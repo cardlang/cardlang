@@ -10,10 +10,10 @@ import sys, pathlib, json, collections, io, contextlib
 HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness", HERE.parent / "fido"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import compiler, typer, isa, dis, vm, backends, scenario
+import compiler, typer, isa, disasm, vm, backends, scenario
 
 def instructions(image):
-    h, funcs, _, names = dis.read_image(image)
+    h, funcs, _, names = disasm.read_image(image)
     code = image[h["code_offset"]:h["code_offset"] + h["code_size"]]
     bounds = [f["code"] for f in funcs] + [len(code)]
     for i in range(len(funcs)):

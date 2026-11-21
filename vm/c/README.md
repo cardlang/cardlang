@@ -29,7 +29,7 @@ This builds with both toolchains (J1). Build trees go to `vm/c/build/<toolchain>
 | Step | Status |
 |---|---|
 | 1. Toolchains and the CMake project; the HAL headers compile on both compilers | Done |
-| 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | — |
+| 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | Done: the 18 runtime tests without natives pass on `cvm-msvc` and `cvm-clang`; `sizeof(cl_vm)` is 272 bytes on 64-bit Windows |
 | 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | — |
 | 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | — |
 | 5. Measurement | — |

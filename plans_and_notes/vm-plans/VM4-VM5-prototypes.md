@@ -18,7 +18,7 @@ The program is accepted first by the unmodified checker, because the typer relax
 
 **Stage 2 done (2026-11-20):** `tools/vmproto/`:
 - `isa.py`, the shared instruction table;
-- `compiler.py` (layout, code generation, image writer, resource report) and `dis.py`, the disassembler;
+- `compiler.py` (layout, code generation, image writer, resource report) and `disasm.py` (first named `dis.py`), the disassembler;
 - `vm.py`, the VM core, with its context of 216 bytes on the 32-bit model;
 - `hal.py`, the storage part of the test HAL;
 - `card.py`, the `vmproto` backend; `natives.py` is a placeholder.
@@ -78,7 +78,7 @@ Any change to version 0 found on the way goes into the change log of `vm/bytecod
 | **Generate** | Emits the version-0 instructions as Annex A of `vm/bytecode.md` describes. Folds constant scalars (CEX). Makes no other optimisation (E4) |
 | **Emit** | Writes the image bytes (IMG) with a debug section, and the resource report (IMG-13) |
 
-A disassembler (`tools/vmproto/dis.py`) prints an image as annotated listings, like Annex B of `vm/bytecode.md`.
+A disassembler (`tools/vmproto/disasm.py`) prints an image as annotated listings, like Annex B of `vm/bytecode.md`.
 
 ### 3.2 The VM (VM5)
 

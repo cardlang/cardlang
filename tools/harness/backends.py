@@ -30,9 +30,18 @@ def _vmproto(files, binding):
     pltcheck.check_binding(tokens(files), binding)                              # profile BP-50a, BP-52
     return card.VmCard(files, binding)
 
+def _cvm(toolchain):
+    def build(files, binding):
+        import cvm_backend
+        pltcheck.check_binding(tokens(files), binding)                          # profile BP-50a, BP-52
+        return cvm_backend.CvmCard(files, binding, toolchain)
+    return build
+
 BACKENDS = {
     "interp": _interp,          # the reference interpreter (tools/interp/interp.py)
     "vmproto": _vmproto,        # the prototype compiler and VM (tools/vmproto/, VM4 and VM5)
+    "cvm-msvc": _cvm("msvc"),   # the C VM built with MSVC (vm/c/, VM7), through cffi
+    "cvm-clang": _cvm("clang"), # the C VM built with clang from llvm-mingw
 }
 
 def build(name, files, binding=None):

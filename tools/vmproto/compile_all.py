@@ -8,10 +8,10 @@ import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import compiler, typer, isa, dis
+import compiler, typer, isa, disasm
 
 def decodes(image):
-    h, funcs, _, _ = dis.read_image(image)
+    h, funcs, _, _ = disasm.read_image(image)
     code = image[h["code_offset"]:h["code_offset"] + h["code_size"]]
     bounds = [f["code"] for f in funcs] + [len(code)]
     for i in range(len(funcs)):
