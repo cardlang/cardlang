@@ -41,8 +41,9 @@ def diagnostic(code, where, detail=None):
 
 _grammar = None
 
-def check(files, binding=None, kind="application"):
+def check(files, binding=None, kind="application", sources=None):
     """Diagnostics for a program made of these files (paths), as an application unless kind is "fragment".
+    sources maps a file's name, as str(path), to text that replaces the file's contents: an editor's unsaved text.
     The stages: lexical structure (chapter 2); Annex A's grammar; types (chapter 4); the composed checker of
     chapters 3 and 6 to 12 and Annex B; then constant evaluation (chapter 5), whose CE-CEX errors the composed
     checker does not detect."""
@@ -50,7 +51,8 @@ def check(files, binding=None, kind="application"):
     srcpos.reset()
     names = [str(f) for f in files]; per_file = []
     for f, name in zip(files, names):
-        try: per_file.append(lex(pathlib.Path(f).read_bytes(), name))
+        data = sources[name].encode("utf-8") if sources and name in sources else pathlib.Path(f).read_bytes()
+        try: per_file.append(lex(data, name))
         except LexError as e: return [diagnostic(e.cls, e.where)]
     if _grammar is None: _grammar = grammar.load_grammar(ROOT)
     for name, ft in zip(names, per_file):

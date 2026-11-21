@@ -179,3 +179,23 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
 - **Checks:**
   - the generators, run into a temporary folder, write project files byte-identical to the converted ones;
   - `run_checks` passes.
+
+**Step 3 built (2026-11-21), and waiting for the user to try it in VS Code.**
+- **`tools/vscode/`:**
+  - the TextMate grammars for `.card` and for scenario files (`scenario.txt`, `*.scenario`);
+  - the language configurations and the snippets;
+  - `package.json`, with commands, settings, a task type and the `$cardlang` problem matcher;
+  - `extension.js`;
+  - `install.py`, which links the folder into `~/.vscode/extensions`.
+- **The commands:** Build Applet, Check Applet, Run Scenario and Restart Language Server. The first three run `clc` as VS Code tasks.
+- **The client:** `vscode-languageclient` 11.0.0, installed with npm with the user's permission (9 packages, git-ignored). `package-lock.json` is committed.
+- **The server:** `tools/lsp/cardlang_lsp.py`, over `tools/lsp/jsonrpc.py`, our own framing.
+  - It uses full document synchronisation, and checks after a 0.3-second pause.
+  - A file listed in its directory's `cardlang.json` is checked as its whole program, with unsaved text (`diagnose.check(sources=…)`), and every file of the program gets its diagnostics.
+- **Two robustness fixes:**
+  - the server leaves with `os._exit`: finalising the interpreter while the reader thread waits on standard input crashed on Windows (0xC0000005);
+  - unreadable input, such as a byte-order mark that PowerShell adds, ends the session instead of hanging it.
+- **Checks, both in `run_checks`:**
+  - `tools/lsp/lsp_check.py`: a scripted editor session, open, edit, undo, a single file and shutdown, passes 7 checks;
+  - `tools/vscode/check_extension.py`: the JSON parses, the grammar's keywords and intrinsics equal the checkers', its scenario steps equal the runner's, and every applet keyword is coloured. It passes 11 checks.
+- **Not yet verified:** the extension loading in VS Code itself; that needs a reload of VS Code by the user.

@@ -1,0 +1,30 @@
+{
+  "Command entry point": {
+    "prefix": "command",
+    "body": ["command ${1:process}(request: ref u8[], response: inout u8[]) -> u32 {", "\t$0", "\treturn Ok(0);", "}"],
+    "description": "The application's single entry point (HEP-2)"
+  },
+  "Function": {
+    "prefix": "function",
+    "body": ["function ${1:name}(${2}) -> ${3:u32} {", "\t$0", "}"],
+    "description": "A function returning a payload or an error"
+  },
+  "Function without payload": {
+    "prefix": "functionnone",
+    "body": ["function ${1:name}(${2}) {", "\t$0", "\treturn Ok();", "}"],
+    "description": "A function with no payload"
+  },
+  "If": { "prefix": "if", "body": ["if ${1:condition} {", "\t$0", "}"] },
+  "If else": { "prefix": "ifelse", "body": ["if ${1:condition} {", "\t$2", "} else {", "\t$0", "}"] },
+  "While": { "prefix": "while", "body": ["while ${1:condition} {", "\t$0", "}"] },
+  "For": { "prefix": "for", "body": ["for ${1:index}: ${2:u32} in ${3:0}..${4:count} {", "\t$0", "}"] },
+  "Match on an enum": { "prefix": "match", "body": ["match ${1:value} {", "\t${2:Enum.Member} => {", "\t\t$0", "\t}", "}"] },
+  "Require": { "prefix": "require", "body": ["require ${1:condition} else ${2:Error.Member};"] },
+  "Attempt": { "prefix": "attempt", "body": ["var ${1:value}: ${2:u32} = attempt ${3:call}(${4}) else ${5:Error.Member};"] },
+  "Transaction": { "prefix": "transaction", "body": ["transaction {", "\t$0", "}"], "description": "Persistent writes that commit together" },
+  "Error set": { "prefix": "errors", "body": ["errors ${1:AppError} {", "\t${2:Member} = ${3:1};", "}"] },
+  "Structure": { "prefix": "struct", "body": ["struct ${1:Name} {", "\t${2:field}: ${3:u32};", "}"] },
+  "Enum": { "prefix": "enum", "body": ["enum ${1:Name} {", "\t${2:Member};", "}"] },
+  "Persistent global": { "prefix": "persistent", "body": ["persistent ${1:name}: ${2:u32};"] },
+  "Session global": { "prefix": "session", "body": ["session ${1:name}: ${2:u32};"] }
+}

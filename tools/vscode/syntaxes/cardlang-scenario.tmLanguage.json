@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CardLang Scenario",
+  "scopeName": "source.cardlang-scenario",
+  "comment": "Scenario files that drive an applet (tools/harness/README.md): one step per line, # comments.",
+  "patterns": [
+    { "name": "comment.line.number-sign.cardlang-scenario", "match": "#.*$" },
+    {
+      "match": "^\\s*(expect)\\b\\s*(ok|err|trap|sw|raw)?\\b\\s*(app|platform)?\\b",
+      "captures": {
+        "1": { "name": "keyword.control.expect.cardlang-scenario" },
+        "2": { "name": "constant.language.outcome.cardlang-scenario" },
+        "3": { "name": "constant.language.category.cardlang-scenario" }
+      }
+    },
+    {
+      "match": "^\\s*(install|power_on|session_start|session_end|reset|select|deselect|interrupt|seed|command)\\b",
+      "captures": { "1": { "name": "keyword.other.step.cardlang-scenario" } }
+    },
+    { "name": "keyword.other.capacity.cardlang-scenario", "match": "\\bcapacity\\b" },
+    { "name": "constant.numeric.hex.cardlang-scenario", "match": "\\b[0-9a-fA-F]{2,}\\b" },
+    { "name": "constant.numeric.cardlang-scenario", "match": "\\b[0-9]+\\b" },
+    { "name": "constant.other.member.cardlang-scenario", "match": "\\b[A-Z][A-Za-z0-9_-]*\\b" }
+  ]
+}

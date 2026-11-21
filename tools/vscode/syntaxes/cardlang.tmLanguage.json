@@ -1,0 +1,105 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CardLang",
+  "scopeName": "source.cardlang",
+  "comment": "Lexical colouring of CardLang (spec chapter 2, tools/checkers/lexcheck.py). Keyword and intrinsic lists are checked against the checkers by tools/vscode/check_extension.py. Meaning-based colouring comes from the language server's semantic tokens.",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#declarations" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#builtins" },
+    { "include": "#calls" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.cardlang", "match": "//.*$" },
+        { "name": "comment.block.cardlang", "begin": "/\\*", "end": "\\*/" }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(function|command)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": { "1": { "name": "storage.type.function.cardlang" }, "2": { "name": "entity.name.function.cardlang" } }
+        },
+        {
+          "match": "\\b(struct|enum|errors)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": { "1": { "name": "storage.type.cardlang" }, "2": { "name": "entity.name.type.cardlang" } }
+        },
+        {
+          "match": "\\b(const|persistent|session)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": { "1": { "name": "storage.type.cardlang" }, "2": { "name": "variable.other.declaration.cardlang" } }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.bytes.cardlang",
+          "begin": "b\"",
+          "end": "\"|$",
+          "patterns": [
+            { "name": "constant.character.escape.cardlang", "match": "\\\\(?:[\"\\\\]|x[0-9a-fA-F]{2})" },
+            { "name": "invalid.illegal.escape.cardlang", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.hex.cardlang", "match": "\\b0x[0-9a-fA-F](?:_?[0-9a-fA-F])*\\b" },
+        { "name": "constant.numeric.binary.cardlang", "match": "\\b0b[01](?:_?[01])*\\b" },
+        { "name": "constant.numeric.decimal.cardlang", "match": "\\b[0-9](?:_?[0-9])*\\b" },
+        { "name": "invalid.illegal.numeric.cardlang", "match": "\\b[0-9][A-Za-z0-9_]*\\b" }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.cardlang", "match": "\\b(?:if|else|while|for|in|break|continue|return|match|require|abort|attempt|ignore|transaction)\\b" },
+        { "name": "storage.type.cardlang", "match": "\\b(?:function|command|const|var|persistent|session|struct|enum|errors)\\b" },
+        { "name": "storage.modifier.cardlang", "match": "\\b(?:ref|inout)\\b" },
+        { "name": "keyword.operator.logical.cardlang", "match": "\\b(?:and|or|not)\\b" },
+        { "name": "constant.language.boolean.cardlang", "match": "\\b(?:true|false)\\b" },
+        { "name": "support.function.outcome.cardlang", "match": "\\b(?:Ok|Err)\\b" },
+        { "name": "keyword.other.wipe.cardlang", "match": "\\b(?:wipe)\\b" }
+      ]
+    },
+    "builtins": {
+      "patterns": [
+        { "name": "support.type.primitive.cardlang", "match": "\\b(?:u8|u16|u32|i8|i16|i32|bool)\\b" },
+        { "name": "support.function.intrinsic.cardlang", "match": "\\b(?:checked_add|checked_sub|checked_mul|checked_div|checked_rem|checked_neg|wrapping_add|wrapping_sub|wrapping_mul|convert|checked_convert|truncate|decode_be|decode_le|encode_be|encode_le|equal|compare|fill)\\b" },
+        { "name": "support.class.platform.cardlang", "match": "\\bcard(?=\\s*\\.)" },
+        { "name": "variable.language.length.cardlang", "match": "(?<=\\.)length\\b" }
+      ]
+    },
+    "calls": {
+      "patterns": [
+        { "name": "entity.name.function.call.cardlang", "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()" }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.arrow.cardlang", "match": "->|=>" },
+        { "name": "keyword.operator.range.cardlang", "match": "\\.\\." },
+        { "name": "keyword.operator.assignment.compound.cardlang", "match": "<<=|>>=|[-+*/%&|^]=" },
+        { "name": "keyword.operator.comparison.cardlang", "match": "==|!=|<=|>=|<|>" },
+        { "name": "keyword.operator.bitwise.shift.cardlang", "match": "<<|>>" },
+        { "name": "keyword.operator.assignment.cardlang", "match": "=" },
+        { "name": "keyword.operator.arithmetic.cardlang", "match": "[-+*/%]" },
+        { "name": "keyword.operator.bitwise.cardlang", "match": "[&|^~]" }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        { "name": "punctuation.terminator.statement.cardlang", "match": ";" },
+        { "name": "punctuation.separator.cardlang", "match": "[,:]" },
+        { "name": "punctuation.accessor.cardlang", "match": "\\." }
+      ]
+    }
+  }
+}

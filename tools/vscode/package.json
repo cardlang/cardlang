@@ -1,0 +1,103 @@
+{
+  "name": "cardlang",
+  "displayName": "CardLang",
+  "description": "CardLang for VS Code: highlighting, diagnostics as you type, building and running applets (TL1).",
+  "version": "0.1.0",
+  "publisher": "cardlang",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": { "vscode": "^1.91.0" },
+  "categories": ["Programming Languages", "Snippets"],
+  "main": "./extension.js",
+  "activationEvents": ["workspaceContains:**/cardlang.json"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "cardlang",
+        "aliases": ["CardLang", "cardlang"],
+        "extensions": [".card"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "cardlang-scenario",
+        "aliases": ["CardLang Scenario"],
+        "extensions": [".scenario"],
+        "filenames": ["scenario.txt"],
+        "configuration": "./language-configuration-scenario.json"
+      }
+    ],
+    "grammars": [
+      { "language": "cardlang", "scopeName": "source.cardlang", "path": "./syntaxes/cardlang.tmLanguage.json" },
+      { "language": "cardlang-scenario", "scopeName": "source.cardlang-scenario", "path": "./syntaxes/cardlang-scenario.tmLanguage.json" }
+    ],
+    "snippets": [{ "language": "cardlang", "path": "./snippets/cardlang.json" }],
+    "commands": [
+      { "command": "cardlang.build", "title": "Build Applet", "category": "CardLang", "icon": "$(package)" },
+      { "command": "cardlang.check", "title": "Check Applet", "category": "CardLang" },
+      { "command": "cardlang.runScenario", "title": "Run Scenario", "category": "CardLang", "icon": "$(play)" },
+      { "command": "cardlang.restartServer", "title": "Restart Language Server", "category": "CardLang" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "cardlang.build", "when": "editorLangId == cardlang", "group": "navigation" },
+        { "command": "cardlang.runScenario", "when": "editorLangId == cardlang-scenario", "group": "navigation" }
+      ],
+      "commandPalette": [
+        { "command": "cardlang.runScenario", "when": "editorLangId == cardlang-scenario" }
+      ]
+    },
+    "configuration": {
+      "title": "CardLang",
+      "properties": {
+        "cardlang.toolsPath": {
+          "type": "string",
+          "default": "",
+          "description": "The CardLang repository, which holds tools/clc.py. Empty: the workspace folder that contains it."
+        },
+        "cardlang.uvPath": {
+          "type": "string",
+          "default": "uv",
+          "description": "The uv executable that runs the CardLang tools in the repository's Python environment."
+        },
+        "cardlang.scenarioBackend": {
+          "type": "string",
+          "default": "vmproto",
+          "enum": ["vmproto", "interp", "cvm-msvc", "cvm-clang"],
+          "enumDescriptions": [
+            "The prototype VM, in Python",
+            "The reference interpreter",
+            "The C VM, MSVC build (build it first with vm/c/build.py)",
+            "The C VM, clang build (build it first with vm/c/build.py)"
+          ],
+          "description": "Where Run Scenario runs the applet."
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "cardlang",
+        "required": ["command"],
+        "properties": {
+          "command": { "type": "string", "enum": ["check", "build", "run"] },
+          "program": { "type": "string", "description": "A project directory or a .card file" },
+          "scenario": { "type": "string" }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "cardlang",
+        "owner": "cardlang",
+        "source": "cardlang",
+        "fileLocation": ["autoDetect", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+): (CE-[A-Z]+-\\d+|BP-[0-9a-z]+): (.*)$",
+          "file": 1, "line": 2, "column": 3, "code": 4, "message": 5
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "vscode-languageclient": "^11.0.0"
+  }
+}
