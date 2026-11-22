@@ -12,3 +12,20 @@ Asked by the user after reading the published tree.
 | `vm/decisions.md` | Keep it in `vm/` | Unchanged: 224 citations in 31 files use its V-n IDs |
 
 `run_checks` passes all 51 runs.
+
+## The history rewrite
+
+`git filter-branch --index-filter` rewrote `main` and the tags `spec-draft-0.1`, `spec-draft-0.2` and `bytecode-v1`, over all 105 commits. In every commit it changed only two blobs:
+- **the design notes,** at both of the paths they had: the paragraph that named the third-party platform is removed;
+- **the VM7 plan,** at both of its paths: the two absolute paths to the llvm-mingw folder now read `<workspace>\…`, as PR7 had already done for the current tree.
+
+**Checked:**
+- each of the 105 new commits differs from its original only in those files;
+- authors, dates and messages are unchanged;
+- the platform's name and the user name appear nowhere in the new history, neither in files nor in messages;
+- the last commit's tree is identical.
+
+**Consequences:**
+- every commit hash has changed. The "committed as `abc1234`" notes in the plans name the old hashes;
+- the old history is kept locally in `refs/original/`, and in a bundle in the session's scratch folder, until the remote is updated;
+- the remote still has the old history. It is replaced by a force-push, which is the user's step.
