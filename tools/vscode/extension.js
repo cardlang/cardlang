@@ -118,6 +118,36 @@ async function activate(context) {
     vscode.commands.registerCommand("cardlang.restartServer", async () => {
       if (client) await client.stop();
       await startClient(context, root);
+    }),
+    // Debugging (TL1 step 6): tools/dap/cardlang_dap.py runs a scenario on the prototype VM.
+    vscode.commands.registerCommand("cardlang.debugScenario", async () => {
+      const doc = activeFile("cardlang-scenario");
+      if (!doc) { vscode.window.showInformationMessage("CardLang: open a scenario file first."); return; }
+      await vscode.workspace.saveAll(false);
+      await vscode.debug.startDebugging(vscode.workspace.getWorkspaceFolder(doc.uri),
+        { type: "cardlang", request: "launch", name: `Debug ${path.basename(doc.uri.fsPath)}`, scenario: doc.uri.fsPath });
+    }),
+    vscode.debug.registerDebugAdapterDescriptorFactory("cardlang", {
+      createDebugAdapterDescriptor: () =>
+        new vscode.DebugAdapterExecutable(uv(), pythonArgs(root, path.join("tools", "dap", "cardlang_dap.py"), []), { cwd: root }),
+    }),
+    vscode.debug.registerDebugConfigurationProvider("cardlang", {
+      // F5 without a launch.json: debug the scenario in the editor.
+      resolveDebugConfiguration(folder, config) {
+        if (!config.type && !config.request && !config.name) {
+          const doc = activeFile("cardlang-scenario");
+          if (!doc) {
+            vscode.window.showInformationMessage("CardLang: open a scenario file to debug, or add a launch configuration.");
+            return undefined;
+          }
+          return { type: "cardlang", request: "launch", name: "Debug scenario", scenario: doc.uri.fsPath };
+        }
+        if (!config.scenario) {
+          vscode.window.showErrorMessage("CardLang: the launch configuration needs a \"scenario\".");
+          return undefined;
+        }
+        return config;
+      },
     })
   );
 }

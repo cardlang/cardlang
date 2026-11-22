@@ -74,7 +74,8 @@ class Server:
             self.respond(mid, {"capabilities": {"textDocumentSync": {"openClose": True, "change": 1, "save": {"includeText": False}},
                                                 "semanticTokensProvider": {"legend": {"tokenTypes": semantic.TYPES,
                                                                                       "tokenModifiers": semantic.MODIFIERS},
-                                                                           "full": True}},
+                                                                           "full": True},
+                                                "definitionProvider": True},
                                "serverInfo": {"name": "cardlang-lsp", "version": "0.1"}})
         elif method == "shutdown": self.shutting_down = True; self.respond(mid, None)
         elif method == "exit": self.exit(0 if self.shutting_down else 1)
@@ -90,6 +91,9 @@ class Server:
             prog = program_of(p)
             if len(prog.files) == 1: self.notify("textDocument/publishDiagnostics", {"uri": path_to_uri(p), "diagnostics": []})
             else: self.pending.add(p)
+        elif method == "textDocument/definition":
+            pos = params["position"]
+            self.respond(mid, self.definition(uri_to_path(params["textDocument"]["uri"]), pos["line"], pos["character"]))
         elif method == "textDocument/semanticTokens/full":
             self.respond(mid, {"data": self.semantic_tokens(uri_to_path(params["textDocument"]["uri"]))})
         elif mid is not None and method is not None:
@@ -101,6 +105,18 @@ class Server:
         if k in self.docs: return self.docs[k]
         try: return pathlib.Path(path).read_text(encoding="utf-8", errors="replace")
         except OSError: return ""
+
+    def definition(self, path, line, character):
+        """Go to definition (TL1): the declaring locations of the name at the position, from the program's texts."""
+        prog = program_of(path, self.docs.get(key(path)))
+        texts = {str(f): self.text_of(f) for f in prog.files}
+        target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))
+        texts.setdefault(target, self.text_of(path))
+        try: found = semantic.definition(target, texts, line, character)
+        except Exception:
+            self.log("cardlang-lsp: definition failed: " + traceback.format_exc()); return []
+        return [{"uri": path_to_uri(f), "range": {"start": {"line": l, "character": c}, "end": {"line": l, "character": c + n}}}
+                for f, l, c, n in found]
 
     def semantic_tokens(self, path):
         """Step 3b: the identifiers of one file, coloured by what they are, from the program's current texts."""

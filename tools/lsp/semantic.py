@@ -41,10 +41,19 @@ class Symbols:
         self.fields = set()            # every struct field name
         self.members = {}              # enum or error-set name -> its member names
         self.decl_tokens = set()       # id() of every declaring token
+        self.decl = {}                 # name -> its declaring token (go to definition)
+        self.field_decls = {}          # field name -> the tokens declaring it, in every struct
+        self.member_decls = {}         # (enum or error set, member) -> its declaring token
 
     def add(self, name, typ, mods=(), tok=None):
         if name not in self.kind: self.kind[name] = (typ, set(mods))
-        if tok is not None: self.decl_tokens.add(id(tok))
+        if tok is not None:
+            self.decl_tokens.add(id(tok)); self.decl.setdefault(name, tok)
+
+    def merge(self, other):
+        self.kind.update(other.kind); self.fields |= other.fields; self.members.update(other.members)
+        self.decl.update(other.decl); self.member_decls.update(other.member_decls)
+        for f, ts in other.field_decls.items(): self.field_decls.setdefault(f, []).extend(ts)
 
 def collect(toks, syms, library=False):
     """The top-level declarations of one file's tokens, into syms."""
@@ -61,8 +70,8 @@ def collect(toks, syms, library=False):
             while j < n and toks[j][1] != "}":
                 if toks[j][0] == "id" and toks[j - 1][1] in ("{", ";", ","):
                     syms.decl_tokens.add(id(toks[j]))
-                    if v == "struct": syms.fields.add(toks[j][1])
-                    else: members.add(toks[j][1])
+                    if v == "struct": syms.fields.add(toks[j][1]); syms.field_decls.setdefault(toks[j][1], []).append(toks[j])
+                    else: members.add(toks[j][1]); syms.member_decls[(name, toks[j][1])] = toks[j]
                 j += 1
             if v != "struct": syms.members[name] = members
             i = j
@@ -97,20 +106,22 @@ def functions(toks):
         i += 1
     return out
 
-def locals_in(toks, start, end):
-    """The local names declared in a body, and their declaring tokens: var x, for x, and match bindings."""
+def locals_in(toks, start, end, where=None):
+    """The local names declared in a body, and their declaring tokens: var x, for x, and match bindings.
+    where, if given, receives each name's first declaring token."""
     names, decls = set(), set()
+    if where is None: where = {}
     for j in range(start, end):
         k, v = toks[j]
         if k != "id": continue
         prev = toks[j - 1][1]
-        if prev in ("var", "for"): names.add(v); decls.add(id(toks[j]))
+        if prev in ("var", "for"): names.add(v); decls.add(id(toks[j])); where.setdefault(v, toks[j])
         elif (prev == "(" and j + 2 < end and toks[j + 1][1] == ")" and toks[j + 2][1] == "=>" and j >= 2
               and toks[j - 2][1] in ("Ok", "Err")):
-            names.add(v); decls.add(id(toks[j]))                   # Ok(count) =>, Err(error) =>
+            names.add(v); decls.add(id(toks[j])); where.setdefault(v, toks[j])    # Ok(count) =>, Err(error) =>
         elif (prev == "(" and j + 3 < end and toks[j + 1][1] == ")" and toks[j + 2][1] == ")" and toks[j + 3][1] == "=>"
               and j >= 4 and toks[j - 3][1] == "(" and toks[j - 4][1] == "Err"):
-            names.add(v); decls.add(id(toks[j]))                   # Err(IsoError(code)) =>
+            names.add(v); decls.add(id(toks[j])); where.setdefault(v, toks[j])    # Err(IsoError(code)) =>
     return names, decls
 
 _prelude = None
@@ -190,6 +201,40 @@ def classify(target, texts):
         _, line, col = tok.pos
         out.append((line - 1, col - 1, len(name), typ, mods))
     return out
+
+def definition(target, texts, line, col):
+    """Go to definition (TL1): the declarations of the name at (line, col), 0-based, in file target, as a list of
+    (file, line, column, length), 0-based. A field name may be declared in several structures; all are returned.
+    Names with no source (primitive types, intrinsics, the card APIs) have none."""
+    base = prelude_symbols(); syms = Symbols(); syms.merge(base)
+    lexed = {}
+    for path, text in texts.items():
+        try: lexed[path] = lex(text.encode("utf-8"), path)
+        except LexError: lexed[path] = []
+    own = Symbols()
+    for toks in lexed.values(): collect(toks, own)
+    syms.merge(own)
+    toks = lexed.get(target, [])
+    j = next((k for k, t in enumerate(toks) if t[0] == "id" and t.pos[1] - 1 == line and t.pos[2] - 1 <= col < t.pos[2] - 1 + len(t[1])), None)
+    if j is None: return []
+    name = toks[j][1]; prev = toks[j - 1][1] if j else None; nxt = toks[j + 1][1] if j + 1 < len(toks) else None
+    def at(*ts): return [(t.pos[0], t.pos[1] - 1, t.pos[2] - 1, len(t[1])) for t in ts if t is not None and t.pos[0]]
+    if prev == ".":
+        start = j - 2
+        while start >= 2 and toks[start - 1][1] == ".": start -= 2
+        if toks[start][1] == "card": return []
+        owner = toks[j - 2][1]
+        if (owner, name) in syms.member_decls: return at(syms.member_decls[(owner, name)])
+        return at(*syms.field_decls.get(name, []))
+    for params, open_paren, start, end in functions(toks):
+        if open_paren <= j <= end:
+            if name in params: return at(params[name][1])
+            where = {}; names, _ = locals_in(toks, start, end, where)
+            if name in where: return at(where[name])
+    if nxt == ":" and prev in ("{", ",") and name in syms.field_decls: return at(*syms.field_decls[name])
+    if name in syms.decl: return at(syms.decl[name])
+    hits = [tok for (owner, member), tok in syms.member_decls.items() if member == name]
+    return at(*hits)
 
 def encode(tokens):
     """The LSP's relative encoding: [deltaLine, deltaStart, length, type, modifier bits] per token."""

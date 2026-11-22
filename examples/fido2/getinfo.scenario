@@ -1,0 +1,13 @@
+# The FIDO2 applet over ISO 7816 (TL1 step 6): debug it with CardLang: Debug Scenario.
+install
+power_on
+select   # SELECT returns FIDO_2_0
+expect sw 9000
+command 80 10 00 00 04   # authenticatorGetInfo
+expect sw 9000
+command 80 10 00 00 07   # authenticatorReset
+expect sw 9000
+command 80 10 00 00 01 a0   # makeCredential with an empty map: a CTAP error, in the response under 9000
+expect sw 9000
+command 00 a4 04 00   # an instruction the applet does not know
+expect sw 6d00

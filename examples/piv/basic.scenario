@@ -1,0 +1,11 @@
+# The PIV applet (TL1 step 6): debug it with CardLang: Debug Scenario.
+install
+power_on
+select   # SELECT returns the application property template
+expect sw 9000
+command 00 cb 3f ff 5c 03 5f c1 02   # GET DATA of an absent object
+expect sw 6a82
+command 00 20 00 80   # VERIFY with no data: the PIN's retries
+expect sw 63c3
+command 00 00 00 00   # an unknown instruction
+expect sw 6d00

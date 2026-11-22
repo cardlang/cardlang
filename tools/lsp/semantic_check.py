@@ -113,6 +113,29 @@ def main(repo):
     got = [(l + 1, lines[l][c:c + n], t, "+".join(sorted(m))) for l, c, n, t, m in semantic.classify(str(SAMPLE), {str(SAMPLE): text})]
     diff = [x for x in EXPECTED if x not in got] + [x for x in got if x not in EXPECTED]
     check("the sample is classified as pinned", got == EXPECTED, f"{len(got)} tokens" + (f"; differences {diff[:4]}" if diff else ""))
+    # go to definition: (line, name) -> the file and line of its declaration, pinned by hand
+    DEFS = [((32, "LIMIT"), ("semantic-sample.card", 17)), ((34, "add"), ("semantic-sample.card", 21)),
+            ((25, "sum"), ("semantic-sample.card", 22)), ((25, "value"), ("semantic-sample.card", 24)),
+            ((23, "values"), ("semantic-sample.card", 21)), ((34, "first"), ("semantic-sample.card", 13)),
+            ((25, "Busy"), ("semantic-sample.card", 4)), ((31, "Idle"), ("semantic-sample.card", 8)),
+            ((31, "mode"), ("semantic-sample.card", 18)), ((32, "Pair"), ("semantic-sample.card", 12)),
+            ((33, "DigestAlgorithm"), ("base-types.card", None)), ((33, "card"), None), ((25, "checked_add"), None)]
+    bad = []
+    for (ln, word), want in DEFS:
+        d = semantic.definition(str(SAMPLE), {str(SAMPLE): text}, ln - 1, lines[ln - 1].index(word))
+        got = [(pathlib.Path(x[0]).name, x[1] + 1) for x in d]
+        if want is None: good = got == []
+        elif want[1] is None:
+            good = len(got) == 1 and got[0][0] == want[0] and f"enum {word}" in pathlib.Path(d[0][0]).read_text(encoding="utf-8").splitlines()[d[0][1]]
+        else: good = got == [want]
+        if not good: bad.append((word, got))
+    check("go to definition: names, fields, members, the Base Profile; none for builtins", not bad, str(bad))
+    app = repo / "examples" / "fido2"; files = project.program_files(app); texts = {str(f): f.read_text(encoding="utf-8") for f in files}
+    ctap = str(app / "ctap.card"); cl = texts[ctap].splitlines()
+    ln = next(i for i, l in enumerate(cl) if "client_pin(" in l and "function" not in l)
+    d = semantic.definition(ctap, texts, ln, cl[ln].index("client_pin"))
+    check("go to definition across files", len(d) == 1 and pathlib.Path(d[0][0]).name == "pin.card"
+          and "function client_pin" in texts[d[0][0]].splitlines()[d[0][1]], str(d))
     from lsp_check import Client
     c = Client(repo)
     c.request("initialize", {"processId": None, "rootUri": repo.as_uri(), "capabilities": {}})
@@ -122,6 +145,9 @@ def main(repo):
     data = (r.get("result") or {}).get("data", [])
     want = semantic.encode(semantic.classify(str(SAMPLE), {str(SAMPLE): text}))
     check("the server returns the tokens, encoded", data == want and len(data) == 5 * len(EXPECTED), f"{len(data) // 5} tokens")
+    r = c.request("textDocument/definition", {"textDocument": {"uri": uri}, "position": {"line": 31, "character": lines[31].index("LIMIT")}})
+    locs = r.get("result") or []
+    check("the server answers definition requests", len(locs) == 1 and locs[0]["range"]["start"]["line"] == 16 and locs[0]["uri"] == uri, str(locs)[:160])
     c.request("shutdown", None); c.notify("exit", None)
     try: c.p.wait(timeout=10)
     except Exception: c.p.kill()

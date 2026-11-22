@@ -54,6 +54,15 @@ def main(repo):
             try: re.compile(rx)
             except re.error as e: bad.append((name, rx, str(e)))
     check("every grammar pattern compiles", not bad, str(bad[:2]))
+    pkg = docs.get("package.json", {}); contrib = pkg.get("contributes", {})
+    js = (HERE / "extension.js").read_text(encoding="utf-8")
+    cmds = [c["command"] for c in contrib.get("commands", [])]
+    unregistered = [c for c in cmds if f'registerCommand("{c}"' not in js]
+    check("every contributed command is registered in extension.js", not unregistered, str(unregistered))
+    dbg = (contrib.get("debuggers") or [{}])[0]
+    check("the debugger contribution", dbg.get("type") == "cardlang" and dbg["configurationAttributes"]["launch"]["required"] == ["scenario"]
+          and {b["language"] for b in contrib.get("breakpoints", [])} == {"cardlang", "cardlang-scenario"}
+          and 'registerDebugAdapterDescriptorFactory("cardlang"' in js and (TOOLS / "dap" / "cardlang_dap.py").exists(), str(dbg.get("type")))
     kw_rx = [re.compile(p["match"]) for p in g["repository"]["keywords"]["patterns"]]
     missed = set()
     for app in ("fido2", "piv"):

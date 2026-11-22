@@ -1,68 +1,164 @@
 {
   "name": "cardlang",
   "displayName": "CardLang",
-  "description": "CardLang for VS Code: highlighting, diagnostics as you type, building and running applets (TL1).",
+  "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets (TL1).",
   "version": "0.1.0",
   "publisher": "cardlang",
   "license": "UNLICENSED",
   "private": true,
-  "engines": { "vscode": "^1.91.0" },
-  "categories": ["Programming Languages", "Snippets"],
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Debuggers"
+  ],
   "main": "./extension.js",
-  "activationEvents": ["workspaceContains:**/cardlang.json"],
+  "activationEvents": [
+    "workspaceContains:**/cardlang.json",
+    "onDebugResolve:cardlang",
+    "onDebugInitialConfigurations",
+    "onDebugDynamicConfigurations:cardlang"
+  ],
   "contributes": {
     "semanticTokenModifiers": [
-      { "id": "persistent", "description": "Lives in persistent storage: a persistent global" }
+      {
+        "id": "persistent",
+        "description": "Lives in persistent storage: a persistent global"
+      }
     ],
     "semanticTokenScopes": [
       {
         "language": "cardlang",
         "scopes": {
-          "variable.persistent": ["variable.other.persistent.cardlang"],
-          "variable.static": ["variable.other.session.cardlang"],
-          "macro.defaultLibrary": ["support.function.intrinsic.cardlang"],
-          "namespace.defaultLibrary": ["support.class.platform.cardlang"],
-          "function.defaultLibrary": ["support.function.platform.cardlang"],
-          "type.defaultLibrary": ["support.type.primitive.cardlang"]
+          "variable.persistent": [
+            "variable.other.persistent.cardlang"
+          ],
+          "variable.static": [
+            "variable.other.session.cardlang"
+          ],
+          "macro.defaultLibrary": [
+            "support.function.intrinsic.cardlang"
+          ],
+          "namespace.defaultLibrary": [
+            "support.class.platform.cardlang"
+          ],
+          "function.defaultLibrary": [
+            "support.function.platform.cardlang"
+          ],
+          "type.defaultLibrary": [
+            "support.type.primitive.cardlang"
+          ]
         }
       }
     ],
     "configurationDefaults": {
-      "[cardlang]": { "editor.semanticHighlighting.enabled": true }
+      "[cardlang]": {
+        "editor.semanticHighlighting.enabled": true
+      }
     },
     "languages": [
       {
         "id": "cardlang",
-        "aliases": ["CardLang", "cardlang"],
-        "extensions": [".card"],
+        "aliases": [
+          "CardLang",
+          "cardlang"
+        ],
+        "extensions": [
+          ".card"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
         "id": "cardlang-scenario",
-        "aliases": ["CardLang Scenario"],
-        "extensions": [".scenario"],
-        "filenames": ["scenario.txt"],
+        "aliases": [
+          "CardLang Scenario"
+        ],
+        "extensions": [
+          ".scenario"
+        ],
+        "filenames": [
+          "scenario.txt"
+        ],
         "configuration": "./language-configuration-scenario.json"
       }
     ],
     "grammars": [
-      { "language": "cardlang", "scopeName": "source.cardlang", "path": "./syntaxes/cardlang.tmLanguage.json" },
-      { "language": "cardlang-scenario", "scopeName": "source.cardlang-scenario", "path": "./syntaxes/cardlang-scenario.tmLanguage.json" }
+      {
+        "language": "cardlang",
+        "scopeName": "source.cardlang",
+        "path": "./syntaxes/cardlang.tmLanguage.json"
+      },
+      {
+        "language": "cardlang-scenario",
+        "scopeName": "source.cardlang-scenario",
+        "path": "./syntaxes/cardlang-scenario.tmLanguage.json"
+      }
     ],
-    "snippets": [{ "language": "cardlang", "path": "./snippets/cardlang.json" }],
+    "snippets": [
+      {
+        "language": "cardlang",
+        "path": "./snippets/cardlang.json"
+      }
+    ],
     "commands": [
-      { "command": "cardlang.build", "title": "Build Applet", "category": "CardLang", "icon": "$(package)" },
-      { "command": "cardlang.check", "title": "Check Applet", "category": "CardLang" },
-      { "command": "cardlang.runScenario", "title": "Run Scenario", "category": "CardLang", "icon": "$(play)" },
-      { "command": "cardlang.restartServer", "title": "Restart Language Server", "category": "CardLang" }
+      {
+        "command": "cardlang.build",
+        "title": "Build Applet",
+        "category": "CardLang",
+        "icon": "$(package)"
+      },
+      {
+        "command": "cardlang.check",
+        "title": "Check Applet",
+        "category": "CardLang"
+      },
+      {
+        "command": "cardlang.runScenario",
+        "title": "Run Scenario",
+        "category": "CardLang",
+        "icon": "$(play)"
+      },
+      {
+        "command": "cardlang.debugScenario",
+        "title": "Debug Scenario",
+        "category": "CardLang",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "cardlang.restartServer",
+        "title": "Restart Language Server",
+        "category": "CardLang"
+      }
     ],
     "menus": {
       "editor/title": [
-        { "command": "cardlang.build", "when": "editorLangId == cardlang", "group": "navigation" },
-        { "command": "cardlang.runScenario", "when": "editorLangId == cardlang-scenario", "group": "navigation" }
+        {
+          "command": "cardlang.build",
+          "when": "editorLangId == cardlang",
+          "group": "navigation"
+        },
+        {
+          "command": "cardlang.runScenario",
+          "when": "editorLangId == cardlang-scenario",
+          "group": "navigation"
+        },
+        {
+          "command": "cardlang.debugScenario",
+          "when": "editorLangId == cardlang-scenario",
+          "group": "navigation"
+        }
       ],
       "commandPalette": [
-        { "command": "cardlang.runScenario", "when": "editorLangId == cardlang-scenario" }
+        {
+          "command": "cardlang.runScenario",
+          "when": "editorLangId == cardlang-scenario"
+        },
+        {
+          "command": "cardlang.debugScenario",
+          "when": "editorLangId == cardlang-scenario"
+        }
       ]
     },
     "configuration": {
@@ -81,7 +177,12 @@
         "cardlang.scenarioBackend": {
           "type": "string",
           "default": "vmproto",
-          "enum": ["vmproto", "interp", "cvm-msvc", "cvm-clang"],
+          "enum": [
+            "vmproto",
+            "interp",
+            "cvm-msvc",
+            "cvm-clang"
+          ],
           "enumDescriptions": [
             "The prototype VM, in Python",
             "The reference interpreter",
@@ -95,11 +196,25 @@
     "taskDefinitions": [
       {
         "type": "cardlang",
-        "required": ["command"],
+        "required": [
+          "command"
+        ],
         "properties": {
-          "command": { "type": "string", "enum": ["check", "build", "run"] },
-          "program": { "type": "string", "description": "A project directory or a .card file" },
-          "scenario": { "type": "string" }
+          "command": {
+            "type": "string",
+            "enum": [
+              "check",
+              "build",
+              "run"
+            ]
+          },
+          "program": {
+            "type": "string",
+            "description": "A project directory or a .card file"
+          },
+          "scenario": {
+            "type": "string"
+          }
         }
       }
     ],
@@ -108,11 +223,79 @@
         "name": "cardlang",
         "owner": "cardlang",
         "source": "cardlang",
-        "fileLocation": ["autoDetect", "${workspaceFolder}"],
+        "fileLocation": [
+          "autoDetect",
+          "${workspaceFolder}"
+        ],
         "pattern": {
           "regexp": "^(.*):(\\d+):(\\d+): (CE-[A-Z]+-\\d+|BP-[0-9a-z]+): (.*)$",
-          "file": 1, "line": 2, "column": 3, "code": 4, "message": 5
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "code": 4,
+          "message": 5
         }
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "cardlang"
+      },
+      {
+        "language": "cardlang-scenario"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "cardlang",
+        "label": "CardLang",
+        "languages": [
+          "cardlang",
+          "cardlang-scenario"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "scenario"
+            ],
+            "properties": {
+              "scenario": {
+                "type": "string",
+                "description": "The scenario file that drives the applet.",
+                "default": "${file}"
+              },
+              "program": {
+                "type": "string",
+                "description": "The applet: a directory with cardlang.json, or a .card file. Default: the scenario's directory."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Stop before the scenario's first step.",
+                "default": false
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "cardlang",
+            "request": "launch",
+            "name": "Debug scenario",
+            "scenario": "${file}"
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "CardLang: Debug a scenario",
+            "description": "Run a scenario file against its applet on the prototype VM",
+            "body": {
+              "type": "cardlang",
+              "request": "launch",
+              "name": "Debug scenario",
+              "scenario": "^\"\\${file}\""
+            }
+          }
+        ]
       }
     ]
   },

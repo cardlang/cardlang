@@ -106,6 +106,18 @@ def main(repo):
     c.request("setExceptionBreakpoints", {"filters": []}); c.request("continue", {"threadId": 1})
     e = c.wait("exited"); check("and the scenario still passes", e["body"]["exitCode"] == 0, c.output[-1:])
     c.close()
+    app = repo / "examples" / "fido2"
+    c = Client(repo)
+    c.request("initialize", {"adapterID": "cardlang"}); c.wait("initialized")
+    c.request("launch", {"scenario": str(app / "getinfo.scenario")})          # the program: the scenario's project
+    r = c.request("setBreakpoints", {"source": {"path": str(app / "ctap.card")}, "breakpoints": [{"line": 30}]})
+    c.request("setExceptionBreakpoints", {"filters": []}); c.request("configurationDone")
+    e = c.wait("stopped"); st = c.stack()
+    check("an applet: a breakpoint in the FIDO2 getInfo handler", r["body"]["breakpoints"][0]["verified"] and st[0]["name"] == "get_info"
+          and st[0]["line"] == 30 and st[-1]["line"] == 6, [(f["name"], f["line"]) for f in st])
+    c.request("setBreakpoints", {"source": {"path": str(app / "ctap.card")}, "breakpoints": []}); c.request("continue", {"threadId": 1})
+    e = c.wait("exited"); check("and its scenario passes", e["body"]["exitCode"] == 0, c.output[-1:])
+    c.close()
     print("ALL PASS" if ok else "FAILURES")
     return ok
 

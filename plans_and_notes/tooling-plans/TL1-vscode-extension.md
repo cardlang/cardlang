@@ -272,3 +272,42 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - **The wallet:** a breakpoint in `credit`, the stack `credit ← process ← scenario step`, `amount` = 1000 and the globals, hover, step over to line 58 with the new local in scope, step in to the `Ok` arm, step out to `process`, a breakpoint removed, and a run to the end that passes.
   - **The integer traps:** a breakpoint set before launch is verified afterwards; the overflow stops on line 16 with `a` = 255; continuing passes.
 - **A bug found by the check, and fixed:** removing a file's breakpoints did not clear their offsets.
+
+**Step 5 committed (`f59d959`).**
+
+**Step 6 built (2026-11-22): debugging from VS Code.**
+- **`package.json`:**
+  - the `cardlang` debugger, with `scenario`, `program` and `stopOnEntry`, an initial configuration and a snippet;
+  - breakpoints in `.card` and scenario files;
+  - a Debug Scenario command, with an icon on scenario editors;
+  - activation on debug requests.
+- **`extension.js`:**
+  - a descriptor factory, which starts `tools/dap/cardlang_dap.py` through uv;
+  - a configuration provider: F5 without a `launch.json` debugs the scenario in the editor;
+  - the Debug Scenario command.
+- **Example scenarios** for the applets, recorded from runs:
+  - `examples/fido2/getinfo.scenario`: SELECT, getInfo, reset, a CTAP error, and an unknown instruction;
+  - `examples/piv/basic.scenario`: SELECT, GET DATA of an absent object, VERIFY's retry count, and an unknown instruction.
+
+  Both pass on `vmproto` and `cvm-clang`.
+- **Checks:**
+  - `check_extension.py`: every contributed command is registered, and the debugger contribution is complete;
+  - `dap_check.py`: the FIDO2 scenario stops at a breakpoint in `get_info` (`ctap.card:30`), with the stack `get_info ← ctap ← process ← scenario step`, and its project found through `cardlang.json`.
+- **Not yet verified:** debugging in VS Code itself; that needs the user to reload the window.
+
+**Step 6 verified by the user in VS Code (2026-11-22).**
+
+**Go to definition (user, 2026-11-22),** an addition to step 3b.
+- **`semantic.definition`** resolves the name under the cursor the way the colouring does:
+  - parameters and locals, by their enclosing function;
+  - struct fields, through `.field` or a constructor; a field name declared in several structs gives each declaration;
+  - enum and error-set members, through `Owner.Member`;
+  - every top-level name of the program, across its files;
+  - the Base Profile's types, in `platform/base-types.card`. `pltcheck` now lexes the prelude with its file name.
+
+  Primitive types, intrinsics and the `card` APIs have no source, so they give no location.
+- **The server** answers `textDocument/definition`. VS Code then offers F12, Ctrl+click and Peek Definition (Alt+F12).
+- **Checks:** `semantic_check.py` now passes 40 checks:
+  - 13 definitions pinned in the sample;
+  - one across files, from `ctap.card` to `client_pin` in `pin.card`;
+  - one request through the server.

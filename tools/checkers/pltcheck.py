@@ -20,7 +20,7 @@ def declared_names(toks):
     """Names introduced by top-level-style declarations in a token list."""
     return {toks[i + 1][1] for i, (_, v) in enumerate(toks[:-1]) if v in DECL_KEYWORDS and toks[i + 1][0] == "id"}
 
-PRELUDE = lex(BASE_TYPES.read_bytes()) if BASE_TYPES.exists() else []
+PRELUDE = lex(BASE_TYPES.read_bytes(), str(BASE_TYPES)) if BASE_TYPES.exists() else []   # named: go to definition (TL1)
 PRELUDE_NAMES = declared_names(PRELUDE)
 
 def parse_params(params):
