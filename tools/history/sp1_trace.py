@@ -1,4 +1,6 @@
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 repo = pathlib.Path(sys.argv[1])
 M = {  # D-ID: (rules, coverage)
 "D-023": ("LEX-1, LEX-2, LEX-3, LEX-12", "covered"),
@@ -25,7 +27,7 @@ M = {  # D-ID: (rules, coverage)
 "D-424": ("LEX-10, LEX-16, LEX-18", "covered"),
 }
 # Annex D: columns D-ID | Topic | SP | Rule IDs | OI | Coverage
-p = repo / "spec" / "annex-D-traceability.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).spec / "annex-D-traceability.md"; t = p.read_text(encoding="utf-8")
 for d, (rules, cov) in M.items():
     t, n = re.subn(rf"^(\| {d} \|[^|]*\|[^|]*\| )[^|]*(\|[^|]*\| )[^|]*\|$", rf"\g<1>{rules} \g<2>{cov} |", t, flags=re.M)
     assert n == 1, d
@@ -35,13 +37,13 @@ t = t.replace("| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of e
               "| annex-A-grammar.md | SP1–SP14 | DN §3.0 plus the syntax of every chapter | A.1 complete (LEX rules); A.2 pending |")
 p.write_text(t, encoding="utf-8", newline="\n")
 # Register: last column
-p = repo / "plans_and_notes" / "decision-register.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).decision_register; t = p.read_text(encoding="utf-8")
 for d, (rules, cov) in M.items():
     t, n = re.subn(rf"^(\| {d} \|.*\| )[^|]*\|$", rf"\g<1>{rules} |", t, flags=re.M)
     assert n == 1, d
 p.write_text(t, encoding="utf-8", newline="\n")
 # Annex C resolution log
-p = repo / "spec" / "annex-C-open-issues.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).spec / "annex-C-open-issues.md"; t = p.read_text(encoding="utf-8")
 for oi, txt in [("OI-1", "Applied in chapter 2: LEX-1 (SP1)"),
                 ("OI-4", "Applied in chapter 2: LEX-13, LEX-15 (SP1); declaration ban in chapter 3 (SP2)"),
                 ("OI-14", "Applied in chapter 2: LEX-17 to LEX-19 (SP1)")]:

@@ -17,6 +17,8 @@ Each check prints PASS or FAIL with a short reason:
 Usage: python -I tools/checkers/speccheck.py .
 """
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 PREFIXES = "LEX|NAM|TYP|CEX|EXP|STM|FUN|OUT|STA|TXN|HEP|RTF|PLT"
 RULE_DEF = re.compile(rf"^\*\*((?:{PREFIXES})-\d+) \[(Agreed|Proposal|Open)\]\*\*", re.M)
@@ -31,12 +33,12 @@ def strip_code(line):
     return re.sub(r"`[^`]*`", "``", line)
 
 def main(repo):
-    spec = repo / "spec"
+    spec = layout.at(repo).spec
     files = sorted(spec.glob("*.md"))
     texts = {f.name: f.read_text(encoding="utf-8") for f in files}
     chapters = {n: t for n, t in texts.items() if re.match(r"\d\d-", n) and n != "00-index.md"}
     normative = dict(chapters); normative["annex-B-platform-contract.md"] = texts["annex-B-platform-contract.md"]
-    tests = sorted((repo / "conformance").rglob("*.card"))
+    tests = sorted((layout.at(repo).conformance).rglob("*.card"))
     headers = [f.read_text(encoding="utf-8", errors="replace").split("\n\n")[0] for f in tests]
     results = []
     def report(name, problems):
@@ -62,7 +64,7 @@ def main(repo):
     report(f"rules ({len(rules)} defined)", problems)
 
     # references ------------------------------------------------------------------------------
-    register = (repo / "plans_and_notes" / "decision-register.md").read_text(encoding="utf-8")
+    register = (layout.at(repo).decision_register).read_text(encoding="utf-8")
     decisions = set(re.findall(r"^\| (D-\d+) \|", register, re.M))
     issues = set(re.findall(r"^## (OI-\d+) ", texts["annex-C-open-issues.md"], re.M))
     index = texts["00-index.md"]
@@ -118,7 +120,7 @@ def main(repo):
     # tables ----------------------------------------------------------------------------------
     problems = []
     for name, text in list(texts.items()) + [(p.name, p.read_text(encoding="utf-8")) for p in
-                                             [repo / "plans_and_notes" / "decision-register.md"]]:
+                                             [layout.at(repo).decision_register]]:
         in_code, width = False, None
         for n, line in enumerate(text.splitlines(), 1):
             if line.startswith("```"): in_code = not in_code

@@ -70,14 +70,14 @@ The 76 rules that no test cited before SP14 were sorted into three groups. Annex
 
 - **Exercised but not cited (47 rules).** Existing tests clearly depend on them, for example STM-1 (blocks) and FUN-1 (declarations). They are mapped to those tests in the matrix rather than by editing test headers, because the generators would overwrite such edits.
 - **New tests (9 tests plus one extension), written by `tools/generators/sp14_tests.py`:**
-  - `valid/lex-009-long-identifier` (LEX-16);
-  - `invalid/lex-115-missing-semicolon` (LEX-23);
-  - `invalid/nam-122-application-wrapper` (NAM-8);
-  - `invalid/typ-115-no-64-bit` (TYP-8);
-  - `invalid/exp-143-boolean-operator-integer` (EXP-16);
-  - `invalid/exp-144-convert-to-bool` (EXP-35);
-  - `invalid/fun-122-reference-variable` (FUN-16);
-  - `invalid/out-131-ok-as-value` (OUT-6);
+  - `valid/lex-009-long-identifier.card` (LEX-16);
+  - `invalid/lex-115-missing-semicolon.card` (LEX-23);
+  - `invalid/nam-122-application-wrapper.card` (NAM-8);
+  - `invalid/typ-115-no-64-bit.card` (TYP-8);
+  - `invalid/exp-143-boolean-operator-integer.card` (EXP-16);
+  - `invalid/exp-144-convert-to-bool.card` (EXP-35);
+  - `invalid/fun-122-reference-variable.card` (FUN-16);
+  - `invalid/out-131-ok-as-value.card` (OUT-6);
   - `runtime/run-017-evaluation-and-copies`: evaluation order of `attempt` operands, independent copies, runtime bitwise and shift results, argument preparation trapping before the callee runs, an `inout` write rolled back by `abort`, no implicit command transaction, and separate request and response (EXP-20, EXP-27, EXP-46, EXP-50, FUN-11, FUN-17, FUN-23, TXN-5, HEP-7);
   - `runtime/run-015-resource-identifiers` gained a step showing that a trap does not delete a resource it created (PLT-23).
 
@@ -94,7 +94,7 @@ The 76 rules that no test cited before SP14 were sorted into three groups. Annex
 
 | Application | Tests | Status |
 |---|---|---|
-| Counter | `valid/hep-005-counter-application`, `runtime/run-011-counter-application` | Written using only [Agreed] rules. Nothing blocks it |
+| Counter | `valid/hep-005-counter-application.card`, `runtime/run-011-counter-application` | Written using only [Agreed] rules. Nothing blocks it |
 | Wallet | `runtime/run-012-wallet-application` | Written using only [Agreed] rules: authorization, transactions, `abort`, reset. Nothing blocks it |
 | Signer | `runtime/run-016-signer-application` | Written up to the platform-API boundary, against the fictional `card.test.sign`. It is blocked only by the absence of a real platform API catalog for keys and signing, which is platform work outside this specification |
 

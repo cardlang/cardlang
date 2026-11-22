@@ -3,7 +3,9 @@
 Rerun after adding or moving rules:  python -I tools/generators/rule_index.py .
 """
 import re, sys, pathlib
-repo = pathlib.Path(sys.argv[1]); spec = repo / "spec"
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); spec = layout.at(repo).spec
 files = sorted(spec.glob("[01][0-9]-*.md")) + [spec / "annex-B-platform-contract.md"]
 
 def anchor(heading):

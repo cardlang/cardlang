@@ -7,9 +7,11 @@ Usage (from the repository root), after building the C VM:
 Exit status 0 means every test produced its expected result.
 """
 import pathlib, subprocess, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[0] / "checkers"))   # find layout
+import layout
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CHECKERS = ROOT / "tools" / "checkers"
+CHECKERS = layout.at(ROOT).tools / "checkers"
 
 # (checker, test glob or None for the checker's default, what it verifies)
 RUNS = [
@@ -42,6 +44,8 @@ RUNS = [
     ("../lsp/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
     ("../dap/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
     ("../vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
+    # References stay correct (PR1): links, anchors and named files in every document; paths only through layout.
+    ("linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout (PR1)"),
     # Consistency of the specification text itself (SP14).
     ("speccheck.py", None, "rules, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index"),
     # The CardLang Base Profile (platform/), WP2.

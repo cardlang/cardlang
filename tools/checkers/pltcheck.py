@@ -5,15 +5,16 @@ Loads the test-only catalog conformance/platform/test-catalog.txt (Annex B, PLT-
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import layout
 import project
 import srcpos
 import hepcheck, expcheck, consteval
 from expcheck import CE
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-CATALOG_FILE = ROOT / "conformance" / "platform" / "test-catalog.txt"
-BASE_CATALOG = ROOT / "platform" / "base-catalog.txt"            # Base Profile 1 (platform/base-profile.md)
-BASE_TYPES = ROOT / "platform" / "base-types.card"
+CATALOG_FILE = layout.at(ROOT).test_catalog
+BASE_CATALOG = layout.at(ROOT).base_catalog            # Base Profile 1 (platform/base-profile.md)
+BASE_TYPES = layout.at(ROOT).base_types
 DECL_KEYWORDS = {"struct", "enum", "function", "persistent", "session", "const", "command", "errors"}
 
 def declared_names(toks):
@@ -191,7 +192,7 @@ def run(toks, kind="fragment", binding=None):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True; glob = sys.argv[2] if len(sys.argv) > 2 else "*/plt-*"
-    for t in sorted((repo / "conformance").glob(glob)):
+    for t in sorted((layout.at(repo).conformance).glob(glob)):
         files = project.program_files(t)
         toks = sum((lex(f.read_bytes()) for f in files), [])
         meta = header(files[0].read_bytes()); exp = meta["expect"]

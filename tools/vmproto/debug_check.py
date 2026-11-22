@@ -15,6 +15,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 for d in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 import compiler, typer, disasm, debuginfo, backends, scenario
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 def body(img):
     h, _, _, _ = disasm.read_image(img)
@@ -66,7 +68,7 @@ def main(repo):
     check("every reachable statement has a line-table row", missing == 0, f"{statements} statements, {missing} without a row")
     check("every row names an existing line of a program file", bad_rows == 0, f"{bad_rows} bad rows")
     check("every debug section decodes; scopes lie inside their functions", bad_scopes == 0, f"{decoded} images, {bad_scopes} bad scopes")
-    sample = repo / "tools" / "lsp" / "testdata" / "semantic-sample.card"
+    sample = layout.at(repo).tools / "lsp" / "testdata" / "semantic-sample.card"
     c = compiler.compile_files([sample]); info = debuginfo.DebugInfo.of(c.image)
     got = sorted((info.functions[v["function"]], v["name"], info.type_name(v["type"]), v["kind"], v["param"]) for v in info.vars)
     want = sorted([("add", "values", "u8[]", "view", True), ("add", "extra", "u32", "frame", True),
@@ -80,7 +82,7 @@ def main(repo):
           str([l for l in lines if not info.offsets(str(sample), l)]))
     globs = sorted((g["name"], g["kind"], info.type_name(g["type"])) for g in info.globals)
     check("the sample's globals", globs == [("LIMIT", "const-scalar", "u32"), ("mode", "session", "Mode"), ("total", "persistent", "u32")], str(globs))
-    run = repo / "conformance" / "runtime" / "run-001-integer-traps"
+    run = layout.at(repo).runtime / "run-001-integer-traps"
     card = backends.build("vmproto", scenario.program_files(run))
     card.install(); card.session_start()
     positions = []

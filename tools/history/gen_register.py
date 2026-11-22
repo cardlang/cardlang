@@ -3,9 +3,12 @@
 Topic/status cells are copied verbatim from DN section 2 (lines 28-162).
 """
 import sys, pathlib
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 repo = pathlib.Path(sys.argv[1])
-dn = (repo / "plans_and_notes" / "card-language-design-notes.md").read_text(encoding="utf-8").splitlines()
+dn = (layout.at(repo).design_notes).read_text(encoding="utf-8").splitlines()
 rows = dn[27:162]  # lines 28..162 (1-based)
 assert len(rows) == 135, len(rows)
 cells = []
@@ -228,7 +231,7 @@ None registered yet. Sub-plans SP1–SP13 add rows here as they reach each DN se
 
 {hdr.rstrip()}
 """
-(repo / "plans_and_notes" / "decision-register.md").write_text(register, encoding="utf-8", newline="\n")
+(layout.at(repo).decision_register).write_text(register, encoding="utf-8", newline="\n")
 
 rev = ["| D-ID | Topic (short) | Owning SP | Rule IDs | Linked OI | Coverage |", "|---|---|---|---|---|---|"]
 for i, (topic, _s) in enumerate(cells, 1):

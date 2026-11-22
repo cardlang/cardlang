@@ -1,6 +1,9 @@
 """Write the Draft 0.2 profile tests for command-lifetime keys (P1) and card.cbor.write_string (P2)."""
 import sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="fragment"):
     return f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: {kind}\n// expect: {exp}\n// note: {note}\n"

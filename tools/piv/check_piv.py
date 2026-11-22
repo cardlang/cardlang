@@ -14,6 +14,7 @@ BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else TOOLS.parent
 sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from lexcheck import lex
+import layout
 import grammar, backends, testcrypto
 
 PIV_AID = bytes.fromhex("A000000308000010000100")
@@ -49,7 +50,7 @@ def aes_ecb(key, block, decrypt=False):
 # ------------------------------------------------------------------ the session
 class Session:
     def __init__(self):
-        d = ROOT / "examples" / "piv"
+        d = layout.at(ROOT).examples / "piv"
         import project; files = project.program_files(d)
         g = grammar.load_grammar()
         for f in files:

@@ -5,7 +5,10 @@
   structures; an aggregate payload forwarded through two calls (FUN-23, EXP-44, OUT-5).
 """
 import sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, note):
     return f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: application\n// expect: runtime\n// note: {note}\n"

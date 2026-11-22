@@ -3,10 +3,12 @@
 Existing entries are kept; missing rule IDs are appended in chapter order.
 """
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 repo = pathlib.Path(sys.argv[1])
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()
 key = lambda r: (ORDER.index(r.split("-")[0]), int(r.split("-")[1]))
-spec = "\n".join(f.read_text(encoding="utf-8") for f in sorted((repo / "spec").glob("*.md")))
+spec = "\n".join(f.read_text(encoding="utf-8") for f in sorted((layout.at(repo).spec).glob("*.md")))
 cites = {}
 for m in re.finditer(r"^\*\*([A-Z]{3}-\d+) \[\w+\]\*\*.*?^\*Sources: (.*?)$", spec, re.M | re.S):
     for d in re.findall(r"D-\d{3}", m.group(2)): cites.setdefault(d, set()).add(m.group(1))

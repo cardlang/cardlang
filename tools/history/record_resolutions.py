@@ -1,5 +1,7 @@
 """Record the 2026-11-15 open-issue resolutions in Annex C, the register and Annex D."""
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 repo = pathlib.Path(sys.argv[1])
 DATE = "2026-11-15"
@@ -30,7 +32,7 @@ R = {
 }
 
 # ---------- Annex C ----------
-p = repo / "spec" / "annex-C-open-issues.md"
+p = layout.at(repo).spec / "annex-C-open-issues.md"
 t = p.read_text(encoding="utf-8")
 for n, (dec, *_r) in R.items():
     hdr = f"## OI-{n} "
@@ -69,7 +71,7 @@ t = t.replace("| — | — | No resolutions yet | — | — |", "\n".join(log))
 p.write_text(t, encoding="utf-8", newline="\n")
 
 # ---------- Register ----------
-p = repo / "plans_and_notes" / "decision-register.md"
+p = layout.at(repo).decision_register
 t = p.read_text(encoding="utf-8")
 t = t.replace("| `D-301`… | Agreed decisions stated only in DN body sections. Later sub-plans add them as they reach each section |",
               "| `D-301`… | Agreed decisions stated only in DN body sections. Later sub-plans add them as they reach each section |\n| `D-401`… | Decisions made by resolving open issues. `D-4nn` resolves `OI-nn` (see the Annex C resolution log) |")
@@ -81,7 +83,7 @@ t = t.rstrip("\n") + f"\n\n## Open-issue resolutions (D-401…)\n\n{hdr}" + "\n"
 p.write_text(t, encoding="utf-8", newline="\n")
 
 # ---------- Annex D ----------
-p = repo / "spec" / "annex-D-traceability.md"
+p = layout.at(repo).spec / "annex-D-traceability.md"
 t = p.read_text(encoding="utf-8").rstrip("\n")
 t += "\n" + "\n".join(f"| D-{400+n} | {R[n][3]} | {R[n][2]} | — | OI-{n} | pending |" for n in R) + "\n"
 p.write_text(t, encoding="utf-8", newline="\n")

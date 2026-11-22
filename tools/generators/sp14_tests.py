@@ -1,7 +1,9 @@
 """Write the SP14 conformance tests: tests for testable rules that no earlier test covered (SP14 §3.3, group (b))."""
 import re, sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
-SPEC = "\n".join(f.read_text(encoding="utf-8") for f in sorted((repo / "spec").glob("*.md")))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
+SPEC = "\n".join(f.read_text(encoding="utf-8") for f in sorted((layout.at(repo).spec).glob("*.md")))
 
 def sources(rules):
     """The decision and note sources of the given rules, taken from their Sources lines."""

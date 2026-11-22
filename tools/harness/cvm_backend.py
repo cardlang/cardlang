@@ -14,6 +14,9 @@ for p in (TOOLS / "vmproto", TOOLS / "checkers", TOOLS / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import compiler, isa
 from scenario import CARD_ERROR_CODES
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 CDEF = """
 typedef struct { uint8_t kind; uint8_t category; uint16_t code; bool has_count; uint32_t count; } cl_result;
@@ -38,7 +41,7 @@ _LIBS = {}
 
 def library(toolchain):
     if toolchain not in _LIBS:
-        path = ROOT / "vm" / "c" / "build" / toolchain / "cvm.dll"
+        path = layout.at(ROOT).vm_c / "build" / toolchain / "cvm.dll"
         if not path.exists(): raise SystemExit(f"{path} not found: run `uv run python -I vm/c/build.py {toolchain}` first")
         _LIBS[toolchain] = ffi.dlopen(str(path))
     return _LIBS[toolchain]

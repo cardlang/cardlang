@@ -6,6 +6,7 @@ application tests (kind: application) are checked as written.
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import layout
 import project
 import txncheck, expcheck, consteval
 import srcpos
@@ -44,7 +45,7 @@ def run(toks, kind="fragment"):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True; glob = sys.argv[2] if len(sys.argv) > 2 else "*/hep-*"
-    for t in sorted((repo / "conformance").glob(glob)):
+    for t in sorted((layout.at(repo).conformance).glob(glob)):
         files = project.program_files(t)
         toks = sum((lex(f.read_bytes()) for f in files), [])
         meta = header(files[0].read_bytes()); exp = meta["expect"]

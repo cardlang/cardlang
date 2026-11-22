@@ -11,6 +11,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness", HERE.parent / "fido"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import compiler, typer, isa, disasm, vm, backends, scenario
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 def instructions(image):
     h, funcs, _, names = disasm.read_image(image)
@@ -69,7 +71,7 @@ def dynamic(repo):
     out = {}
     with Probe() as p:
         per_test = {}
-        for d in sorted((repo / "conformance" / "runtime").glob("run-*")):
+        for d in sorted((layout.at(repo).runtime).glob("run-*")):
             p.max_sp = 0
             card = backends.build("vmproto", scenario.program_files(d))
             assert scenario.run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8")) is None

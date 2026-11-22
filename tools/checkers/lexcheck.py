@@ -1,5 +1,7 @@
 """Reference lexer written from spec chapter 2, used to verify SP1."""
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 class Tok(tuple):
     """A (kind, value) token with its source position."""
@@ -102,7 +104,7 @@ def header(data):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1])
-    conf = repo / "conformance"
+    conf = layout.at(repo).conformance
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); import project   # run as a script with -I
     ok = True
     tests = sorted(p for p in conf.glob("*/[a-z][a-z][a-z]-*") )
@@ -121,8 +123,8 @@ if __name__ == "__main__":
         ok &= status == "PASS"
         print(f"{status} {t.relative_to(conf)}: expect {exp}, lexer {got}")
     # DN code blocks
-    dn = (repo / "plans_and_notes" / "card-language-design-notes.md").read_text(encoding="utf-8")
-    pn = (repo / "plans_and_notes" / "cardlang-platform-notes.md").read_text(encoding="utf-8")
+    dn = (layout.at(repo).design_notes).read_text(encoding="utf-8")
+    pn = (layout.at(repo).platform_notes).read_text(encoding="utf-8")
     bad = 0
     for name, doc in (("DN", dn), ("PN", pn)):
         for k, block in enumerate(re.findall(r"```text\n(.*?)```", doc, re.S)):

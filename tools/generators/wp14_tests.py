@@ -4,7 +4,10 @@
 - run-032: in the ISO 7816 binding, deselection ends the session; a SELECT afterwards starts a new one (BP-55, BP-56).
 """
 import sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, note, binding=None):
     b = f"// binding: {binding}\n" if binding else ""

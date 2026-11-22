@@ -27,6 +27,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 for d in (HERE.parent / "checkers",):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 from lexcheck import lex, LexError
+import layout
 import expcheck
 
 TYPES = ["namespace", "type", "struct", "enum", "enumMember", "parameter", "variable", "property", "function", "macro"]
@@ -138,7 +139,7 @@ def prelude_symbols():
 def card_error_members():
     """The CardError members of the Base Profile's table (tools/harness/scenario.py reads the same table)."""
     import re
-    profile = HERE.parents[1] / "platform" / "base-profile.md"
+    profile = layout.at().base_profile
     text = profile.read_text(encoding="utf-8") if profile.exists() else ""
     return set(re.findall(r"^\| `(\w+)` \| `0x[0-9A-Fa-f]{4}` \|", text, re.M))
 

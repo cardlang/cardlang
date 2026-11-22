@@ -4,7 +4,9 @@ Expected values are published test vectors (FIPS 180-4, FIPS 197, RFC 5869) or a
 Python's standard library (HMAC with a 32-byte key, the interpreter's deterministic random stream).
 """
 import sys, pathlib, hashlib, hmac
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="fragment"):
     return f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: {kind}\n// expect: {exp}\n// note: {note}\n"

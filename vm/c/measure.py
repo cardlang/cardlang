@@ -20,6 +20,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 sys.path[:0] = [str(HERE)] + [str(REPO / "tools" / d) for d in ("harness", "vmproto", "checkers", "interp")]
 import build
+import layout
 
 SOURCES = ["src/vm.c", "src/natives.c"]
 TARGETS = {

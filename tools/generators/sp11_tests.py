@@ -1,7 +1,9 @@
 """Write the SP11 (chapter 12, host entry point) conformance tests and cross-check them with the chapter."""
 import re, sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
-ch = (repo / "spec" / "12-host-entry-point.md").read_text(encoding="utf-8")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
+ch = (layout.at(repo).spec / "12-host-entry-point.md").read_text(encoding="utf-8")
 
 def block(path):
     return re.search(r"\(conformance: `" + re.escape(path) + r"`\)\n\n```text\n(.*?)```", ch, re.S).group(1)

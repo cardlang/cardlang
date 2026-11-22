@@ -2,6 +2,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import layout
 import project
 import srcpos
 import stmcheck, expcheck, consteval
@@ -163,7 +164,7 @@ def run(toks):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True; glob = sys.argv[2] if len(sys.argv) > 2 else "*/fun-*"
-    for t in sorted((repo / "conformance").glob(glob)):
+    for t in sorted((layout.at(repo).conformance).glob(glob)):
         files = project.program_files(t)
         toks = sum((lex(f.read_bytes()) for f in files), [])
         exp = header(files[0].read_bytes())["expect"]

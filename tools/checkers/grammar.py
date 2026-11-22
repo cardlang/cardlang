@@ -13,6 +13,7 @@ Usage: python -I tools/checkers/grammar.py . ["<glob>"]
 import re, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header, LexError
+import layout
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
@@ -124,7 +125,7 @@ class Grammar:
         return ok, n
 
 def load_grammar(repo=ROOT):
-    return Grammar(load_productions((repo / "spec" / "annex-A-grammar.md").read_text(encoding="utf-8")))
+    return Grammar(load_productions((layout.at(repo).spec / "annex-A-grammar.md").read_text(encoding="utf-8")))
 
 def test_files(t):
     import project
@@ -133,7 +134,7 @@ def test_files(t):
 def check_notes(repo, g):
     """Every design-note code block that the full checker accepts as a fragment must derive SourceFile."""
     import pltcheck
-    text = (repo / "plans_and_notes" / "card-language-design-notes.md").read_text(encoding="utf-8")
+    text = (layout.at(repo).design_notes).read_text(encoding="utf-8")
     ok = True
     for n, block in enumerate(re.findall(r"```[a-z]*\n(.*?)```", text, re.S), 1):
         try:
@@ -151,7 +152,7 @@ if __name__ == "__main__":
     g = load_grammar(repo); ok = True
     if glob == "--notes":
         print("ALL PASS" if check_notes(repo, g) else "FAILURES"); sys.exit(0)
-    for t in sorted((repo / "conformance").glob(glob)):
+    for t in sorted((layout.at(repo).conformance).glob(glob)):
         if t.suffix not in (".card", "") or t.name == "platform": continue
         files = test_files(t)
         if not files: continue
@@ -163,5 +164,5 @@ if __name__ == "__main__":
             derived, at = g.recognize(lex(f.read_bytes()))
             if not derived: got = "no derivation"; break
         st = "PASS" if got == want else "FAIL"; ok &= st == "PASS"
-        print(st, t.relative_to(repo / "conformance"), "| expect", want, "| grammar", got)
+        print(st, t.relative_to(layout.at(repo).conformance), "| expect", want, "| grammar", got)
     print("ALL PASS" if ok else "FAILURES")

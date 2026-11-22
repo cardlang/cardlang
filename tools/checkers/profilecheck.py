@@ -11,6 +11,7 @@ Usage: python -I tools/checkers/profilecheck.py .
 import re, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pltcheck
+import layout
 from lexcheck import lex
 
 FIELDS = ["params", "payload", "transaction", "errors", "resources", "on-failure", "permission", "summary"]
@@ -18,7 +19,7 @@ PRIMITIVE = {"u8", "u16", "u32", "i8", "i16", "i32", "bool"}
 
 def main(repo):
     sys.stdout.reconfigure(encoding="utf-8")
-    prof = (repo / "platform" / "base-profile.md").read_text(encoding="utf-8")
+    prof = (layout.at(repo).base_profile).read_text(encoding="utf-8")
     results = []
     def report(name, problems):
         results.append(not problems)

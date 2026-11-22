@@ -114,7 +114,7 @@ See `tools/README.md` for details and known limitations.
 
 ## Relation to the specification
 
-- Each example in a spec chapter names its test file, for example *(conformance: `invalid/exp-014-mixed-operators.card`)*.
+- Each example in a spec chapter names its test file, for example *(conformance: `invalid/exp-105-mixed-arithmetic.card`)*.
 - Examples taken from the design notes keep their meaning. Lines added only to make a fragment complete are marked `// scaffold`.
 - `tools/checkers/speccheck.py` checks that every rule a test cites exists, and that every compile-error class and trap kind is defined. It also checks that every compile-error class is expected by at least one test.
 - Annex D §D.3 maps every rule to its tests, or gives the reason no test can check it. Regenerate it with `python -I tools/generators/coverage.py .` after adding tests.

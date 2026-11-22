@@ -14,6 +14,7 @@ for d in (HERE, HERE.parent / "checkers"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 import semantic, pltcheck
 from lexcheck import lex, LexError
+import layout
 
 FUNCTION, MODULE, ENUM_MEMBER = 3, 9, 20          # LSP CompletionItemKind
 SNIPPET = 2                                        # LSP InsertTextFormat
@@ -31,7 +32,7 @@ def apis():
         catalog, blocks = pltcheck.load_block_catalog()
         summaries = {b["api"]: dict(b["fields"]).get("summary", "") for b in blocks}
         for path, e in catalog.items(): e["summary"] = summaries.get(path, "")
-        profile = pltcheck.ROOT / "platform" / "base-profile.md"
+        profile = layout.at().base_profile
         text = profile.read_text(encoding="utf-8") if profile.exists() else ""
         spaces = {m.group(1): m.group(2).strip() for m in re.finditer(r"^\| `(card\.[a-z_]+)` \| ([^|]+) \|", text, re.M)}
         _api = (catalog, spaces)

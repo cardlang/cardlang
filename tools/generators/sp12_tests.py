@@ -1,10 +1,12 @@
 """Write the SP12 runtime conformance tests (conformance/runtime/*) and cross-check them with chapter 13."""
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 # Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
 SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance" / "runtime"
-ch13 = (repo / "spec" / "13-runtime-failures.md").read_text(encoding="utf-8")
-ch12 = (repo / "spec" / "12-host-entry-point.md").read_text(encoding="utf-8")
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).runtime
+ch13 = (layout.at(repo).spec / "13-runtime-failures.md").read_text(encoding="utf-8")
+ch12 = (layout.at(repo).spec / "12-host-entry-point.md").read_text(encoding="utf-8")
 
 def block(text, path):
     return re.search(r"\(conformance: `" + re.escape(path) + r"`\)\n\n```text\n(.*?)```", text, re.S).group(1)

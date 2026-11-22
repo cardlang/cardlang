@@ -17,6 +17,7 @@ TOOLS = pathlib.Path(__file__).resolve().parents[1]
 for sub in ("checkers", "harness"):
     if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
 from lexcheck import lex, header
+import layout
 import hepcheck, pltcheck, consteval
 from expcheck import P, CE
 from stmtparse import parse_block
@@ -196,7 +197,7 @@ def untyped(typed):
 
 def programs(repo):
     """(name, tokens) of every program the prototype compiler must handle: valid tests, runtime tests, examples."""
-    conf = repo / "conformance"
+    conf = layout.at(repo).conformance
     for f in sorted((conf / "valid").iterdir()):
         files = program_files(f) if f.is_dir() else [f] if f.suffix == ".card" else []
         if not files: continue
@@ -205,7 +206,7 @@ def programs(repo):
         yield f.stem if f.is_file() else f.name, toks
     for d in sorted((conf / "runtime").glob("run-*")):
         yield d.name, sum((lex(f.read_bytes(), str(f)) for f in program_files(d)), [])
-    for d in sorted((repo / "examples").iterdir()):
+    for d in sorted((layout.at(repo).examples).iterdir()):
         if (d / "cardlang.json").exists():
             import project
             yield "examples/" + d.name, sum((lex(f.read_bytes(), str(f)) for f in project.program_files(d)), [])

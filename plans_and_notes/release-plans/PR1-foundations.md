@@ -45,9 +45,32 @@ Planned 2026-11-22, the first work package of PR0 (`PR0-release-plan-of-plans.md
 
 | ID | Question | Options | Recommendation |
 |---|---|---|---|
-| L1 | Where the paths module lives until PR5 | (a) `tools/checkers/layout.py`: every tool already finds that folder; (b) `tools/layout.py`, which half the tools would need a new `sys.path` entry for | (a). It moves to `cardlang.layout` in PR5 anyway |
+| L1 | Where the paths module lives until PR5 | (a) `tools/checkers/layout.py`: every tool already finds that folder; (b) `tools/layout.py`, which half the tools would need a new `sys.path` entry for | (a). It moves to `cardlang.layout` in PR5 anyway | <!-- linkcheck: ignore -->
 | L2 | Check anchors too | (a) yes, by GitHub's anchor rules; (b) links to files only | (a). The spec's index is mostly links to anchors, and a renamed heading would otherwise break them unnoticed in a public repository |
 | L3 | Check file paths named in backticks | (a) yes, strictly, in the current-state documents; (b) links only | (a). Most cross-references in the plans and READMEs are backtick paths, not links. Only checking them makes PR2 and PR3 safe |
-| L4 | Historical documents: plans, measurement reports, findings, step notes | (a) keep the paths they were written with; the check reports stale ones as information; `devel/README.md` (PR2) says these paths are as of writing; (b) rewrite them to the new paths at every move | (a). They record what was true then. Rewriting history makes it inaccurate, and their links still work |
+| L4 | Historical documents: plans, measurement reports, findings, step notes | (a) keep the paths they were written with; the check reports stale ones as information; `devel/README.md` (PR2) says these paths are as of writing; (b) rewrite them to the new paths at every move | (a). They record what was true then. Rewriting history makes it inaccurate, and their links still work | <!-- linkcheck: ignore -->
 
 **Answered (user, 2026-11-22):** L1 (a) `tools/checkers/layout.py`; L2 (a) check anchors; L3 (a) check backtick paths strictly in current-state documents; L4 (a) historical documents keep their paths as written.
+
+## 4. Done (2026-11-22)
+
+- **`tools/checkers/layout.py`:** `layout.at(root)` gives the repository's parts by name. That covers the definition (`spec`, `conformance`, its `valid`, `invalid`, `runtime` and `test_catalog`, the design notes and the decision register), the platform files, `examples`, `vm`, `vm_c` and `tools`. It also gives `notes` and `historical`: the documents whose paths are as of writing.
+- **67 Python files changed:** 118 places that built a repository path now ask `layout`. The rewrite was mechanical, with three corrections:
+  - lines that set up `sys.path` bootstrap imports, so they keep their own paths (until PR5);
+  - files outside `tools/checkers/` gained one line to find it;
+  - one rewrite kept a module prefix (`pltcheck.layout.at(...)`), which `semantic_check` caught.
+- **The generators and history scripts:** all 33 generators, and those history scripts that ran before, still run against a copy of the repository. The other three history scripts, `gen_register`, `record_resolutions` and `sp1_trace`, already failed before this change, the same way: they were one-off scripts for documents that have changed since.
+- **`tools/checkers/linkcheck.py`,** in `run_checks`, over the 86 tracked documents:
+  - every relative link and every anchor resolves, with anchors by GitHub's rules;
+  - every named file resolves in the current-state documents;
+  - stale paths in historical documents are reported as INFO;
+  - lines marked `<!-- linkcheck: ignore -->` are not checked;
+  - build outputs are not checked, since a fresh checkout has none, and a fresh copy of the repository passes;
+  - no Python file outside `layout` builds a path into a top-level part.
+- **The injected breaks:** a missing link, a missing heading, a missing named file and a path built in code are each caught.
+- **What the check found:**
+  - `conformance/README.md` named a test that does not exist; it now names a real one;
+  - the SP14 report named nine tests without `.card`; fixed;
+  - the user's `.vscode/launch.json` in the extension README, and the future paths in PR0 and PR1, are marked as exceptions.
+
+  Four historical names remain, as INFO: planned files that were never created.

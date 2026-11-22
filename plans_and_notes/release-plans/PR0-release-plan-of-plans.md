@@ -48,14 +48,14 @@ devel/                    development aids
 ```
 
 **Items that sit between groups:**
-- **The reference checkers.** As code they are the toolchain's front end, `src/cardlang/front/`, used by the compiler and the language server. Their other job is verifying the definition: `tests/` runs them against `language/conformance/`.
+- **The reference checkers.** As code they are the toolchain's front end, `src/cardlang/front/`, used by the compiler and the language server. Their other job is verifying the definition: `tests/` runs them against `language/conformance/`. <!-- linkcheck: ignore -->
 - **The specification checks** (`speccheck`, `grammar`, `profilecheck`) maintain the definition. They live in `tests/`, as checks of `language/` and `platform/`.
 - **The reference interpreter** is an executable reading of the specification. It is part of the toolchain, as a backend, and is documented as the semantic oracle that the VMs are measured against.
 - **The VM's design documents** stay with the C VM in `vm/`. The language specification deliberately leaves the VM out, so they are not part of `language/`.
 
 **Two renames:**
 - **The prototype VM becomes `pyvm`,** both the package (`cardlang.pyvm`) and the backend name (`clc run --backend pyvm`, the extension's `cardlang.scenarioBackend`). It is renamed as it moves into the package (PR5c), since that move changes all of its imports anyway. Historical reports keep the name `vmproto`, which it had when they were written.
-- **The applet checkers move into their applets,** `examples/fido2/check_fido2.py` and `examples/piv/check_piv.py`, so each applet is a complete unit.
+- **The applet checkers move into their applets,** `examples/fido2/check_fido2.py` and `examples/piv/check_piv.py`, so each applet is a complete unit. <!-- linkcheck: ignore -->
 
 ## 3. The work packages
 
@@ -67,7 +67,7 @@ Every work package keeps `run_checks` passing, and moves files with `git mv` so 
 | **PR2 Development aids into `devel/`** | Plans, reports, findings, step notes, generators, history and measurement scripts | Few code dependencies, many links: the link check proves the move |
 | **PR3 The definition into `language/`** | `spec/`, `conformance/`, and the rationale: design notes, decision register, draft release notes and candidates. `platform/` stays at the top level | The paths module makes the code side one change |
 | **PR4 Self-contained examples** | Each applet gets its checker, its scenarios and a README | Small, independent |
-| **PR5 The Python package `src/cardlang/`** | In stages, each passing `run_checks`. **(a)** `pyproject.toml` gains a build backend, and `bytecode` and `compiler` move in. Compiling runs the full diagnostics, closing finding T1. **(b)** `front`. **(c)** `interp`, `pyvm` (the rename) and `harness`. **(d)** `lsp`, `dap` and `cli`, with `clc` an installed command. The `sys.path` editing in 44 files goes away stage by stage | The largest change, so it is split into stages that can each be checked |
+| **PR5 The Python package `src/cardlang/`** | In stages, each passing `run_checks`. **(a)** `pyproject.toml` gains a build backend, and `bytecode` and `compiler` move in. Compiling runs the full diagnostics, closing finding T1. **(b)** `front`. **(c)** `interp`, `pyvm` (the rename) and `harness`. **(d)** `lsp`, `dap` and `cli`, with `clc` an installed command. The `sys.path` editing in 44 files goes away stage by stage | The largest change, so it is split into stages that can each be checked | <!-- linkcheck: ignore -->
 | **PR6 The extension into `editors/vscode/`** | It finds its tools through the installed package and commands | After PR5, so it can use them |
 | **PR7 Content cleanup** | A README per top-level area; current-state wording in place of "in progress" notes; stale statements fixed; `CONTRIBUTING.md`; a `.gitignore` review; a scan for anything personal or machine-specific, such as absolute paths and user names in the plans and reports | Once things are where they will stay |
 | **PR8 The licence and the release check** | The licence, chosen by the user; a final review against a public-release checklist | Last |

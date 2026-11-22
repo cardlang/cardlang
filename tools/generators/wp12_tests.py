@@ -4,7 +4,10 @@ Found while drafting the VM execution model (VM1, vm/execution-model.md VEX-45):
 handler failures, which BP-55 defines.
 """
 import sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="application"):
     return f"// rule: {rule}\n// source: {src}\n// status: agreed\n// kind: {kind}\n// expect: {exp}\n// note: {note}\n"

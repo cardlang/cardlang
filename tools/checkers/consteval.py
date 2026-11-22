@@ -2,6 +2,7 @@
 import re, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import layout
 import project
 import srcpos
 from srcpos import note
@@ -345,7 +346,7 @@ def run(toks):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True
-    for t in sorted((repo / "conformance").glob("*/cex-*")):
+    for t in sorted((layout.at(repo).conformance).glob("*/cex-*")):
         files = project.program_files(t)
         toks = sum((lex(f.read_bytes()) for f in files), [])
         exp = header(files[0].read_bytes())["expect"]

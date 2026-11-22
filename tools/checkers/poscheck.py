@@ -11,6 +11,7 @@ import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 if str(HERE) not in sys.path: sys.path.insert(0, str(HERE))
 import diagnose
+import layout
 from lexcheck import header
 
 # Chapter 3 name rules with no reference checker (found by TL1, 2026-11-21): missed, or reported with another code.
@@ -41,7 +42,7 @@ def main(repo):
     def report(passed, name, detail):
         nonlocal ok
         ok &= passed; print("PASS" if passed else "FAIL", name, "|", detail)
-    for t in sorted((repo / "conformance").glob("*/*")):
+    for t in sorted((layout.at(repo).conformance).glob("*/*")):
         if t.name == "platform" or (t.suffix != ".card" and not t.is_dir()): continue
         files = files_of(t)
         if not files: continue

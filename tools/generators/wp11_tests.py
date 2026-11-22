@@ -1,6 +1,9 @@
 """Write the WP11 tests: session boundaries (STA-4, OI-59) and the raw-binding envelope (profile BP-53, BP-56)."""
 import sys, pathlib
-repo = pathlib.Path(sys.argv[1]); conf = repo / "conformance"
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="fragment", binding=None):
     b = f"// binding: {binding}\n" if binding else ""

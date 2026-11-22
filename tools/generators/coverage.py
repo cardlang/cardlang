@@ -9,7 +9,9 @@ Rerun after adding or renaming tests:  python -I tools/generators/coverage.py .
 The script fails if any rule has neither a test nor a reason, or if a curated test does not exist.
 """
 import re, sys, pathlib
-repo = pathlib.Path(sys.argv[1]); spec = repo / "spec"; conf = repo / "conformance"
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
+repo = pathlib.Path(sys.argv[1]); spec = layout.at(repo).spec; conf = layout.at(repo).conformance
 
 EXERCISED = {
     "LEX-1": "lex-006-two-files, nam-002-multi-file-any-order",

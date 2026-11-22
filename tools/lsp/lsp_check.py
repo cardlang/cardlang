@@ -12,6 +12,8 @@ import sys, json, pathlib, subprocess, threading, queue, time
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import jsonrpc
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 class Client:
     def __init__(self, repo):
@@ -43,7 +45,7 @@ def main(repo):
     r = c.request("initialize", {"processId": None, "rootUri": repo.as_uri(), "capabilities": {}})
     check("initialize", r.get("result", {}).get("capabilities", {}).get("textDocumentSync"), r.get("result", {}).get("serverInfo"))
     c.notify("initialized", {})
-    app = repo / "examples" / "fido2"
+    app = layout.at(repo).examples / "fido2"
     files = [app / f for f in json.loads((app / "cardlang.json").read_text())["files"]]
     uris = [f.resolve().as_uri() for f in files]
     ctap = app / "ctap.card"; uri = ctap.resolve().as_uri(); text = ctap.read_text(encoding="utf-8")
@@ -63,13 +65,13 @@ def main(repo):
     c.notify("textDocument/didChange", {"textDocument": {"uri": uri, "version": 3}, "contentChanges": [{"text": text}]})
     got = c.diagnostics(uris)
     check("undo: the diagnostic is cleared", not got.get(uri, [1]), "")
-    bad = repo / "conformance" / "invalid" / "exp-105-mixed-arithmetic.card"; buri = bad.resolve().as_uri()
+    bad = layout.at(repo).invalid / "exp-105-mixed-arithmetic.card"; buri = bad.resolve().as_uri()
     c.notify("textDocument/didOpen", {"textDocument": {"uri": buri, "languageId": "cardlang", "version": 1,
                                                        "text": bad.read_text(encoding="utf-8")}})
     ds = c.diagnostics([buri]).get(buri, [])
     check("a single file: its error", len(ds) == 1 and ds[0]["code"] == "CE-EXP-4" and ds[0]["range"]["start"]["line"] == 7,
           json.dumps(ds[:1])[:160])
-    prelude = repo / "platform" / "base-types.card"; puri = prelude.resolve().as_uri()
+    prelude = layout.at(repo).base_types; puri = prelude.resolve().as_uri()
     c.notify("textDocument/didOpen", {"textDocument": {"uri": puri, "languageId": "cardlang", "version": 1,
                                                        "text": prelude.read_text(encoding="utf-8")}})
     ds = c.diagnostics([puri]).get(puri, [1])

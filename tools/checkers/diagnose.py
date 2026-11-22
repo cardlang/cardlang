@@ -17,6 +17,7 @@ import sys, pathlib, re
 HERE = pathlib.Path(__file__).resolve().parent
 if str(HERE) not in sys.path: sys.path.insert(0, str(HERE))
 from lexcheck import lex, LexError, header
+import layout
 import srcpos, consteval, expcheck, pltcheck, typecheck, grammar
 
 ROOT = HERE.parents[1]
@@ -27,7 +28,7 @@ def messages():
     global _messages
     if _messages is None:
         _messages = {}
-        index = ROOT / "spec" / "00-index.md"
+        index = layout.at(ROOT).spec / "00-index.md"
         if index.exists():
             for m in re.finditer(r"^\| (CE-[A-Z]+-\d+) \| ([^|]+) \|", index.read_text(encoding="utf-8"), re.M):
                 _messages[m.group(1)] = m.group(2).strip()

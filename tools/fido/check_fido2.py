@@ -14,6 +14,7 @@ BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else TOOLS.parent
 sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from lexcheck import lex
+import layout
 import grammar, backends, p256, testcrypto
 
 # ------------------------------------------------------------------ a small, independent CBOR codec
@@ -69,7 +70,7 @@ def der_to_raw(sig):
 # ------------------------------------------------------------------ the session
 class Session:
     def __init__(self):
-        d = ROOT / "examples" / "fido2"
+        d = layout.at(ROOT).examples / "fido2"
         import project; files = project.program_files(d)
         g = grammar.load_grammar()
         for f in files:

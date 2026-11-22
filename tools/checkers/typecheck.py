@@ -2,6 +2,7 @@
 import re, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from lexcheck import lex, header
+import layout
 
 PRIM = {"u8", "u16", "u32", "i8", "i16", "i32", "bool"}
 SIGNED = {"i8", "i16", "i32"}
@@ -94,14 +95,14 @@ def check_located(toks):
 
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1]); ok = True
-    for t in sorted((repo / "conformance").glob("*/typ-*")):
+    for t in sorted((layout.at(repo).conformance).glob("*/typ-*")):
         meta = header(t.read_bytes()); exp = meta["expect"]
         errs, _ = check(lex(t.read_bytes()))
         want = [] if exp == "ok" else [exp.split()[-1]]
         st = "PASS" if errs == want else "FAIL"; ok &= st == "PASS"
         print(st, t.name, "expect", exp, "found", errs)
     # notes: every type position must satisfy suffix rules
-    dn = (repo / "plans_and_notes" / "card-language-design-notes.md").read_text(encoding="utf-8")
+    dn = (layout.at(repo).design_notes).read_text(encoding="utf-8")
     bad = []
     for block in re.findall(r"```text\n(.*?)```", dn, re.S):
         try:

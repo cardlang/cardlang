@@ -13,6 +13,8 @@ import sys, json, pathlib, subprocess, queue, time
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "lsp"))
 import jsonrpc
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 class Client:
     def __init__(self, repo):
@@ -58,7 +60,7 @@ def main(repo):
     def check(name, passed, detail=""):
         nonlocal ok
         ok &= bool(passed); print("PASS" if passed else "FAIL", name, "|", str(detail)[:200])
-    run = repo / "conformance" / "runtime" / "run-012-wallet-application"; program = run / "program.card"
+    run = layout.at(repo).runtime / "run-012-wallet-application"; program = run / "program.card"
     c = Client(repo)
     r = c.request("initialize", {"adapterID": "cardlang", "linesStartAt1": True, "columnsStartAt1": True})
     check("initialize", r["success"] and r["body"].get("supportsConfigurationDoneRequest"), r["body"])
@@ -89,7 +91,7 @@ def main(repo):
     e = c.wait("exited"); c.wait("terminated")
     check("runs to the end and passes", e["body"]["exitCode"] == 0 and any("passed" in o for o in c.output), c.output[-1:])
     c.close()
-    run = repo / "conformance" / "runtime" / "run-001-integer-traps"
+    run = layout.at(repo).runtime / "run-001-integer-traps"
     c = Client(repo)
     c.request("initialize", {"adapterID": "cardlang"}); c.wait("initialized")
     r = c.request("setBreakpoints", {"source": {"path": str(run / "program.card")}, "breakpoints": [{"line": 15}]})
@@ -106,7 +108,7 @@ def main(repo):
     c.request("setExceptionBreakpoints", {"filters": []}); c.request("continue", {"threadId": 1})
     e = c.wait("exited"); check("and the scenario still passes", e["body"]["exitCode"] == 0, c.output[-1:])
     c.close()
-    app = repo / "examples" / "fido2"
+    app = layout.at(repo).examples / "fido2"
     c = Client(repo)
     c.request("initialize", {"adapterID": "cardlang"}); c.wait("initialized")
     c.request("launch", {"scenario": str(app / "getinfo.scenario")})          # the program: the scenario's project

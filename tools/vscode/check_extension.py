@@ -14,6 +14,7 @@ TOOLS = HERE.parent
 for d in ("checkers", "harness"):
     sys.path.insert(0, str(TOOLS / d))
 import lexcheck, expcheck, project
+import layout
 
 def patterns(node):
     if isinstance(node, dict):
@@ -66,7 +67,7 @@ def main(repo):
     kw_rx = [re.compile(p["match"]) for p in g["repository"]["keywords"]["patterns"]]
     missed = set()
     for app in ("fido2", "piv"):
-        for f in project.program_files(repo / "examples" / app):
+        for f in project.program_files(layout.at(repo).examples / app):
             for k, v in lexcheck.lex(f.read_bytes()):
                 if k == "kw" and not any(r.fullmatch(v) for r in kw_rx): missed.add(v)
     check("keyword patterns colour every keyword in the applets", not missed, str(sorted(missed)))

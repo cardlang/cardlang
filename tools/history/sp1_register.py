@@ -1,4 +1,6 @@
 import re, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 repo = pathlib.Path(sys.argv[1])
 DATE = "2026-11-15"
 BODY = [
@@ -16,7 +18,7 @@ BODY = [
 ("Semicolons are mandatory; there is no automatic semicolon insertion", "DN §3.0"),
 ]
 hdr = "| ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Owning SP | Linked OI | Implemented by |\n|---|---|---|---|---|---|---|---|---|\n"
-p = repo / "plans_and_notes" / "decision-register.md"
+p = layout.at(repo).decision_register
 t = p.read_text(encoding="utf-8")
 rows = [f"| D-{301+i} | {topic} | Agreed (DN body text) | [Agreed] | language | {sec} | SP1 |  | pending |" for i, (topic, sec) in enumerate(BODY)]
 old = "None registered yet. Sub-plans SP1–SP13 add rows here as they reach each DN section.\n\n" + hdr.rstrip()
@@ -29,14 +31,14 @@ f"| D-424 | Longest-match tokens; numeric-run rule for literals; no identifier l
 t = t.rstrip("\n") + "\n" + "\n".join(res) + "\n"
 p.write_text(t, encoding="utf-8", newline="\n")
 
-p = repo / "spec" / "annex-D-traceability.md"
+p = layout.at(repo).spec / "annex-D-traceability.md"
 t = p.read_text(encoding="utf-8").rstrip("\n")
 add = [f"| D-{301+i} | {topic.split(';')[0]} | SP1 | — |  | pending |" for i, (topic, sec) in enumerate(BODY)]
 add += ["| D-423 | BOM ignored; LF, CR and CRLF are line breaks | SP1 | — | OI-23 | pending |",
         "| D-424 | Longest-match tokens; numeric-run rule; no identifier length limit | SP1 | — | OI-24 | pending |"]
 p.write_text(t + "\n" + "\n".join(add) + "\n", encoding="utf-8", newline="\n")
 
-p = repo / "spec" / "annex-C-open-issues.md"
+p = layout.at(repo).spec / "annex-C-open-issues.md"
 t = p.read_text(encoding="utf-8")
 t = t.replace("| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |",
  "| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Open |\n| OI-23 | Source text details: byte-order mark and line breaks | Gap | SP1 | Resolved |\n| OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |")

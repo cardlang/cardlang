@@ -12,6 +12,7 @@ for d in (HERE, HERE.parent / "checkers"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 import semantic, project
 from lexcheck import lex
+import layout
 
 SAMPLE = HERE / "testdata" / "semantic-sample.card"
 EXPECTED = [
@@ -98,7 +99,7 @@ def main(repo):
     def check(name, passed, detail=""):
         nonlocal ok
         ok &= bool(passed); print("PASS" if passed else "FAIL", name, "|", detail)
-    progs = [repo / "examples" / "fido2", repo / "examples" / "piv"] + sorted((repo / "conformance" / "runtime").glob("run-*"))
+    progs = [layout.at(repo).examples / "fido2", layout.at(repo).examples / "piv"] + sorted((layout.at(repo).runtime).glob("run-*"))
     for d in progs:
         files = project.program_files(d); texts = {str(f): f.read_text(encoding="utf-8") for f in files}
         missing, total = [], 0
@@ -130,7 +131,7 @@ def main(repo):
         else: good = got == [want]
         if not good: bad.append((word, got))
     check("go to definition: names, fields, members, the Base Profile; none for builtins", not bad, str(bad))
-    app = repo / "examples" / "fido2"; files = project.program_files(app); texts = {str(f): f.read_text(encoding="utf-8") for f in files}
+    app = layout.at(repo).examples / "fido2"; files = project.program_files(app); texts = {str(f): f.read_text(encoding="utf-8") for f in files}
     ctap = str(app / "ctap.card"); cl = texts[ctap].splitlines()
     ln = next(i for i, l in enumerate(cl) if "client_pin(" in l and "function" not in l)
     d = semantic.definition(ctap, texts, ln, cl[ln].index("client_pin"))

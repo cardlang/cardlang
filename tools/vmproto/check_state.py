@@ -13,6 +13,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import vm, backends, scenario
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 def module_state(mod):
     return {k: copy.deepcopy(v) for k, v in vars(mod).items()
@@ -25,7 +27,7 @@ if __name__ == "__main__":
         ok &= good; print("PASS" if good else "FAIL", name, "" if good else "| " + detail)
     report("context has slots only", not hasattr(vm.Ctx(), "__dict__"))
     before = module_state(vm); extra = set()
-    for d in sorted((repo / "conformance" / "runtime").glob("run-*")):
+    for d in sorted((layout.at(repo).runtime).glob("run-*")):
         card = backends.build("vmproto", scenario.program_files(d))
         scenario.run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8"))
         extra |= set(vars(card.natives)) - {"hal", "ops", "ctx"}

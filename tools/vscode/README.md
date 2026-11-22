@@ -89,7 +89,7 @@ Scenario files are named `scenario.txt` or `*.scenario`. **CardLang: Run Scenari
 
 ## Debugging
 
-Open a scenario and press F5, or click **CardLang: Debug Scenario** (the debug icon). Set breakpoints in the applet's `.card` files, or on scenario lines to stop before a step. To keep a configuration, add it to `.vscode/launch.json`:
+Open a scenario and press F5, or click **CardLang: Debug Scenario** (the debug icon). Set breakpoints in the applet's `.card` files, or on scenario lines to stop before a step. To keep a configuration, add it to `.vscode/launch.json`: <!-- linkcheck: ignore -->
 
 ```json
 {

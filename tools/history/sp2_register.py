@@ -1,4 +1,7 @@
 import sys, pathlib
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 repo = pathlib.Path(sys.argv[1]); DATE = "2026-11-15"
 BODY = [
 ("A declaration cannot span source files", "DN §3.0"),
@@ -10,7 +13,7 @@ BODY = [
 ("Platform-supplied configuration structures and algorithm enums use the ordinary naming rules, with no imports, namespaces or private fields", "DN §11.1"),
 ("Plain `var` and combined qualifiers are forbidden at application scope; there is no `local` keyword", "DN §5.1"),
 ]
-p = repo / "plans_and_notes" / "decision-register.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).decision_register; t = p.read_text(encoding="utf-8")
 anchor = "| D-312 |"
 i = t.index(anchor); j = t.index("\n", i)
 rows = "\n".join(f"| D-{313+k} | {a} | Agreed (DN body text) | [Agreed] | language | {s} | SP2 |  | pending |" for k, (a, s) in enumerate(BODY))
@@ -20,14 +23,14 @@ f"| D-425 | Primitive type names are predeclared names in every application scop
 f"| D-426 | A file listed twice is a build-configuration error; an empty file list is allowed by the language | Resolved by user {DATE} | [Agreed] | tooling | Annex C OI-26 | SP2 | OI-26 | pending |"]) + "\n"
 p.write_text(t, encoding="utf-8", newline="\n")
 
-p = repo / "spec" / "annex-D-traceability.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).spec / "annex-D-traceability.md"; t = p.read_text(encoding="utf-8")
 i = t.index("| D-312 |"); j = t.index("\n", i)
 rows = "\n".join(f"| D-{313+k} | {a.split(';')[0].split(' (')[0]} | SP2 | — |  | pending |" for k, (a, s) in enumerate(BODY))
 t = t[:j+1] + rows + "\n" + t[j+1:]
 t = t.rstrip("\n") + "\n| D-425 | Primitive type names are predeclared | SP2 | — | OI-25 | pending |\n| D-426 | File-list duplicates are a build error; empty list allowed | SP2 | — | OI-26 | pending |\n"
 p.write_text(t, encoding="utf-8", newline="\n")
 
-p = repo / "spec" / "annex-C-open-issues.md"; t = p.read_text(encoding="utf-8")
+p = layout.at(repo).spec / "annex-C-open-issues.md"; t = p.read_text(encoding="utf-8")
 t = t.replace("| OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |",
  "| OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |\n| OI-25 | Primitive type names | Gap | SP2 | Resolved |\n| OI-26 | Build file-list constraints | Gap | SP2 | Resolved |")
 entries = f"""## OI-25 — Primitive type names

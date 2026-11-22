@@ -8,10 +8,12 @@ Usage (from the repository root):
     python -I tools/harness/scenario.py . ["runtime/run-*"] [--backend NAME]
 """
 import sys, pathlib, re
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
+import layout
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-PROFILE = ROOT / "platform" / "base-profile.md"
+PROFILE = layout.at(ROOT).base_profile
 CARD_ERROR_CODES = {m: int(c, 16) for m, c in re.findall(r"^\| `(\w+)` \| `0x([0-9A-Fa-f]{4})` \|",
                                                          PROFILE.read_text(encoding="utf-8"), re.M)}
 
@@ -101,7 +103,7 @@ def main(argv, default_backend="interp"):
     name, args = take_backend(argv, default_backend)
     repo = pathlib.Path(args[0]); glob = args[1] if len(args) > 1 else "runtime/run-*"
     ok = True
-    for d in sorted((repo / "conformance").glob(glob)):
+    for d in sorted((layout.at(repo).conformance).glob(glob)):
         try:
             card = backends.build(name, program_files(d))
             problem = run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8"))
