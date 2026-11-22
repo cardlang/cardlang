@@ -10,11 +10,10 @@ and reports the context's size against the 1 KiB bound (V-2, VEX-50). Usage:
 """
 import sys, pathlib, copy, types
 HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
+for p in (HERE, HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import vm, backends, scenario
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 def module_state(mod):
     return {k: copy.deepcopy(v) for k, v in vars(mod).items()

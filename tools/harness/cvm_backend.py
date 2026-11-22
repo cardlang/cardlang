@@ -10,13 +10,12 @@ from cffi import FFI
 
 TOOLS = pathlib.Path(__file__).resolve().parents[1]
 ROOT = TOOLS.parent
-for p in (TOOLS / "vmproto", TOOLS / "checkers", TOOLS / "harness"):
+for p in (TOOLS / "vmproto", TOOLS / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import compiler, isa
 from scenario import CARD_ERROR_CODES
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 CDEF = """
 typedef struct { uint8_t kind; uint8_t category; uint16_t code; bool has_count; uint32_t count; } cl_result;

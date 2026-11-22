@@ -14,9 +14,9 @@ python -I tools/run_checks.py
 
 It runs every checker over the conformance tests it covers. It prints one line per run and exits non-zero if any test does not give its expected result. Run it after every change to `language/spec/` or `language/conformance/`.
 
-## `checkers/`: reference checkers
+## The reference checkers: `src/cardlang/front/`
 
-Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `pltcheck.py`, applies every rule implemented so far.
+The checkers are the front end of the `cardlang` package (PR5), installed by `uv sync`. Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `pltcheck.py`, applies every rule implemented so far.
 
 | Script | Implements | Default tests |
 |---|---|---|
@@ -32,7 +32,7 @@ Each checker is a small implementation of the rules of one chapter. It is writte
 | `hepcheck.py` | Chapter 12: the `command` and its signature. Adds the HEP-16 scaffold to `kind: fragment` tests | `*/hep-*` |
 | `pltcheck.py` | Annex B: `card.` paths, platform-call signatures, and APIs not permitted in transactions. Uses the test-only catalog plus the Base Profile catalog, and adds `platform/base-types.card` to every build (its names are predeclared) | `*/plt-*` |
 
-Two further checkers check the specification itself rather than one chapter:
+Further checkers check the specification itself rather than one chapter. `grammar.py` is part of the front end, since the diagnostics use it; `profilecheck.py` and `speccheck.py` are in `tests/`:
 
 | Script | Checks | Default |
 |---|---|---|
@@ -40,10 +40,11 @@ Two further checkers check the specification itself rather than one chapter:
 | `profilecheck.py` | The Base Profile in `platform/`: BP rule numbering, the `CardError` table and the error precedence, `base-types.card` compiling, and every catalog block's fields, types and errors | `platform/` |
 | `speccheck.py` | Consistency of `language/spec/`: rule tags and Sources lines, references, compile-error classes and their tables, trap kinds, table shapes, chapter grammar fragments against Annex A, the B.12 checklist, the D.2 reverse links, the D.3 coverage matrix and the 00-index counts | the specification |
 
-Run a single checker as `python -I tools/checkers/<script> . "<glob>"`. For example:
+Run a front-end checker as a module, `uv run python -I -m cardlang.front.<checker> . "<glob>"`, and a check in `tests/` by its path. For example:
 
 ```bash
-python -I tools/checkers/pltcheck.py . "valid/*"
+uv run python -I -m cardlang.front.pltcheck . "valid/*"
+uv run python -I tests/speccheck.py .
 ```
 
 **Known limitations.**

@@ -1,6 +1,5 @@
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 # Tests written by sp14_tests.py and wp1_tests.py are referenced in this chapter but owned by those generators.
 SP14_OWNED = set().union(*(set(f.read_text().split()) for f in pathlib.Path(__file__).parent.glob("*_owned.txt")))
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance

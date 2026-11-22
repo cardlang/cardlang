@@ -1,7 +1,6 @@
 """Record the 2026-11-15 open-issue resolutions in Annex C, the register and Annex D."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 repo = pathlib.Path(sys.argv[1])
 DATE = "2026-11-15"

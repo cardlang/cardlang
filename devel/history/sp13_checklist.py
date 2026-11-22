@@ -1,7 +1,6 @@
 """One-off (SP13): build the Annex B §B.12 checklist from every 'platform-defined' reference in chapters 1-13 and Annex B."""
 import re, pathlib, sys
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1])
 rows = []
 files = sorted((layout.at(repo).spec).glob("[01][0-9]-*.md")) + [layout.at(repo).spec / "annex-B-platform-contract.md"]

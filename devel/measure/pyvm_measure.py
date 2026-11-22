@@ -8,10 +8,9 @@ FIDO2 session. Prints a JSON document. Usage:
 """
 import sys, pathlib, json, collections, io, contextlib
 HERE = pathlib.Path(__file__).resolve().parent
-sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "checkers", "harness", "fido", "interp")]   # moved to devel/ in PR2
+sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "harness", "interp")]   # moved to devel/ in PR2
 import compiler, typer, isa, disasm, vm, backends, scenario
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 def instructions(image):
     h, funcs, _, names = disasm.read_image(image)
@@ -78,8 +77,10 @@ def dynamic(repo):
         out["runtime"] = {"executed": dict(p.count.most_common()), "stack": per_test,
                           "max_budget_used": max(b for b in p.budget if b < 10**6 - 1)}
     with Probe() as p:
-        sys.argv = ["check_fido2.py", str(repo), "--backend", "vmproto"]
-        import check_fido2
+        sys.argv = ["check.py", str(repo), "--backend", "vmproto"]
+        import importlib.util                                 # the applet's checker is examples/fido2/check.py (PR4)
+        spec = importlib.util.spec_from_file_location("fido2_check", layout.at(repo).examples / "fido2" / "check.py")
+        check_fido2 = importlib.util.module_from_spec(spec); spec.loader.exec_module(check_fido2)
         check_fido2.BACKEND = "vmproto"
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf): check_fido2.main()

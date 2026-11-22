@@ -3,15 +3,14 @@
 Loads the test-only catalog language/conformance/platform/test-catalog.txt (Annex B, PLT-26; non-normative).
 """
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-import hepcheck, expcheck, consteval
-from expcheck import CE
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front import hepcheck, expcheck, consteval
+from cardlang.front.expcheck import CE
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = layout.at().root
 CATALOG_FILE = layout.at(ROOT).test_catalog
 BASE_CATALOG = layout.at(ROOT).base_catalog            # Base Profile 1 (platform/base-profile.md)
 BASE_TYPES = layout.at(ROOT).base_types

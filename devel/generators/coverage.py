@@ -9,8 +9,7 @@ Rerun after adding or renaming tests:  python -I tools/generators/coverage.py .
 The script fails if any rule has neither a test nor a reason, or if a curated test does not exist.
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); spec = layout.at(repo).spec; conf = layout.at(repo).conformance
 
 EXERCISED = {

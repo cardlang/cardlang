@@ -1,11 +1,10 @@
 """Reference constant evaluator for spec chapter 5 (CEX-3..CEX-13), arithmetic per DN §3.5/§6.5."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-from srcpos import note
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front.srcpos import note
 
 RANGES = {"u8": (0, 255), "u16": (0, 65535), "u32": (0, 2**32 - 1),
           "i8": (-128, 127), "i16": (-32768, 32767), "i32": (-2**31, 2**31 - 1)}

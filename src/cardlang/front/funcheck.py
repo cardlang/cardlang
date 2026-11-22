@@ -1,12 +1,11 @@
 """Reference checker for spec chapter 8 (FUN-1..FUN-23), built on stmcheck/expcheck."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-import stmcheck, expcheck, consteval
-from expcheck import CE, UNS, p_expr
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front import stmcheck, expcheck, consteval
+from cardlang.front.expcheck import CE, UNS, p_expr
 
 class FunChecker(stmcheck.StmChecker):
     _slice_ok = False

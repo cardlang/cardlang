@@ -337,7 +337,7 @@ Every nonterminal of this annex, with the section that defines it. Each is defin
 
 ### A.3.2 Mechanical check
 
-The grammar in §A.2 is checked by `tools/checkers/grammar.py`, which reads the productions directly from this annex, converts them to BNF and runs an Earley recognizer over the tokens of each source file. `tools/run_checks.py` runs it, and it requires:
+The grammar in §A.2 is checked by `src/cardlang/front/grammar.py`, which reads the productions directly from this annex, converts them to BNF and runs an Earley recognizer over the tokens of each source file. `tools/run_checks.py` runs it, and it requires:
 
 - every valid test, every runtime program and every other test file, except those expecting a lexical error, to derive `SourceFile`, file by file;
 - every test that expects **CE-SYN-1** not to derive;

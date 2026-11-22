@@ -1,8 +1,7 @@
 """Write the WP5 conformance tests: Base Profile canonical CBOR (platform/base-profile.md §9)."""
 import sys, pathlib
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="fragment"):

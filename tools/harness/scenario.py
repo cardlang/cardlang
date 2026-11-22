@@ -8,8 +8,7 @@ Usage (from the repository root):
     python -I tools/harness/scenario.py . ["runtime/run-*"] [--backend NAME]
 """
 import sys, pathlib, re
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -87,7 +86,7 @@ def run_scenario(card, text, trace=None, before=None):
 
 def program_files(d):
     """The source files of a test or example directory, in build order."""
-    import project                                      # tools/checkers: cardlang.json, or the .card files (TL1)
+    from cardlang.front import project                                      # src/cardlang/front: cardlang.json, or the .card files (TL1)
     return project.program_files(d)
 
 def take_backend(argv, default="interp"):

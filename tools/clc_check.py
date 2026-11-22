@@ -4,8 +4,7 @@ Each check runs clc as a subprocess, as the extension will, and looks at its exi
 Usage: uv run python -I tools/clc_check.py .
 """
 import sys, subprocess, pathlib, tempfile, json, shutil
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[0] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 def clc(repo, *args):
     r = subprocess.run([sys.executable, "-I", str(layout.at(repo).tools / "clc.py"), *args], capture_output=True, text=True,

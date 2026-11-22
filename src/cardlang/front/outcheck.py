@@ -1,12 +1,11 @@
 """Reference checker for spec chapter 9 (OUT-1..OUT-20), built on funcheck."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-import funcheck, expcheck, consteval
-from expcheck import CE, P, p_expr, p_postfix
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front import funcheck, expcheck, consteval
+from cardlang.front.expcheck import CE, P, p_expr, p_postfix
 
 CARD_ERROR = {"Overflow", "Underflow", "DivisionByZero", "ConversionRange", "AlreadyExists", "NotFound", "WrongResourceType", "Capacity"}
 

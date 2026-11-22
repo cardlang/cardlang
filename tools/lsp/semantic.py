@@ -24,11 +24,9 @@ The kinds are VS Code's standard token types, so every colour theme colours them
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE.parent / "checkers",):
-    if str(d) not in sys.path: sys.path.insert(0, str(d))
-from lexcheck import lex, LexError
-import layout
-import expcheck
+from cardlang.front.lexcheck import lex, LexError
+from cardlang import layout
+from cardlang.front import expcheck
 
 TYPES = ["namespace", "type", "struct", "enum", "enumMember", "parameter", "variable", "property", "function", "macro"]
 MODIFIERS = ["declaration", "readonly", "static", "defaultLibrary", "persistent"]
@@ -130,7 +128,7 @@ _prelude = None
 def prelude_symbols():
     global _prelude
     if _prelude is None:
-        import pltcheck
+        from cardlang.front import pltcheck
         _prelude = Symbols(); collect(pltcheck.PRELUDE, _prelude, library=True)
         _prelude.add("CardError", "enum", {"defaultLibrary"})                   # the platform's error set (BP-5)
         _prelude.members["CardError"] = card_error_members()

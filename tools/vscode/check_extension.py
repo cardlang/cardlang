@@ -1,8 +1,8 @@
 """Consistency checks of the VS Code extension's static parts (TL1 step 3), run by tools/run_checks.py.
 
 - Every JSON file of the extension parses.
-- The grammar's keywords are exactly the lexer's (tools/checkers/lexcheck.py KEYWORDS), and its intrinsics exactly
-  the checker's (tools/checkers/expcheck.py), so highlighting cannot drift from the language.
+- The grammar's keywords are exactly the lexer's (src/cardlang/front/lexcheck.py KEYWORDS), and its intrinsics exactly
+  the checker's (src/cardlang/front/expcheck.py), so highlighting cannot drift from the language.
 - The scenario grammar's steps are exactly those the scenario runner accepts (tools/harness/scenario.py).
 - Every regular expression of both grammars compiles (in Python's syntax, which these patterns share with
   Oniguruma), and the keyword patterns colour every keyword token of both applets.
@@ -11,10 +11,10 @@ Usage: uv run python -I tools/vscode/check_extension.py .
 import sys, re, json, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for d in ("checkers", "harness"):
+for d in ("harness",):
     sys.path.insert(0, str(TOOLS / d))
-import lexcheck, expcheck, project
-import layout
+from cardlang.front import lexcheck, expcheck, project
+from cardlang import layout
 
 def patterns(node):
     if isinstance(node, dict):

@@ -7,16 +7,16 @@ parser, and ECDSA verification from tools/interp/testcrypto.py. None of the appl
 Usage: uv run python -I examples/fido2/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, hashlib, hmac
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 TOOLS = layout.at().tools
 sys.path.insert(0, str(TOOLS / "harness"))
 import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
-sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
-from lexcheck import lex
-import grammar, backends, p256, testcrypto
+sys.path.insert(0, str(ROOT / "tools" / "interp"))
+from cardlang.front.lexcheck import lex
+import backends, p256, testcrypto
+from cardlang.front import grammar
 
 # ------------------------------------------------------------------ a small, independent CBOR codec
 def enc(v):
@@ -72,7 +72,7 @@ def der_to_raw(sig):
 class Session:
     def __init__(self):
         d = layout.at(ROOT).examples / "fido2"
-        import project; files = project.program_files(d)
+        from cardlang.front import project; files = project.program_files(d)
         g = grammar.load_grammar()
         for f in files:
             assert g.recognize(lex(f.read_bytes()))[0], f"{f.name} does not derive from Annex A"

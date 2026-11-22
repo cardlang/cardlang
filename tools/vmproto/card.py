@@ -4,7 +4,7 @@ loop's calls into the VM (VEX-45) and the lifecycle state the platform reports.
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
+for p in (HERE, HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import compiler, vm, isa
 from hal import TestHal

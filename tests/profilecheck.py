@@ -6,13 +6,12 @@
   catalog    every block of platform/base-catalog.txt has every field, in order, with valid values: a known family,
              known types, a valid transaction behaviour, and CardError members from the table, in precedence order
 
-Usage: python -I tools/checkers/profilecheck.py .
+Usage: uv run python -I tests/profilecheck.py .
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-import pltcheck
-import layout
-from lexcheck import lex
+from cardlang.front import pltcheck
+from cardlang import layout
+from cardlang.front.lexcheck import lex
 
 FIELDS = ["params", "payload", "transaction", "errors", "resources", "on-failure", "permission", "summary"]
 PRIMITIVE = {"u8", "u16", "u32", "i8", "i16", "i32", "bool"}

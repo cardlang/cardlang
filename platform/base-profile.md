@@ -125,7 +125,7 @@ Beyond these minimums, running out of capacity is `Err(CardError.Capacity)`.
 - the resources it creates, uses or deletes, and the state it leaves on failure;
 - any permission it needs.
 
-`tools/checkers/profilecheck.py` checks the catalog against this document.
+`tests/profilecheck.py` checks the catalog against this document.
 
 ## 7. Keys (`card.key`)
 

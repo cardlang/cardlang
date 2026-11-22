@@ -1,8 +1,7 @@
 """Checker for chapter 4 type rules (TYP-3, 10, 13, 15, 18, 19, 21) over token streams."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
 
 PRIM = {"u8", "u16", "u32", "i8", "i16", "i32", "bool"}
 SIGNED = {"i8", "i16", "i32"}

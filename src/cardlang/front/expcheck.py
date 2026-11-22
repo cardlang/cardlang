@@ -1,11 +1,10 @@
 """Reference expression type checker for spec chapter 6 (bidirectional typing, EXP-1..EXP-51)."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-from srcpos import note
-import consteval
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front.srcpos import note
+from cardlang.front import consteval
 
 INT = ["u8", "u16", "u32", "i8", "i16", "i32"]
 UNS = {"u8", "u16", "u32"}

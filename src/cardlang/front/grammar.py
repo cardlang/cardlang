@@ -8,14 +8,13 @@ and runs an Earley recognizer over the tokens of every conformance test file:
   * every other invalid test (except lexical ones) must still derive: the grammar is deliberately
     permissive, and those errors come from chapter rules.
 
-Usage: python -I tools/checkers/grammar.py . ["<glob>"]
+Usage: uv run python -I -m cardlang.front.grammar . ["<glob>"]
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header, LexError
-import layout
+from cardlang.front.lexcheck import lex, header, LexError
+from cardlang import layout
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = layout.at().root
 
 # ------------------------------------------------------------------ EBNF -> BNF
 def load_productions(annex_text):
@@ -128,12 +127,12 @@ def load_grammar(repo=ROOT):
     return Grammar(load_productions((layout.at(repo).spec / "annex-A-grammar.md").read_text(encoding="utf-8")))
 
 def test_files(t):
-    import project
+    from cardlang.front import project
     return project.program_files(t)
 
 def check_notes(repo, g):
     """Every design-note code block that the full checker accepts as a fragment must derive SourceFile."""
-    import pltcheck
+    from cardlang.front import pltcheck
     text = (layout.at(repo).design_notes).read_text(encoding="utf-8")
     ok = True
     for n, block in enumerate(re.findall(r"```[a-z]*\n(.*?)```", text, re.S), 1):

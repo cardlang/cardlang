@@ -14,13 +14,13 @@ Usage (from the repository root):
 """
 import sys, pathlib
 TOOLS = pathlib.Path(__file__).resolve().parents[1]
-for sub in ("checkers", "harness"):
+for sub in ("harness",):
     if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
-from lexcheck import lex, header
-import layout
-import hepcheck, pltcheck, consteval
-from expcheck import P, CE
-from stmtparse import parse_block
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import hepcheck, pltcheck, consteval
+from cardlang.front.expcheck import P, CE
+from cardlang.front.stmtparse import parse_block
 from scenario import program_files
 
 class Typed:
@@ -208,7 +208,7 @@ def programs(repo):
         yield d.name, sum((lex(f.read_bytes(), str(f)) for f in program_files(d)), [])
     for d in sorted((layout.at(repo).examples).iterdir()):
         if (d / "cardlang.json").exists():
-            import project
+            from cardlang.front import project
             yield "examples/" + d.name, sum((lex(f.read_bytes(), str(f)) for f in project.program_files(d)), [])
 
 if __name__ == "__main__":

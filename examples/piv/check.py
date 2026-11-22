@@ -7,16 +7,16 @@ encoder and parser, and the test-only AES and P-256 of tools/interp. None of the
 Usage: uv run python -I examples/piv/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, os
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 TOOLS = layout.at().tools
 sys.path.insert(0, str(TOOLS / "harness"))
 import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
-sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
-from lexcheck import lex
-import grammar, backends, testcrypto
+sys.path.insert(0, str(ROOT / "tools" / "interp"))
+from cardlang.front.lexcheck import lex
+import backends, testcrypto
+from cardlang.front import grammar
 
 PIV_AID = bytes.fromhex("A000000308000010000100")
 ADMIN_KEY = bytes([1, 2, 3, 4, 5, 6, 7, 8] * 2)
@@ -52,7 +52,7 @@ def aes_ecb(key, block, decrypt=False):
 class Session:
     def __init__(self):
         d = layout.at(ROOT).examples / "piv"
-        import project; files = project.program_files(d)
+        from cardlang.front import project; files = project.program_files(d)
         g = grammar.load_grammar()
         for f in files:
             assert g.recognize(lex(f.read_bytes()))[0], f"{f.name} does not derive from Annex A"

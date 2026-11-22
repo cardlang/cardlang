@@ -1,7 +1,6 @@
 """Write the WP1 conformance tests: slice assignment, equal and compare, wipe (Draft 0.2 language changes)."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 SPEC = "\n".join(f.read_text(encoding="utf-8") for f in sorted((layout.at(repo).spec).glob("*.md")))
 

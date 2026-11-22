@@ -3,8 +3,7 @@
 The column lists every rule whose text, up to its Sources line, raises the class (written **CE-...**), plus the rules listed before.
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); spec = layout.at(repo).spec
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()
 

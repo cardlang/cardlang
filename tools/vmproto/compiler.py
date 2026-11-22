@@ -7,9 +7,10 @@ else is optimised (V-32). Usage:
 import sys, pathlib, struct
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for sub in ("checkers", "harness", "vmproto"):
+for sub in ("harness", "vmproto"):
     if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
-import isa, typer, pltcheck
+import isa, typer
+from cardlang.front import pltcheck
 from isa import TYPES, WIDTH, REGIONS, CAT_APP, CAT_PLATFORM
 from scenario import CARD_ERROR_CODES
 
@@ -892,14 +893,14 @@ def pltcheck_error_codes(toks):
     return codes
 
 def compile_files(files, binding=None, fragment=False):
-    from lexcheck import lex
-    import hepcheck
+    from cardlang.front.lexcheck import lex
+    from cardlang.front import hepcheck
     toks = sum((lex(f.read_bytes(), str(f)) for f in files), [])
     if fragment: toks = toks + lex(hepcheck.SCAFFOLD, "<scaffold>")
     c = Compiler(toks, binding); c.compile(); return c
 
 if __name__ == "__main__":
-    from lexcheck import header
+    from cardlang.front.lexcheck import header
     from scenario import program_files
     src = pathlib.Path(sys.argv[1]); files = program_files(src) if src.is_dir() else [src]
     meta = header(files[0].read_bytes())

@@ -17,7 +17,7 @@ directory), "stopOnEntry": bool}. Run with: uv run python -I tools/dap/cardlang_
 import sys, os, struct, pathlib, threading, traceback
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for d in (TOOLS / "lsp", TOOLS / "checkers", TOOLS / "vmproto", TOOLS / "harness", TOOLS):
+for d in (TOOLS / "lsp", TOOLS / "vmproto", TOOLS / "harness", TOOLS):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 import jsonrpc, vm, debuginfo, isa
 
@@ -95,7 +95,8 @@ class Adapter:
 
     # ---------------------------------------------------------------- launching
     def launch(self, req, a):
-        import clc, backends, diagnose
+        import clc, backends
+        from cardlang.front import diagnose
         self.args = a
         try:
             self.scenario = pathlib.Path(a["scenario"]).resolve()

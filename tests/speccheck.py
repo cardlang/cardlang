@@ -14,11 +14,10 @@ Each check prints PASS or FAIL with a short reason:
   coverage     every rule has a row in the Annex D §D.3 coverage matrix
   index        the rule status summary in 00-index matches the rules actually defined
 
-Usage: python -I tools/checkers/speccheck.py .
+Usage: uv run python -I tests/speccheck.py .
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 PREFIXES = "LEX|NAM|TYP|CEX|EXP|STM|FUN|OUT|STA|TXN|HEP|RTF|PLT"
 RULE_DEF = re.compile(rf"^\*\*((?:{PREFIXES})-\d+) \[(Agreed|Proposal|Open)\]\*\*", re.M)

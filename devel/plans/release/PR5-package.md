@@ -9,9 +9,9 @@ Planned 2026-11-22, the fifth work package of PR0. The Python toolchain in `tool
 **How modules find each other:** by editing `sys.path`. There are 103 lines that mention it, in 84 files, counting `devel/` and the examples. `pyproject.toml` names the project, with `cffi` as its one dependency, but it has no build system, so nothing is installed.
 
 **Layering problems the move must fix:**
-- **The compiler, the Python VM's card and its natives import `harness/scenario.py`.** They use `CARD_ERROR_CODES`, which `scenario.py` reads from the Base Profile's table. `typer`, `compiler` and `disasm` also use its `program_files`. So the core depends on the test harness.
+- **The compiler, the Python VM's card and its natives import `harness/scenario.py`.** They use `CARD_ERROR_CODES`, which `scenario.py` reads from the Base Profile's table. `typer`, `compiler` and `disasm` also use its `program_files`. So the core depends on the test harness. <!-- linkcheck: ignore -->
 - **The Python VM's HAL imports the interpreter's test crypto** (`p256`, `testcrypto`), and its natives import `testcbor` and `testtlv`. These are host-side implementations of the Base Profile's services, used by both simulators and by the applet checks. They are not part of the interpreter.
-- **The language server and the debug adapter share `lsp/jsonrpc.py`.**
+- **The language server and the debug adapter share `lsp/jsonrpc.py`.** <!-- linkcheck: ignore -->
 - **The debug adapter imports `clc.py`.**
 - **PR0 put `grammar.py` in `tests/`, but it cannot go there.** `diagnose` imports it, and through `diagnose` so do the language server and `clc check`. It is part of the front end.
 
@@ -62,7 +62,7 @@ Each stage is one commit, ends with `run_checks` passing, and updates `layout`, 
 | Stage | Moves | Also |
 |---|---|---|
 | **5a** The package, `layout` and the front end | the build system (S1); `layout.py` and `tools/checkers/*` except the four checks, into `src/cardlang/` and `front/`; `speccheck`, `profilecheck`, `linkcheck` and `poscheck` into `tests/` | every importer rewritten; `layout.TOP_LEVEL` gains `src` and `tests`; `run_checks` runs the runners with `-m`; the `devel/` scripts and the examples' checkers import `cardlang.layout` |
-| **5b** The platform, the bytecode and the compiler | `platform/` (with `errors.py` taking `CARD_ERROR_CODES` from `scenario.py`, and `program_files` moving to `front/project.py`); `bytecode/`; `compiler/` | **T1 (S3):** `compile_files` runs the full diagnostics first |
+| **5b** The platform, the bytecode and the compiler | `platform/` (with `errors.py` taking `CARD_ERROR_CODES` from `scenario.py`, and `program_files` moving to `front/project.py`); `bytecode/`; `compiler/` | **T1 (S3):** `compile_files` runs the full diagnostics first | <!-- linkcheck: ignore -->
 | **5c** The interpreter, `pyvm` and the harness | `interp/`; `vmproto` to `pyvm/` (R7); `harness/`; `compile_all`, `check_state`, `debug_check` and `example_scenarios` into `tests/` | **The rename:** the backend name `vmproto` becomes `pyvm` everywhere: in `--backend`, in `run_checks`, in the DAP and in the extension's `cardlang.scenarioBackend` setting and its default. Historical reports keep `vmproto` |
 | **5d** The language server, the debug adapter, the command line and `tests/` | `lsp/`, `dap/`, `jsonrpc.py` and `cli.py`; the tool checks and `run_checks.py` into `tests/` | `[project.scripts]`; the launchers at the extension's old paths (S2); `tools/README.md` becomes the package's README, and `tests/README.md` is new |
 
@@ -97,3 +97,31 @@ Each stage is one commit, ends with `run_checks` passing, and updates `layout`, 
 | S4 | Module names beyond the `pyvm` rename | (a) keep them: `lexcheck`, `expcheck` and the rest, plus the three entry modules as `cli`, `lsp/server` and `dap/adapter`; (b) also rename the front end, for example `lexcheck` to `lexer` | (a). A rename touches every import and every document for no change in behaviour. It can be its own small change later, once the layout is settled |
 
 **Decided (user, 2026-11-22):** S1 (a) `uv_build`, S2 (a) three launchers and no import shims, S3 (a) the compiler refuses invalid programs, and S4 (a) keep the module names. All four are as recommended. Fetching `uv_build` at stage 5a is a download, and I will ask before it.
+
+## 7. Done: stage 5a (2026-11-22)
+
+- **The package:**
+  - `pyproject.toml` builds with `uv_build` (0.11.x, fetched with your permission);
+  - `uv sync` installs `cardlang` editable into the project's environment, and it imports under `python -I`;
+  - `src/cardlang/__init__.py` and `front/__init__.py` describe the package.
+- **Moved with `git mv`:**
+  - `tools/checkers/layout.py` to `src/cardlang/layout.py`;
+  - the 16 front-end modules to `src/cardlang/front/`;
+  - `speccheck`, `profilecheck`, `linkcheck` and `poscheck` to `tests/`.
+
+  `tools/checkers/` is gone.
+- **Imports:**
+  - every importer, in 81 files across `tools/`, `examples/` and `devel/`, now uses `from cardlang import layout` and `from cardlang.front import …`;
+  - the `sys.path` lines that found the checkers are gone, as is `"checkers"` from every `sys.path` loop;
+  - no file in `src/` or `tests/` edits `sys.path`;
+  - the modules not moved yet keep their other `sys.path` lines until their stage.
+- **Paths:** three front-end modules computed the repository root from their own file. These were `diagnose`, `grammar` and `pltcheck`, and they would have been off by one level after the move. They now ask `layout`.
+- **`run_checks`:** it runs the front-end checkers as modules (`-m cardlang.front.lexcheck`), and the scripts by their path from the root. All 51 runs pass with the same counts as before; only the link check's count grew, with the new files.
+- **`layout`:**
+  - new parts `src`, `package`, `front` and `tests`;
+  - `TOP_LEVEL` gains `src` and `tests`;
+  - `MOVED` has the 5a rows.
+- **Documents:** the current documents' paths are rewritten through `MOVED`, and `tools/README.md` says how to run a checker as a module.
+- **Scripts:**
+  - the 33 generators and history scripts, and `revision.py`, run against a copy as before, and the same three fail;
+  - `pyvm_measure.py` had been broken since PR4, because it imported `check_fido2` from `tools/fido/`. It now loads `examples/fido2/check.py`, and it runs.

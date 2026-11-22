@@ -1,7 +1,6 @@
 """Reference lexer written from spec chapter 2, used to verify SP1."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 class Tok(tuple):
     """A (kind, value) token with its source position."""
@@ -105,7 +104,7 @@ def header(data):
 if __name__ == "__main__":
     repo = pathlib.Path(sys.argv[1])
     conf = layout.at(repo).conformance
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); import project   # run as a script with -I
+    from cardlang.front import project
     ok = True
     tests = sorted(p for p in conf.glob("*/[a-z][a-z][a-z]-*") )
     for t in tests:

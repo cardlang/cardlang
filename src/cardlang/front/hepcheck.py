@@ -4,13 +4,12 @@ Fragment tests (kind: fragment) are completed with the HEP-16 scaffold before ch
 application tests (kind: application) are checked as written.
 """
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import txncheck, expcheck, consteval
-import srcpos
-from expcheck import CE
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import txncheck, expcheck, consteval
+from cardlang.front import srcpos
+from cardlang.front.expcheck import CE
 
 SCAFFOLD = b"command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {\n    return Ok(0);\n}\n"
 U8_VIEW = ("arr", "u8", None)

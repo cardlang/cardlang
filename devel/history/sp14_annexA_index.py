@@ -1,7 +1,6 @@
 """One-off (SP14): append Annex A §A.3, the nonterminal index and the note on the mechanical grammar check."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 p = layout.at(sys.argv[1]).spec / "annex-A-grammar.md"; t = p.read_text(encoding="utf-8")
 t = t.split("\n## A.3 ")[0].rstrip("\n") + "\n"
 index, section = [], None

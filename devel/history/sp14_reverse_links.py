@@ -3,8 +3,7 @@
 Existing entries are kept; missing rule IDs are appended in chapter order.
 """
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1])
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()
 key = lambda r: (ORDER.index(r.split("-")[0]), int(r.split("-")[1]))

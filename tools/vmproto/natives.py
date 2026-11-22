@@ -9,9 +9,10 @@ backends give identical outcomes.
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "interp", HERE.parent / "checkers", HERE.parent / "harness"):
+for p in (HERE, HERE.parent / "interp", HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import vm, isa, pltcheck, consteval, testcbor, testtlv
+import vm, isa, testcbor, testtlv
+from cardlang.front import pltcheck, consteval
 from hal import HalStatus
 from scenario import CARD_ERROR_CODES
 

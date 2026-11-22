@@ -51,7 +51,7 @@ Related files:
 | Annex B Platform contract | 35 | 35 | 0 | 0 |
 | **Total** | 305 | 305 | 0 | 0 |
 
-`tools/checkers/speccheck.py` checks these counts against the rules actually defined.
+`tests/speccheck.py` checks these counts against the rules actually defined.
 
 ## Index of compile-error classes
 

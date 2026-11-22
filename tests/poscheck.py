@@ -1,18 +1,17 @@
-"""Diagnostics with positions over the whole conformance corpus (TL1 step 1; tools/checkers/diagnose.py).
+"""Diagnostics with positions over the whole conformance corpus (TL1 step 1; src/cardlang/front/diagnose.py).
 
 - Every valid test, runtime program and example applet gets no diagnostic.
 - Every invalid test gets its expected code, placed in one of its own files at a line and column. The exceptions
   are the known gaps below: name rules of chapter 3 that no reference checker implements yet.
 - A sample of tests is pinned to the exact line the error is reported on.
 
-Usage: uv run python -I tools/checkers/poscheck.py .
+Usage: uv run python -I tests/poscheck.py .
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-if str(HERE) not in sys.path: sys.path.insert(0, str(HERE))
-import diagnose
-import layout
-from lexcheck import header
+from cardlang.front import diagnose
+from cardlang import layout
+from cardlang.front.lexcheck import header
 
 # Chapter 3 name rules with no reference checker (found by TL1, 2026-11-21): missed, or reported with another code.
 KNOWN_GAPS = {
@@ -34,7 +33,7 @@ PINNED = {
 }
 
 def files_of(t):
-    import project
+    from cardlang.front import project
     return project.program_files(t)
 
 def main(repo):

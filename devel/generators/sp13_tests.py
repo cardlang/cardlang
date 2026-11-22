@@ -1,7 +1,6 @@
 """Write the SP13 (Annex B) conformance tests, which use the test-only platform catalog, and cross-check them with Annex B."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 annex = (layout.at(repo).spec / "annex-B-platform-contract.md").read_text(encoding="utf-8")
 

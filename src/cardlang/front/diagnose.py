@@ -11,16 +11,15 @@ error, so the list has at most one entry; an empty list means the program is val
   last token examined. The checkers assume grammatical input; Annex A's recognizer is the authority on syntax.
 
 Usage, for a quick look:
-    uv run python -I tools/checkers/diagnose.py <file.card> ...
+    uv run python -I -m cardlang.front.diagnose <file.card> ...
 """
 import sys, pathlib, re
 HERE = pathlib.Path(__file__).resolve().parent
-if str(HERE) not in sys.path: sys.path.insert(0, str(HERE))
-from lexcheck import lex, LexError, header
-import layout
-import srcpos, consteval, expcheck, pltcheck, typecheck, grammar
+from cardlang.front.lexcheck import lex, LexError, header
+from cardlang import layout
+from cardlang.front import srcpos, consteval, expcheck, pltcheck, typecheck, grammar
 
-ROOT = HERE.parents[1]
+ROOT = layout.at().root
 _messages = None
 
 def messages():

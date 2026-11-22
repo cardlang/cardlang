@@ -13,8 +13,7 @@ import sys, json, pathlib, subprocess, queue, time
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "lsp"))
 import jsonrpc
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 class Client:
     def __init__(self, repo):

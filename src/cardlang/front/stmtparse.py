@@ -4,8 +4,7 @@ Statements become tuples; expressions come from the checkers' expression parser 
 assumes a program the checkers have accepted, so it reports no errors of its own beyond CE-SYN-1 from expcheck.
 """
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from expcheck import P, p_expr, p_postfix, p_type
+from cardlang.front.expcheck import P, p_expr, p_postfix, p_type
 
 def parse_block(p):
     p.expect("{"); out = []

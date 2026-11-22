@@ -1,12 +1,11 @@
 """Reference checker for spec chapter 11 (TXN-1..TXN-17), built on stacheck."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-import stacheck, expcheck, consteval
-from expcheck import CE, P, p_expr
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front import stacheck, expcheck, consteval
+from cardlang.front.expcheck import CE, P, p_expr
 
 class TxnChecker(stacheck.StaChecker):
     _txn = None   # loop depth at entry to the active transaction, or None

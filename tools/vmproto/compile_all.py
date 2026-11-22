@@ -9,7 +9,7 @@ Usage (from the repository root):
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
+for p in (HERE, HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import compiler, typer, isa, disasm
 

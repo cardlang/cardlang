@@ -104,7 +104,7 @@ Tests that call platform APIs use the **test-only catalog** in `platform/test-ca
 
 ## Checking the tests
 
-Until a compiler exists, the reference checkers in `tools/checkers/` verify the compile-time tests against the rules of chapters 2–12. `grammar.py` checks every test against the Annex A grammar, and it is the authority for CE-SYN-1. The reference interpreter in `tools/interp/` runs the runtime tests. Run them all from the repository root:
+The reference checkers, the front end in `src/cardlang/front/`, verify the compile-time tests against the rules of chapters 2–12. `grammar.py` checks every test against the Annex A grammar, and it is the authority for CE-SYN-1. The reference interpreter in `tools/interp/` runs the runtime tests. Run them all from the repository root:
 
 ```bash
 python -I tools/run_checks.py
@@ -116,5 +116,5 @@ See `tools/README.md` for details and known limitations.
 
 - Each example in a spec chapter names its test file, for example *(conformance: `invalid/exp-105-mixed-arithmetic.card`)*.
 - Examples taken from the design notes keep their meaning. Lines added only to make a fragment complete are marked `// scaffold`.
-- `tools/checkers/speccheck.py` checks that every rule a test cites exists, and that every compile-error class and trap kind is defined. It also checks that every compile-error class is expected by at least one test.
+- `tests/speccheck.py` checks that every rule a test cites exists, and that every compile-error class and trap kind is defined. It also checks that every compile-error class is expected by at least one test.
 - Annex D §D.3 maps every rule to its tests, or gives the reason no test can check it. Regenerate it with `python -I devel/generators/coverage.py .` after adding tests.

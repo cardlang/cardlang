@@ -22,12 +22,11 @@ sets up `sys.path` is exempt: it bootstraps imports, and goes away when the tool
 Over every source file it tracks outside the historical folders (5: .card, .c, .h, .py, .js): a repository path named
 anywhere in it, in a comment, a docstring or a string, must exist. A path counts if its first part is a top-level folder,
 or one that a move retired. `layout.py` is exempt, since its table of moves names the old paths on purpose (PR3 P4).
-Usage: uv run python -I tools/checkers/linkcheck.py .
+Usage: uv run python -I tests/linkcheck.py .
 """
 import re, sys, pathlib, subprocess, collections
 HERE = pathlib.Path(__file__).resolve().parent
-if str(HERE) not in sys.path: sys.path.insert(0, str(HERE))
-import layout
+from cardlang import layout
 
 IGNORE = "<!-- linkcheck: ignore -->"
 EXTENSIONS = {".md", ".py", ".card", ".txt", ".json", ".c", ".h", ".js", ".toml", ".cmake", ".scenario", ".clvm", ".lock",

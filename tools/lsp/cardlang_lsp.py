@@ -1,7 +1,7 @@
 """The CardLang language server (TL1 step 3): diagnostics as you type.
 
 Speaks the Language Server Protocol over standard input and output (tools/lsp/jsonrpc.py), and checks with the
-reference front end (tools/checkers/diagnose.py), using the editor's unsaved text.
+reference front end (src/cardlang/front/diagnose.py), using the editor's unsaved text.
 
 **Which program a file belongs to.** A file listed in the `cardlang.json` of its directory is checked as part of
 that whole program, with the project's binding, and diagnostics are published for every file of the program. Any
@@ -13,10 +13,11 @@ Run with: uv run python -I tools/lsp/cardlang_lsp.py
 import sys, os, re, queue, pathlib, urllib.parse, urllib.request, traceback
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for d in (HERE, TOOLS / "checkers"):
+for d in (HERE,):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import jsonrpc, diagnose, project, semantic, complete
-from lexcheck import header
+import jsonrpc, semantic, complete
+from cardlang.front import diagnose, project
+from cardlang.front.lexcheck import header
 
 DEBOUNCE = 0.3                          # seconds of quiet before checking
 
@@ -143,7 +144,7 @@ class Server:
             self.log("cardlang-lsp: semantic tokens failed: " + traceback.format_exc()); return []
 
     def check(self, path):
-        import pltcheck
+        from cardlang.front import pltcheck
         if key(path) == key(pltcheck.BASE_TYPES):
             # The Base Profile's prelude: every program already includes it, so checked as a program of its own each
             # of its declarations would clash with itself (CE-NAM-5). It is the platform's file, not an applet.

@@ -1,8 +1,7 @@
 """Write the WP3 conformance tests: Base Profile keys (platform/base-profile.md §7, card.key)."""
 import sys, pathlib
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 
 def hdr(rule, src, exp, note, kind="fragment"):

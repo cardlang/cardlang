@@ -8,11 +8,12 @@ Usage: uv run python -I tools/lsp/semantic_check.py .
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE, HERE.parent / "checkers"):
+for d in (HERE,):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import semantic, project
-from lexcheck import lex
-import layout
+import semantic
+from cardlang.front import project
+from cardlang.front.lexcheck import lex
+from cardlang import layout
 
 SAMPLE = HERE / "testdata" / "semantic-sample.card"
 EXPECTED = [

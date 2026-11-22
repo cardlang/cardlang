@@ -6,7 +6,7 @@ This annex links the specification to its sources in both directions.
 - **D.2 (reverse):** each decision ID → the rules that implement it, or the open issue that blocks it.
 - **D.3 (coverage):** each rule → the conformance tests that check it, or the reason none can.
 
-Decision IDs are defined in `language/rationale/decision-register.md`. Every decision is covered (D-134 is informative), and every rule has a test or a stated reason. `tools/checkers/speccheck.py` checks both.
+Decision IDs are defined in `language/rationale/decision-register.md`. Every decision is covered (D-134 is informative), and every rule has a test or a stated reason. `tests/speccheck.py` checks both.
 
 **Coverage values used in D.2**
 

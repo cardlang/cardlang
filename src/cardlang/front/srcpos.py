@@ -5,7 +5,7 @@ A token is still a (kind, value) tuple, as every checker expects, but the lexer 
 position of the token being examined when it was raised, unless it names a token itself (exc.tok).
 """
 
-from lexcheck import Tok, Lines
+from cardlang.front.lexcheck import Tok, Lines
 
 _last = [None]
 

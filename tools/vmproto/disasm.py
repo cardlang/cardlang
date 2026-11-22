@@ -76,9 +76,9 @@ if __name__ == "__main__":
     if src.suffix == ".bin":
         img = src.read_bytes()
     else:
-        sys.path.insert(0, str(HERE.parent / "checkers")); sys.path.insert(0, str(HERE.parent / "harness"))
+        sys.path.insert(0, str(HERE.parent / "harness"))
         import compiler
-        from lexcheck import header
+        from cardlang.front.lexcheck import header
         from scenario import program_files
         files = program_files(src) if src.is_dir() else [src]
         meta = header(files[0].read_bytes())

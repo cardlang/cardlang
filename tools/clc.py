@@ -10,7 +10,7 @@ A <program> is any of:
 - a directory without one: its `.card` files, in name order;
 - one or more `.card` files.
 
-check runs the full front end (tools/checkers/diagnose.py) and prints each diagnostic as
+check runs the full front end (src/cardlang/front/diagnose.py) and prints each diagnostic as
 `file:line:column: CE-XXX-n: message`, or a JSON list with --json. Exit status 1 if there are diagnostics.
 build checks first (the compiler alone skips some rules, TL1 finding T1), then compiles to an image, written to
 `-o`, or to `build/<name>.clvm` in the program's directory. It prints the image's figures.
@@ -19,11 +19,11 @@ run runs a scenario file (tools/harness/README.md), printing every step and its 
 """
 import sys, json, pathlib, argparse
 TOOLS = pathlib.Path(__file__).resolve().parent
-for d in ("checkers", "vmproto", "harness", "interp"):
+for d in ("vmproto", "harness", "interp"):
     p = str(TOOLS / d)
     if p not in sys.path: sys.path.insert(0, p)
-import diagnose
-from lexcheck import header
+from cardlang.front import diagnose
+from cardlang.front.lexcheck import header
 
 class Program:
     """The files of a program, its binding and its name, from the command line's <program>."""

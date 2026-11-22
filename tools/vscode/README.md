@@ -159,7 +159,7 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 | The debug adapter | `tools/dap/cardlang_dap.py` |
 | The JSON-RPC framing both use | `tools/lsp/jsonrpc.py` |
 | The command line | `tools/clc.py` |
-| Diagnostics with positions | `tools/checkers/diagnose.py` |
+| Diagnostics with positions | `src/cardlang/front/diagnose.py` |
 | Debug information in images (IMG-10) | `tools/vmproto/debuginfo.py` |
 
 **The checks** are rows of `tools/run_checks.py`:

@@ -1,11 +1,10 @@
 """Reference statement checker for spec chapter 7 (STM-1..STM-22), built on expcheck."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import expcheck, consteval
-from expcheck import CE, P, p_expr, p_postfix, INT
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import expcheck, consteval
+from cardlang.front.expcheck import CE, P, p_expr, p_postfix, INT
 
 class StmChecker(expcheck.Checker):
     def run(self):

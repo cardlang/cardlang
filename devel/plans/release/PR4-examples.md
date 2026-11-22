@@ -75,7 +75,7 @@ Planned 2026-11-22, the fourth work package of PR0 (R6). Each example applet bec
   - nothing else changed.
 - **`run_checks`:**
   - it no longer lists the applets;
-  - `example_runs()` finds every `examples/*/check.py` and runs it on the four backends, labelled by its folder (`fido2/check.py`);
+  - `example_runs()` finds every `examples/*/check.py` and runs it on the four backends, labelled by its folder (`fido2/check.py`); <!-- linkcheck: ignore -->
   - the new `tools/harness/example_scenarios.py` runs every `examples/*/*.scenario` through `clc run`, on each backend;
   - there are now 51 runs: the same 8 applet runs as before, now on all four backends with `interp` named explicitly, plus 4 scenario runs. All pass.
   - Checked by mutation: a scenario with a wrong `expect` fails the scenario run.

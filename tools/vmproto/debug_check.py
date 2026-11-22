@@ -12,11 +12,10 @@ Usage: uv run python -I tools/vmproto/debug_check.py .
 """
 import sys, pathlib, hashlib
 HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE, HERE.parent / "checkers", HERE.parent / "harness"):
+for d in (HERE, HERE.parent / "harness"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
 import compiler, typer, disasm, debuginfo, backends, scenario
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 def body(img):
     h, _, _, _ = disasm.read_image(img)

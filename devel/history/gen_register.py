@@ -4,8 +4,7 @@ Topic/status cells are copied verbatim from DN section 2 (lines 28-162).
 """
 import sys, pathlib
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 repo = pathlib.Path(sys.argv[1])
 dn = (layout.at(repo).design_notes).read_text(encoding="utf-8").splitlines()

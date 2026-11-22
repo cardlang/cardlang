@@ -10,11 +10,12 @@ completions(target, texts, line, character) returns LSP CompletionItems for the 
 """
 import re, sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE, HERE.parent / "checkers"):
+for d in (HERE,):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import semantic, pltcheck
-from lexcheck import lex, LexError
-import layout
+import semantic
+from cardlang.front import pltcheck
+from cardlang.front.lexcheck import lex, LexError
+from cardlang import layout
 
 FUNCTION, MODULE, ENUM_MEMBER = 3, 9, 20          # LSP CompletionItemKind
 SNIPPET = 2                                        # LSP InsertTextFormat

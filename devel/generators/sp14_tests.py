@@ -1,7 +1,6 @@
 """Write the SP14 conformance tests: tests for testable rules that no earlier test covered (SP14 §3.3, group (b))."""
 import re, sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 repo = pathlib.Path(sys.argv[1]); conf = layout.at(repo).conformance
 SPEC = "\n".join(f.read_text(encoding="utf-8") for f in sorted((layout.at(repo).spec).glob("*.md")))
 

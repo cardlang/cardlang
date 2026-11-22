@@ -16,11 +16,10 @@ Run with the project's uv environment, from the repository root, after `vm/c/bui
 """
 import sys, re, json, time, pathlib, subprocess, collections
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
-import layout
+from cardlang import layout
 HERE = layout.at().vm_c            # the C VM, which this script measures (the script moved to devel/measure in PR2)
 REPO = layout.at().root
-sys.path[:0] = [str(HERE)] + [str(layout.at().tools / d) for d in ("harness", "vmproto", "checkers", "interp")]
+sys.path[:0] = [str(HERE)] + [str(layout.at().tools / d) for d in ("harness", "vmproto", "interp")]
 import build
 
 SOURCES = ["src/vm.c", "src/natives.c"]

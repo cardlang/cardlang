@@ -5,8 +5,7 @@ PASS or FAIL for each. A scenario's program is its own folder, with its `cardlan
 Usage: uv run python -I tools/harness/example_scenarios.py . [--backend NAME]      (default: interp)
 """
 import sys, pathlib, subprocess
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checkers"))   # find layout
-import layout
+from cardlang import layout
 
 def main(argv):
     backend = "interp"

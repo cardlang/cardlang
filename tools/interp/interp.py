@@ -9,10 +9,9 @@ Usage (from the repository root):
     python -I tools/interp/interp.py . ["runtime/run-*"]      (the same as tools/harness/scenario.py --backend interp)
 """
 import copy, sys, pathlib, hashlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "checkers"))
-from lexcheck import lex, header
-import hepcheck, pltcheck, expcheck, consteval
-from expcheck import P, p_expr, p_postfix, p_type, CE
+from cardlang.front.lexcheck import lex, header
+from cardlang.front import hepcheck, pltcheck, expcheck, consteval
+from cardlang.front.expcheck import P, p_expr, p_postfix, p_type, CE
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "harness"))
 import p256                                              # test-only P-256 (WP3)
@@ -75,7 +74,7 @@ def restore(live, snap):
             live[k] = copy_value(snap[k])
 
 # ------------------------------------------------------------------ statement parser
-from stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the prototype compiler (VM4)
+from cardlang.front.stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the prototype compiler (VM4)
 
 # ------------------------------------------------------------------ the machine
 class Card:

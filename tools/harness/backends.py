@@ -6,11 +6,11 @@ tools/harness/README.md. Building checks the program first: a program the checke
 import sys, pathlib
 
 TOOLS = pathlib.Path(__file__).resolve().parents[1]
-for sub in ("checkers", "interp", "harness"):
+for sub in ("interp", "harness"):
     if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
 
-from lexcheck import lex, header
-import consteval, expcheck, pltcheck
+from cardlang.front.lexcheck import lex, header
+from cardlang.front import consteval, expcheck, pltcheck
 
 class BuildError(Exception):
     """The program does not compile: a compile error, or a profile error such as a binding mismatch."""

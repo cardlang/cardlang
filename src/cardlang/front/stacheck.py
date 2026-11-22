@@ -1,12 +1,11 @@
 """Reference checker for spec chapter 10 (STA-1..STA-14), built on outcheck."""
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from lexcheck import lex, header
-import layout
-import project
-import srcpos
-import outcheck, expcheck, consteval
-from expcheck import CE
+from cardlang.front.lexcheck import lex, header
+from cardlang import layout
+from cardlang.front import project
+from cardlang.front import srcpos
+from cardlang.front import outcheck, expcheck, consteval
+from cardlang.front.expcheck import CE
 
 HANDLERS = {"on_install", "on_session_start"}   # placeholders, D-438
 

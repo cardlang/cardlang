@@ -1,15 +1,15 @@
 """Where the repository's parts are (PR1): the one place that knows the repository's layout.
 
 Every tool asks this module, `layout.at(root).spec`, instead of building `root / "spec"` itself, so moving a part
-of the repository (PR0: PR2 to PR6) changes this module and nothing else. `tools/checkers/linkcheck.py` checks that
+of the repository (PR0: PR2 to PR6) changes this module and nothing else. `tests/linkcheck.py` checks that
 no other Python file builds a path into a top-level part.
 
-    import layout
+    from cardlang import layout
     L = layout.at()            # this repository; or layout.at(repo) for a repository given on the command line
     L.spec / "00-index.md"
     L.runtime / "run-012-wallet-application"
 
-PR5 moves this module to `cardlang.layout`.
+It is `cardlang.layout` since PR5. It finds the repository from its own place, two levels above `src/cardlang/`.
 """
 import pathlib
 
@@ -43,6 +43,10 @@ class Layout:
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
         self.tools = r / "tools"
+        self.src = r / "src"
+        self.package = self.src / "cardlang"          # the Python toolchain (PR5)
+        self.front = self.package / "front"
+        self.tests = r / "tests"                      # the checks of the tools and of the definition (PR5)
         # development aids (PR2)
         self.devel = r / "devel"
         self.plans = self.devel / "plans"
@@ -67,7 +71,7 @@ def at(root=None):
     return Layout(root)
 
 # The top-level parts, for linkcheck's check that only this module builds paths into them.
-TOP_LEVEL = ("language", "platform", "examples", "vm", "tools", "devel")
+TOP_LEVEL = ("language", "platform", "examples", "vm", "tools", "src", "tests", "devel")
 
 # Where moved files went: (old path or folder, new path or folder), relative to the root. Historical documents keep the
 # paths they were written with (PR1 L4); linkcheck resolves them through this table, so they are still checked.
@@ -106,6 +110,13 @@ MOVED = [
     ("tools/piv/check_piv.py", "examples/piv/check.py"),
     ("tools/fido", "examples/fido2"),
     ("tools/piv", "examples/piv"),
+    # PR5a: the package, layout and the front end; the specification checks into tests/
+    ("tools/checkers/layout.py", "src/cardlang/layout.py"),
+    ("tools/checkers/speccheck.py", "tests/speccheck.py"),
+    ("tools/checkers/profilecheck.py", "tests/profilecheck.py"),
+    ("tools/checkers/linkcheck.py", "tests/linkcheck.py"),
+    ("tools/checkers/poscheck.py", "tests/poscheck.py"),
+    ("tools/checkers", "src/cardlang/front"),
 ]
 
 def moved(path):
