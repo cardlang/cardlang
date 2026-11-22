@@ -353,3 +353,5 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
 - **The package:** `cardlang.vsix`, 233 files and 400 KB. It holds the extension, its grammars, snippets and README, and `vscode-languageclient` with its dependencies. It is git-ignored.
 - **vsce's one warning,** to bundle the JavaScript into one file, is left for later: at this size it costs nothing noticeable.
 - **The README** describes building and installing the package.
+
+**Installed as a package (2026-11-22).** The development link was removed and `cardlang.vsix` installed with `code --install-extension`. VS Code refused to reinstall the same version, 0.1.0, which it still recorded at the removed link ("Please restart VS Code before reinstalling"), even after a restart. The package is therefore 0.1.1.
