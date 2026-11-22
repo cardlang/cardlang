@@ -6,7 +6,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** contradiction, gap, or proposal-to-validate. The kind *qualifier* marks the open part of an otherwise agreed decision, and *platform-deferred* marks an item that probably belongs to the platform layer.
 - **Sources:** DN and PN sections, and decision IDs.
-- **Affected rules:** filled in by sub-plans as they write rules.
+- **Affected rules:** the rules that depend on the issue.
 - **Question**, then **Options**, then **Recommendation**.
 - **Status:** open or resolved.
 
@@ -228,7 +228,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
   3. Omitted endpoints (`a[..n]`), and slice expressions outside argument and receiver positions.
   4. Whether a slice of known length can satisfy a fixed-size `T[N]` parameter.
   5. Whole-region copy or fill assignment through a slice.
-- **Recommendation:** decide in SP7. Proposed defaults:
+- **Recommendation:** decide with chapter 8. Proposed defaults:
   1. Index types, with independent typing of the two endpoints and `u32` context for literals.
   2. Receiver, then start, then end; then the checks `start ≤ end` and `end ≤ length`.
   3. No omitted endpoints, and slices only in reference-argument and receiver positions.
@@ -320,9 +320,9 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Recommendation:**
   - Chapters use **language-level trap kinds** (chapter 13): `TRAP-OVERFLOW`, `TRAP-UNDERFLOW`, `TRAP-DIV-ZERO`, `TRAP-BOUNDS`, `TRAP-SHIFT`, `TRAP-NEGATION`, `TRAP-RESPONSE-COUNT`, `TRAP-NESTED-TXN`, `TRAP-COMMIT`, `TRAP-EXHAUSTED` (stack or execution budget) and `TRAP-VM` (invalid instruction or state).
   - Chapters use **placeholder platform error names**: `CardError.Overflow`, `CardError.Underflow`, `CardError.DivisionByZero`, `CardError.ConversionRange`, `CardError.AlreadyExists`, `CardError.NotFound`, `CardError.WrongResourceType` and `CardError.Capacity`. Each is marked as a placeholder, and all codes are platform-defined.
-  - The final names are confirmed or replaced in SP12 and SP13.
+  - The final names are confirmed or replaced in chapter 13 and Annex B.
 - **Status:** resolved 2026-11-15 (D-415)
-- **Decision:** Adopted. Chapters use the language-level trap kinds `TRAP-OVERFLOW`, `-UNDERFLOW`, `-DIV-ZERO`, `-BOUNDS`, `-SHIFT`, `-NEGATION`, `-RESPONSE-COUNT`, `-NESTED-TXN`, `-COMMIT`, `-EXHAUSTED` and `-VM`, and the placeholder platform errors `CardError.Overflow`, `.Underflow`, `.DivisionByZero`, `.ConversionRange`, `.AlreadyExists`, `.NotFound`, `.WrongResourceType` and `.Capacity`. All codes are platform-defined. SP12 and SP13 confirm or replace the names.
+- **Decision:** Adopted. Chapters use the language-level trap kinds `TRAP-OVERFLOW`, `-UNDERFLOW`, `-DIV-ZERO`, `-BOUNDS`, `-SHIFT`, `-NEGATION`, `-RESPONSE-COUNT`, `-NESTED-TXN`, `-COMMIT`, `-EXHAUSTED` and `-VM`, and the placeholder platform errors `CardError.Overflow`, `.Underflow`, `.DivisionByZero`, `.ConversionRange`, `.AlreadyExists`, `.NotFound`, `.WrongResourceType` and `.Capacity`. All codes are platform-defined. Chapter 13 and Annex B confirm or replace the names.
 
 ## OI-16 — Remaining semantics of explicit persistent state
 
@@ -330,7 +330,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Sources:** D-008 says "Agreed direction; detailed semantics open". The DN §5 table lists "Initialization, updates, deletion, upgrades and transactions" as still to define.
 - **Affected rules:** STA-3, PLT-16
 - **Note:** Initialization (DN §3.9), updates (DN §7.1) and transactions (DN §7.2) have since been specified in the notes. What remains is deletion, upgrades and migration.
-- **Recommendation:** the language covers declaration, defaults, atomic assignment and transactions. Deletion, upgrade and migration become platform-defined items in Annex B. Close this issue after SP9 confirms.
+- **Recommendation:** the language covers declaration, defaults, atomic assignment and transactions. Deletion, upgrade and migration become platform-defined items in Annex B.
 - **Status:** resolved 2026-11-15 (D-416)
 - **Decision:** Recommendation adopted. The language covers declaration, defaults, atomic assignment and transactions. Persistent-state deletion, upgrade and migration are platform-defined items (Annex B).
 
@@ -351,9 +351,9 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** qualifier
 - **Sources:** D-012 says "Agreed direction; detailed typing open". The typing was later developed in DN §6.3: transient outcomes, no `Result<T>`, and exact `attempt` typing (D-015–D-017).
 - **Affected rules:** OUT-1 to OUT-14
-- **Recommendation:** treat this as resolved by DN §6.3 once SP8 has formalized the outcome typing rules. Close it at SP8 review.
+- **Recommendation:** treat this as resolved by DN §6.3 once chapter 9 has formalized the outcome typing rules.
 - **Status:** resolved 2026-11-15 (D-418)
-- **Decision:** Recommendation adopted. "Detailed typing open" is settled by DN §6.3 (transient outcomes, no `Result<T>`, exact `attempt` typing). SP8 formalizes it.
+- **Decision:** Recommendation adopted. "Detailed typing open" is settled by DN §6.3 (transient outcomes, no `Result<T>`, exact `attempt` typing). Chapter 9 formalizes it.
 
 ## OI-19 — Size limits for atomic aggregate assignment
 
@@ -386,7 +386,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** qualifier (proposal)
 - **Sources:** D-133 says "Temporary application RAM; call-frame placement proposed". DN §3.8 and PN §4 are also relevant.
 - **Affected rules:** FUN-17; Annex B §B.11
-- **Recommendation:** the language rule stays at value semantics: an independent copy that lives for the call. Frame placement becomes informative VM guidance in Annex B. Close it at SP13.
+- **Recommendation:** the language rule stays at value semantics: an independent copy that lives for the call. Frame placement becomes informative VM guidance in Annex B.
 - **Status:** resolved 2026-11-15 (D-421)
 - **Decision:** Recommendation adopted. The language rule is value semantics: an independent copy that lives for the call. Call-frame placement is informative VM guidance in Annex B.
 
@@ -714,7 +714,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-44 — EXP-6 and the written grammar
 
-- **Kind:** contradiction (found in SP14)
+- **Kind:** contradiction (found in the review of Draft 0.1)
 - **Sources:** EXP-6 ("does not derive (CE-SYN-1)"); Annex A §A.2.5 (`IfStatement ::= 'if' Expression Block`, whose general `Expression` includes `StructConstructor`); D-430
 - **Affected rules:** EXP-6; the grammar fragments of chapters 6, 7 and 9; Annex A §A.2.4, §A.2.5
 - **Question:** EXP-6 says that an unparenthesized structure constructor in a condition position does not derive. The written grammar nonetheless derives it. Which should change?
@@ -730,7 +730,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-45 — attempt and require inside a transaction
 
 - **Kind:** proposal-to-validate (raised after Draft 0.1, from the review of application code)
-- **Sources:** D-109; DN §3.6 ("no implicit rollback is added to them"), §7.2; TXN-6 as drafted in SP10
+- **Sources:** D-109; DN §3.6 ("no implicit rollback is added to them"), §7.2; TXN-6 as first drafted
 - **Affected rules:** TXN-6, STM-19, OUT-10, EXP-51; new TXN-18
 - **Question:** D-109 forbids `return`, `break` and `continue` across a transaction boundary. As a consequence, Draft 0.1 also forbade `attempt` and `require` inside a transaction, because their error path is a return. Handling every fallible call in a transaction then needs a `match` whose error arm is `abort Err(e)`. Should the error path of `attempt` and `require` abort the transaction instead?
 - **Options:**
@@ -747,7 +747,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 never stated when an operation is an intrinsic and when it is a platform API.
 - **Affected rules:** EXP-52, PLT-30
-- **Decision basis:** the intrinsic/API boundary rule (base API plan §2)
+- **Decision basis:** the user's decision of 2026-11-17, on the intrinsic/API boundary
 - **Status:** resolved 2026-11-17 (D-446)
 - **Decision:** An intrinsic is defined completely over language values, is identical on every platform, and fails only as the specification says. A platform API depends on platform state or hardware, may be absent, fails with CardError and states its transaction behaviour. Nothing is both.
 
@@ -758,7 +758,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 had no way to copy part of an array except an element loop, because FUN-18 forbade slice assignment.
 - **Affected rules:** FUN-24, FUN-18, STM-7
-- **Decision basis:** B1(a), B1(c); WP1 D1
+- **Decision basis:** the user's decision of 2026-11-17
 - **Status:** resolved 2026-11-17 (D-447)
 - **Decision:** Slice assignment `p[s..e] = x;`. The source is any array value or view, a length mismatch known at compile time is CE-STM-8, otherwise trap(BOUNDS); overlap behaves like memmove; into persistent storage it is one atomic assignment.
 
@@ -769,7 +769,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 had no array comparison.
 - **Affected rules:** EXP-53, EXP-54, LEX-15, NAM-14
-- **Decision basis:** B1(b); WP1 D2
+- **Decision basis:** the user's decision of 2026-11-17
 - **Status:** resolved 2026-11-17 (D-448)
 - **Decision:** Intrinsics `equal` (bool; element types accepted by ==; constant-time by PLT-31) and `compare` (i8; integer element types; lexicographic, a proper prefix sorts first).
 
@@ -780,7 +780,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** EXP-22 lets an implementation remove a store that nothing reads, which includes a zeroizing fill of a secret about to go out of scope.
 - **Affected rules:** STM-23, EXP-22, LEX-13, PLT-34
-- **Decision basis:** WP1 D3
+- **Decision basis:** the user's decision of 2026-11-17
 - **Status:** resolved 2026-11-17 (D-449)
 - **Decision:** A `wipe p;` statement (new keyword) stores default(T) into the place, and its stores are never removed (an explicit exception to EXP-22).
 
@@ -791,7 +791,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 - **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** The specification stated no constant-time, side-channel or key-material obligations.
 - **Affected rules:** PLT-31 to PLT-34
-- **Decision basis:** base API plan §3.3
+- **Decision basis:** the user's decision of 2026-11-17
 - **Status:** resolved 2026-11-17 (D-450)
 - **Decision:** Annex B §B.13: constant time for `equal` and crypto APIs; side-channel and fault protection at a platform-defined level; secret and private key material never visible; wipe stores performed.
 
@@ -799,8 +799,8 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-51 — The capacity model (withdrawn)
 
-- **Kind:** proposal-to-validate (base API plan B9; WP1 item 6)
-- **Sources:** STA-13, TXN-16; base API plan B9
+- **Kind:** proposal-to-validate
+- **Sources:** STA-13, TXN-16
 - **Affected rules:** STA-13, FUN-24, STM-23, RTF-4
 - **Question:** Should capacity classes guarantee minimum transaction and atomic-update capacities in logical units, checked by a compile-time footprint analysis?
 - **Options:**
@@ -815,14 +815,14 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-52 — Derived secrets are application data
 
 - **Kind:** gap (raised while the Base Profile's cryptography was written)
-- **Sources:** PLT-33 as written in WP1; the FIDO2 PIN/UV protocol, which derives keys from an ECDH secret
+- **Sources:** PLT-33 as first written; the FIDO2 PIN/UV protocol, which derives keys from an ECDH secret
 - **Affected rules:** PLT-33
 - **Question:** PLT-33 said that secret key material never appears in application memory. But key agreement and key derivation produce secrets that an application must handle. Do those results fall under PLT-33?
 - **Options:**
   - (a) No. PLT-33 covers the material held in key resources. Derived values are application data, and the application erases them.
   - (b) Yes. Derived secrets must stay inside the platform as key resources, which needs wrap and unwrap APIs.
 - **Status:** resolved 2026-11-18 (D-452)
-- **Decision:** Option (a). PLT-33 covers the material held in key resources; values an application computes or receives, including key-agreement and key-derivation results, are application data that it erases itself (wipe). Chosen for the Base Profile byte model (WP4 C1).
+- **Decision:** Option (a). PLT-33 covers the material held in key resources; values an application computes or receives, including key-agreement and key-derivation results, are application data that it erases itself (wipe). Chosen for the Base Profile byte model.
 
 ---
 
@@ -830,7 +830,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** LEX-25, EXP-55
-- **Basis:** WP8 L1; WP9 G1. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Basis:** a finding of the FIDO2 example applet. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-453)
 - **Decision:** `b"…"`: printable ASCII with the escapes `\"`, `\\` and `\xHH`; an array list of its bytes, checking against u8[N]; CE-LEX-5 for malformed literals.
 
@@ -840,7 +840,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** OUT-21
-- **Basis:** WP8 L2; WP9 G2. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Basis:** a finding of the FIDO2 example applet. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-454)
 - **Decision:** The pattern Err(Set(name)) matches any member of the application's error set and binds its code as a read-only u16; platform errors never match; OUT-14 unchanged.
 
@@ -850,7 +850,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** OUT-22, TXN-18
-- **Basis:** WP8 L4; WP9 G3. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Basis:** a finding of the FIDO2 example applet. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-455)
 - **Decision:** attempt c else M returns (or, inside a transaction, aborts with) Err(M) for any Err of c; M is an application error member.
 
@@ -860,7 +860,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** STM-24, LEX-13
-- **Basis:** WP8 L5; WP9 G4. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Basis:** a finding of the FIDO2 example applet. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-456)
 - **Decision:** ignore c; evaluates the call and discards any outcome, with or without a payload; ignore is a keyword.
 
@@ -870,7 +870,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 - **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** STM-25, STM-6, LEX-22
-- **Basis:** WP8 L6; WP9 G5. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
+- **Basis:** a finding of the FIDO2 example applet. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-457)
 - **Decision:** Ten compound operators (+= -= *= /= %= &= |= ^= <<= >>=) as punctuators; the place is evaluated once, then op is applied with its usual checks.
 
@@ -909,62 +909,62 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 | Date | ID | Decision | Decided by | Spec changes |
 |---|---|---|---|---|
-| 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 (SP1) |
-| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Applied: HEP-15 (SP11); PLT-3 (SP13) |
-| 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Applied in chapter 11: TXN-10 (SP10) |
-| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15 (SP1); NAM-14 (SP2) |
-| 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Applied in chapter 12: HEP-1 (SP11) |
-| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18 (SP2); EXP-47 (SP5); PLT-25 (SP13) |
-| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied: STA-5 to STA-10 (SP9); PLT-18 (SP13) |
-| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied: EXP-51 (SP5); OUT-8 to OUT-10 (SP8) |
-| 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 (SP6) |
-| 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 (SP7) |
-| 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 (SP4) |
-| 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 (SP3) |
-| 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 (SP8) |
-| 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 (SP1) |
-| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Applied: RTF-4 (SP12); PLT-27, PLT-28 (SP13) |
-| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied: STA-3 (SP9); PLT-16 (SP13) |
-| 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Applied: PLT-17 (SP13) |
-| 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14 (SP8); closed |
-| 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Applied in chapter 10: STA-13 (SP9) |
-| 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Applied: PLT-24 (SP13) |
-| 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Applied: FUN-17 (SP7); Annex B §B.11 (SP13) |
-| 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 (SP1) |
-| 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 (SP1) |
-| 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 (SP2) |
-| 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 (SP2) |
-| 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 (SP3) |
-| 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | Applied: CEX-6 (SP4); chapter 9: OUT-16 (SP8) |
-| 2026-11-15 | OI-29 | Constant slice endpoints checked at compile time (D-429) | User | Applied in chapter 5: CEX-10 (SP4) |
-| 2026-11-15 | OI-30 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized (D-430) | User | Applied in chapter 6 (SP5) |
-| 2026-11-15 | OI-31 | Arithmetic failure classes: above maximum is Overflow (D-431) | User | Applied in chapter 6 (SP5) |
-| 2026-11-15 | OI-32 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> (D-432) | User | Applied in chapter 6 (SP5) |
-| 2026-11-15 | OI-33 | Only the attempt expression statement (D-433) | User | Applied in chapter 7: STM-2 (SP6) |
-| 2026-11-15 | OI-34 | No standalone blocks (D-434) | User | Applied in chapter 7: STM-3 (SP6) |
-| 2026-11-15 | OI-35 | for index or pattern binding may be passed as ref (D-435) | User | Applied in chapter 8: FUN-9 (SP7) |
-| 2026-11-15 | OI-36 | An error set needs at least one member (D-436) | User | Applied in chapter 9: OUT-15 (SP8) |
-| 2026-11-15 | OI-37 | CardError members only in patterns (D-437) | User | Applied in chapter 9: OUT-4, OUT-19; chapter 7: STM-19 (SP8) |
-| 2026-11-15 | OI-22 | Lifecycle handler rules (D-422) | User | Applied in chapter 10: STA-7 to STA-10 (SP9) |
-| 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 (SP9) |
-| 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 (SP10) |
-| 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 (SP10) |
-| 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied: HEP-8 (SP11); PLT-7 (SP13) |
-| 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 (SP12) |
-| 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ (SP13) |
-| 2026-11-17 | OI-44 | EXP-6 encoded in the grammar (D-444) | User | Applied in Annex A §A.2.4 and §A.2.5, EXP-6, and the fragments of chapters 6, 7 and 9 (SP14) |
+| 2026-11-15 | OI-1 | Source file extension is `.card` (D-401) | User | Applied in chapter 2: LEX-1 |
+| 2026-11-15 | OI-2 | No platform dispatch within an application; PN §1 row superseded (D-402) | User | Applied: HEP-15; PLT-3 |
+| 2026-11-15 | OI-3 | Nested transactions rejected statically by a structural call-graph rule (D-403) | User | Applied in chapter 11: TXN-10 |
+| 2026-11-15 | OI-4 | Keyword list; Ok/Err keywords; intrinsics and card/CardError reserved (D-404) | User | Applied: LEX-13, LEX-15; NAM-14 |
+| 2026-11-15 | OI-5 | Entry point is the single `command` declaration, any name (D-405) | User | Applied in chapter 12: HEP-1 |
+| 2026-11-15 | OI-6 | Platform API calls use the reserved `card.` path form (D-406) | User | Applied: NAM-17, NAM-18; EXP-47; PLT-25 |
+| 2026-11-15 | OI-7 | Lifecycle handlers use platform-reserved function names/signatures (D-407) | User | Applied: STA-5 to STA-10; PLT-18 |
+| 2026-11-15 | OI-8 | `attempt` allowed in any runtime expression position, with three exclusions (D-408) | User | Applied: EXP-51; OUT-8 to OUT-10 |
+| 2026-11-15 | OI-9 | Assignment: destination path first, then RHS, then store (D-409) | User | Applied in chapter 7: STM-9 |
+| 2026-11-15 | OI-10 | Slice endpoint typing, order, positions and limits fixed (D-410) | User | Applied in chapter 8: FUN-8, FUN-18 to FUN-21 |
+| 2026-11-15 | OI-11 | Constant-evaluation algorithm normative; constant OOB index is a compile error (D-411) | User | Applied in chapter 5: CEX-7, CEX-10 |
+| 2026-11-15 | OI-12 | No `byte` alias in Draft 0.1 (D-412) | User | Applied in chapter 4: TYP-20 |
+| 2026-11-15 | OI-13 | Zero or one error set; intrinsic outcomes may be forwarded (D-413) | User | Applied in chapter 9: OUT-5, OUT-15 |
+| 2026-11-15 | OI-14 | Literal prefix, digit and magnitude rules (D-414) | User | Applied in chapter 2: LEX-17 to LEX-19 |
+| 2026-11-15 | OI-15 | Trap-kind and placeholder platform-error names (D-415) | User | Applied: RTF-4; PLT-27, PLT-28 |
+| 2026-11-15 | OI-16 | Persistent deletion/upgrade/migration are platform-defined (D-416) | User | Applied: STA-3; PLT-16 |
+| 2026-11-15 | OI-17 | Large-data object API is future platform work (D-417) | User | Applied: PLT-17 |
+| 2026-11-15 | OI-18 | Outcome typing settled by DN §6.3 (D-418) | User | Applied in chapter 9: OUT-1 to OUT-14; closed |
+| 2026-11-15 | OI-19 | Oversized atomic aggregate assignment rejected at build/load time (D-419) | User | Applied in chapter 10: STA-13 |
+| 2026-11-15 | OI-20 | Resource storage strategy is platform-defined (D-420) | User | Applied: PLT-24 |
+| 2026-11-15 | OI-21 | Call-frame placement is informative VM guidance (D-421) | User | Applied: FUN-17; Annex B §B.11 |
+| 2026-11-15 | OI-23 | BOM ignored; LF, CR and CRLF are line breaks (D-423) | User | Applied in chapter 2 |
+| 2026-11-15 | OI-24 | Longest match; numeric-run rule; no identifier length limit (D-424) | User | Applied in chapter 2 |
+| 2026-11-15 | OI-25 | Primitive type names are predeclared (D-425) | User | Applied in chapter 3: NAM-14 |
+| 2026-11-15 | OI-26 | File-list duplicates are a build error; empty list allowed (D-426) | User | Applied in chapter 3: NAM-3 |
+| 2026-11-15 | OI-27 | Storage representation is not language-visible (D-427) | User | Applied in chapter 4: TYP-9 |
+| 2026-11-15 | OI-28 | Error-member codes are integer literals (D-428) | User | Applied: CEX-6; chapter 9: OUT-16 |
+| 2026-11-15 | OI-29 | Constant slice endpoints checked at compile time (D-429) | User | Applied in chapter 5: CEX-10 |
+| 2026-11-15 | OI-30 | A structure constructor directly in an if/while condition, for range bound or match scrutinee must be parenthesized (D-430) | User | Applied in chapter 6 |
+| 2026-11-15 | OI-31 | Arithmetic failure classes: above maximum is Overflow (D-431) | User | Applied in chapter 6 |
+| 2026-11-15 | OI-32 | Add truncate<T>(x) and value-based byte-order intrinsics encode_be/encode_le and decode_be/decode_le<T> (D-432) | User | Applied in chapter 6 |
+| 2026-11-15 | OI-33 | Only the attempt expression statement (D-433) | User | Applied in chapter 7: STM-2 |
+| 2026-11-15 | OI-34 | No standalone blocks (D-434) | User | Applied in chapter 7: STM-3 |
+| 2026-11-15 | OI-35 | for index or pattern binding may be passed as ref (D-435) | User | Applied in chapter 8: FUN-9 |
+| 2026-11-15 | OI-36 | An error set needs at least one member (D-436) | User | Applied in chapter 9: OUT-15 |
+| 2026-11-15 | OI-37 | CardError members only in patterns (D-437) | User | Applied in chapter 9: OUT-4, OUT-19; chapter 7: STM-19 |
+| 2026-11-15 | OI-22 | Lifecycle handler rules (D-422) | User | Applied in chapter 10: STA-7 to STA-10 |
+| 2026-11-15 | OI-38 | Placeholder handlers on_install and on_power_on (D-438) | User | Applied in chapter 10: STA-6; NAM-14 |
+| 2026-11-17 | OI-39 | Dedicated trap TRAP-TXN-CAPACITY (D-439) | User | Applied in chapter 11: TXN-16 |
+| 2026-11-17 | OI-40 | Prohibited services rejected statically, CE-TXN-4 (D-440) | User | Applied in chapter 11: TXN-17 |
+| 2026-11-17 | OI-41 | Response contents unspecified; no foreign data (D-441) | User | Applied: HEP-8; PLT-7 |
+| 2026-11-17 | OI-42 | Stack need computed; excess rejected at build or load (D-442) | User | Applied in chapter 13: RTF-7 |
+| 2026-11-17 | OI-43 | Test-only catalog under card.test. (D-443) | User | Applied in Annex B §B.8 and conformance/platform/ |
+| 2026-11-17 | OI-44 | EXP-6 encoded in the grammar (D-444) | User | Applied in Annex A §A.2.4 and §A.2.5, EXP-6, and the fragments of chapters 6, 7 and 9 |
 | 2026-11-17 | OI-45 | attempt and require abort a transaction on their error path (D-445) | User | New TXN-18; TXN-6, STM-19, OUT-10, EXP-51 and Annex A notes amended; txn-103 and txn-104 became valid txn-012 and txn-013; run-009 extended (Draft 0.2) |
-| 2026-11-17 | OI-46 | The line between intrinsics and platform APIs (D-446) | User | EXP-52, PLT-30 (WP1) |
-| 2026-11-17 | OI-47 | Moving array data (D-447) | User | FUN-24, FUN-18, STM-7 (WP1) |
-| 2026-11-17 | OI-48 | Comparing arrays (D-448) | User | EXP-53, EXP-54, LEX-15, NAM-14 (WP1) |
-| 2026-11-17 | OI-49 | Wiping secrets (D-449) | User | STM-23, EXP-22, LEX-13, PLT-34 (WP1) |
-| 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 (WP1) |
-| 2026-11-17 | OI-51 | The capacity model (withdrawn) (D-451) | User | STA-13, FUN-24, STM-23, RTF-4 (WP1) |
-| 2026-11-18 | OI-52 | Derived secrets are application data (D-452) | User | PLT-33 (WP4) |
-| 2026-11-19 | OI-53 | Byte-string literals (D-453) | User | LEX-25, EXP-55 (WP9) |
-| 2026-11-19 | OI-54 | The code of an application error (D-454) | User | OUT-21 (WP9) |
-| 2026-11-19 | OI-55 | attempt with a replacement error (D-455) | User | OUT-22, TXN-18 (WP9) |
-| 2026-11-19 | OI-56 | Discarding an outcome (D-456) | User | STM-24, LEX-13 (WP9) |
-| 2026-11-19 | OI-57 | Compound assignment (D-457) | User | STM-25, STM-6, LEX-22 (WP9) |
+| 2026-11-17 | OI-46 | The line between intrinsics and platform APIs (D-446) | User | EXP-52, PLT-30 |
+| 2026-11-17 | OI-47 | Moving array data (D-447) | User | FUN-24, FUN-18, STM-7 |
+| 2026-11-17 | OI-48 | Comparing arrays (D-448) | User | EXP-53, EXP-54, LEX-15, NAM-14 |
+| 2026-11-17 | OI-49 | Wiping secrets (D-449) | User | STM-23, EXP-22, LEX-13, PLT-34 |
+| 2026-11-17 | OI-50 | Security expectations for platforms (D-450) | User | PLT-31 to PLT-34 |
+| 2026-11-17 | OI-51 | The capacity model (withdrawn) (D-451) | User | STA-13, FUN-24, STM-23, RTF-4 |
+| 2026-11-18 | OI-52 | Derived secrets are application data (D-452) | User | PLT-33 |
+| 2026-11-19 | OI-53 | Byte-string literals (D-453) | User | LEX-25, EXP-55 |
+| 2026-11-19 | OI-54 | The code of an application error (D-454) | User | OUT-21 |
+| 2026-11-19 | OI-55 | attempt with a replacement error (D-455) | User | OUT-22, TXN-18 |
+| 2026-11-19 | OI-56 | Discarding an outcome (D-456) | User | STM-24, LEX-13 |
+| 2026-11-19 | OI-57 | Compound assignment (D-457) | User | STM-25, STM-6, LEX-22 |
 | 2026-11-19 | OI-58 | Erasing a frame's locals on exit (D-458) | User | PLT-35; STM-23 note (Draft 0.2) |
-| 2026-11-19 | OI-59 | Session boundaries defined by the transport binding (D-459) | User | STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23; the handler renamed (WP11) |
+| 2026-11-19 | OI-59 | Session boundaries defined by the transport binding (D-459) | User | STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23; the handler renamed |

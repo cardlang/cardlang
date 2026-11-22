@@ -1,6 +1,6 @@
 # CardLang conformance tests
 
-Each test in this folder is a CardLang example from the specification, plus metadata that states the expected result. Every example in `language/spec/` has exactly one test here, and every test names the rules it exercises. The suite is written so that a future compiler and runtime can run it mechanically. Until one exists, the tests are checked by review.
+Each test in this folder is a CardLang example from the specification, plus metadata that states the expected result. Every example in `language/spec/` has exactly one test here, and every test names the rules it exercises. The suite is run mechanically: by the reference checkers, the reference interpreter, and the compiler with both VMs.
 
 ## Layout
 
@@ -13,7 +13,7 @@ Each test in this folder is a CardLang example from the specification, plus meta
 ## Naming
 
 - **Single-file test:** `<prefix>-<nnn>-<slug>.card`, where `<prefix>` is the lowercase rule prefix of the main rule tested. Example: `exp-014-mixed-operators.card`.
-- **Multi-file test:** a directory with the same naming pattern. It contains its `.card` files and a `cardlang.json` project file, whose `files` list gives them in the order given to the build. This mirrors the build-supplied source-file list (DN §4.1). Because file order must not affect name resolution (D-040), a multi-file test may say it must pass for every order of that list. `cardlang.json` is the project file that the tools use for every program (TL1); it replaced the earlier `files.txt`.
+- **Multi-file test:** a directory with the same naming pattern. It contains its `.card` files and a `cardlang.json` project file, whose `files` list gives them in the order given to the build. This mirrors the build-supplied source-file list (DN §4.1). Because file order must not affect name resolution (D-040), a multi-file test may say it must pass for every order of that list. `cardlang.json` is the project file that the tools use for every program; it replaced the earlier `files.txt`.
 - Numbers are never reused.
 
 ## Header metadata
@@ -45,7 +45,7 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 
 ### Byte-exact files
 
-Some lexical tests depend on exact bytes: a byte-order mark, lone CR and CRLF line breaks, or invalid UTF-8. `.gitattributes` marks `conformance/**/*.card` as `-text`, so Git stores and checks out every test file unchanged. Edit such files with a tool that preserves bytes.
+Some lexical tests depend on exact bytes: a byte-order mark, lone CR and CRLF line breaks, or invalid UTF-8. `.gitattributes` marks `language/conformance/**/*.card` as `-text`, so Git stores and checks out every test file unchanged. Edit such files with a tool that preserves bytes.
 
 ### Fragments
 
@@ -81,7 +81,7 @@ The application must first compile without errors. The harness then runs the sce
 | `reset` | A security reset: all session state is cleared (RTF-9). A `power_on` step is needed before the next command |
 | `interrupt during-commit` | Fault injection. The next commit is interrupted by power loss, so the command produces no outcome. Persistent state recovers to all-or-nothing (TXN-13), and the session is lost. Needs `requires: fault-injection` |
 | `select` | ISO 7816 binding: a SELECT of the application. It runs `on_select`, if declared, and its outcome is checked by the following `expect` (profile BP-50a) |
-| `seed <hex>` | Restart the reference interpreter's deterministic random generator with this seed (WP3 K4). It affects `card.random.fill` and key generation. A real platform ignores it |
+| `seed <hex>` | Restart the reference interpreter's deterministic random generator with this seed. It affects `card.random.fill` and key generation. A real platform ignores it |
 
 Every `command` step is followed by exactly one `expect` line:
 

@@ -1,14 +1,11 @@
 # CardLang decision register
 
-Status: maintained by the specification sub-plans (see `specification-plan-of-plans.md`).
-Created by SP0.
-
-This register gives every recorded design decision a stable ID. Spec rules cite these IDs, and `spec/annex-D-traceability.md` maps each ID back to the rules that implement it.
+This register gives every recorded design decision a stable ID. Spec rules cite these IDs, and `language/spec/annex-D-traceability.md` maps each ID back to the rules that implement it.
 
 ## Sources and citation
 
-- **DN**: `plans_and_notes/card-language-design-notes.md`, revision of 2026-11-15.
-- **PN**: `plans_and_notes/cardlang-platform-notes.md`, dated 2026-11-14.
+- **DN**: `card-language-design-notes.md`, revision of 2026-11-15.
+- **PN**: `cardlang-platform-notes.md`, dated 2026-11-14.
 - Sections are cited as `DN §n.n` or `PN §n`.
 
 ## ID ranges
@@ -17,7 +14,7 @@ This register gives every recorded design decision a stable ID. Spec rules cite 
 |---|---|
 | `D-001`…`D-135` | The rows of the DN §2 decision table, in table order. The Topic and Recorded status columns are copied verbatim |
 | `D-201`… | Agreed items stated in PN and not covered by a DN §2 row. These are summaries, not verbatim text |
-| `D-301`… | Agreed decisions stated only in DN body sections. Later sub-plans add them as they reach each section |
+| `D-301`… | Agreed decisions stated only in DN body sections |
 | `D-401`… | Decisions made by resolving open issues. `D-4nn` resolves `OI-nn` (see the Annex C resolution log) |
 
 IDs are never reused or renumbered. A withdrawn decision keeps its row, marked "withdrawn".
@@ -29,9 +26,8 @@ IDs are never reused or renumbered. A withdrawn decision keeps its row, marked "
   - `language` decisions become chapter rules.
   - `platform` decisions become Annex B `PLT-n` requirements or platform-defined items.
   - `VM/profile` decisions are informative material in Annex B.
-- **Owning SP**: the sub-plan that turns the decision into rules.
-- **Linked OI**: the open issue in `spec/annex-C-open-issues.md` for a qualifier, contradiction or gap.
-- **Implemented by**: rule IDs, filled in by the owning sub-plan. `pending` means not yet specified.
+- **Linked OI**: the open issue in `language/spec/annex-C-open-issues.md` for a qualifier, contradiction or gap.
+- **Implemented by**: the rules that implement the decision. `pending` means not yet specified.
 
 "Deferred" in a recorded status (D-006 local `const`, D-077 multidimensional arrays) means *excluded from this version*. These rows are [Agreed] exclusions with no open issue: a future version may revisit them.
 
@@ -193,7 +189,7 @@ D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited
 
 ## DN body-only decisions (D-301…)
 
-Sub-plans add rows here as they reach each DN section.
+Decisions stated only in the body of the design notes.
 
 | ID | Topic | Recorded status | Spec tag | Layer | Detail sections | Linked OI | Implemented by |
 |---|---|---|---|---|---|---|---|
@@ -352,7 +348,7 @@ Sub-plans add rows here as they reach each DN section.
 | D-449 | A `wipe p;` statement (new keyword) stores default(T) into the place, and its stores are never removed (an explicit exception to EXP-22). | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-49 | OI-49 | STM-23, EXP-22, LEX-13, PLT-34 |
 | D-450 | Annex B §B.13: constant time for `equal` and crypto APIs; side-channel and fault protection at a platform-defined level; secret and private key material never visible; wipe stores performed. | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-50 | OI-50 | PLT-31 to PLT-34, PLT-32, PLT-33 |
 | D-451 | No capacity classes, logical sizes or footprint analysis (B9 withdrawn). The Draft 0.1 model stays: STA-13 rejects at build or load time a destination whose size is known and too large; a destination whose size is known only at runtime that exceeds the atomic capacity is trap(TXN-CAPACITY); TXN-16 is unchanged. Limit values stay platform-defined | Resolved by user 2026-11-17 | [Agreed] | language | Annex C OI-51 | OI-51 | STA-13, FUN-24, STM-23, RTF-4 |
-| D-452 | PLT-33 covers the material held in key resources; values an application computes or receives, including key-agreement and key-derivation results, are application data that it erases itself (wipe). Chosen for the Base Profile byte model (WP4 C1) | Resolved by user 2026-11-18 | [Agreed] | platform | Annex C OI-52 | OI-52 | PLT-33 |
+| D-452 | PLT-33 covers the material held in key resources; values an application computes or receives, including key-agreement and key-derivation results, are application data that it erases itself (wipe). Chosen for the Base Profile byte model | Resolved by user 2026-11-18 | [Agreed] | platform | Annex C OI-52 | OI-52 | PLT-33 |
 | D-453 | `b"…"`: printable ASCII with the escapes `\"`, `\\` and `\xHH`; an array list of its bytes, checking against u8[N]; CE-LEX-5 for malformed literals | Resolved by user 2026-11-19 | [Agreed] | language | Annex C OI-53 | OI-53 | LEX-25, EXP-55 |
 | D-454 | The pattern Err(Set(name)) matches any member of the application's error set and binds its code as a read-only u16; platform errors never match; OUT-14 unchanged | Resolved by user 2026-11-19 | [Agreed] | language | Annex C OI-54 | OI-54 | OUT-21 |
 | D-455 | attempt c else M returns (or, inside a transaction, aborts with) Err(M) for any Err of c; M is an application error member | Resolved by user 2026-11-19 | [Agreed] | language | Annex C OI-55 | OI-55 | OUT-22, TXN-18 |

@@ -1,6 +1,6 @@
 # 11. Transactions
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP10).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
 
 A *transaction* groups persistent writes so that they commit together or not at all. This chapter covers:
 
@@ -338,7 +338,7 @@ function refuse() {
 }
 ```
 
-The CE-TXN-4 test needs the format of the platform API catalog. It is added in SP13.
+The CE-TXN-4 test uses the test-only platform API catalog (PLT-26).
 
 ## 11.7 Errors defined in this chapter
 

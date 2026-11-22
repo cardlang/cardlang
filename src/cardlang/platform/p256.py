@@ -1,4 +1,4 @@
-"""P-256 (secp256r1) for the reference interpreter: test-only, standard library only (base API plan B7).
+"""P-256 (secp256r1) for the reference interpreter: test-only, standard library only.
 
 Not constant-time and not hardened: it exists only to produce and check real values in conformance tests.
 """

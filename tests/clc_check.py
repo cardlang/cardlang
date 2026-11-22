@@ -28,14 +28,14 @@ def main(repo):
         rc, out = clc(repo, "check", bad, "--fragment", "--json")
         d = json.loads(out)[0] if rc == 1 else {}
         check("check reports an error with its position", rc == 1 and d.get("code") == "CE-EXP-4" and d.get("line") == 8, out)
-        cex = str(layout.at(repo).invalid / "cex-105-overflow.card")    # the code generator alone would accept it (T1)
+        cex = str(layout.at(repo).invalid / "cex-105-overflow.card")    # the code generator alone would accept it
         rc, out = clc(repo, "build", cex, "--fragment", "-o", str(tmp / "cex.clvm"))
-        check("build refuses an invalid program (T1)", rc == 1 and "CE-CEX-3" in out and not (tmp / "cex.clvm").exists(), out)
+        check("build refuses an invalid program", rc == 1 and "CE-CEX-3" in out and not (tmp / "cex.clvm").exists(), out)
         probe = ("import sys, pathlib; from cardlang.compiler import compiler\n"
                  "try: compiler.compile_files([pathlib.Path(sys.argv[1])], None, True)\n"
                  "except compiler.InvalidProgram as e: print('refused', e.diagnostics[0]['code'])\n")
         r = subprocess.run([sys.executable, "-I", "-c", probe, cex], capture_output=True, text=True, encoding="utf-8")
-        check("compile_files refuses an invalid program itself (T1)", r.stdout.strip() == "refused CE-CEX-3", r.stdout + r.stderr)
+        check("compile_files refuses an invalid program itself", r.stdout.strip() == "refused CE-CEX-3", r.stdout + r.stderr)
         sc = layout.at(repo).runtime / "run-020-crypto" / "scenario.txt"
         for backend in ("interp", "pyvm", "cvm-clang"):
             rc, out = clc(repo, "run", str(sc), "--backend", backend); check(f"run run-020 on {backend}", rc == 0 and "passed" in out, out)

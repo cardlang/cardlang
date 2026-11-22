@@ -41,7 +41,7 @@ Desktop.ini
 *.sublime-project
 *.sublime-workspace
 
-# Python bytecode (tools/)
+# Python bytecode
 __pycache__/
 *.pyc
 

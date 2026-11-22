@@ -1,6 +1,6 @@
 # The CardLang VM in C11
 
-The product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The working model is the Python prototype in `src/cardlang/pyvm/`.
+The product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The Python VM in `src/cardlang/pyvm/` is its working model, and runs the same images.
 
 ## Building
 
@@ -10,7 +10,7 @@ From the repository root, with the project's uv environment:
 uv run python -I vm/c/build.py all --clean
 ```
 
-This builds with both toolchains (J1). Build trees go to `vm/c/build/<toolchain>/`, which git ignores.
+This builds with both toolchains. Build trees go to `vm/c/build/<toolchain>/`, which git ignores.
 
 The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) from its GitHub releases into `vm/c/build/downloads/`, and checks it against the SHA-256 the release publishes. Both build trees share that one archive.
 - **`msvc`:** MSVC from the newest Visual Studio, found with `vswhere`, with Visual Studio's CMake and Ninja.
@@ -24,15 +24,14 @@ The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) f
   - fixed-width integer types;
   - multi-byte values decoded byte by byte, so the code does not depend on the host's endianness (V-13);
   - every `cl_status` checked.
-- **No cryptography in the VM** (HAL-1). The host HAL uses Mbed TLS (J2).
+- **No cryptography in the VM** (HAL-1). The host HAL uses Mbed TLS.
 
 ## Status
 
-| Step | Status |
-|---|---|
-| 1. Toolchains and the CMake project; the HAL headers compile on both compilers | Done |
-| 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | Done: the 18 runtime tests without natives pass on `cvm-msvc` and `cvm-clang`; `sizeof(cl_vm)` is 272 bytes on 64-bit Windows |
-| 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | Done: all 32 runtime tests pass on both backends |
-| 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | Done with step 3: both pass on both backends; `tests/run_checks.py` runs all of it |
-| 5. Measurement | Done: `cl_vm` is 252 bytes on 32-bit targets; the C stack is at most 856 bytes on Cortex-M4; 16.3 KB of code there |
-| 6. Acceptance | Done: V-12 is met on both compilers; tagged `bytecode-v1` |
+The VM is complete, and meets V-12 with both compilers: as the backends `cvm-msvc` and `cvm-clang`, it passes every runtime test and both example applets' checks, and loads every compiled image. `tests/run_checks.py` runs all of it.
+
+- **The context,** `cl_vm`, is 252 bytes on 32-bit targets and 296 on 64-bit hosts, within V-2's 1 KiB.
+- **Its C stack** is at most 856 bytes on Cortex-M4 and 904 on Cortex-M0+.
+- **Its code** is 16.3 KB on Cortex-M4.
+
+It has not yet run on a device: these figures come from cross-compiling for the targets.

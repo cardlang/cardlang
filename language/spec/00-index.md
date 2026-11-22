@@ -21,7 +21,7 @@ This is the normative specification of the CardLang language.
 | [11-transactions.md](11-transactions.md) | 11 Transactions | Draft complete |
 | [12-host-entry-point.md](12-host-entry-point.md) | 12 Host entry point | Draft complete |
 | [13-runtime-failures.md](13-runtime-failures.md) | 13 Runtime failures | Draft complete |
-| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | Complete and consolidated; checked mechanically (SP14) |
+| [annex-A-grammar.md](annex-A-grammar.md) | A Grammar | Complete and consolidated; checked mechanically |
 | [annex-B-platform-contract.md](annex-B-platform-contract.md) | B Platform contract | Draft complete |
 | [annex-C-open-issues.md](annex-C-open-issues.md) | C Open issues | Complete: OI-1…OI-59 all resolved; none open |
 | [annex-D-traceability.md](annex-D-traceability.md) | D Traceability | Complete: every decision covered (D-134 informative); rule coverage matrix in §D.3 |

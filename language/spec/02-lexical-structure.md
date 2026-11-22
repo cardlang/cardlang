@@ -1,6 +1,6 @@
 # 2. Lexical structure
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP1).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
 
 This chapter defines how the text of each source file is divided into tokens. It does not say where tokens may appear: that is the syntax, given in chapters 3–12 and the syntactic part of [Annex A](annex-A-grammar.md). Integer literals get their types in chapter 6. The complete lexical grammar is Annex A §A.1, and the grammar fragments in this chapter repeat parts of it.
 

@@ -1,7 +1,6 @@
 # The CardLang VM
 
-This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`language/spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
-
+This folder holds the design of the virtual machine that runs CardLang applications, and its implementation in C (`c/`). It is separate from the language specification (`language/spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
 
 ## Goals
 
@@ -33,14 +32,14 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 
 | Document | Content | Status |
 |---|---|---|
-| `decisions.md` | The decision register (V-n) | V-1 to V-41 |
-| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | drafted: VEX-1 to VEX-50 |
-| `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | drafted: HAL-1 to HAL-31; headers not yet compiled |
-| `bytecode.md` | The instruction set, its encoding, the calling convention and the native numbers (`BC-n`); compiled examples | version 1: BC-1 to BC-39 (living through VM7) |
+| `decisions.md` | The decision register (V-n) | V-1 to V-52 |
+| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | VEX-1 to VEX-50 |
+| `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | HAL-1 to HAL-31 |
+| `bytecode.md` | The instruction set, its encoding, the calling convention and the native numbers (`BC-n`); compiled examples | version 1: BC-1 to BC-40 (living until a public release, V-51) |
 | `image-format.md` | The application image and the load-time checks (`IMG-n`) | format 1: IMG-1 to IMG-13 |
-| `c/` | The product VM in C11, and a host HAL | not started |
+| `c/` | The product VM in C11, and a host HAL | complete: meets V-12 with MSVC and clang |
 
-The compiler (`src/cardlang/compiler/`) and the Python VM (`src/cardlang/pyvm/`) meet the acceptance criteria of V-12 as the harness backend `pyvm`: all runtime tests, the FIDO2 check, and every program compiles. The Python VM's context is 216 bytes.
+The compiler is in `src/cardlang/compiler/`. The Python VM (`src/cardlang/pyvm/`) is the working model of the C VM: it runs the same images, and meets the same acceptance criteria as the harness backend `pyvm`.
 
 ## Conventions
 
@@ -52,7 +51,7 @@ The compiler (`src/cardlang/compiler/`) and the Python VM (`src/cardlang/pyvm/`)
 Every VM backend is checked by the same harness (`src/cardlang/harness/`, V-10) against the criteria of V-12:
 
 1. every runtime conformance test passes (`language/conformance/runtime/`);
-2. `examples/fido2/check.py` passes;
+2. each example applet's `check.py` passes;
 3. every valid conformance program compiles to an image;
 4. the backend reports its bytecode size, stack and frame figures, and its bookkeeping RAM.
 
@@ -65,7 +64,7 @@ uv run python -I -m cardlang.harness.scenario . --backend interp
 and the FIDO2 check with:
 
 ```bash
-python -I examples/fido2/check.py . --backend interp
+uv run python -I examples/fido2/check.py . --backend interp
 ```
 
-The only backend so far is `interp`, the reference interpreter.
+The backends are `interp` (the reference interpreter), `pyvm` (the Python VM), and `cvm-msvc` and `cvm-clang` (the C VM, built with each compiler). `tests/run_checks.py` runs every check on all four.

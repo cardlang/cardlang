@@ -2,19 +2,19 @@
 
 This folder holds how CardLang was built: the work-package plans, the reports written along the way, and the scripts used to produce and measure things. None of it is needed to use the language or its tools. It is kept as the record of why things are the way they are, and of how they were checked.
 
-**Paths are as of writing.** A plan or report names files where they were when it was written, and some have moved since. The link check (`tools/checkers/linkcheck.py`) resolves those old paths through the table of moves in `tools/checkers/layout.py`, so every reference is still checked; the table also says where each file went.
+**Paths are as of writing.** A plan or report names files where they were when it was written, and some have moved since. The link check (`tests/linkcheck.py`) resolves those old paths through the table of moves in `src/cardlang/layout.py`, so every reference is still checked; the table also says where each file went.
 
 | Folder | What is in it |
 |---|---|
 | [`plans/`](plans/) | The plans of plans: [specification](plans/specification-plan-of-plans.md), [VM](plans/vm-plan-of-plans.md) and, in `release/`, the plan for making the repository public. One detailed sub-plan per work package, by area: `spec/` (the specification and the Base Profile), `vm/`, `tooling/` and `release/` |
 | [`reports/`](reports/) | Measurements of the prototype and C VMs and of the bytecode revisions, the FIDO2 and PIV findings, step notes, and the SP14 consolidation report |
-| `generators/` | Scripts that write conformance tests and the generated parts of the specification |
+| `generators/` | Scripts that wrote the conformance tests |
 | `history/` | One-off scripts that built the decision register and the annexes, kept as a record |
 | `measure/` | The measurement scripts behind the reports |
 
 ## `generators/`: conformance-test generators
 
-`spN_tests.py` writes the conformance tests of sub-plan N. Each one extracts the code blocks from its chapter, and verifies that every test path referenced in the chapter exists and matches. Re-running a generator overwrites its tests with content regenerated from the chapter. Use this after editing a chapter example.
+`spN_tests.py` writes the conformance tests of sub-plan N. Each one extracts the code blocks from its chapter, and verifies that every test path referenced in the chapter exists and matches. Re-running a generator overwrites its tests with content regenerated from the chapter. Use this after editing a chapter example. Some generators also write comments as they were first written, which may name development steps; the link check then fails on them, and they are to be fixed in the generator or by hand.
 
 ```bash
 uv run python -I devel/generators/sp6_tests.py .

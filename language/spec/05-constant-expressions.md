@@ -1,6 +1,6 @@
 # 5. Constant expressions
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP4).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
 
 This chapter defines:
 

@@ -41,7 +41,7 @@ It runs every checker over the conformance tests it covers, and every check of t
 
 ## The reference checkers: `src/cardlang/front/`
 
-The checkers are the front end of the `cardlang` package (PR5), installed by `uv sync`. Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `pltcheck.py`, applies every rule implemented so far.
+The checkers are the front end of the `cardlang` package, installed by `uv sync`. Each checker is a small implementation of the rules of one chapter. It is written from the chapter text and checks the `expect:` line of each conformance test. Each one builds on the one before it, so the last one, `pltcheck.py`, applies every rule implemented so far.
 
 | Script | Implements | Default tests |
 |---|---|---|
@@ -76,7 +76,7 @@ uv run python -I tests/speccheck.py .
 
 - The checkers stop at the first error they find.
 - They only check compile-time results. Runtime behaviour is checked by `interp/` (below).
-- They do not implement every rule. For example, scope and shadowing rules (NAM-19 to NAM-21) are checked by review. The naming tests that depend on them are listed as "by review" in the SP2 notes.
+- They do not implement every rule. For example, scope and shadowing rules (NAM-19 to NAM-21) are checked by review. `tests/poscheck.py` lists the naming tests that depend on them.
 - Fragments in the design notes that use undeclared names are reported as name errors. That is expected.
 - On some malformed input the checkers stop with a Python assertion instead of reporting CE-SYN-1. `grammar.py` is the authority for CE-SYN-1.
 - The full chain does not report an unresolved type name in a global declaration, such as `session big: u64;`. `typecheck.py` does, and it checks the `typ-*` tests.

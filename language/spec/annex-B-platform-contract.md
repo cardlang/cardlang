@@ -1,6 +1,6 @@
 # Annex B — Platform contract
 
-CardLang Language Specification, Draft 0.2. Annex status: **draft complete** (SP13).
+CardLang Language Specification, Draft 0.2. Annex status: **draft complete**.
 
 The language chapters leave some matters to the *platform*: the card operating system, runtime and VM that run CardLang applications. This annex states three kinds of material about that boundary:
 

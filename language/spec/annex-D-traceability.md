@@ -12,7 +12,7 @@ Decision IDs are defined in `language/rationale/decision-register.md`. Every dec
 
 | Value | Meaning |
 |---|---|
-| `pending` | The owning sub-plan has not drafted it yet |
+| `pending` | No rule implements it yet |
 | `covered` | One or more rules implement it fully |
 | `partial` | Rules implement it, but a linked open issue leaves part unspecified |
 | `deferred` | Assigned to the platform layer (Annex B) or kept as informative material |
@@ -35,7 +35,7 @@ Decision IDs are defined in `language/rationale/decision-register.md`. Every dec
 | 11-transactions.md | DN §3.6 (boundary), §4, §6.4, §7.1–§7.4; PN §5 | TXN-1 … TXN-18 |
 | 12-host-entry-point.md | DN §3.7, §4, §4.1, §6.3, §7.4, §12; PN §1, §5 | HEP-1 … HEP-16 |
 | 13-runtime-failures.md | DN §3.6, §6.4, §6.5, §7.2, §12, §13; PN §3, §4, §5 | RTF-1 … RTF-12 |
-| annex-A-grammar.md | DN §3.0 plus the syntax of every chapter | A.1, A.2.1–A.2.10, A.3; consolidated and checked mechanically (SP14) |
+| annex-A-grammar.md | DN §3.0 plus the syntax of every chapter | A.1, A.2.1–A.2.10, A.3; consolidated and checked mechanically |
 | annex-B-platform-contract.md | PN §1–§5; DN §4, §6.3, §6.4, §7.2, §7.4, §11, §12 | PLT-1 … PLT-35 |
 | annex-C-open-issues.md | see each issue | — |
 

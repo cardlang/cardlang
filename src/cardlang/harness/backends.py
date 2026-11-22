@@ -51,5 +51,5 @@ def build(name, files, binding=None):
         raise BuildError(str(e)) from e
     except Exception as e:
         from cardlang.compiler import compiler
-        if isinstance(e, compiler.InvalidProgram): raise BuildError(str(e)) from e     # the compiler refused it (T1)
+        if isinstance(e, compiler.InvalidProgram): raise BuildError(str(e)) from e     # the compiler refused it
         raise

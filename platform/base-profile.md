@@ -25,13 +25,13 @@ These conventions hold for every API in the catalog, unless its entry says other
 
 **BP-4 Paths.** Every API path has the form `card.<family>.<action>`. The families are:
 
-| Family | Contents | Filled in by |
-|---|---|---|
-| `card.key` | Key creation, import, export and deletion | WP3 |
-| `card.crypto` | Digests, MACs, signatures, key agreement, key derivation, ciphers, multi-part operations | WP4 |
-| `card.random` | Random bytes | WP4 |
-| `card.cbor` | Canonical CBOR reader and writer | WP5 |
-| `card.der`, `card.tlv` | DER writer and BER-TLV reader | WP6 |
+| Family | Contents |
+|---|---|
+| `card.key` | Key creation, import, export and deletion |
+| `card.crypto` | Digests, MACs, signatures, key agreement, key derivation, ciphers, multi-part operations |
+| `card.random` | Random bytes |
+| `card.cbor` | Canonical CBOR reader and writer |
+| `card.der`, `card.tlv` | DER writer and BER-TLV reader |
 
 **BP-5 Argument order.** The arguments come in this order: a resource identifier, if any; configuration values (types from §3); input views (`ref`); output views (`inout`).
 
@@ -57,7 +57,7 @@ The application can therefore retry, or handle the error, without cleaning up.
 
 | Type | Purpose | Defined by |
 |---|---|---|
-| `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`, `Hmac256`: every valid key type (WP3 K1, WP4) | §7 |
+| `KeyType` | `Aes128`, `Aes256`, `EcP256Private`, `EcP256Public`, `Hmac256`: every valid key type | §7 |
 | `KeyStorage` | `Persistent`, `Volatile`, `Command` | §7 |
 | `KeySpec` | A key's type and storage | §7 |
 | `DigestAlgorithm` | `Sha256` | §8 |
@@ -71,7 +71,7 @@ The application can therefore retry, or handle the error, without cleaning up.
 | `TlvClass` | The four BER tag classes | §10 |
 | `TlvHead` | A decoded BER-TLV head: tag, class, constructed, length and size | §10 |
 
-Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` and `TlvHead`.
+Each family adds its own types in its section, for example `Algorithm`, `CborHead` and `TlvHead`.
 
 ## 4. `CardError`
 
@@ -93,7 +93,7 @@ Families add their own types in WP3–WP6, for example `Algorithm`, `CborHead` a
 
 ## 5. Resources
 
-**BP-13 Resource kinds.** The profile has two resource kinds, *Key* (WP3) and *Operation* (WP4). Both are named by `u32` identifiers in the application's single identifier space (PLT-20), and both follow PLT-22 and PLT-23.
+**BP-13 Resource kinds.** The profile has two resource kinds, *Key* and *Operation*. Both are named by `u32` identifiers in the application's single identifier space (PLT-20), and both follow PLT-22 and PLT-23.
 
 **BP-14 Lifetimes.**
 
@@ -196,7 +196,7 @@ Material of the wrong length, or with an invalid value, is `Err(CardError.Malfor
 | `card.crypto.mac(key, alg, ref data, inout out) -> u32` | `Hmac256` | The 32-byte MAC of `data` |
 | `card.crypto.sign(key, alg, ref message, inout signature) -> u32` | `EcP256Private` | The 64-byte signature `r ‖ s`, each 32 bytes big-endian. The message is hashed by the API |
 | `card.crypto.verify(key, alg, ref message, ref signature) -> bool` | `EcP256Private`, `EcP256Public` | `true` exactly when `signature` is a valid 64-byte signature of `message`. Any other signature, including one of the wrong length, is `false` (BP-10) |
-| `card.crypto.sign_digest(key, alg, ref digest, inout signature) -> u32` | `EcP256Private` | As `sign`, but `digest` is the hash itself and is not hashed again. It must be 32 bytes for `EcdsaP256Sha256`, otherwise `Err(CardError.Malformed)`. Added for PIV, which hashes off-card (WP12) |
+| `card.crypto.sign_digest(key, alg, ref digest, inout signature) -> u32` | `EcP256Private` | As `sign`, but `digest` is the hash itself and is not hashed again. It must be 32 bytes for `EcdsaP256Sha256`, otherwise `Err(CardError.Malformed)`. Added for PIV, which hashes off-card |
 | `card.crypto.verify_digest(key, alg, ref digest, ref signature) -> bool` | `EcP256Private`, `EcP256Public` | As `verify`, over a given digest. A `digest` that is not 32 bytes is `Err(CardError.Malformed)`; a bad signature is `false` (BP-10) |
 | `card.crypto.agree(key, ref peer, inout secret) -> u32` | `EcP256Private` | ECDH: the 32-byte x-coordinate of `d · peer`. `peer` is a 65-byte uncompressed point that must lie on the curve, otherwise `Err(CardError.Malformed)` |
 | `card.crypto.derive(alg, ref secret, ref salt, ref info, length, inout out) -> u32` | — | The first `length` bytes of HKDF output. `length` must be between 1 and 8160, otherwise `Err(CardError.Malformed)`. An empty `salt` means the default salt of RFC 5869 |
@@ -249,7 +249,7 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 - **Complete.** Every head and string lies within the data.
 - **No indefinite lengths.** The additional-information values 28 to 31 do not occur.
 - **Shortest form.** Every argument uses the shortest head: a value below 24 in the initial byte, below 256 in one following byte, below 65536 in two, and below 2^32 in four.
-- **Map keys in order.** The keys of every map are in strictly increasing *bytewise* order of their encodings. This is RFC 8949's core deterministic order (§4.2.1), and, for every key type CTAP2 uses, CTAP2's canonical order (W2 as revised by R1, WP8 step 0). Two equal keys are a duplicate, and are rejected.
+- **Map keys in order.** The keys of every map are in strictly increasing *bytewise* order of their encodings. This is RFC 8949's core deterministic order (§4.2.1), and, for every key type CTAP2 uses, CTAP2's canonical order (W2 as revised by R1). Two equal keys are a duplicate, and are rejected.
 - **Valid text.** Every text string is valid UTF-8 (W4).
 - **Simple values.** Only `false` (20), `true` (21), `null` (22) and `undefined` (23) are allowed (W3). Floating-point values are `Err(CardError.Unsupported)`.
 - **Tags.** A tag is accepted as a head followed by one item (W3).
@@ -275,8 +275,8 @@ A string's content is `data[size .. size + argument]`. An argument above the `u3
 
 **BP-42 `card.tlv.head(ref data) -> TlvHead`** decodes the tag and length at `data[0]`:
 
-- `tag` is the tag's raw bytes, packed big-endian into a `u32`, for example `0x30`, `0x7F49` or `0x9F38` (T1). The first byte gives `class` (bits 8 and 7) and `constructed` (bit 6). When the first byte's tag-number bits are all ones, the tag continues with subsequent bytes, each with bit 8 set except the last;
-- `length` is the content length, in the short form (`00`–`7F`) or a long form (`81`–`84`, followed by 1 to 4 bytes). Non-minimal forms are accepted (T2);
+- `tag` is the tag's raw bytes, packed big-endian into a `u32`, for example `0x30`, `0x7F49` or `0x9F38`. The first byte gives `class` (bits 8 and 7) and `constructed` (bit 6). When the first byte's tag-number bits are all ones, the tag continues with subsequent bytes, each with bit 8 set except the last;
+- `length` is the content length, in the short form (`00`–`7F`) or a long form (`81`–`84`, followed by 1 to 4 bytes). Non-minimal forms are accepted;
 - `size` is the number of bytes the tag and length occupy. A primitive object's content is `data[size .. size + length]`. A constructed object's content is a sequence of objects.
 
 These are `Err(CardError.Malformed)`:
@@ -288,7 +288,7 @@ A tag longer than 4 bytes, or a length longer than 4 bytes (`85`–`FE`), is `Er
 
 **BP-43 `card.tlv.skip(ref data) -> u32`** returns `size + length` of the object at `data[0]`, with the checks of BP-42.
 
-**BP-44 `card.tlv.validate(ref data) -> u32`** checks the object at `data[0]` as BP-42 requires, and returns its encoded length. If the object is constructed, it checks its content too: the content must be a sequence of valid objects that exactly fills it, recursively. A platform validates at least 16 levels of nesting, counting the outermost object as level 1. Deeper nesting may be `Err(CardError.Unsupported)` (T3).
+**BP-44 `card.tlv.validate(ref data) -> u32`** checks the object at `data[0]` as BP-42 requires, and returns its encoded length. If the object is constructed, it checks its content too: the content must be a sequence of valid objects that exactly fills it, recursively. A platform validates at least 16 levels of nesting, counting the outermost object as level 1. Deeper nesting may be `Err(CardError.Unsupported)`.
 
 **BP-45 The DER writer.**
 
@@ -297,7 +297,7 @@ A tag longer than 4 bytes, or a length longer than 4 bytes (`85`–`FE`), is `Er
   - leading zero bytes are removed;
   - a `00` byte is added when the first remaining byte has its high bit set;
   - zero, including an empty `magnitude`, is written as `02 01 00`.
-- **`card.der.integer_size(ref magnitude) -> u32`** returns the size that `write_integer` would write. With it, an application computes a SEQUENCE's length before writing its head (T4).
+- **`card.der.integer_size(ref magnitude) -> u32`** returns the size that `write_integer` would write. With it, an application computes a SEQUENCE's length before writing its head.
 - **Capacity.** A result that does not fit the view is `Err(CardError.Capacity)`, and nothing is written (BP-6, BP-7).
 
 A DER ECDSA signature, `SEQUENCE { INTEGER r, INTEGER s }`, is written from the raw `r ‖ s` of `card.crypto.sign` (BP-29) with `integer_size` twice, `write_head(0x30, …)` and `write_integer` twice.
@@ -332,7 +332,7 @@ Le is not passed: `response.length` is the capacity (HEP-6). The platform handle
 - an outcome of `Ok(count)` makes the first `count` bytes of the view the SELECT response data, with status word `9000`;
 - `Err` and traps are reported as for `command` (BP-51), and the application is not selected.
 
-Without the handler, the SELECT response has no data and status word `9000`. Like every lifecycle handler (PLT-18, STA-8), `on_select` cannot be called by application code. A declaration under that name with any other signature, or a call to it, is rejected when the application is built for the binding. CTAP uses this handler to return its version string (WP8 step 0, R3).
+Without the handler, the SELECT response has no data and status word `9000`. Like every lifecycle handler (PLT-18, STA-8), `on_select` cannot be called by application code. A declaration under that name with any other signature, or a call to it, is rejected when the application is built for the binding. CTAP uses this handler to return its version string.
 
 **BP-51 Status words.** The outcome of a command is reported as follows. The four categories map to disjoint status words, so they stay distinguishable (PLT-9):
 
@@ -375,7 +375,7 @@ The four categories are distinct (PLT-9). Whether a platform reports a trap's ki
 - **`on_install()`** runs once, when the application is installed, before any command. If it traps or returns `Err`, installation fails, and the application is not installed.
 - **`on_session_start()`** runs at every session start (STA-4, BP-56), after session state and volatile keys have been reset, and before the first command of the session. If it traps or returns `Err`, the application stays unavailable until the next session start, and the platform reports every command to it as it reports a trap.
 
-**Deselection ends the session** in the ISO 7816 binding (WP12, for PIV's application security status). When another application is selected, the application's session ends (STA-4): session state, volatile keys and session operations are discarded. The next SELECT of the application starts a new session; `on_session_start` runs before `on_select`. A SELECT of the application while it is already selected changes nothing. Logical channels are not visible to applications in this version.
+**Deselection ends the session** in the ISO 7816 binding (for PIV's application security status). When another application is selected, the application's session ends (STA-4): session state, volatile keys and session operations are discarded. The next SELECT of the application starts a new session; `on_session_start` runs before `on_select`. A SELECT of the application while it is already selected changes nothing. Logical channels are not visible to applications in this version.
 
 **BP-56 Session events (STA-4).** Each binding defines its session events:
 

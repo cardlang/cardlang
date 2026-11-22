@@ -84,9 +84,9 @@ An *image* is one compiled CardLang application, as the platform's loader stores
 | A count of source files, then each file's name | A `u16` count, then for each file a `u16` length followed by UTF-8 bytes |
 | A count of functions, then each function's name | A `u16` count, equal to `function_count`, then names as above |
 | A line table | A `u32` count of rows, then rows of `code offset u32`, `file u16`, `line u32`, sorted by code offset: one row where each statement's code starts |
-| Types (TL1) | A `u16` count, then each type as a tag `u8`, followed by its fields as shown below |
-| Variables (TL1) | A `u32` count, then each parameter and local: `function u16`, its name, `kind u8`, `parameter u8` (1 or 0), `type u16`, `frame offset u16`, then `start u32` and `end u32`, the code range of its scope |
-| Globals (TL1) | A `u16` count, then each: its name, `kind u8`, `type u16`, `offset or value u32` |
+| Types | A `u16` count, then each type as a tag `u8`, followed by its fields as shown below |
+| Variables | A `u32` count, then each parameter and local: `function u16`, its name, `kind u8`, `parameter u8` (1 or 0), `type u16`, `frame offset u16`, then `start u32` and `end u32`, the code range of its scope |
+| Globals | A `u16` count, then each: its name, `kind u8`, `type u16`, `offset or value u32` |
 
 The type tags:
 - **0, integer:** a `u8` type code (BC-3).
@@ -116,7 +116,7 @@ A row applies from its code offset up to the next row's. A statement that emits 
 - the debugger sets breakpoints and reads variables through it.
 
 `src/cardlang/bytecode/debuginfo.py` decodes it. Debug information never changes the code: `tests/debug_check.py` compiles every program with it and without it, and compares.
-*Serves: V-27; TL1.*
+*Serves: V-27.*
 
 ## 3. Loading
 
@@ -131,7 +131,7 @@ A row applies from its code offset up to the next row's. A statement that emits 
 8. `max_atomic` fits `cl_hal_atomic_capacity` (HAL-17, VEX-29);
 9. every imported native number is one the VM provides.
 
-These are header checks, as V-1 allows: the code itself is not verified. Checks 6 to 9 are the load-time rejection of RTF-8, STA-13 and TYP-23. Each failure has its own result code in `cl_vm.h` (VM7).
+These are header checks, as V-1 allows: the code itself is not verified. Checks 6 to 9 are the load-time rejection of RTF-8, STA-13 and TYP-23. Each failure has its own result code in `cl_vm.h`.
 *Serves: V-1; VEX-9, RTF-8, STA-13, TYP-23.*
 
 **IMG-12 Nothing is copied.** The VM reads the image in place through its pointer (VEX-10). Loading writes nothing but the VM context.
@@ -146,5 +146,5 @@ These are header checks, as V-1 allows: the code itself is not verified. Checks 
 - `persistent_size`, `session_size` and `max_atomic`, with the destination that sets `max_atomic`;
 - the natives used.
 
-From VM5 on, the prototype VM adds the measured figures of V-12: the bookkeeping it needed, opcode frequencies, and the deepest stack actually used.
+The Python VM adds the measured figures of V-12: the bookkeeping it needed, opcode frequencies, and the deepest stack actually used.
 *Serves: V-12; RTF-7, TYP-23.*

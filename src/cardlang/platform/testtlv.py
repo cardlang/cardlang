@@ -2,7 +2,7 @@
 
 Errors are raised as TlvError("Malformed") or TlvError("Unsupported").
 """
-MAX_DEPTH = 16                                   # the minimum the profile requires for validate (T3)
+MAX_DEPTH = 16                                   # the minimum the profile requires for validate
 CLASSES = ["Universal", "Application", "ContextSpecific", "Private"]
 
 class TlvError(Exception):

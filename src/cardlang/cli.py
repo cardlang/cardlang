@@ -70,7 +70,7 @@ def compile_program(prog):
 def cmd_build(a):
     from cardlang.compiler import compiler
     prog = Program(a.program, a.binding, a.fragment)
-    try: c = compile_program(prog)                       # checks with the full diagnostics first (T1)
+    try: c = compile_program(prog)                       # checks with the full diagnostics first
     except compiler.InvalidProgram as e: print_diagnostics(e.diagnostics, a.json); return 1
     out = pathlib.Path(a.output) if a.output else prog.dir / "build" / f"{prog.name}.clvm"
     out.parent.mkdir(parents=True, exist_ok=True); out.write_bytes(c.image)

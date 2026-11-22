@@ -185,3 +185,45 @@ The user asked that the names of development steps stay in `devel/`, the interna
   - `sp13_checklist.py` now fails too, because the B.12 marker it searches for no longer names it. It is a one-off record, so this is expected;
   - both measurement scripts run.
 - **Found on the way:** `vm/c/build/msvc` and `vm/c/build/clang` had disappeared during the session. `vm/c/build/` held a different CMake configuration, written at 16:32 by a tool outside this work, perhaps the editor's CMake support. `vm/c/build.py all` rebuilt both from the local Mbed TLS archive, with no download.
+
+## 6. Done: stage 7b (2026-11-22)
+
+- **The prose:** the 242 remaining mentions of development steps outside `devel/` are gone.
+  - A script stripped the parentheticals that were only references, such as each chapter status line's "(SPn)" and the "(SPn)" after every entry of Annex C's resolution log. A reading of every changed line confirmed them.
+  - The rest were rewritten by hand, in Annex C, the decision register, chapter 11, the release notes, the profile and the VM documents. Examples:
+    - "decide in SP7" became "decide with chapter 8";
+    - "Basis: WP8 L1; WP9 G1" became "a finding of the FIDO2 example applet";
+    - a change-log row "VM7b (d): `ADDRH`" became "`ADDRH`".
+- **Tables:**
+  - **`vm/decisions.md`:** the "Implemented by" entries that named a VM step now name the document or folder that holds the result. VM8, not done, is dropped;
+  - **the Draft 0.3 candidates:** the "Origin" column names the FIDO2 applet, the PIV applet or a review;
+  - **the profile:** its family table loses "Filled in by".
+- **Plan-local IDs:** the short decision and finding IDs of the plans are removed from prose and comments: `(T1)` to `(T4)`, `(L3)`, `(P1)`, `(P2)`, the `B1(a)` decision bases, and "base API plan B7" and "B9".
+- **Stale statements fixed:**
+  - **`vm/README.md`:** the C VM is complete, not "not started"; the four backends are named; the ID ranges are current;
+  - **`vm/c/README.md`:** the step table becomes a status paragraph with the measured figures, saying it has not yet run on a device;
+  - **the harness README:** four backends, not one;
+  - **the conformance README:** the suite is run mechanically, and the `.gitattributes` path is current;
+  - **`devel/README.md`:** the link check's and `layout`'s paths are current, and re-running a generator may write old comments that the check then catches;
+  - **the decision register's header:** its own source paths, and no sub-plans;
+  - **Annex C's and D's legends:** no sub-plans.
+- **The README** is `README.md` (C1). It now:
+  - opens with what the repository holds;
+  - states "pre-alpha";
+  - corrects its counts to 412 tests and 33 §B.12 items;
+  - describes what `run_checks` covers;
+  - replaces "Next steps" with "What is not done yet", which links to `devel/` for the plans.
+- **New READMEs:** `platform/README.md` and `editors/README.md`.
+- **Privacy (C3):** the VM7 plan's two absolute paths are `<workspace>\llvm-mingw-20261117-ucrt-i686`. No user name, email address or absolute home path remains in the tree.
+- **Small fixes:**
+  - `.gitignore`'s comment;
+  - `pyproject.toml` gains `description` and `readme`. The reinstall needed VS Code closed, because its language server held `cardlang-lsp.exe` open, and a first attempt had removed `cardlang-dap.exe`. After you closed VS Code, `uv sync` restored all three commands.
+- **The guards (D4), in the link check:**
+  - a work-package name (`WP`, `SP`, `VM`, `TL` or `PR` and a number) in any tracked text file outside `devel/` fails. `layout.py`'s table of moves is exempt;
+  - an absolute path into a home folder fails anywhere, `devel/` included;
+  - both checked by injection on a copy: a `VM7` in `cli.py` and a `/home/…` path in an example README fail, and a `WP8` in `devel/README.md` passes.
+- **Checks:**
+  - `run_checks` passes all 51 runs with the same counts; the link check gained the new READMEs and the two guards;
+  - `speccheck` passes;
+  - against a copy, the same 33 scripts run and the same 4 fail as after 7a;
+  - **the one-off history scripts, if re-run, write the old columns and step names back** into the register and the annexes. On the copy, the guard then reported 191 failures. This is the guard doing its job; those scripts are records, not to be re-run.

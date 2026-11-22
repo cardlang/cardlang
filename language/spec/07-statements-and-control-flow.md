@@ -1,6 +1,6 @@
 # 7. Statements and control flow
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP6).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
 
 This chapter defines blocks and statements:
 

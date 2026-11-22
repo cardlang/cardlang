@@ -1,5 +1,5 @@
 // PIN/UV auth protocols one and two (CTAP 2.1 §6.5.6, §6.5.7), and authenticatorClientPIN (0x06).
-// The shared secret lives in two Command keys (P1), so it ends with the command, even on a trap.
+// The shared secret lives in two Command keys, so it ends with the command, even on a trap.
 // Derived bytes in locals are erased when their frame ends (PLT-35).
 
 // A fresh pinUvAuthToken: 32 random bytes, kept in session state (to encrypt it for the platform) and as

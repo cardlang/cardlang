@@ -1,6 +1,6 @@
 # The CardLang language definition
 
-This folder holds what CardLang *is*: the specification, the tests that pin it down, and the reasoning behind it. The platform profile, which says what a card platform provides to programs, is a separate specification in [`platform/`](../platform/base-profile.md). The VM, which runs compiled programs, is in [`vm/`](../vm/README.md).
+This folder holds what CardLang *is*: the specification, the tests that pin it down, and the reasoning behind it. The platform profile, which says what a card platform provides to programs, is a separate specification in [`platform/`](../platform/README.md). The VM, which runs compiled programs, is in [`vm/`](../vm/README.md).
 
 | Folder | What it is |
 |---|---|

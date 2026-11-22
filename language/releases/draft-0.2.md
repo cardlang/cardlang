@@ -61,7 +61,7 @@ A platform specification, separate from the language specification:
 
 `examples/fido2` implements `getInfo`, `makeCredential` (ES256, non-resident derived credentials, `"none"` attestation), `getAssertion`, `reset` and `clientPIN` (protocols two and one). `tools/fido/check_fido2.py` runs 59 checks against an independent platform-side implementation.
 
-The findings that shaped this draft are in `plans_and_notes/WP8-fido2-findings.md`. The applet's size went from 552 to 449 lines through the language changes, then grew to 778 with the PIN protocol.
+Writing the applet shaped this draft. Its size went from 552 to 449 lines through the language changes, then grew to 778 with the PIN protocol.
 
 ## 4. Tools
 
@@ -74,7 +74,7 @@ The findings that shaped this draft are in `plans_and_notes/WP8-fido2-findings.m
 
 ## 5. Carried over to Draft 0.3
 
-From `plans_and_notes/draft-0.2-candidates.md`:
+From `draft-0.2-candidates.md`:
 
 - **2:** relaxing EXP-49. Weak evidence so far.
 - **4:** a user-presence API.

@@ -68,7 +68,7 @@ struct CborHead {
     size: u32;
 }
 
-// BER-TLV (§10). The tag is its raw bytes packed into a u32, big-endian, as card specifications write it (T1).
+// BER-TLV (§10). The tag is its raw bytes packed into a u32, big-endian, as card specifications write it.
 enum TlvClass {
     Universal;
     Application;

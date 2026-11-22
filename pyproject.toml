@@ -1,6 +1,8 @@
 [project]
 name = "cardlang"
 version = "0.1.0"
+description = "The CardLang toolchain: reference checkers, compiler, reference interpreter, Python VM, harness, command line, language server and debug adapter"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "cffi>=2.1.1",

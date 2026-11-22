@@ -102,7 +102,7 @@ This is the load-time rejection of RTF-8, STA-13 and TYP-23. It never changes th
 3. the locals and compiler temporaries, including payload slots (VEX-21);
 4. the operand area, of the function's maximum operand depth.
 
-Parts 1 to 3 have sizes known statically; their layout is the compiler's and is recorded in the image (VM3).
+Parts 1 to 3 have sizes known statically; their layout is the compiler's and is recorded in the image.
 *Serves: V-4; FUN-17, RTF-7.*
 
 **VEX-19 Calls do not recurse in C.** A call pushes a frame and continues the same interpreter loop at the callee. A return pops the frame and resumes the caller. No CardLang call is a C call, so the C stack depth is independent of the call depth.
@@ -153,7 +153,7 @@ Parts 1 to 3 have sizes known statically; their layout is the compiler's and is 
 
 ## 8. Natives and application data
 
-**VEX-33 Calling a native.** A catalog API is called by its index in the image's native import table (VM3). Its arguments are cells, as for a function call. Its result is the outcome register (VEX-24) and, on success, a scalar payload cell.
+**VEX-33 Calling a native.** A catalog API is called by its index in the image's native import table. Its arguments are cells, as for a function call. Its result is the outcome register (VEX-24) and, on success, a scalar payload cell.
 *Serves: V-5; PLT-30.*
 
 **VEX-34 Data access through helpers.** A native never receives a raw pointer to application data. It reads and writes views and references through VM helpers that copy a chunk to or from the application's place, whatever its region. For `RESPONSE`, `REQUEST`, `SESSION`, `STACK` and `CONST`, a helper may hand the native a direct pointer to the region's bytes. For `PERSISTENT`:
@@ -209,7 +209,7 @@ Session state, persistent writes outside a transaction, and other resources are 
 **VEX-44 Lifecycle state.** The context records which of these states the application is in: not installed, installed with no session, in a session, unavailable for the rest of the session (BP-55), and, for the ISO 7816 binding, whether it is selected. This is part of `cl_vm` (VEX-50).
 *Serves: STA-4 to STA-10, BP-55, BP-56.*
 
-**VEX-45 Entry points.** The VM is a library; the platform's main loop calls it (V-6). The signatures are in `vm/c/include/cl_vm.h` (VM7):
+**VEX-45 Entry points.** The VM is a library; the platform's main loop calls it (V-6). The signatures are in `vm/c/include/cl_vm.h`:
 
 | Entry | What the VM does |
 |---|---|
@@ -246,10 +246,10 @@ Session state, persistent writes outside a transaction, and other resources are 
 
 *Serves: V-2.*
 
-**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. Measured by VM7: 252 bytes on 32-bit targets, of which 128 are the bounce buffer (V-22), and 296 on 64-bit hosts. The prototype's context was 216 bytes (VM5).
+**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. Measured for the C VM: 252 bytes on 32-bit targets, of which 128 are the bounce buffer (V-22), and 296 on 64-bit hosts. The prototype's context was 216 bytes.
 *Serves: V-2, V-12.*
 
-## 12. What the HAL must provide (input to VM2)
+## 12. What the HAL must provide
 
 `vm/hal.md` §8 shows which `HAL-n` requirement meets each need.
 
@@ -264,7 +264,7 @@ Session state, persistent writes outside a transaction, and other resources are 
 | H7 | Keys and multi-part operations as numbered resources, with transaction participation for persistent keys | VEX-32, VEX-35 |
 | H8 | Dropping volatile, session and command-lifetime resources on request | VEX-45, VEX-48 |
 | H9 | Crypto and randomness as in profile §8, constant-time where PLT-31 requires | VEX-33 |
-| H10 | Test hooks: a seedable deterministic random generator, and power-loss injection at the next commit | VM0 |
+| H10 | Test hooks: a seedable deterministic random generator, and power-loss injection at the next commit | V-10 |
 | H11 | `CardError` codes for every failure (profile §4) | VEX-24 |
 
 ## Annex: paper check against the runtime tests and the FIDO2 applet
@@ -281,7 +281,7 @@ Every construct the 26 runtime tests and `examples/fido2` use, and where this mo
 | Slice assignment, including persistent and overlapping | VEX-15, VEX-27, VEX-28 |
 | Function calls and aggregate payloads | VEX-17 to VEX-21 |
 | `attempt`, `attempt … else`, `require`, `match` on outcomes, `Err(Set(code))`, `ignore` | VEX-23 |
-| `if`, `while`, `for`, `break`, `continue`, compound assignment | Instructions (VM3); no state beyond the frame |
+| `if`, `while`, `for`, `break`, `continue`, compound assignment | Instructions; no state beyond the frame |
 | Persistent and session globals | VEX-7, VEX-26, VEX-5 |
 | `transaction`, `abort`, traps inside transactions, interrupted commits | VEX-31, VEX-40, VEX-43 |
 | `wipe` | VEX-38 |

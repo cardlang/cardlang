@@ -1,6 +1,6 @@
 # 1. Scope and conventions
 
-CardLang Language Specification, **Draft 0.2**. Chapter status: complete for SP0.
+CardLang Language Specification, **Draft 0.2**. Chapter status: **draft complete**.
 
 This chapter defines what the specification covers, how its layers are separated, and the conventions every later chapter uses: rule status, rule and diagnostic identifiers, notation and examples. It contains no language rules of its own.
 

@@ -131,6 +131,24 @@ def main(root):
                 where = f"{src.relative_to(root).as_posix()}:{n}"; now = layout.moved(p)
                 bad += 1; fail(where, f"a moved file, now at {now}: {p}" if now else f"a named file that does not exist: {p}")
     if not bad: print("PASS repository paths named in source files exist")
+    # 6. development steps stay in devel/, and 7. no absolute path into a user's home folder, in any tracked text file
+    step = re.compile(r"\b(?:WP|SP|VM|TL|PR)\d+[a-z]?\b")
+    home = re.compile(r"\b[A-Za-z]:[\\/]+Users[\\/]+\w|(?<![\w.])/(?:home|Users)/[A-Za-z]")
+    devel = L.devel
+    bad_step = bad_home = 0
+    for f in sorted(tracked(root, "*")):
+        if not f.is_file() or set(f.relative_to(root).parts) & SKIP_DIRS: continue
+        data = f.read_bytes()
+        if b"\0" in data[:4096]: continue                                       # a binary file
+        rel = f.relative_to(root).as_posix(); in_devel = f.resolve().is_relative_to(devel.resolve())
+        for n, line in enumerate(data.decode("utf-8", errors="replace").split("\n"), 1):
+            if IGNORE in line or "linkcheck: ignore" in line: continue
+            if not in_devel and f.name != "layout.py" and step.search(line):
+                bad_step += 1; fail(f"{rel}:{n}", f"a development step outside devel/: {step.search(line).group(0)}")
+            if home.search(line):
+                bad_home += 1; fail(f"{rel}:{n}", f"an absolute path into a home folder: {home.search(line).group(0)}")
+    if not bad_step: print("PASS development steps are named only in devel/")
+    if not bad_home: print("PASS no absolute path into a home folder")
     print(f"{files} documents; {fails} failures; {infos} historical paths as of writing")
     print("ALL PASS" if fails == 0 else "FAILURES")
     return fails == 0

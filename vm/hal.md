@@ -208,7 +208,7 @@ The native library checks first: the identifiers, the key types, `length` from 1
 **HAL-31 Test interface.** `cl_hal_test.h` declares the hooks a test HAL provides, so that every backend runs the same scenarios (V-10, V-12):
 - **`cl_hal_test_seed(data)`** makes the random generator deterministic from this seed, for every later call (the `seed` step).
 - **`cl_hal_test_interrupt_next_commit()`** makes the next commit behave as a power loss during the commit, followed by recovery (the `interrupt` step).
-- **`cl_hal_test_resource_create`, `_get`, `_set` and `_delete`** keep the fictional resources of the test-only catalog (`card.test.*`, V-33). These are at most 4, each with a kind and a value, in the same identifier space as keys and operations (VM7).
+- **`cl_hal_test_resource_create`, `_get`, `_set` and `_delete`** keep the fictional resources of the test-only catalog (`card.test.*`, V-33). These are at most 4, each with a kind and a value, in the same identifier space as keys and operations.
 
 A production HAL does not provide them.
 *Serves: H10; V-10, V-12.*

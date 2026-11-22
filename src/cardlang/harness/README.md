@@ -1,6 +1,6 @@
 # The execution harness
 
-One scenario runner for every CardLang execution backend (VM0, `vm/decisions.md` V-10). Today the only backend is the reference interpreter (`interp`). The Python prototype VM (VM5) and the C VM (VM7) are added as further backends and run the same tests.
+One scenario runner for every CardLang execution backend (`vm/decisions.md` V-10). There are four backends, which run the same tests: `interp`, the reference interpreter; `pyvm`, the compiler and the Python VM; and `cvm-msvc` and `cvm-clang`, the C VM built with each compiler (`cvm_backend.py`, through cffi).
 
 - `scenario.py`: the scenario runner, the binding encoders (`status_word`, `raw_envelope`), and the command line.
 - `backends.py`: the backend table and `build(name, files, binding=None)`.
@@ -10,7 +10,7 @@ uv run python -I -m cardlang.harness.scenario . --backend interp
 ```
 
 ```bash
-python -I examples/fido2/check.py . --backend interp
+uv run python -I examples/fido2/check.py . --backend pyvm
 ```
 
 ## The backend interface

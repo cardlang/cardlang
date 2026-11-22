@@ -1,6 +1,6 @@
 # 4. Types
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete** (SP3).
+CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
 
 This chapter defines CardLang's types:
 
