@@ -1,0 +1,9 @@
+# Left out of the .vsix (TL1 step 8): development files. vsce adds the production dependencies by itself.
+check_extension.py
+install.py
+.gitignore
+*.vsix
+**/__pycache__/**
+# Not needed at run time: type declarations and source maps of the dependencies
+**/*.d.ts
+**/*.map

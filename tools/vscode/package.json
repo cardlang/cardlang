@@ -21,6 +21,9 @@
     "onDebugInitialConfigurations",
     "onDebugDynamicConfigurations:cardlang"
   ],
+  "scripts": {
+    "package": "vsce package --allow-missing-repository --skip-license --out cardlang.vsix"
+  },
   "contributes": {
     "semanticTokenModifiers": [
       {
@@ -301,5 +304,8 @@
   },
   "dependencies": {
     "vscode-languageclient": "^11.0.0"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^4.1.1"
   }
 }

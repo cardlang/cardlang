@@ -36,7 +36,15 @@ uv run python -I tools/vscode/install.py
 
 Then run **Developer: Reload Window**. After any change to the extension, reload again. `install.py --remove` removes the link.
 
-**From a package:** `code --install-extension cardlang-<version>.vsix` (TL1 step 8).
+**From a package,** for normal use. Build it, remove a development link if you made one, and install it:
+
+```bash
+cd tools/vscode && npm install && npm run package
+uv run python -I tools/vscode/install.py --remove
+code --install-extension tools/vscode/cardlang.vsix
+```
+
+`npm run package` writes `tools/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools stay in the repository, so the extension still needs it, through `cardlang.toolsPath` or the workspace.
 
 ## Applets and projects
 

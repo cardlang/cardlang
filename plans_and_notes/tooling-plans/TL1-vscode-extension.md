@@ -342,3 +342,14 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - the layout table gains `clc`, the extension and `vm/`;
   - Running the checks uses uv and builds the C VM first;
   - Next steps names VM8, VM9, WP13, the name-rule checker and Draft 0.3.
+
+**Step 7 committed (`3e753ea`).**
+
+**Step 8 done (2026-11-22): the `.vsix` package.**
+- **The packager:** `@vscode/vsce` 4.1.1, installed with npm as a development dependency, with the user's permission. It adds 57.5 MB to the git-ignored `node_modules`.
+  - npm 11 did not run `@vscode/vsce-sign`'s postinstall script, which it had not been allowed to run. That package signs extensions for publishing to the Marketplace; packaging does not need it, so the script was left unapproved.
+- **`npm run package`** runs `vsce package --allow-missing-repository --skip-license --out cardlang.vsix`. The repository has no public remote and no licence yet.
+- **`.vscodeignore`** leaves out the development files, `check_extension.py` and `install.py`, and the dependencies' type declarations and source maps.
+- **The package:** `cardlang.vsix`, 233 files and 400 KB. It holds the extension, its grammars, snippets and README, and `vscode-languageclient` with its dependencies. It is git-ignored.
+- **vsce's one warning,** to bundle the JavaScript into one file, is left for later: at this size it costs nothing noticeable.
+- **The README** describes building and installing the package.
