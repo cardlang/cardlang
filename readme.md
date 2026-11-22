@@ -2,7 +2,12 @@
 
 CardLang is a small, statically typed, imperative language for writing smart-card applications. This repository holds its language specification, a conformance test suite, and reference tools that check the two against each other.
 
-**Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. There is no compiler or VM yet. See [the release notes](plans_and_notes/draft-0.2-release-notes.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
+**Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. See [the release notes](plans_and_notes/draft-0.2-release-notes.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
+
+Since Draft 0.2, the repository also holds:
+- a compiler to a compact bytecode (`tools/vmproto/compiler.py`);
+- a prototype VM in Python, and the VM in portable C11 (`vm/c/`), which pass the same tests;
+- a VS Code extension, with errors as you type, go to definition, completion and a debugger ([`tools/vscode/`](tools/vscode/README.md)).
 
 ## The language at a glance
 
@@ -65,6 +70,9 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`examples/fido2/`](examples/fido2/) | A FIDO2 (CTAP 2.0) authenticator in CardLang, with PIN protocols two and one, checked by `tools/fido/check_fido2.py` |
 | [`examples/piv/`](examples/piv/) | A PIV card application (NIST SP 800-73-5, contact-interface subset), checked by `tools/piv/check_piv.py` |
 | [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
+| [`tools/clc.py`](tools/clc.py) | The command line: check, build, disassemble, and run a scenario |
+| [`tools/vscode/`](tools/vscode/README.md), `tools/lsp/`, `tools/dap/` | The VS Code extension, its language server and its debug adapter |
+| [`vm/`](vm/decisions.md) | The VM's design (execution model, HAL, bytecode, image format) and the C VM (`vm/c/`) |
 | [`plans_and_notes/`](plans_and_notes/) | The source design notes, the decision register, the plan of plans with one sub-plan per chapter, and the SP14 consolidation report |
 
 ## How the specification is organized
@@ -77,21 +85,21 @@ This is a shortened version of the counter, one of the representative applicatio
 
 ## Running the checks
 
-The tools need only Python 3 and its standard library. From the repository root:
+The tools run in the repository's uv environment (`uv sync` once). The C VM is built with `vm/c/build.py` (MSVC and clang). From the repository root:
 
 ```bash
-python -I tools/run_checks.py
+uv run python -I vm/c/build.py all
+uv run python -I tools/run_checks.py
 ```
 
 This runs every checker over the conformance tests it covers, the grammar check, the specification consistency check and the runtime scenarios. It exits non-zero on any failure. Run it after every change to `spec/` or `conformance/`. The tools are not normative: when a tool and `spec/` disagree, the specification wins.
 
 ## Next steps
 
-Work outside this specification:
+The plans are in [`plans_and_notes/vm-plan-of-plans.md`](plans_and_notes/vm-plan-of-plans.md) and `plans_and_notes/tooling-plans/`:
 
-- a real platform API catalog;
-- a platform specification that answers Annex B §B.12;
-- a compiler;
-- a VM.
-
-The details are in the consolidation report.
+- **VM8:** the C VM on a real Cortex-M;
+- **VM9:** a bridge to real host software, through a virtual smart-card reader;
+- **WP13:** an OpenPGP card applet;
+- **a checker for chapter 3's name rules,** which the tools do not check yet;
+- **the candidates for Draft 0.3,** in `plans_and_notes/draft-0.2-candidates.md`.

@@ -327,3 +327,18 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - no test-only APIs;
   - members for the sample's enums, `KeyType` and `CardError`;
   - one request through the server.
+
+**Completion and the prelude fix committed (`84026a9`), after the user tried them.**
+
+**Step 7 done (2026-11-22): documentation.**
+- **`tools/vscode/README.md`,** the extension's guide, which is also the `.vsix`'s page in step 8:
+  - features, requirements and installing;
+  - applets and `cardlang.json`;
+  - building, scenarios and debugging, with a launch configuration;
+  - settings, and the colour rule for persistent globals;
+  - the known limits, and how it is built and checked.
+- **`readme.md`:**
+  - the status now says that a compiler, two VMs and the extension exist;
+  - the layout table gains `clc`, the extension and `vm/`;
+  - Running the checks uses uv and builds the C VM first;
+  - Next steps names VM8, VM9, WP13, the name-rule checker and Draft 0.3.
