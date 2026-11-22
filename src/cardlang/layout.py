@@ -127,6 +127,23 @@ MOVED = [
     ("tools/vmproto/disasm.py", "src/cardlang/bytecode/disasm.py"),
     ("tools/vmproto/typer.py", "src/cardlang/compiler/typer.py"),
     ("tools/vmproto/compiler.py", "src/cardlang/compiler/compiler.py"),
+    # PR5c: the interpreter, the Python VM (vmproto becomes pyvm, R7) and the harness; their checks into tests/
+    ("tools/interp/interp.py", "src/cardlang/interp/interp.py"),
+    ("tools/vmproto/vm.py", "src/cardlang/pyvm/vm.py"),
+    ("tools/vmproto/hal.py", "src/cardlang/pyvm/hal.py"),
+    ("tools/vmproto/natives.py", "src/cardlang/pyvm/natives.py"),
+    ("tools/vmproto/card.py", "src/cardlang/pyvm/card.py"),
+    ("tools/vmproto/compile_all.py", "tests/compile_all.py"),
+    ("tools/vmproto/check_state.py", "tests/check_state.py"),
+    ("tools/vmproto/debug_check.py", "tests/debug_check.py"),
+    ("tools/harness/scenario.py", "src/cardlang/harness/scenario.py"),
+    ("tools/harness/backends.py", "src/cardlang/harness/backends.py"),
+    ("tools/harness/cvm_backend.py", "src/cardlang/harness/cvm_backend.py"),
+    ("tools/harness/example_scenarios.py", "tests/example_scenarios.py"),
+    ("tools/harness/README.md", "src/cardlang/harness/README.md"),
+    ("tools/interp", "src/cardlang/interp"),
+    ("tools/vmproto", "src/cardlang/pyvm"),
+    ("tools/harness", "src/cardlang/harness"),
 ]
 
 def moved(path):

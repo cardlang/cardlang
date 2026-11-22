@@ -3,7 +3,7 @@
 - Every JSON file of the extension parses.
 - The grammar's keywords are exactly the lexer's (src/cardlang/front/lexcheck.py KEYWORDS), and its intrinsics exactly
   the checker's (src/cardlang/front/expcheck.py), so highlighting cannot drift from the language.
-- The scenario grammar's steps are exactly those the scenario runner accepts (tools/harness/scenario.py).
+- The scenario grammar's steps are exactly those the scenario runner accepts (src/cardlang/harness/scenario.py).
 - Every regular expression of both grammars compiles (in Python's syntax, which these patterns share with
   Oniguruma), and the keyword patterns colour every keyword token of both applets.
 Usage: uv run python -I tools/vscode/check_extension.py .
@@ -11,8 +11,6 @@ Usage: uv run python -I tools/vscode/check_extension.py .
 import sys, re, json, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for d in ("harness",):
-    sys.path.insert(0, str(TOOLS / d))
 from cardlang.front import lexcheck, expcheck, project
 from cardlang import layout
 
@@ -46,7 +44,8 @@ def main(repo):
     check("grammar intrinsics = checker intrinsics", intr == want, f"extra {sorted(intr - want)}, missing {sorted(want - intr)}")
     s = docs.get("syntaxes/cardlang-scenario.tmLanguage.json", {})
     steps = set(re.search(r"\(install\|[^)]*\)", json.dumps(s)).group(0)[1:-1].split("|"))
-    src = (TOOLS / "harness" / "scenario.py").read_text(encoding="utf-8")
+    from cardlang.harness import scenario
+    src = pathlib.Path(scenario.__file__).read_text(encoding="utf-8")
     runner = {w for w in re.findall(r'"([a-z_]+)"', "\n".join(l for l in src.splitlines() if "step ==" in l or "step in" in l))} - {"expect"}
     check("scenario grammar steps = runner steps", steps == runner, f"grammar {sorted(steps)}, runner {sorted(runner)}")
     bad = []

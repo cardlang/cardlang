@@ -2,16 +2,14 @@
 
 A scenario (language/conformance/runtime/*/scenario.txt) is a list of steps and expectations. This module runs one against a
 backend, a "card" built from a checked program, and compares host-visible results. The backend interface is
-described in tools/harness/README.md; the backends are listed in backends.py.
+described in src/cardlang/harness/README.md; the backends are listed in backends.py.
 
 Usage (from the repository root):
-    python -I tools/harness/scenario.py . ["runtime/run-*"] [--backend NAME]
+    python -I src/cardlang/harness/scenario.py . ["runtime/run-*"] [--backend NAME]
 """
 import sys, pathlib, re
 from cardlang import layout
 
-HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
 from cardlang.platform.errors import CARD_ERROR_CODES          # kept importable from here
 
 # ------------------------------------------------------------------ outcomes and the binding encodings
@@ -96,7 +94,7 @@ def take_backend(argv, default="interp"):
     return default, argv
 
 def main(argv, default_backend="interp"):
-    import backends
+    from cardlang.harness import backends
     name, args = take_backend(argv, default_backend)
     repo = pathlib.Path(args[0]); glob = args[1] if len(args) > 1 else "runtime/run-*"
     ok = True
@@ -111,5 +109,4 @@ def main(argv, default_backend="interp"):
     print("ALL PASS" if ok else "FAILURES")
 
 if __name__ == "__main__":
-    sys.path.insert(0, str(HERE))
     main(sys.argv[1:])

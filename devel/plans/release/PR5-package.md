@@ -154,3 +154,29 @@ Each stage is one commit, ends with `run_checks` passing, and updates `layout`, 
 - **Scripts:**
   - the 33 generators and history scripts, and `revision.py`, run against a copy, and the same three fail;
   - both measurement scripts run.
+
+## 9. Done: stage 5c (2026-11-22)
+
+- **Moved with `git mv`:**
+  - `tools/interp/interp.py` to `src/cardlang/interp/`;
+  - `vm`, `hal`, `natives` and `card` from `tools/vmproto/` to `src/cardlang/pyvm/`;
+  - `scenario`, `backends`, `cvm_backend` and the harness README to `src/cardlang/harness/`;
+  - `compile_all`, `check_state`, `debug_check` and `example_scenarios` to `tests/`.
+
+  `tools/interp/`, `tools/vmproto/` and `tools/harness/` are gone.
+- **Imports:**
+  - 17 files are rewritten by package;
+  - every `sys.path` line in the moved modules is gone, and so are the lines in the examples' checkers and the measurement scripts;
+  - no file in `src/`, `tests/` or `examples/` edits `sys.path`;
+  - `cvm_backend` finds the C VM's library through `layout.at()`, where it used a root computed from its old place.
+- **The rename (R7):**
+  - **The backend:** `vmproto` is now `pyvm` in `backends`, `clc` (its default and choices), the DAP, `run_checks` and its labels, the checks, and the measurement scripts' backend calls. `cvm_measure`'s output keeps its `vmproto` key, as the reports have it.
+  - **The extension's source:** its `cardlang.scenarioBackend` default and enum, the JavaScript default, and its README.
+  - **The examples' READMEs** use the new name.
+  - **The installed extension** (0.1.1) still sends `--backend vmproto`, so `clc run` accepts it as an alias of `pyvm`. PR6 drops the alias.
+- **`run_checks`:** it runs the interpreter and the scenario runner as modules (`-m cardlang.interp.interp`, `-m cardlang.harness.scenario`). All 51 runs pass with the same counts.
+- **`check_extension`** read `scenario.py` from its old path. It now finds it through the module.
+- **`layout.MOVED`:** has the 5c rows, including the three old folders. The current documents and the C VM's comments were rewritten through it, and the command blocks were fixed by hand.
+- **Scripts:**
+  - the 33 generators and history scripts, and `revision.py`, run against a copy as before;
+  - both measurement scripts run.

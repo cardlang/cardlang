@@ -7,7 +7,6 @@ Compiler.shorten. Usage (from the repository root):
 """
 import sys, pathlib, json
 HERE = pathlib.Path(__file__).resolve().parent
-sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "harness")]   # moved to devel/ in PR2
 from cardlang.compiler import compiler, typer
 
 VERSION_1 = ["frame", "addr", "slice", "push", "jump"]             # VM6 (V-38)

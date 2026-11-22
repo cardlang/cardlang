@@ -6,7 +6,7 @@ One scenario runner for every CardLang execution backend (VM0, `vm/decisions.md`
 - `backends.py`: the backend table and `build(name, files, binding=None)`.
 
 ```bash
-python -I tools/harness/scenario.py . --backend interp
+uv run python -I -m cardlang.harness.scenario . --backend interp
 ```
 
 ```bash

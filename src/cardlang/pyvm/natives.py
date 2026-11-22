@@ -4,18 +4,15 @@ It does only what involves no cryptography (HAL-1 to HAL-3): it takes the argume
 (BC-34), resolves identifiers in the single identifier space (PLT-20), keeps the operation table with its lifetimes
 (BP-14, BP-31), applies the profile's checks in the error precedence of BP-8, moves data between views and the HAL,
 and writes results (into persistent views as one atomic update, VEX-28). CBOR, BER-TLV and DER are implemented here
-(V-5), reusing the test-only codecs of tools/interp. The order of checks mirrors the reference interpreter, so both
+(V-5), reusing the test-only codecs of src/cardlang/interp. The order of checks mirrors the reference interpreter, so both
 backends give identical outcomes.
 """
 import sys, pathlib
-HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "interp", HERE.parent / "harness"):
-    if str(p) not in sys.path: sys.path.insert(0, str(p))
-import vm
+from cardlang.pyvm import vm
 from cardlang.bytecode import isa
 from cardlang.platform import testcbor, testtlv
 from cardlang.front import pltcheck, consteval
-from hal import HalStatus
+from cardlang.pyvm.hal import HalStatus
 from cardlang.platform.errors import CARD_ERROR_CODES
 
 def is_view(t): return isinstance(t, tuple) and t[0] == "arr" and t[2] is None

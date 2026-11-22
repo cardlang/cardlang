@@ -8,8 +8,8 @@ FIDO2 session. Prints a JSON document. Usage:
 """
 import sys, pathlib, json, collections, io, contextlib
 HERE = pathlib.Path(__file__).resolve().parent
-sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "harness", "interp")]   # moved to devel/ in PR2
-import vm, backends, scenario
+from cardlang.pyvm import vm
+from cardlang.harness import backends, scenario
 from cardlang.compiler import compiler, typer
 from cardlang.bytecode import isa, disasm
 from cardlang import layout
@@ -73,17 +73,17 @@ def dynamic(repo):
         per_test = {}
         for d in sorted((layout.at(repo).runtime).glob("run-*")):
             p.max_sp = 0
-            card = backends.build("vmproto", scenario.program_files(d))
+            card = backends.build("pyvm", scenario.program_files(d))
             assert scenario.run_scenario(card, (d / "scenario.txt").read_text(encoding="utf-8")) is None
             per_test[d.name] = {"stack_need": card.stack_need, "deepest": p.max_sp}
         out["runtime"] = {"executed": dict(p.count.most_common()), "stack": per_test,
                           "max_budget_used": max(b for b in p.budget if b < 10**6 - 1)}
     with Probe() as p:
-        sys.argv = ["check.py", str(repo), "--backend", "vmproto"]
+        sys.argv = ["check.py", str(repo), "--backend", "pyvm"]
         import importlib.util                                 # the applet's checker is examples/fido2/check.py (PR4)
         spec = importlib.util.spec_from_file_location("fido2_check", layout.at(repo).examples / "fido2" / "check.py")
         check_fido2 = importlib.util.module_from_spec(spec); spec.loader.exec_module(check_fido2)
-        check_fido2.BACKEND = "vmproto"
+        check_fido2.BACKEND = "pyvm"
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf): check_fido2.main()
         assert "ALL PASS" in buf.getvalue()

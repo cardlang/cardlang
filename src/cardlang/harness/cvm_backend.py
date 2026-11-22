@@ -2,16 +2,12 @@
 
 A program is compiled by the prototype compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
 built by vm/c/build.py loads through the shared library cvm.dll (vm/c/test/cvm.c). The card interface is that of
-tools/harness/README.md, so scenarios and the applet checks run unchanged. Build the library first:
+src/cardlang/harness/README.md, so scenarios and the applet checks run unchanged. Build the library first:
     uv run python -I vm/c/build.py all
 """
 import sys, pathlib
 from cffi import FFI
 
-TOOLS = pathlib.Path(__file__).resolve().parents[1]
-ROOT = TOOLS.parent
-for p in (TOOLS / "vmproto", TOOLS / "harness"):
-    if str(p) not in sys.path: sys.path.insert(0, str(p))
 from cardlang.compiler import compiler
 from cardlang.bytecode import isa
 from cardlang.platform.errors import CARD_ERROR_CODES
@@ -41,7 +37,7 @@ _LIBS = {}
 
 def library(toolchain):
     if toolchain not in _LIBS:
-        path = layout.at(ROOT).vm_c / "build" / toolchain / "cvm.dll"
+        path = layout.at().vm_c / "build" / toolchain / "cvm.dll"
         if not path.exists(): raise SystemExit(f"{path} not found: run `uv run python -I vm/c/build.py {toolchain}` first")
         _LIBS[toolchain] = ffi.dlopen(str(path))
     return _LIBS[toolchain]

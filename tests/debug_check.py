@@ -8,13 +8,10 @@
 4. The sample tools/lsp/testdata/semantic-sample.card has exactly its declared parameters and locals, with their
    types, and a breakpoint offset for each statement line.
 5. Traps report their statement: run-001's overflow and underflow, on lines 16 and 20.
-Usage: uv run python -I tools/vmproto/debug_check.py .
+Usage: uv run python -I tests/debug_check.py .
 """
 import sys, pathlib, hashlib
-HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE, HERE.parent / "harness"):
-    if str(d) not in sys.path: sys.path.insert(0, str(d))
-import backends, scenario
+from cardlang.harness import backends, scenario
 from cardlang.compiler import compiler, typer
 from cardlang.bytecode import disasm, debuginfo
 from cardlang import layout
@@ -84,7 +81,7 @@ def main(repo):
     globs = sorted((g["name"], g["kind"], info.type_name(g["type"])) for g in info.globals)
     check("the sample's globals", globs == [("LIMIT", "const-scalar", "u32"), ("mode", "session", "Mode"), ("total", "persistent", "u32")], str(globs))
     run = layout.at(repo).runtime / "run-001-integer-traps"
-    card = backends.build("vmproto", scenario.program_files(run))
+    card = backends.build("pyvm", scenario.program_files(run))
     card.install(); card.session_start()
     positions = []
     for req in ([1, 0xFF], [2, 0]):

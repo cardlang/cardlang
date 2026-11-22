@@ -10,7 +10,6 @@ has done its recovery (the transaction is undone: HAL-6, HAL-19). The prototype 
 descriptors of HAL-11 and HAL-12 are a concern of the C interface.
 """
 import sys, pathlib, hashlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "interp"))
 from cardlang.platform import p256, testcrypto
 
 CL_TXN_CAPACITY, CL_COMMIT_FAILED, CL_FATAL = 0x0100, 0x0101, 0x01FF

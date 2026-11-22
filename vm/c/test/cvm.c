@@ -1,10 +1,10 @@
 /*
  * cvm.c - the shared library through which the test harness drives the C VM (VM7, J3: driven through cffi).
  *
- * It plays the platform, as tools/vmproto/card.py does for the prototype: it owns the image copy, the SESSION and
+ * It plays the platform, as src/cardlang/pyvm/card.py does for the prototype: it owns the image copy, the SESSION and
  * STACK areas and the host HAL, creates and deletes the partition, and tracks deselection (BP-56). The interface
  * uses only plain C types, so cffi's ABI mode can call it without a compiler. The declarations it exports are
- * repeated, for cffi, in tools/harness/cvm_backend.py.
+ * repeated, for cffi, in src/cardlang/harness/cvm_backend.py.
  */
 #include <stdlib.h>
 #include <string.h>

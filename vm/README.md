@@ -41,7 +41,7 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 | `image-format.md` | The application image and the load-time checks (`IMG-n`) | VM3, VM6 | format 1: IMG-1 to IMG-13 |
 | `c/` | The product VM in C11, and a host HAL | VM7 | not started |
 
-The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11). They meet acceptance criteria 1 to 3 of V-12 as the harness backend `vmproto`: all runtime tests, the FIDO2 check, and every program compiles. The measurements (criterion 4) are in `devel/reports/VM5-measurements.md`: the VM context is 216 bytes.
+The prototypes (a Python compiler and VM, VM4 and VM5) live in `src/cardlang/pyvm/` (V-11). They meet acceptance criteria 1 to 3 of V-12 as the harness backend `pyvm`: all runtime tests, the FIDO2 check, and every program compiles. The measurements (criterion 4) are in `devel/reports/VM5-measurements.md`: the VM context is 216 bytes.
 
 ## Conventions
 
@@ -50,7 +50,7 @@ The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` 
 
 ## Acceptance
 
-Every VM backend is checked by the same harness (`tools/harness/`, V-10) against the criteria of V-12:
+Every VM backend is checked by the same harness (`src/cardlang/harness/`, V-10) against the criteria of V-12:
 
 1. every runtime conformance test passes (`language/conformance/runtime/`);
 2. `examples/fido2/check.py` passes;
@@ -60,7 +60,7 @@ Every VM backend is checked by the same harness (`tools/harness/`, V-10) against
 Run a backend's scenarios with:
 
 ```bash
-python -I tools/harness/scenario.py . --backend interp
+uv run python -I -m cardlang.harness.scenario . --backend interp
 ```
 
 and the FIDO2 check with:

@@ -1,5 +1,5 @@
 /*
- * hal_host.c - the host HAL (vm/hal.md), a port of the prototype's tools/vmproto/hal.py:
+ * hal_host.c - the host HAL (vm/hal.md), a port of the prototype's src/cardlang/pyvm/hal.py:
  * - storage with atomic updates, transactions and recovery (HAL-15 to HAL-20). Recovery is immediate: a power loss
  *   injected at a commit (the interrupt hook) undoes the transaction, then the call returns CL_FATAL, which the VM
  *   reports as "no result" (VEX-43, HAL-6);

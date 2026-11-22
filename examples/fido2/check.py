@@ -8,14 +8,11 @@ Usage: uv run python -I examples/fido2/check.py . [--backend NAME]      (default
 """
 import sys, pathlib, hashlib, hmac
 from cardlang import layout
-TOOLS = layout.at().tools
-sys.path.insert(0, str(TOOLS / "harness"))
-import scenario
+from cardlang.harness import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
-sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from cardlang.front.lexcheck import lex
-import backends
+from cardlang.harness import backends
 from cardlang.platform import p256, testcrypto
 from cardlang.front import grammar
 

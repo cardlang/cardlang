@@ -75,14 +75,14 @@ The interpreter implements the semantics of chapters 6–13:
 - the fictional behavior of the test-only platform catalog (`language/conformance/platform/test-catalog.txt`).
 
 ```bash
-python -I tools/interp/interp.py .
+uv run python -I -m cardlang.interp.interp .
 ```
 
 It is not normative and not optimized. Its execution budget is a fixed number of statements, enough for the tests. A deliberately wrong expectation makes it fail, which was checked when it was written: a missing rollback, a reversed assignment order and a cleared session each made their test fail.
 
 ## The example applets' checks
 
-Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `harness/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../examples/README.md).
+Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `tests/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../examples/README.md).
 
 ## Development aids
 

@@ -2,7 +2,7 @@
 
 Runs each `examples/*/*.scenario` through `clc run`, as the editor's Run Scenario does, on one backend, and prints
 PASS or FAIL for each. A scenario's program is its own folder, with its `cardlang.json`.
-Usage: uv run python -I tools/harness/example_scenarios.py . [--backend NAME]      (default: interp)
+Usage: uv run python -I tests/example_scenarios.py . [--backend NAME]      (default: interp)
 """
 import sys, pathlib, subprocess
 from cardlang import layout

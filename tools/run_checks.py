@@ -38,7 +38,7 @@ RUNS = [
     # Diagnostics with source positions (TL1): the front end the language server and `clc` use.
     ("tests/poscheck.py", None, "diagnostics: valid programs clean; every error with its code at a position (TL1)"),
     ("tools/clc_check.py", None, "clc: check, build, disasm and run on the applets and scenarios (TL1)"),
-    ("tools/vmproto/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code (TL1)"),
+    ("tests/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code (TL1)"),
     ("tools/lsp/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
     ("tools/lsp/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
     ("tools/dap/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
@@ -53,24 +53,24 @@ RUNS = [
     ("cardlang.front.grammar", None, "Annex A derives every test except CE-SYN-1 ones"),
     ("cardlang.front.grammar", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
-    ("tools/interp/interp.py", None, "runtime scenarios in language/conformance/runtime/"),
+    ("cardlang.interp.interp", None, "runtime scenarios in language/conformance/runtime/"),
     # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
-    ("cardlang.compiler.typer", None, "vmproto typer: every valid, runtime and example program fully typed"),
-    ("tools/vmproto/compile_all.py", None, "vmproto compiler: every valid, runtime and example program compiles (V-12 item 3)"),
-    # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios (V-12).
-    ("tools/harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),
-    ("tools/vmproto/check_state.py", None, "vmproto: all VM state in its context, within 1 KiB (V-31, V-2)"),
+    ("cardlang.compiler.typer", None, "compiler typer: every valid, runtime and example program fully typed"),
+    ("tests/compile_all.py", None, "compiler: every valid, runtime and example program compiles (V-12 item 3)"),
+    # The compiler and the Python VM as a backend of the harness (VM5): the same scenarios (V-12).
+    ("cardlang.harness.scenario", "--backend pyvm", "pyvm: runtime scenarios on the Python VM (V-12 item 1)"),
+    ("tests/check_state.py", None, "pyvm: all VM state in its context, within 1 KiB (V-31, V-2)"),
     # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios.
-    ("tools/vmproto/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3, K1)"),
-    ("tools/vmproto/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3, K1)"),
-    ("tools/harness/scenario.py", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
-    ("tools/harness/scenario.py", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
+    ("tests/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3, K1)"),
+    ("tests/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3, K1)"),
+    ("cardlang.harness.scenario", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
+    ("cardlang.harness.scenario", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
 ]
 
 # The example applets (PR4): each examples/<app>/check.py checks its applet independently of the applet's own logic,
 # and every example scenario must pass, on every backend (V-12 item 2). They are found, not listed, so a new applet is
 # checked as soon as its folder exists.
-BACKENDS = ("interp", "vmproto", "cvm-msvc", "cvm-clang")
+BACKENDS = ("interp", "pyvm", "cvm-msvc", "cvm-clang")
 
 def example_runs():
     L = layout.at(ROOT)
@@ -79,7 +79,7 @@ def example_runs():
         for b in BACKENDS:
             yield (check, f"--backend {b}", f"examples/{app} on {b}: a session, checked independently")
     for b in BACKENDS:
-        yield (L.tools / "harness" / "example_scenarios.py", f"--backend {b}", f"every example scenario on {b}")
+        yield (L.tests / "example_scenarios.py", f"--backend {b}", f"every example scenario on {b}")
 
 def label(script):
     """How a run's script is shown: a checker by its name, an applet's checker by its applet."""
@@ -91,7 +91,7 @@ def label(script):
 def main():
     failures = 0
     for script, glob, what in RUNS + list(example_runs()):
-        extra = glob.split() if glob else []                 # e.g. "--backend vmproto"
+        extra = glob.split() if glob else []                 # e.g. "--backend pyvm"
         run = ["-m", script] if isinstance(script, str) and not script.endswith(".py") else [str(ROOT / script)]
         cmd = [sys.executable, "-I", *run, str(ROOT)] + extra
         out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")

@@ -1,16 +1,13 @@
-"""The `vmproto` backend of the harness (V-10): compile a program, load it into a prototype VM over the test HAL, and
-offer the scenario steps of tools/harness/README.md. This module plays the platform: it owns the buffers, the main
+"""The `pyvm` backend of the harness (V-10): compile a program, load it into a prototype VM over the test HAL, and
+offer the scenario steps of src/cardlang/harness/README.md. This module plays the platform: it owns the buffers, the main
 loop's calls into the VM (VEX-45) and the lifecycle state the platform reports.
 """
 import sys, pathlib
-HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "harness"):
-    if str(p) not in sys.path: sys.path.insert(0, str(p))
-import vm
+from cardlang.pyvm import vm
 from cardlang.compiler import compiler
 from cardlang.bytecode import isa
-from hal import TestHal
-from natives import Natives
+from cardlang.pyvm.hal import TestHal
+from cardlang.pyvm.natives import Natives
 from cardlang.platform.errors import CARD_ERROR_CODES
 
 CARD_ERROR_NAMES = {v: k for k, v in CARD_ERROR_CODES.items()}

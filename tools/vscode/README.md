@@ -80,10 +80,10 @@ command 80 10 00 00 04        # a command's bytes, in hex; "capacity n" sets the
 expect sw 9000                # or: expect ok <bytes>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
 ```
 
-The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <hex>` (the test random generator) and `interrupt` (a power loss at the next commit). The format is described in `tools/harness/README.md`.
+The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <hex>` (the test random generator) and `interrupt` (a power loss at the next commit). The format is described in `src/cardlang/harness/README.md`.
 
-Scenario files are named `scenario.txt` or `*.scenario`. **CardLang: Run Scenario** (the play icon) runs one and prints every step, its outcome, and each `expect`. On `vmproto`, a trap is shown with the statement where it happened. The `cardlang.scenarioBackend` setting chooses what runs it:
-- `vmproto`, the prototype VM;
+Scenario files are named `scenario.txt` or `*.scenario`. **CardLang: Run Scenario** (the play icon) runs one and prints every step, its outcome, and each `expect`. On `pyvm`, a trap is shown with the statement where it happened. The `cardlang.scenarioBackend` setting chooses what runs it:
+- `pyvm`, the Python VM;
 - `interp`, the reference interpreter;
 - `cvm-msvc` or `cvm-clang`, the C VM, which `vm/c/build.py` builds first.
 
@@ -125,7 +125,7 @@ The debugger runs the applet on the prototype VM, which executes exactly what th
 |---|---|---|
 | `cardlang.toolsPath` | empty | The CardLang repository. Empty: found from the workspace |
 | `cardlang.uvPath` | `uv` | The uv executable |
-| `cardlang.scenarioBackend` | `vmproto` | Where Run Scenario runs the applet |
+| `cardlang.scenarioBackend` | `pyvm` | Where Run Scenario runs the applet |
 
 ## Colouring persistent state
 

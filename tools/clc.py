@@ -3,7 +3,7 @@
     uv run python -I tools/clc.py check  <program> [--json] [--binding iso7816|raw] [--fragment]
     uv run python -I tools/clc.py build  <program> [-o out.clvm] [--json] [--binding ...]
     uv run python -I tools/clc.py disasm <program | image.clvm>
-    uv run python -I tools/clc.py run    <scenario.txt> [--program <program>] [--backend interp|vmproto|cvm-msvc|cvm-clang]
+    uv run python -I tools/clc.py run    <scenario.txt> [--program <program>] [--backend interp|pyvm|cvm-msvc|cvm-clang]
 
 A <program> is any of:
 - a directory with a `cardlang.json` project file: {"name": ..., "files": [...], "binding": "iso7816" | "raw"};
@@ -14,14 +14,10 @@ check runs the full front end (src/cardlang/front/diagnose.py) and prints each d
 `file:line:column: CE-XXX-n: message`, or a JSON list with --json. Exit status 1 if there are diagnostics.
 build compiles to an image, which the compiler checks first with the full front end (finding T1), written to
 `-o`, or to `build/<name>.clvm` in the program's directory. It prints the image's figures.
-run runs a scenario file (tools/harness/README.md), printing every step and its outcome; its program is
+run runs a scenario file (src/cardlang/harness/README.md), printing every step and its outcome; its program is
 --program, or else the scenario's own directory.
 """
 import sys, json, pathlib, argparse
-TOOLS = pathlib.Path(__file__).resolve().parent
-for d in ("vmproto", "harness", "interp"):
-    p = str(TOOLS / d)
-    if p not in sys.path: sys.path.insert(0, p)
 from cardlang.front import diagnose
 from cardlang.front.lexcheck import header
 
@@ -108,7 +104,8 @@ def describe(outcome):
     return " ".join(str(x) for x in outcome)
 
 def cmd_run(a):
-    import backends, scenario
+    from cardlang.harness import backends, scenario
+    if a.backend == "vmproto": a.backend = "pyvm"          # the old name (see main)
     sc = pathlib.Path(a.scenario)
     prog = Program(a.program or [str(sc.parent)], a.binding)
     ds = diagnostics(prog)
@@ -137,7 +134,8 @@ def main(argv=None):
     p = sub.add_parser("disasm", help="list an image's code"); program_arg(p)
     p = sub.add_parser("run", help="run a scenario against a program")
     p.add_argument("scenario"); p.add_argument("--program", nargs="+"); p.add_argument("--binding", choices=["iso7816", "raw"])
-    p.add_argument("--backend", default="vmproto", choices=["interp", "vmproto", "cvm-msvc", "cvm-clang"])
+    # "vmproto" is the Python VM's name before PR5c, which the installed extension (0.1.1) still sends; PR6 drops it.
+    p.add_argument("--backend", default="pyvm", choices=["interp", "pyvm", "cvm-msvc", "cvm-clang", "vmproto"])
     a = ap.parse_args(argv)
     return {"check": cmd_check, "build": cmd_build, "disasm": cmd_disasm, "run": cmd_run}[a.cmd](a)
 

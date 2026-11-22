@@ -5,12 +5,9 @@ With --backend cvm-msvc or cvm-clang, each image must also load in that build of
 CL_LOAD_OK (VM7 step 6, K1). Build the C VM first with vm/c/build.py.
 
 Usage (from the repository root):
-    uv run python -I tools/vmproto/compile_all.py . [--backend cvm-msvc | cvm-clang]
+    uv run python -I tests/compile_all.py . [--backend cvm-msvc | cvm-clang]
 """
 import sys, pathlib
-HERE = pathlib.Path(__file__).resolve().parent
-for p in (HERE, HERE.parent / "harness"):
-    if str(p) not in sys.path: sys.path.insert(0, str(p))
 from cardlang.compiler import compiler, typer
 from cardlang.bytecode import isa, disasm
 
@@ -29,7 +26,7 @@ if __name__ == "__main__":
     backend = sys.argv[sys.argv.index("--backend") + 1] if "--backend" in sys.argv else None
     if backend is not None:
         if backend not in ("cvm-msvc", "cvm-clang"): raise SystemExit("--backend: cvm-msvc or cvm-clang")
-        import cvm_backend
+        from cardlang.harness import cvm_backend
     for name, toks in typer.programs(repo):
         try:
             c = compiler.Compiler(toks); image = c.compile()

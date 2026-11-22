@@ -179,9 +179,9 @@
         },
         "cardlang.scenarioBackend": {
           "type": "string",
-          "default": "vmproto",
+          "default": "pyvm",
           "enum": [
-            "vmproto",
+            "pyvm",
             "interp",
             "cvm-msvc",
             "cvm-clang"

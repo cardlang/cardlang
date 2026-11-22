@@ -1,19 +1,17 @@
 """Reference interpreter for CardLang runtime conformance tests (non-normative). It is the `interp` backend of the
-harness in tools/harness/ (VM0).
+harness in src/cardlang/harness/ (VM0).
 
 It executes the scenario of every test in language/conformance/runtime/ and compares host-visible results
 (responses, errors, traps) with the scenario's `expect` lines. Each program is first checked by the
 full static checker (hepcheck). When this interpreter and language/spec/ disagree, the specification wins.
 
 Usage (from the repository root):
-    python -I tools/interp/interp.py . ["runtime/run-*"]      (the same as tools/harness/scenario.py --backend interp)
+    python -I src/cardlang/interp/interp.py . ["runtime/run-*"]      (the same as src/cardlang/harness/scenario.py --backend interp)
 """
 import copy, sys, pathlib, hashlib
 from cardlang.front.lexcheck import lex, header
 from cardlang.front import hepcheck, pltcheck, expcheck, consteval
 from cardlang.front.expcheck import P, p_expr, p_postfix, p_type, CE
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "harness"))
 from cardlang.platform import p256                                              # test-only P-256 (WP3)
 from cardlang.platform import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
 from cardlang.platform import testcbor                                          # test-only canonical CBOR (WP5)
@@ -822,9 +820,9 @@ class Card:
         return ("ok", [resp.lst[i].v for i in range(count)])
 
 # ------------------------------------------------------------------ scenarios
-# The scenario runner and the binding encoders live in tools/harness/scenario.py (VM0), shared by every backend.
-from scenario import status_word, raw_envelope, run_scenario                     # kept importable from here
+# The scenario runner and the binding encoders live in src/cardlang/harness/scenario.py (VM0), shared by every backend.
+from cardlang.harness.scenario import status_word, raw_envelope, run_scenario                     # kept importable from here
 
 if __name__ == "__main__":
-    import scenario
+    from cardlang.harness import scenario
     scenario.main(sys.argv[1:], default_backend="interp")

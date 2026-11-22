@@ -2,20 +2,17 @@
 
 Builds examples/piv with the full checker and the ISO 7816 binding check, runs a host-side PIV session (NIST SP
 800-73-5 Part 2) through a harness backend, and checks every response with code of its own: a small BER-TLV
-encoder and parser, and the test-only AES and P-256 of tools/interp. None of the applet's logic is reused.
+encoder and parser, and the test-only AES and P-256 of src/cardlang/interp. None of the applet's logic is reused.
 
 Usage: uv run python -I examples/piv/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, os
 from cardlang import layout
-TOOLS = layout.at().tools
-sys.path.insert(0, str(TOOLS / "harness"))
-import scenario
+from cardlang.harness import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
-sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from cardlang.front.lexcheck import lex
-import backends
+from cardlang.harness import backends
 from cardlang.platform import testcrypto
 from cardlang.front import grammar
 

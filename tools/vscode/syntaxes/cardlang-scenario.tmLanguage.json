@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "CardLang Scenario",
   "scopeName": "source.cardlang-scenario",
-  "comment": "Scenario files that drive an applet (tools/harness/README.md): one step per line, # comments.",
+  "comment": "Scenario files that drive an applet (src/cardlang/harness/README.md): one step per line, # comments.",
   "patterns": [
     { "name": "comment.line.number-sign.cardlang-scenario", "match": "#.*$" },
     {

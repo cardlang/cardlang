@@ -47,12 +47,12 @@ From the repository root, in the uv environment:
 ```bash
 uv run python -I tools/clc.py check examples/fido2
 uv run python -I tools/clc.py build examples/fido2
-uv run python -I tools/clc.py run examples/fido2/getinfo.scenario --backend vmproto
+uv run python -I tools/clc.py run examples/fido2/getinfo.scenario --backend pyvm
 uv run python -I examples/fido2/check.py . --backend interp
 ```
 
 - `build` writes the image to `examples/fido2/build/fido2.clvm`.
-- `run` accepts `--backend interp`, `vmproto`, `cvm-msvc` or `cvm-clang`.
+- `run` accepts `--backend interp`, `pyvm`, `cvm-msvc` or `cvm-clang`.
 - In VS Code, with the CardLang extension, open `getinfo.scenario` and use **CardLang: Run Scenario**, or **CardLang: Debug Scenario** to step through the applet.
 
 ## The independent check

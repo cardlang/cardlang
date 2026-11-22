@@ -1,6 +1,6 @@
 # The CardLang VM in C11
 
-VM7 of the VM plan (`devel/plans/vm/VM7-c-vm.md`): the product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The working model is the Python prototype in `tools/vmproto/`.
+VM7 of the VM plan (`devel/plans/vm/VM7-c-vm.md`): the product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The working model is the Python prototype in `src/cardlang/pyvm/`.
 
 ## Building
 

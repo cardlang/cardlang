@@ -135,7 +135,7 @@ def prelude_symbols():
     return _prelude
 
 def card_error_members():
-    """The CardError members of the Base Profile's table (tools/harness/scenario.py reads the same table)."""
+    """The CardError members of the Base Profile's table (src/cardlang/harness/scenario.py reads the same table)."""
     import re
     profile = layout.at().base_profile
     text = profile.read_text(encoding="utf-8") if profile.exists() else ""

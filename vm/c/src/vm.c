@@ -1,7 +1,7 @@
 /*
  * vm.c - the CardLang VM: loader, interpreter loop, memory, calls, outcomes, traps and entry points (VM7).
  *
- * A port of the prototype tools/vmproto/vm.py, instruction for instruction (bytecode version 1, vm/bytecode.md).
+ * A port of the prototype src/cardlang/pyvm/vm.py, instruction for instruction (bytecode version 1, vm/bytecode.md).
  * The interpreter is one loop in one function, with no recursion (VEX-19); a trap leaves the loop through a single
  * exit, never through longjmp (VEX-39). Every multi-byte value is decoded byte by byte (V-13).
  */

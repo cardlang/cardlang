@@ -49,12 +49,12 @@ From the repository root, in the uv environment:
 ```bash
 uv run python -I tools/clc.py check examples/piv
 uv run python -I tools/clc.py build examples/piv
-uv run python -I tools/clc.py run examples/piv/basic.scenario --backend vmproto
+uv run python -I tools/clc.py run examples/piv/basic.scenario --backend pyvm
 uv run python -I examples/piv/check.py . --backend interp
 ```
 
 - `build` writes the image to `examples/piv/build/piv.clvm`.
-- `run` accepts `--backend interp`, `vmproto`, `cvm-msvc` or `cvm-clang`.
+- `run` accepts `--backend interp`, `pyvm`, `cvm-msvc` or `cvm-clang`.
 - In VS Code, with the CardLang extension, open `basic.scenario` and use **CardLang: Run Scenario**, or **CardLang: Debug Scenario** to step through the applet.
 
 ## The independent check

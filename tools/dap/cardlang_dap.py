@@ -1,6 +1,6 @@
 """The CardLang debug adapter (TL1 step 5): the Debug Adapter Protocol over standard input and output.
 
-It runs a scenario file (tools/harness/README.md) against an applet on the prototype VM (tools/vmproto/vm.py),
+It runs a scenario file (src/cardlang/harness/README.md) against an applet on the Python VM (src/cardlang/pyvm/vm.py),
 which executes exactly what the C VM does, and stops where asked:
 - at breakpoints in `.card` files, through the image's line table (IMG-10, src/cardlang/bytecode/debuginfo.py);
 - at breakpoints on scenario lines, before that step;
@@ -17,9 +17,10 @@ directory), "stopOnEntry": bool}. Run with: uv run python -I tools/dap/cardlang_
 import sys, os, struct, pathlib, threading, traceback
 HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
-for d in (TOOLS / "lsp", TOOLS / "vmproto", TOOLS / "harness", TOOLS):
+for d in (TOOLS / "lsp", TOOLS):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import jsonrpc, vm
+import jsonrpc
+from cardlang.pyvm import vm
 from cardlang.bytecode import debuginfo, isa
 
 THREAD = 1
@@ -96,7 +97,8 @@ class Adapter:
 
     # ---------------------------------------------------------------- launching
     def launch(self, req, a):
-        import clc, backends
+        import clc
+        from cardlang.harness import backends
         from cardlang.front import diagnose
         self.args = a
         try:
@@ -109,7 +111,7 @@ class Adapter:
             if ds:
                 for d in ds: self.out(diagnose.format_diagnostic(d), "stderr")
                 self.respond(req, ok=False, message="the program does not compile: " + diagnose.format_diagnostic(ds[0])); return
-            self.card = backends.build("vmproto", prog.files, prog.binding)
+            self.card = backends.build("pyvm", prog.files, prog.binding)
             self.info = debuginfo.DebugInfo.of(self.card.image)
             self.row_offsets = {off for off, _, _ in self.info.lines}
             self.program = prog
@@ -153,7 +155,7 @@ class Adapter:
 
     # ---------------------------------------------------------------- running
     def run(self):
-        import scenario
+        from cardlang.harness import scenario
         orig_step, orig_cleanup = vm.step, vm.cleanup_after_trap
         def step(ctx, name, ops, next_pc, natives):
             self.check(ctx); return orig_step(ctx, name, ops, next_pc, natives)
@@ -182,7 +184,7 @@ class Adapter:
                 self.out(f"{self.scenario.name}:{lineno}: {step_name} {' '.join(words)[:60]}" + (f"  -> {res}" if res else ""))
         try:
             failed = scenario.run_scenario(self.card, self.scenario.read_text(encoding="utf-8"), trace, before)
-            self.out(f"{self.scenario.name}: " + ("passed" if failed is None else "FAILED, " + failed) + " (vmproto)")
+            self.out(f"{self.scenario.name}: " + ("passed" if failed is None else "FAILED, " + failed) + " (pyvm)")
             status = 0 if failed is None else 1
         except Abort:
             status = 1

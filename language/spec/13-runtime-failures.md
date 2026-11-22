@@ -110,7 +110,7 @@ A command can also produce no response at all (RTF-10). The meaning of a publish
 
 ## 13.6 Runtime conformance tests
 
-The behaviour in this chapter, and the runtime behaviour of earlier chapters, is tested by the scenario tests in `language/conformance/runtime/`. Their format is described in `language/conformance/README.md`. The reference interpreter in `tools/interp/` runs them. The following table maps each test to the rules it exercises:
+The behaviour in this chapter, and the runtime behaviour of earlier chapters, is tested by the scenario tests in `language/conformance/runtime/`. Their format is described in `language/conformance/README.md`. The reference interpreter in `src/cardlang/interp/` runs them. The following table maps each test to the rules it exercises:
 
 | Test | Exercises |
 |---|---|

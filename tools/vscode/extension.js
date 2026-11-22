@@ -112,7 +112,7 @@ async function activate(context) {
       const doc = activeFile("cardlang-scenario");
       if (!doc) { vscode.window.showInformationMessage("CardLang: open a scenario file first."); return; }
       await vscode.workspace.saveAll(false);
-      const backend = vscode.workspace.getConfiguration("cardlang").get("scenarioBackend") || "vmproto";
+      const backend = vscode.workspace.getConfiguration("cardlang").get("scenarioBackend") || "pyvm";
       await runTask(root, "run scenario", ["run", doc.uri.fsPath, "--backend", backend], true);
     }),
     vscode.commands.registerCommand("cardlang.restartServer", async () => {

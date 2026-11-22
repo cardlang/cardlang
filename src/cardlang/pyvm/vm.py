@@ -6,11 +6,9 @@ RESPONSE) are buffers the platform provides; PERSISTENT is reached only through 
 Traps are raised as Trap inside the single interpreter loop and turned into the entry's result there (VEX-39).
 """
 import sys, pathlib, struct
-HERE = pathlib.Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
 from cardlang.bytecode import isa
 from cardlang.bytecode.isa import TYPE_NAMES, WIDTH, SIGNED, REGIONS
-from hal import HalStatus, PowerLoss, CL_TXN_CAPACITY, CL_COMMIT_FAILED, CL_FATAL
+from cardlang.pyvm.hal import HalStatus, PowerLoss, CL_TXN_CAPACITY, CL_COMMIT_FAILED, CL_FATAL
 
 CONST, PERSISTENT, SESSION, STACK, REQUEST, RESPONSE = range(6)
 RET_NONE = 0xFFFFFFFF

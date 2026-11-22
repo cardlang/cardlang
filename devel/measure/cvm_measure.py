@@ -19,7 +19,7 @@ import sys, re, json, time, pathlib, subprocess, collections
 from cardlang import layout
 HERE = layout.at().vm_c            # the C VM, which this script measures (the script moved to devel/measure in PR2)
 REPO = layout.at().root
-sys.path[:0] = [str(HERE)] + [str(layout.at().tools / d) for d in ("harness", "vmproto", "interp")]
+sys.path[:0] = [str(HERE)]
 import build
 
 SOURCES = ["src/vm.c", "src/natives.c"]
@@ -131,7 +131,7 @@ def cross(root):
     return result
 
 def host(root):
-    import cvm_backend
+    from cardlang.harness import cvm_backend
     out = {}
     for tc in ("msvc", "clang"):
         objdir = HERE / "build" / tc / "CMakeFiles" / "cardlang_vm.dir" / "src"
@@ -141,10 +141,10 @@ def host(root):
     return out
 
 def speed():
-    import backends, cvm_backend
+    from cardlang.harness import backends, cvm_backend
     request = [ROUNDS >> 8, ROUNDS & 0xFF]
     out = {}
-    card = backends.build("vmproto", [BENCH]); card.install(); card.session_start()
+    card = backends.build("pyvm", [BENCH]); card.install(); card.session_start()
     t = time.perf_counter(); ref = card.command(request, 8); dt = time.perf_counter() - t
     n = card.ctx.budget_cfg - card.ctx.budget
     out["vmproto"] = {"instructions": n, "seconds": dt, "per_second": n / dt}

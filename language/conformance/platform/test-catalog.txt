@@ -13,7 +13,7 @@
 # - transactions: "participates", "immediate" (permitted, does not participate) or "forbidden"
 # - may return: CardError members, or "-"
 #
-# Behaviour (used by tools/interp; test-only):
+# Behaviour (used by the reference interpreter, cardlang.interp; test-only):
 #   resources.create  creates resource `id` of `kind` (1 = counter, 2 = key) with value 0.
 #                     id already used: AlreadyExists; more than 4 resources: Capacity.
 #   resources.delete  deletes resource `id`; unknown: NotFound.

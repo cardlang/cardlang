@@ -1,3 +1,3 @@
 """The bytecode: the instruction set and image format (vm/bytecode.md, vm/image-format.md), the debug section, and
-the disassembler (were in tools/vmproto).
+the disassembler (were in the prototype's folder in tools/).
 """
