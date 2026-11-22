@@ -4,6 +4,8 @@
   "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets.",
   "version": "0.1.1",
   "publisher": "cardlang",
+  "icon": "images/icon.png",
+  "galleryBanner": { "color": "#14264D", "theme": "dark" },
   "license": "Apache-2.0",
   "private": true,
   "engines": {

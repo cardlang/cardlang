@@ -1,4 +1,9 @@
-# CardLang
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/cardlang-logo-dark.svg">
+    <img src="assets/cardlang-logo.svg" width="300" alt="CardLang">
+  </picture>
+</p>
 
 CardLang is a small, statically typed, imperative language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and also smart-card applets. This repository holds:
 - **the language:** its specification, a conformance test suite, and the reasoning behind it;
