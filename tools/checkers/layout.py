@@ -20,16 +20,19 @@ class Layout:
     def __init__(self, root=None):
         r = pathlib.Path(root).resolve() if root is not None else ROOT
         self.root = r
-        # the language definition
-        self.spec = r / "spec"
-        self.conformance = r / "conformance"
+        # the language definition (PR3)
+        self.language = r / "language"
+        self.spec = self.language / "spec"
+        self.conformance = self.language / "conformance"
         self.valid = self.conformance / "valid"
         self.invalid = self.conformance / "invalid"
         self.runtime = self.conformance / "runtime"
         self.test_catalog = self.conformance / "platform" / "test-catalog.txt"
-        self.design_notes = r / "plans_and_notes" / "card-language-design-notes.md"
-        self.platform_notes = r / "plans_and_notes" / "cardlang-platform-notes.md"
-        self.decision_register = r / "plans_and_notes" / "decision-register.md"
+        self.rationale = self.language / "rationale"
+        self.design_notes = self.rationale / "card-language-design-notes.md"
+        self.platform_notes = self.rationale / "cardlang-platform-notes.md"
+        self.decision_register = self.rationale / "decision-register.md"
+        self.releases = self.language / "releases"
         # the platform profile
         self.platform = r / "platform"
         self.base_profile = self.platform / "base-profile.md"
@@ -40,7 +43,6 @@ class Layout:
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
         self.tools = r / "tools"
-        self.notes = r / "plans_and_notes"           # the rationale, until PR3 moves it into language/
         # development aids (PR2)
         self.devel = r / "devel"
         self.plans = self.devel / "plans"
@@ -48,9 +50,9 @@ class Layout:
         self.generators = self.devel / "generators"
         self.history = self.devel / "history"
         self.measure = self.devel / "measure"
-        # Documents that record the past: their file paths are as of writing (PR1 L4). The rationale files are part
-        # of the definition, but they too are a record.
-        self.historical = [self.devel, self.notes]
+        # Documents that record the past: their file paths are as of writing (PR1 L4). The rationale and the release
+        # notes are part of the definition, but they too are a record.
+        self.historical = [self.devel, self.rationale, self.releases]
 
     def __repr__(self): return f"Layout({str(self.root)!r})"
 
@@ -65,7 +67,7 @@ def at(root=None):
     return Layout(root)
 
 # The top-level parts, for linkcheck's check that only this module builds paths into them.
-TOP_LEVEL = ("spec", "conformance", "platform", "examples", "vm", "tools", "plans_and_notes", "devel")
+TOP_LEVEL = ("language", "platform", "examples", "vm", "tools", "devel")
 
 # Where moved files went: (old path or folder, new path or folder), relative to the root. Historical documents keep the
 # paths they were written with (PR1 L4); linkcheck resolves them through this table, so they are still checked.
@@ -91,6 +93,14 @@ MOVED = [
     ("tools/vmproto/measure.py", "devel/measure/pyvm_measure.py"),
     ("tools/vmproto/revision.py", "devel/measure/revision.py"),
     ("vm/c/measure.py", "devel/measure/cvm_measure.py"),
+    # PR3: the definition into language/
+    ("spec", "language/spec"),
+    ("conformance", "language/conformance"),
+    ("plans_and_notes/card-language-design-notes.md", "language/rationale/card-language-design-notes.md"),
+    ("plans_and_notes/cardlang-platform-notes.md", "language/rationale/cardlang-platform-notes.md"),
+    ("plans_and_notes/decision-register.md", "language/rationale/decision-register.md"),
+    ("plans_and_notes/draft-0.2-release-notes.md", "language/releases/draft-0.2.md"),
+    ("plans_and_notes/draft-0.2-candidates.md", "language/releases/draft-0.2-candidates.md"),
 ]
 
 def moved(path):

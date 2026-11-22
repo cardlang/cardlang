@@ -21,7 +21,8 @@ README.md  LICENSE  CONTRIBUTING.md
 language/                 the definition
   spec/                   the specification (was spec/)
   conformance/            the conformance suite (was conformance/)
-  rationale/              design notes, decision register, draft release notes and candidates
+  rationale/              design notes, platform notes, decision register
+  releases/               release notes, and the candidates for the next draft (PR3 P2)
 platform/                 the Base Profile, a platform specification: profile, base types, API catalog
 vm/                       the VM: its design documents (decisions, execution model, HAL, bytecode, image format)
   c/                      and the C VM

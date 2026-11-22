@@ -2,7 +2,7 @@
 
 CardLang is a small, statically typed, imperative language for writing smart-card applications. This repository holds its language specification, a conformance test suite, and reference tools that check the two against each other.
 
-**Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. See [the release notes](plans_and_notes/draft-0.2-release-notes.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
+**Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. See [the release notes](language/releases/draft-0.2.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
 
 Since Draft 0.2, the repository also holds:
 - a compiler to a compact bytecode (`tools/vmproto/compiler.py`);
@@ -51,7 +51,7 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-This is a shortened version of the counter, one of the representative applications. The full version is `conformance/valid/hep-005-counter-application.card`. Key properties of the language:
+This is a shortened version of the counter, one of the representative applications. The full version is `language/conformance/valid/hep-005-counter-application.card`. Key properties of the language:
 
 - **Fixed-size data only.** Integers `u8`–`u32` and `i8`–`i32`, `bool`, enums, structures and fixed arrays `T[N]`. There is no heap, no strings, no floating point and no implicit conversion.
 - **Explicit state.** Globals are `persistent` (survives power loss), `session` (cleared at power-on and reset) or `const`. Every assignment to persistent state is atomic, and `transaction { … }` groups several of them.
@@ -64,8 +64,11 @@ This is a shortened version of the counter, one of the representative applicatio
 
 | Path | Contents |
 |---|---|
-| [`spec/`](spec/00-index.md) | The specification: chapters 1–13, plus Annex A (grammar), B (platform contract), C (open issues) and D (traceability). Start at [`spec/00-index.md`](spec/00-index.md) |
-| [`conformance/`](conformance/README.md) | 350 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
+| [`language/`](language/README.md) | The language definition: |
+| [`language/spec/`](language/spec/00-index.md) | the specification: chapters 1–13, plus Annex A (grammar), B (platform contract), C (open issues) and D (traceability). Start at [`language/spec/00-index.md`](language/spec/00-index.md) |
+| [`language/conformance/`](language/conformance/README.md) | 350 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
+| [`language/rationale/`](language/rationale/) | the design notes, the platform notes and the decision register, which the rules cite |
+| [`language/releases/`](language/releases/) | the Draft 0.2 release notes, and the candidates for Draft 0.3 |
 | [`platform/`](platform/base-profile.md) | The CardLang Base Profile 1, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes, keys, crypto, CBOR, TLV, transport bindings and the API catalog (`base-catalog.txt`) |
 | [`examples/fido2/`](examples/fido2/) | A FIDO2 (CTAP 2.0) authenticator in CardLang, with PIN protocols two and one, checked by `tools/fido/check_fido2.py` |
 | [`examples/piv/`](examples/piv/) | A PIV card application (NIST SP 800-73-5, contact-interface subset), checked by `tools/piv/check_piv.py` |
@@ -73,7 +76,6 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`tools/clc.py`](tools/clc.py) | The command line: check, build, disassemble, and run a scenario |
 | [`tools/vscode/`](tools/vscode/README.md), `tools/lsp/`, `tools/dap/` | The VS Code extension, its language server and its debug adapter |
 | [`vm/`](vm/decisions.md) | The VM's design (execution model, HAL, bytecode, image format) and the C VM (`vm/c/`) |
-| [`plans_and_notes/`](plans_and_notes/) | The rationale: the source design notes, the platform notes, the decision register, and the Draft 0.2 release notes and candidates (to move into `language/`, PR3) |
 | [`devel/`](devel/README.md) | Development aids: the plans of plans and every work-package plan, measurement reports and findings, the conformance-test generators, and the history and measurement scripts |
 
 ## How the specification is organized
@@ -93,7 +95,7 @@ uv run python -I vm/c/build.py all
 uv run python -I tools/run_checks.py
 ```
 
-This runs every checker over the conformance tests it covers, the grammar check, the specification consistency check and the runtime scenarios. It exits non-zero on any failure. Run it after every change to `spec/` or `conformance/`. The tools are not normative: when a tool and `spec/` disagree, the specification wins.
+This runs every checker over the conformance tests it covers, the grammar check, the specification consistency check and the runtime scenarios. It exits non-zero on any failure. Run it after every change to `language/spec/` or `language/conformance/`. The tools are not normative: when a tool and `language/spec/` disagree, the specification wins.
 
 ## Next steps
 
@@ -103,4 +105,4 @@ The plans are in [`devel/plans/vm-plan-of-plans.md`](devel/plans/vm-plan-of-plan
 - **VM9:** a bridge to real host software, through a virtual smart-card reader;
 - **WP13:** an OpenPGP card applet;
 - **a checker for chapter 3's name rules,** which the tools do not check yet;
-- **the candidates for Draft 0.3,** in `plans_and_notes/draft-0.2-candidates.md`.
+- **the candidates for Draft 0.3,** in `language/releases/draft-0.2-candidates.md`.

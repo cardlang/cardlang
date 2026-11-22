@@ -556,7 +556,7 @@ Every construct maps onto version 0. No VM state is needed beyond VEX-49.
 
 These listings are the prototype compiler's output (`tools/vmproto/disasm.py`), for bytecode version 1. Each line shows the code offset, the encoded bytes, and the instruction. The version-0 listings that VM3 compiled by hand, and how the sizes moved, are recorded in `devel/reports/VM5-measurements.md` §3.4 and §9.
 
-### B.1 The counter application (`conformance/runtime/run-011-counter-application`)
+### B.1 The counter application (`language/conformance/runtime/run-011-counter-application`)
 
 The layout is as in version 0: `counter` at `PERSISTENT` 0 and `increments` at 4; `encode_counter`'s `output` at frame offsets 8 and 12, `bytes` at 16, the loop index at 20 and its bound at 24; `process`'s `operation` at 24.
 

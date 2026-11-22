@@ -2,7 +2,7 @@
 
 Status: Base Profile 1, released with CardLang Draft 0.2 (2026-11-19). All sections are written (WP2–WP7, with later additions such as command keys, `write_string` and `write_bool`, the raw envelope and session events). Design decisions: `devel/plans/spec/base-api-plan.md` and `devel/plans/spec/WP2-profile-skeleton.md`.
 
-This document is a **platform specification**. It is not part of the language specification in `spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
+This document is a **platform specification**. It is not part of the language specification in `language/spec/`. It defines the APIs, types and error codes that a platform must provide to claim the Base Profile, and so it answers some of the items that the language leaves to platforms (Annex B §B.12). The rules here are numbered `BP-n`.
 
 ## 1. Scope and conformance
 

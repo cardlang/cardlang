@@ -692,13 +692,13 @@ static NOINLINE int codecs(cl_vm *vm, uint16_t number, const uint32_t *c, uint32
 }
 
 #ifdef CL_TEST_CATALOG
-/* The test-only catalog (conformance/platform/test-catalog.txt, V-33) */
+/* The test-only catalog (language/conformance/platform/test-catalog.txt, V-33) */
 static NOINLINE int test_catalog(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
     cl_hal *hal = vm->hal;
     uint32_t n = 0, v = 0;
     (void)hal; (void)number; (void)res; (void)slot;
     switch (number) {
-    /* the test-only catalog (conformance/platform/test-catalog.txt, V-33) */
+    /* the test-only catalog (language/conformance/platform/test-catalog.txt, V-33) */
     case 0xF000: return st(cl_hal_test_resource_create(hal, c[0], c[1]));
     case 0xF001: TRY(st(cl_hal_test_resource_get(hal, c[0], &n, &v))); return st(cl_hal_test_resource_delete(hal, c[0]));
     case 0xF002:

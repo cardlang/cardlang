@@ -1,6 +1,6 @@
 # The CardLang VM
 
-This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
+This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`language/spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
 
 The plan is in `devel/plans/vm-plan-of-plans.md`. Each work package (VM0 to VM8) has a sub-plan in `devel/plans/vm/`.
 
@@ -52,7 +52,7 @@ The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` 
 
 Every VM backend is checked by the same harness (`tools/harness/`, V-10) against the criteria of V-12:
 
-1. every runtime conformance test passes (`conformance/runtime/`);
+1. every runtime conformance test passes (`language/conformance/runtime/`);
 2. `tools/fido/check_fido2.py` passes;
 3. every valid conformance program compiles to an image;
 4. the backend reports its bytecode size, stack and frame figures, and its bookkeeping RAM.

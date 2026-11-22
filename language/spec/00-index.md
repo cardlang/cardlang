@@ -2,7 +2,7 @@
 
 This is the normative specification of the CardLang language.
 
-**Status: Draft 0.2 (2026-11-19).** Every rule is [Agreed], every open issue is resolved, and the scripted checks in `tools/run_checks.py` pass. What changed since Draft 0.1 is in `plans_and_notes/draft-0.2-release-notes.md`. Draft 0.1's consolidation report is `devel/reports/SP14-consolidation-report.md`. The CardLang Base Profile 1, a platform specification, is in `platform/`.
+**Status: Draft 0.2 (2026-11-19).** Every rule is [Agreed], every open issue is resolved, and the scripted checks in `tools/run_checks.py` pass. What changed since Draft 0.1 is in `language/releases/draft-0.2.md`. Draft 0.1's consolidation report is `devel/reports/SP14-consolidation-report.md`. The CardLang Base Profile 1, a platform specification, is in `platform/`.
 
 ## Contents and status
 
@@ -28,8 +28,8 @@ This is the normative specification of the CardLang language.
 
 Related files:
 
-- `plans_and_notes/decision-register.md`: the decision IDs (`D-nnn`) cited by rules.
-- `conformance/README.md`: the conformance test format.
+- `language/rationale/decision-register.md`: the decision IDs (`D-nnn`) cited by rules.
+- `language/conformance/README.md`: the conformance test format.
 - `tools/README.md`: the reference checkers, the reference interpreter and `run_checks.py`.
 
 ## Rule status summary

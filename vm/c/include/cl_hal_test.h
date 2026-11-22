@@ -19,7 +19,7 @@ cl_status cl_hal_test_seed(cl_hal *hal, const uint8_t *seed, uint32_t len);
 /* Make the next commit behave as a power loss during the commit, followed by recovery (the `interrupt` step). */
 cl_status cl_hal_test_interrupt_next_commit(cl_hal *hal);
 
-/* The fictional resources of the test-only catalog (card.test.*, conformance/platform/test-catalog.txt, V-33): at
+/* The fictional resources of the test-only catalog (card.test.*, language/conformance/platform/test-catalog.txt, V-33): at
  * most 4, each with a kind (1 a counter, 2 a key) and a value. They share the identifier space (PLT-20).
  * create: CL_ERR_ALREADY_EXISTS, then CL_ERR_CAPACITY. The others: CL_ERR_NOT_FOUND. */
 cl_status cl_hal_test_resource_create(cl_hal *hal, uint32_t id, uint32_t kind);

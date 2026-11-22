@@ -5,7 +5,7 @@ Over every Markdown file the repository tracks:
 2. **Anchors:** a link's `#anchor` must name a heading of its target, or an explicit `<a id>`. Headings follow
    GitHub's rules: lower case, punctuation dropped, spaces to `-`, and `-1`, `-2` for repeats.
 3. **Named files:** a path in backticks must resolve against the repository root, the document's folder, or a folder
-   such paths are written relative to (`conformance/`, `vm/c/`). A path counts only if its last part has a file
+   such paths are written relative to (`language/conformance/`, `vm/c/`). A path counts only if its last part has a file
    extension or its first part is a known folder, so `and/or` is not one. Build outputs (in a build or
    node_modules folder, or a generated file such as a .vsix) are not checked: a fresh checkout has none.
 
@@ -18,6 +18,10 @@ A line carrying `<!-- linkcheck: ignore -->` is not checked.
 
 Over every Python file it tracks (4): only `layout` builds paths into the repository's top-level parts. A line that
 sets up `sys.path` is exempt: it bootstraps imports, and goes away when the tools become a package (PR5).
+
+Over every source file it tracks outside the historical folders (5: .card, .c, .h, .py, .js): a repository path named
+anywhere in it, in a comment, a docstring or a string, must exist. A path counts if its first part is a top-level folder,
+or one that a move retired. `layout.py` is exempt, since its table of moves names the old paths on purpose (PR3 P4).
 Usage: uv run python -I tools/checkers/linkcheck.py .
 """
 import re, sys, pathlib, subprocess, collections
@@ -29,6 +33,7 @@ IGNORE = "<!-- linkcheck: ignore -->"
 EXTENSIONS = {".md", ".py", ".card", ".txt", ".json", ".c", ".h", ".js", ".toml", ".cmake", ".scenario", ".clvm", ".lock",
               ".yml", ".yaml", ".bin", ".dll", ".so", ".exe", ".html", ".svg", ".png", ".ini"}
 SKIP_DIRS = {".git", ".venv", "node_modules", "build", "reference", "__pycache__", "_deps"}
+SOURCES = (".card", ".c", ".h", ".py", ".js")                                  # source files whose named paths are checked (5)
 GENERATED = {".vsix", ".clvm", ".dll", ".so", ".exe", ".lib", ".obj", ".o"}      # build outputs a document may name
 
 def tracked(root, pattern):
@@ -63,7 +68,8 @@ def main(root):
     L = layout.at(root); root = L.root
     bases = [root, L.conformance, L.vm_c]
     known_dirs = {p.name for p in root.iterdir() if p.is_dir()} | {"valid", "invalid", "runtime", "platform", "src", "include",
-                                                                    "hal-host", "test", "cmake", "testdata", "syntaxes", "snippets"}
+                                                                    "hal-host", "test", "cmake", "testdata", "syntaxes", "snippets"} \
+                 | {old.split("/")[0] for old, _ in layout.MOVED}           # former top-level folders
     historical = [pathlib.Path(h) for h in L.historical]
     fails = infos = files = 0
     def fail(where, msg):
@@ -110,6 +116,22 @@ def main(root):
             if rx.search(line):
                 bad += 1; fail(f"{py.relative_to(root).as_posix()}:{n}", "a repository path built outside layout: " + line.strip()[:100])
     if not bad: print("PASS only layout builds paths into the top-level parts")
+    # 5. repository paths named in source files: comments, docstrings and strings (PR3 P4)
+    tops = ({p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")} - SKIP_DIRS) \
+           | {old.split("/")[0] for old, _ in layout.MOVED}
+    rx = re.compile(r"(?<![\w./-])((?:" + "|".join(sorted(tops)) + r")(?:/[A-Za-z0-9_.*-]+)+)")
+    bad = 0
+    for src in sorted(sum((tracked(root, f"*{ext}") for ext in SOURCES), [])):
+        if src.name == "layout.py" or any(src.resolve().is_relative_to(h) for h in historical): continue
+        if set(src.relative_to(root).parts) & SKIP_DIRS: continue
+        for n, line in enumerate(src.read_text(encoding="utf-8", errors="replace").split("\n"), 1):
+            if IGNORE in line: continue
+            for m in rx.finditer(line):
+                p = m.group(1).rstrip(".,;:")
+                if "*" in p or set(p.split("/")) & SKIP_DIRS or pathlib.PurePosixPath(p).suffix.lower() in GENERATED or (root / p).exists() or (src.parent / p).exists(): continue
+                where = f"{src.relative_to(root).as_posix()}:{n}"; now = layout.moved(p)
+                bad += 1; fail(where, f"a moved file, now at {now}: {p}" if now else f"a named file that does not exist: {p}")
+    if not bad: print("PASS repository paths named in source files exist")
     print(f"{files} documents; {fails} failures; {infos} historical paths as of writing")
     print("ALL PASS" if fails == 0 else "FAILURES")
     return fails == 0

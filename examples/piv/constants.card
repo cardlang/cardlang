@@ -1,5 +1,5 @@
 // A PIV card application (NIST SP 800-73-5) in CardLang: constants, errors and state.
-// WP12 of plans_and_notes/spec-plans/WP12-piv.md. Contact interface only; no secure messaging (PIV step 0, §2).
+// WP12 of devel/plans/spec/WP12-piv.md. Contact interface only; no secure messaging (PIV step 0, §2).
 
 // The one application error set (OUT-16): ISO 7816 status words (BP-51, BP-52). VERIFY and the PIN commands report
 // the retries left as 63CX; the retry counters are at most 10 (Part 2 §3.2.1), so 63C0 to 63CA (PIV step 0, Q5).

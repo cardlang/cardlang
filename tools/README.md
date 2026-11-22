@@ -1,6 +1,6 @@
 # Specification tools
 
-These scripts support the CardLang specification work. They are not a compiler, and they are not normative: when a script and `spec/` disagree, the specification wins, and the script is the thing to fix.
+These scripts support the CardLang specification work. They are not a compiler, and they are not normative: when a script and `language/spec/` disagree, the specification wins, and the script is the thing to fix.
 
 All scripts need only Python 3 and its standard library.
 
@@ -12,7 +12,7 @@ From the repository root:
 python -I tools/run_checks.py
 ```
 
-It runs every checker over the conformance tests it covers. It prints one line per run and exits non-zero if any test does not give its expected result. Run it after every change to `spec/` or `conformance/`.
+It runs every checker over the conformance tests it covers. It prints one line per run and exits non-zero if any test does not give its expected result. Run it after every change to `language/spec/` or `language/conformance/`.
 
 ## `checkers/`: reference checkers
 
@@ -38,7 +38,7 @@ Two further checkers check the specification itself rather than one chapter:
 |---|---|---|
 | `grammar.py` | Annex A, mechanically. It reads the EBNF from the annex, converts it to BNF and runs an Earley recognizer. Every test must derive `SourceFile`, except tests expecting CE-SYN-1, which must not, and lexical-error tests, which are skipped. With `--notes`, every design-note code block that the full checker accepts must derive | every test |
 | `profilecheck.py` | The Base Profile in `platform/`: BP rule numbering, the `CardError` table and the error precedence, `base-types.card` compiling, and every catalog block's fields, types and errors | `platform/` |
-| `speccheck.py` | Consistency of `spec/`: rule tags and Sources lines, references, compile-error classes and their tables, trap kinds, table shapes, chapter grammar fragments against Annex A, the B.12 checklist, the D.2 reverse links, the D.3 coverage matrix and the 00-index counts | the specification |
+| `speccheck.py` | Consistency of `language/spec/`: rule tags and Sources lines, references, compile-error classes and their tables, trap kinds, table shapes, chapter grammar fragments against Annex A, the B.12 checklist, the D.2 reverse links, the D.3 coverage matrix and the 00-index counts | the specification |
 
 Run a single checker as `python -I tools/checkers/<script> . "<glob>"`. For example:
 
@@ -57,7 +57,7 @@ python -I tools/checkers/pltcheck.py . "valid/*"
 
 ## `interp/`: reference interpreter
 
-`interp.py` runs the runtime tests in `conformance/runtime/`. For each test it does three things:
+`interp.py` runs the runtime tests in `language/conformance/runtime/`. For each test it does three things:
 
 1. It compiles the program with the full checker chain (`pltcheck`).
 2. It executes the steps in the test's `scenario.txt`.
@@ -71,7 +71,7 @@ The interpreter implements the semantics of chapters 6–13:
 - `abort` and `attempt`;
 - the command contract;
 - `install`, `power_on`, `reset`, and power loss during a commit;
-- the fictional behavior of the test-only platform catalog (`conformance/platform/test-catalog.txt`).
+- the fictional behavior of the test-only platform catalog (`language/conformance/platform/test-catalog.txt`).
 
 ```bash
 python -I tools/interp/interp.py .

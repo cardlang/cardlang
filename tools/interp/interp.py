@@ -1,9 +1,9 @@
 """Reference interpreter for CardLang runtime conformance tests (non-normative). It is the `interp` backend of the
 harness in tools/harness/ (VM0).
 
-It executes the scenario of every test in conformance/runtime/ and compares host-visible results
+It executes the scenario of every test in language/conformance/runtime/ and compares host-visible results
 (responses, errors, traps) with the scenario's `expect` lines. Each program is first checked by the
-full static checker (hepcheck). When this interpreter and spec/ disagree, the specification wins.
+full static checker (hepcheck). When this interpreter and language/spec/ disagree, the specification wins.
 
 Usage (from the repository root):
     python -I tools/interp/interp.py . ["runtime/run-*"]      (the same as tools/harness/scenario.py --backend interp)
@@ -557,7 +557,7 @@ class Card:
         raise RuntimeError("no behaviour for " + path)
 
     def platform_call(self, path, args, env):
-        """Test-only behaviour of conformance/platform/test-catalog.txt (non-normative)."""
+        """Test-only behaviour of language/conformance/platform/test-catalog.txt (non-normative)."""
         if path.startswith(("card.tlv.", "card.der.")): return self.tlv_call(path, args, env)
         if path.startswith("card.cbor."): return self.cbor_call(path, args, env)
         if path.startswith("card.key."): return self.key_call(path, args, env)

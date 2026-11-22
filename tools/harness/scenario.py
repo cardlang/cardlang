@@ -1,6 +1,6 @@
 """The scenario runner shared by every CardLang execution backend (VM0, vm/decisions.md V-10).
 
-A scenario (conformance/runtime/*/scenario.txt) is a list of steps and expectations. This module runs one against a
+A scenario (language/conformance/runtime/*/scenario.txt) is a list of steps and expectations. This module runs one against a
 backend, a "card" built from a checked program, and compares host-visible results. The backend interface is
 described in tools/harness/README.md; the backends are listed in backends.py.
 

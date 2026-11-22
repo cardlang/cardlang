@@ -169,12 +169,12 @@ A completed evaluation produces a value `v`, a successful outcome `Ok(v)` or `Ok
 - Each chapter section ends with **valid** and **invalid** examples. Each invalid example states the expected compile-error class or trap kind.
 - Examples are independent snippets unless they say otherwise. Repeated names in different examples are not declarations in one program.
 - Examples taken from the design notes keep their meaning. When a notes fragment needs surrounding code to become a complete application, the added lines are marked `// scaffold`.
-- Every example is also a conformance test file in `conformance/`, and the example names that file. The file format is defined in `conformance/README.md`.
+- Every example is also a conformance test file in `language/conformance/`, and the example names that file. The file format is defined in `language/conformance/README.md`.
 
 ## 1.9 Sources and traceability
 
-- **DN** is `plans_and_notes/card-language-design-notes.md` (revision of 2026-11-15). **PN** is `plans_and_notes/cardlang-platform-notes.md` (2026-11-14). They are cited by section, as `DN §3.5` or `PN §5`.
-- Decisions are cited by their ID in `plans_and_notes/decision-register.md` (for example D-102).
+- **DN** is `language/rationale/card-language-design-notes.md` (revision of 2026-11-15). **PN** is `language/rationale/cardlang-platform-notes.md` (2026-11-14). They are cited by section, as `DN §3.5` or `PN §5`.
+- Decisions are cited by their ID in `language/rationale/decision-register.md` (for example D-102).
 - Every normative rule has a *Sources* line citing at least one `D-` ID or DN/PN section, plus the open issue for a [Proposal] or [Open] rule.
 - Annex D maps every specification section to its sources, and every `D-` ID to the rules that implement it.
 

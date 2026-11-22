@@ -1,6 +1,6 @@
 """Reference checker for the platform-catalog rules (NAM-18, EXP-47 for platform calls, TXN-17), built on hepcheck.
 
-Loads the test-only catalog conformance/platform/test-catalog.txt (Annex B, PLT-26; non-normative).
+Loads the test-only catalog language/conformance/platform/test-catalog.txt (Annex B, PLT-26; non-normative).
 """
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))

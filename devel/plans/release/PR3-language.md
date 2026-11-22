@@ -53,9 +53,42 @@ Planned 2026-11-22, the third work package of PR0. It gathers the language defin
 
 | ID | Question | Options | Recommendation |
 |---|---|---|---|
-| P1 | Where the platform notes go. They are the early notes on the platform and runtime boundary, and the source of Annex B and the Base Profile | (a) `language/rationale/`, beside the design notes; (b) `platform/rationale/` | (a). They predate the profile and were written as input to the language's Annex B, which is part of the specification |
+| P1 | Where the platform notes go. They are the early notes on the platform and runtime boundary, and the source of Annex B and the Base Profile | (a) `language/rationale/`, beside the design notes; (b) `platform/rationale/` | (a). They predate the profile and were written as input to the language's Annex B, which is part of the specification | <!-- linkcheck: ignore -->
 | P2 | The Draft 0.2 release notes and candidates | (a) `language/rationale/`, as PR0 says; (b) `language/releases/`: the release notes as `draft-0.2.md`, beside the candidates for the next draft | (b). A reader looks for what changed in a release, which is not rationale; a folder of releases also has room for Draft 0.3 |
 | P3 | A README for `language/` | (a) now: a short page on what each part is, and where to start reading; (b) leave it to PR7 | (a). A new top-level folder with no README is the first thing a visitor sees |
 | P4 | Paths named in source comments (`.card`, `.c`, `.h`, Python docstrings) | (a) extend the link check's path rule to comments in tracked source files outside `devel/`; (b) rewrite this PR's comments by hand and keep the check to Markdown | (a). The FIDO2 comment shows that hand-checking already misses one. Files in `devel/` are historical and stay out |
 
 **Decided (user, 2026-11-22):** P1 (a), P2 (b), P3 (a), P4 (a), all as recommended.
+
+## 5. Done (2026-11-22)
+
+- **Moved with `git mv`:**
+  - `spec/` to `language/spec/`, and `conformance/` to `language/conformance/`;
+  - the design notes, the platform notes and the decision register to `language/rationale/`;
+  - the release notes to `language/releases/draft-0.2.md`, and the candidates beside them.
+
+  `plans_and_notes/` is gone. PR0's target layout now shows `releases/` (P2).
+- **`.gitattributes`** moved its byte-exact pattern to `language/conformance/` in the same change. All 464 conformance files have the same line endings and `text` attributes as before the move.
+- **`layout`:**
+  - new parts `language`, `rationale` and `releases`;
+  - `historical` is now `devel/`, the rationale and the releases;
+  - `TOP_LEVEL` is `language`, `platform`, `examples`, `vm`, `tools` and `devel`;
+  - `MOVED` has the PR3 rows.
+
+  The tools needed no other change, with one exception: `tools/clc_check.py` named three conformance files as plain strings. It now asks `layout`.
+- **The link check:**
+  - **Source files (P4):** a new check covers `.card`, `.c`, `.h`, `.py` and `.js` files outside the historical folders. Every repository path they name, in a comment, a docstring or a string, must exist. A moved path fails and names its new place. Build outputs and `layout.py` are exempt.
+    - Checked by injection, on a copy: an old path in `natives.c` fails, a missing one fails, and the same in `devel/` is ignored.
+    - The check found 15 stale paths. Four of them were left over from PR2: the comments in the two examples' `constants.card`, two conformance programs, and `vm/c/test/bench.card`.
+  - **Former top-level folder names** (`spec/`, `conformance/`, `plans_and_notes/`) count as paths in documents, so a current document that still names one fails.
+- **Rewritten:**
+  - the current-state documents: the spec's index, chapters 1 and 13 and annexes B and D, the conformance README, the platform profile, the top-level readme, `tools/README.md`, and two VM documents;
+  - the source comments the new check found.
+- **`language/README.md`** (P3): the four parts, and where to start reading.
+- **The top-level readme:** the layout table has a `language/` group with its four parts.
+- **History scripts:**
+  - `sp14_annexA_index.py` and `sp14_reverse_links.py` now find the spec and the register through `layout`.
+  - `sp13_checklist.py` now looks for the Annex B marker by the script's PR2 path.
+  - The 33 generators and history scripts run against a copy of the repository, and the same three fail as before.
+  - Re-running `wp13_tests.py` writes the comment in two conformance programs back with its old path. The check would then fail, which is what it is for.
+- **`run_checks` passes,** with the same four historical INFO paths as after PR2.

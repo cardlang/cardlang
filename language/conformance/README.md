@@ -1,6 +1,6 @@
 # CardLang conformance tests
 
-Each test in this folder is a CardLang example from the specification, plus metadata that states the expected result. Every example in `spec/` has exactly one test here, and every test names the rules it exercises. The suite is written so that a future compiler and runtime can run it mechanically. Until one exists, the tests are checked by review.
+Each test in this folder is a CardLang example from the specification, plus metadata that states the expected result. Every example in `language/spec/` has exactly one test here, and every test names the rules it exercises. The suite is written so that a future compiler and runtime can run it mechanically. Until one exists, the tests are checked by review.
 
 ## Layout
 
@@ -31,7 +31,7 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 
 | Field | Required | Values |
 |---|---|---|
-| `rule` | yes | One or more rule IDs from `spec/`, comma-separated |
+| `rule` | yes | One or more rule IDs from `language/spec/`, comma-separated |
 | `source` | yes | DN/PN sections or `D-` IDs that the example comes from |
 | `status` | yes | `agreed`, `proposal` or `open`: the strongest tag among the rules tested. A test that depends on a [Proposal] or [Open] rule is not normative until that rule is agreed |
 | `kind` | yes | `application` (a complete application, including its single `command`) or `fragment` (declarations checked on their own; see below) |

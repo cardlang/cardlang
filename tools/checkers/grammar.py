@@ -1,6 +1,6 @@
 """Mechanical check of the Annex A syntactic grammar (SP14).
 
-Reads the EBNF productions of Annex A §A.2 directly from spec/annex-A-grammar.md, converts them to BNF,
+Reads the EBNF productions of Annex A §A.2 directly from language/spec/annex-A-grammar.md, converts them to BNF,
 and runs an Earley recognizer over the tokens of every conformance test file:
 
   * every valid test, runtime program and fragment must derive SourceFile (each file on its own, NAM-2);

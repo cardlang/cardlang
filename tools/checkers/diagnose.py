@@ -6,7 +6,7 @@ error, so the list has at most one entry; an empty list means the program is val
 
 - **Positions:** see srcpos.py. A lexical error has an exact position. A checker error is placed at the token the
   checker was examining when it found the error, which is on the offending construct or just after it.
-- **Messages:** the one-line meaning of each code, read from the index of the specification (spec/00-index.md).
+- **Messages:** the one-line meaning of each code, read from the index of the specification (language/spec/00-index.md).
 - **Unexpected input:** a checker that fails on input it does not expect reports CE-SYN-1, a syntax error, at the
   last token examined. The checkers assume grammatical input; Annex A's recognizer is the authority on syntax.
 

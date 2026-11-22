@@ -165,7 +165,7 @@ After deletion, every copy of the identifier names nothing. Reusing the identifi
 Calls are checked against the entry exactly as calls to ordinary functions are: argument count (CE-EXP-16), modes (CE-FUN-2) and types (CE-EXP-1). A path not in the catalog is CE-NAM-10. Platform APIs never call application code.
 *Sources: D-406 (OI-6), D-443 (OI-43), D-201; DN §4.1, §11; PN §2.*
 
-**PLT-26 [Agreed]** This specification defines no real platform API. The names in the notes, such as `card.resources.create` and `card.crypto.hash_update`, are illustrative. The conformance suite uses a *test-only catalog* (`conformance/platform/test-catalog.txt`) of fictional entries under `card.test.`. It exists only to test the language rules that depend on a catalog. Its entries are non-normative, and a platform need not provide them.
+**PLT-26 [Agreed]** This specification defines no real platform API. The names in the notes, such as `card.resources.create` and `card.crypto.hash_update`, are illustrative. The conformance suite uses a *test-only catalog* (`language/conformance/platform/test-catalog.txt`) of fictional entries under `card.test.`. It exists only to test the language rules that depend on a catalog. Its entries are non-normative, and a platform need not provide them.
 *Sources: D-443 (OI-43); DN §11.2; PN §2.*
 
 ### Conformance tests for catalog-dependent rules

@@ -1,2 +1,2 @@
 # Conformance tests are byte-exact: some test BOM, CR/CRLF/LF and invalid UTF-8 handling.
-conformance/**/*.card -text
+language/conformance/**/*.card -text

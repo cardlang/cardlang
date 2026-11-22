@@ -31,5 +31,5 @@ def update(path, column):
     p.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print(path, "rows changed:", changed)
 
-update("spec/annex-D-traceability.md", 3)        # | D-ID | Topic | Owning SP | Rule IDs | ...
-update("plans_and_notes/decision-register.md", 8) # ... | Linked OI | Implemented by |
+update(layout.at(repo).spec / "annex-D-traceability.md", 3)        # | D-ID | Topic | Owning SP | Rule IDs | ...
+update(layout.at(repo).decision_register, 8) # ... | Linked OI | Implemented by |

@@ -1,5 +1,5 @@
 // A FIDO2 (CTAP 2.0) authenticator in CardLang: constants, errors and state.
-// WP8 of plans_and_notes/base-api-plan.md. Binding-independent; see iso7816-entry.card for the entry point.
+// WP8 of devel/plans/spec/base-api-plan.md. Binding-independent; see iso7816-entry.card for the entry point.
 
 // Persistent key identifiers (profile §7). MAC_KEY authenticates credential IDs; DERIVE_KEY derives credential keys.
 const MAC_KEY: u32 = 1;

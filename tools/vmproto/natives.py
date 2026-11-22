@@ -247,7 +247,7 @@ class Natives:
         return self.out(out, self.codec(lambda: testtlv.write_integer(list(self.data(magnitude)))))
     def n_der_integer_size(self, magnitude): return self.codec(lambda: testtlv.integer_size(list(self.data(magnitude))))
 
-    # ---- the test-only catalog (conformance/platform/test-catalog.txt), test builds only (V-33)
+    # ---- the test-only catalog (language/conformance/platform/test-catalog.txt), test builds only (V-33)
     def n_test_resources_create(self, ident, kind):
         res = self.hal.resources
         if ident in res: raise NativeError("AlreadyExists")
