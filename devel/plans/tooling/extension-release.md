@@ -66,3 +66,10 @@ Planned 2026-11-22, on the branch `vscode-release`. Today the `.vsix` is built b
 
   The workflow itself is not run until the branch is pushed. Its first run is the test.
 - **The first release** can be `vscode-v0.1.1`, since 0.1.1 has never been published. Each later one raises the version first.
+
+**First runs on GitHub (2026-11-22):**
+- **Run 45070329830** passed in 25 s and kept `cardlang-0.1.1.vsix` as an artifact. GitHub warned that the actions' v4 and v5 target the deprecated Node.js 20.
+- **The actions were moved** to `actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-artifact@v7` and `astral-sh/setup-uv@v10.3.3`.
+  - setup-uv publishes no floating major tag, so it is pinned to an exact release, chosen because it is more than two weeks old.
+  - Each major version has been out for months.
+- **Run 45070508973** then passed in 20 s, with the artifact, and with only `vsce`'s advice to bundle the extension left as an annotation.
