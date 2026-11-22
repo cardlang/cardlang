@@ -4,7 +4,7 @@
   "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets.",
   "version": "0.1.1",
   "publisher": "cardlang",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "private": true,
   "engines": {
     "vscode": "^1.91.0"
@@ -22,7 +22,7 @@
     "onDebugDynamicConfigurations:cardlang"
   ],
   "scripts": {
-    "package": "vsce package --allow-missing-repository --skip-license --out cardlang.vsix"
+    "package": "vsce package --allow-missing-repository --out cardlang.vsix"
   },
   "contributes": {
     "semanticTokenModifiers": [

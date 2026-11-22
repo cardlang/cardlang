@@ -68,3 +68,40 @@ Planned 2026-11-22, the last work package of PR0. It gives the repository a lice
 - **P4 (a), with a change:** no "enclave", a word associated with Apple's Secure Enclave, and the emphasis on uses other than smart cards. The draft wording, to confirm in the work:
 
   > CardLang is a small, statically typed, imperative language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and also smart-card applets.
+
+## 4. Done (2026-11-22)
+
+- **The licence (P1–P3):**
+  - **`LICENSE`:** the Apache License 2.0, unmodified. It was taken from the copy in the Mbed TLS source the build had already fetched, and checked against a second local copy, `ecdsa-sig-formatter`'s in `node_modules`: their terms are identical. Nothing was downloaded;
+  - **`NOTICE`:** "Copyright 2026 The CardLang authors";
+  - **`pyproject.toml`:** `license = "Apache-2.0"` and `license-files = ["LICENSE", "NOTICE"]`. The installed metadata shows `License-Expression: Apache-2.0`;
+  - **the extension:** `package.json` and the root of `package-lock.json` say `Apache-2.0`, and `--skip-license` is gone. `editors/vscode/LICENSE` is a copy, because `vsce` looks for it in the extension's folder. The rebuilt `.vsix` holds `extension/LICENSE.txt`.
+- **The README:**
+  - **its opening (P4):** "secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and also smart-card applets". The word "enclave" is not used;
+  - **a "Licence" section:** the licence, `NOTICE`, and a table of what the tools fetch, each with its licence, checked from the packages themselves:
+    - Mbed TLS: Apache-2.0 or GPL-2.0-or-later;
+    - cffi: MIT-0;
+    - vscode-languageclient and vsce: MIT.
+- **The release checklist:**
+
+  | Item | Result |
+  |---|---|
+  | `run_checks` from a clean copy of the tracked files | **Passed.** The copy got its own environment (`uv sync --offline`, from the uv cache) and built the C VM with both compilers. Mbed TLS came from the pinned archive and llvm-mingw from `CARDLANG_LLVM_MINGW`. All 51 runs pass, with the same counts as the working tree |
+  | The guards: no development step outside `devel/`, no home-folder path | Passed |
+  | Secrets | None: no private-key blocks, tokens or API keys. The applets' test defaults and the test vectors are documented as test-only |
+  | Email addresses | None outside `package-lock.json`'s third-party metadata |
+  | Tracked files | 732. At the root: `.gitattributes`, `.gitignore`, `.python-version`, `LICENSE`, `NOTICE`, `README.md`, `pyproject.toml`, `uv.lock`. The only file over 100 KB is the design notes, at 183 KB. Nothing generated or private |
+  | Ignored outputs | `.venv/`, every `__pycache__/`, `vm/c/build/`, the examples' `build/`, `node_modules/`, the `.vsix` and `reference/`: all ignored |
+  | The `.vsix` | Builds, with the licence; 404 KB |
+  | READMEs and links | Every top-level area has one; the link check passes |
+
+  **Known, not blocking:** `vsce` warns that the extension is not bundled (234 files, most of them `vscode-languageclient`); bundling would need a build step.
+
+## 5. What remains for the user
+
+These publish the work, and are not done here:
+1. **Review the remote.** `origin` is `https://github.com/cardlang/cardlang.git`. Check its settings: visibility, default branch `main`, and anything the account adds.
+2. **Push** `main` and the three tags: `spec-draft-0.1`, `spec-draft-0.2` and `bytecode-v1`.
+3. **Make the repository public.**
+
+The history is published as it is (PR7 C4). Optional, later: `CONTRIBUTING.md` (PR7 C2), and CI. CI needs Windows runners with MSVC and llvm-mingw.

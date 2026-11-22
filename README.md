@@ -1,6 +1,6 @@
 # CardLang
 
-CardLang is a small, statically typed, imperative language for writing smart-card applications. This repository holds:
+CardLang is a small, statically typed, imperative language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and also smart-card applets. This repository holds:
 - **the language:** its specification, a conformance test suite, and the reasoning behind it;
 - **a platform profile:** the APIs a platform gives programs (keys, crypto, CBOR, TLV) and its transport bindings;
 - **a toolchain:** reference checkers, a compiler to a compact bytecode, a reference interpreter, and a Python VM;
@@ -109,3 +109,16 @@ Building the C VM needs MSVC and an llvm-mingw clang on Windows; see [`vm/c/READ
 - **Draft 0.3:** the candidates are in [`language/releases/draft-0.2-candidates.md`](language/releases/draft-0.2-candidates.md).
 
 The plans for this work, and the record of how the project got here, are in [`devel/`](devel/README.md).
+
+## Licence
+
+CardLang is licensed under the [Apache License, Version 2.0](LICENSE): the specification and the other documents, the toolchain, the C VM, the editor extension and the examples. See also [`NOTICE`](NOTICE).
+
+The repository contains no third-party code. These are fetched by the tools, each under its own licence:
+
+| Component | Used by | Licence |
+|---|---|---|
+| [Mbed TLS](https://github.com/Mbed-TLS/mbedtls) 3.6.8 | the C VM's host HAL, downloaded and checked against its SHA-256 by the build | Apache-2.0 or GPL-2.0-or-later |
+| [cffi](https://cffi.readthedocs.io/) | the harness, to drive the C VM from Python | MIT-0 |
+| [vscode-languageclient](https://github.com/microsoft/vscode-languageserver-node) | the VS Code extension, bundled into its package | MIT |
+| [@vscode/vsce](https://github.com/microsoft/vscode-vsce) | packaging the extension | MIT |
