@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # The check: the extension's grammars, keywords, scenario steps and commands match the language and the package.
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Install the cardlang package
         run: uv sync --locked
       - name: Check the extension
