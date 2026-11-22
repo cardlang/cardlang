@@ -1,6 +1,5 @@
 // rule: OUT-16
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-2
 // note: An error code above the u16 range.

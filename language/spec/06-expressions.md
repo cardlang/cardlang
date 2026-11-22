@@ -1,6 +1,6 @@
 # 6. Expressions
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter defines the syntax, typing and evaluation of expressions:
 
@@ -63,7 +63,7 @@ ConditionPrimary ::= IntegerLiteral | BooleanLiteral | ByteStringLiteral | Ident
 
 In `TypeArgumentIntrinsic`, the quoted names stand for identifier tokens with those spellings. These names are reserved (LEX-15), so `convert <` never begins a comparison.
 
-**EXP-1 [Agreed]** Expressions are built from the following forms:
+**EXP-1** Expressions are built from the following forms:
 
 - literals;
 - names;
@@ -79,7 +79,7 @@ In `TypeArgumentIntrinsic`, the quoted names stand for identifier tokens with th
 Postfix operations apply left to right and bind more tightly than unary operators. A unary operator applies to the whole postfix expression that follows it, so `-a[i]` means `-(a[i])` and `not ready` applies to `ready` only. An expression containing a binary operator never needs parentheses just because a unary operator, call, index or field selection is present.
 *Sources: D-102, D-337; DN §3.5.*
 
-**EXP-2 [Agreed]** A *grouping level* is the sequence of operands and binary operators directly inside one of these:
+**EXP-2** A *grouping level* is the sequence of operands and binary operators directly inside one of these:
 
 - a whole expression;
 - a parenthesized expression;
@@ -91,16 +91,16 @@ Postfix operations apply left to right and bind more tightly than unary operator
 All binary operators at one grouping level must be the same operator. Two different binary operators at one level is **CE-EXP-4**. There is no precedence table: write parentheses to show the intended grouping, as in `a + (b * c)`. Unary operators and assignment are not binary operators, so they never break this rule.
 *Sources: D-102; DN §3.5.*
 
-**EXP-3 [Agreed]** A chain of one repeated non-comparison operator, `a op b op c`, means `(a op b) op c`. It is evaluated left to right, and every intermediate result is checked by itself (§6.5). For example, in `a + b - c` the operators differ (CE-EXP-4). In `a - b - c`, an underflow in `a - b` is a failure even if subtracting `c` would come back in range.
+**EXP-3** A chain of one repeated non-comparison operator, `a op b op c`, means `(a op b) op c`. It is evaluated left to right, and every intermediate result is checked by itself (§6.5). For example, in `a + b - c` the operators differ (CE-EXP-4). In `a - b - c`, an underflow in `a - b` is a failure even if subtracting `c` would come back in range.
 *Sources: D-103, D-087; DN §3.5.*
 
-**EXP-4 [Agreed]** Comparison operators (`==`, `!=`, `<`, `<=`, `>` and `>=`) never chain. Two comparison operators at one grouping level is **CE-EXP-5**, even when they are the same operator, as in `a == b == c`. Write each comparison as its own operand, as in `(amount > 0) and (amount < limit)`.
+**EXP-4** Comparison operators (`==`, `!=`, `<`, `<=`, `>` and `>=`) never chain. Two comparison operators at one grouping level is **CE-EXP-5**, even when they are the same operator, as in `a == b == c`. Write each comparison as its own operand, as in `(amount > 0) and (amount < limit)`.
 *Sources: D-103; DN §3.5.*
 
-**EXP-5 [Agreed]** The words `and`, `or` and `not` are the Boolean operators, and `&`, `|`, `^` and `~` are the bitwise operators. The grouping rule (EXP-2) applies to both. For example, `flags & 0x03 == 0x01` mixes `&` and `==` (CE-EXP-4), while `(flags & 0x03) == 0x01` is valid.
+**EXP-5** The words `and`, `or` and `not` are the Boolean operators, and `&`, `|`, `^` and `~` are the bitwise operators. The grouping rule (EXP-2) applies to both. For example, `flags & 0x03 == 0x01` mixes `&` and `==` (CE-EXP-4), while `(flags & 0x03) == 0x01` is valid.
 *Sources: D-102; DN §3.5.*
 
-**EXP-6 [Agreed]** A structure constructor must not appear unparenthesized at the outer level of any of the following, because there `{` is read as the start of the body:
+**EXP-6** A structure constructor must not appear unparenthesized at the outer level of any of the following, because there `{` is read as the start of the body:
 
 - the condition of an `if` or `while`;
 - a bound of a `for` range;
@@ -152,16 +152,16 @@ function check() -> bool {
 
 ## 6.2 Literals and contextual typing
 
-**EXP-7 [Agreed]** An integer literal has no type of its own. It never synthesizes a type. It only checks against an expected type: `Γ ⊢ n ⇐ T` holds when `T` is an integer type and the value of `n` is in the range of `T` (TYP-6). If `T` is an integer type and the value is out of range, that is **CE-EXP-2**. If `T` is not an integer type, that is **CE-EXP-1**. This covers `var flag: bool = 1;`, and assigning a number to an enum variable. Range is checked for the literal's own value, without any implicit widening or narrowing.
+**EXP-7** An integer literal has no type of its own. It never synthesizes a type. It only checks against an expected type: `Γ ⊢ n ⇐ T` holds when `T` is an integer type and the value of `n` is in the range of `T` (TYP-6). If `T` is an integer type and the value is out of range, that is **CE-EXP-2**. If `T` is not an integer type, that is **CE-EXP-1**. This covers `var flag: bool = 1;`, and assigning a number to an enum variable. Range is checked for the literal's own value, without any implicit widening or narrowing.
 *Sources: D-084, D-414 (OI-14), D-100; DN §3.3, §3.4.*
 
-**EXP-8 [Agreed]** A unary minus applied directly to an integer literal, `-n`, checks against a signed integer type `T` when the value `−n` is in the range of `T`. This is how `-128` is accepted in an `i8` context, even though `128` alone does not fit `i8`. If the expected type is unsigned, `-n` is **CE-EXP-6** (EXP-19). This includes `-0`.
+**EXP-8** A unary minus applied directly to an integer literal, `-n`, checks against a signed integer type `T` when the value `−n` is in the range of `T`. This is how `-128` is accepted in an `i8` context, even though `128` alone does not fit `i8`. If the expected type is unsigned, `-n` is **CE-EXP-6** (EXP-19). This includes `-0`.
 *Sources: D-334, D-090; DN §3.0, §6.5.*
 
-**EXP-9 [Agreed]** `true` and `false` synthesize `bool`.
+**EXP-9** `true` and `false` synthesize `bool`.
 *Sources: D-310; DN §3.0.*
 
-**EXP-10 [Agreed]** These positions supply an expected type:
+**EXP-10** These positions supply an expected type:
 
 | Position | Expected type |
 |---|---|
@@ -178,7 +178,7 @@ function check() -> bool {
 
 *Sources: D-084, D-085; DN §3.3, §8.1.* *Derivation: the assignment and shift-count rows follow from DN §3.3 ("a mismatch with the required destination … type is a compilation error") and DN §3.5 ("the count is `u8`").*
 
-**EXP-11 [Agreed]** For a binary arithmetic, bitwise or comparison operator, and for a two-operand intrinsic in the checked or wrapping families:
+**EXP-11** For a binary arithmetic, bitwise or comparison operator, and for a two-operand intrinsic in the checked or wrapping families:
 
 1. If either operand synthesizes a type `T`, the other operand checks against `T`. This holds whichever side the typed operand is on: in `count + 1` and in `1 + count`, the literal gets `count`'s type.
 2. Otherwise, for an arithmetic or bitwise operator, both operands check against the expression's expected type.
@@ -187,7 +187,7 @@ function check() -> bool {
 An arithmetic or bitwise expression whose operands are all literals, with no expected type, is also **CE-EXP-3**. The compiler never chooses a default integer type.
 *Sources: D-084, D-333; DN §3.3.*
 
-**EXP-12 [Agreed]** A typed value is never converted to satisfy a context (TYP-5). If the synthesized type of an operand, initializer, argument or payload is not identical to the type required, that is **CE-EXP-1**. This holds even when every value of the synthesized type would fit. Convert explicitly instead (§6.7).
+**EXP-12** A typed value is never converted to satisfy a context (TYP-5). If the synthesized type of an operand, initializer, argument or payload is not identical to the type required, that is **CE-EXP-1**. This holds even when every value of the synthesized type would fit. Convert explicitly instead (§6.7).
 *Sources: D-081, D-082, D-087; DN §3.2, §3.3.*
 
 ### Examples
@@ -241,25 +241,25 @@ function negatives() -> i16 {
 
 ## 6.3 Operator typing
 
-**EXP-13 [Agreed]** *Arithmetic* `+ - * / %`: both operands have the same integer type `T` under EXP-11, and the result is `T`. Applied to any other type, it is **CE-EXP-6**.
+**EXP-13** *Arithmetic* `+ - * / %`: both operands have the same integer type `T` under EXP-11, and the result is `T`. Applied to any other type, it is **CE-EXP-6**.
 *Sources: D-082; DN §3.2, §3.5.*
 
-**EXP-14 [Agreed]** *Ordering* `< <= > >=`: both operands have the same integer type, and the result is `bool`. Ordering on `bool`, enums, arrays or structures is **CE-EXP-6**.
+**EXP-14** *Ordering* `< <= > >=`: both operands have the same integer type, and the result is `bool`. Ordering on `bool`, enums, arrays or structures is **CE-EXP-6**.
 *Sources: D-082; DN §3.5, §3.11.*
 
-**EXP-15 [Agreed]** *Equality* `== !=`: both operands have the same type, which must be an integer type, `bool` or an enum, and the result is `bool`. Equality on arrays or structures is **CE-EXP-6**. Compare their elements or fields explicitly.
+**EXP-15** *Equality* `== !=`: both operands have the same type, which must be an integer type, `bool` or an enum, and the result is `bool`. Equality on arrays or structures is **CE-EXP-6**. Compare their elements or fields explicitly.
 *Sources: D-335; DN §3.5, §3.11, §8.2, §9.3.*
 
-**EXP-16 [Agreed]** *Boolean* `and`, `or` and `not` accept only `bool` operands and produce `bool`. There is no numeric truthiness: an integer operand is **CE-EXP-1**.
+**EXP-16** *Boolean* `and`, `or` and `not` accept only `bool` operands and produce `bool`. There is no numeric truthiness: an integer operand is **CE-EXP-1**.
 *Sources: D-100; DN §3.4, §3.5.*
 
-**EXP-17 [Agreed]** *Bitwise* `& | ^` take two operands of the same unsigned integer type `T`. Unary `~` takes one operand of an unsigned type `T`. The result is `T`. A signed or non-integer operand is **CE-EXP-6**.
+**EXP-17** *Bitwise* `& | ^` take two operands of the same unsigned integer type `T`. Unary `~` takes one operand of an unsigned type `T`. The result is `T`. A signed or non-integer operand is **CE-EXP-6**.
 *Sources: D-336; DN §3.5.*
 
-**EXP-18 [Agreed]** *Shifts* `<< >>`: the left operand has an unsigned integer type `T`, which it synthesizes or receives as the expected type. The count checks against `u8`. A typed count of any type other than `u8` is **CE-EXP-1**. The result is `T`. A signed or non-integer left operand is **CE-EXP-6**. Shifts are the only binary operators whose operands have different types.
+**EXP-18** *Shifts* `<< >>`: the left operand has an unsigned integer type `T`, which it synthesizes or receives as the expected type. The count checks against `u8`. A typed count of any type other than `u8` is **CE-EXP-1**. The result is `T`. A signed or non-integer left operand is **CE-EXP-6**. Shifts are the only binary operators whose operands have different types.
 *Sources: D-336; DN §3.5.*
 
-**EXP-19 [Agreed]** *Unary* `-` takes a signed integer operand of type `T` and produces `T`. Applied to an unsigned or non-integer operand, it is **CE-EXP-6**. No implicit signed conversion takes place.
+**EXP-19** *Unary* `-` takes a signed integer operand of type `T` and produces `T`. Applied to an unsigned or non-integer operand, it is **CE-EXP-6**. No implicit signed conversion takes place.
 *Sources: D-090; DN §6.5.*
 
 ### Examples
@@ -314,13 +314,13 @@ function check(flags: u8) -> bool {
 
 ## 6.4 Evaluation order
 
-**EXP-20 [Agreed]** Operands are evaluated left to right, each exactly once, before the operator is applied. This also applies to array-list elements, constructor fields in their written order, and call arguments. An index or slice is evaluated in this order: receiver, then index (or start and end), then the bounds check.
+**EXP-20** Operands are evaluated left to right, each exactly once, before the operator is applied. This also applies to array-list elements, constructor fields in their written order, and call arguments. An index or slice is evaluated in this order: receiver, then index (or start and end), then the bounds check.
 *Sources: D-104; DN §3.5, §3.7, §9.3.*
 
-**EXP-21 [Agreed]** `a and b` evaluates `b` only if `a` is `true`. `a or b` evaluates `b` only if `a` is `false`. An operand that is not evaluated has no effects and cannot fail at runtime, although it is still type-checked.
+**EXP-21** `a and b` evaluates `b` only if `a` is `true`. `a or b` evaluates `b` only if `a` is `false`. An operand that is not evaluated has no effects and cannot fail at runtime, although it is still type-checked.
 *Sources: D-104; DN §3.5.*
 
-**EXP-22 [Agreed]** The semantics in this chapter do not depend on build mode or optimization level. An implementation may reorder or remove operations, or omit a check, only if it has proved that doing so changes nothing observable, including which failure occurs and when. The stores of a `wipe` statement are the one exception: they are never removed (STM-23).
+**EXP-22** The semantics in this chapter do not depend on build mode or optimization level. An implementation may reorder or remove operations, or omit a check, only if it has proved that doing so changes nothing observable, including which failure occurs and when. The stores of a `wipe` statement are the one exception: they are never removed (STM-23).
 *Sources: D-338; DN §3.5, §6.5.*
 
 ### Examples
@@ -339,7 +339,7 @@ function is_free(index: u8) -> bool {
 
 At runtime, an arithmetic failure *traps*: the current command terminates with the given trap kind (chapter 13). If the same failure is found during compile-time evaluation, it is a compilation error instead (CEX-9).
 
-**EXP-23 [Agreed]** `+`, `-` and `*` compute the exact mathematical result of the operation on the operand values. If the result is in the range of the result type `T`, that is the value. Otherwise:
+**EXP-23** `+`, `-` and `*` compute the exact mathematical result of the operation on the operand values. If the result is in the range of the result type `T`, that is the value. Otherwise:
 
 - a result above the maximum of `T` is `trap(OVERFLOW)`;
 - a result below the minimum of `T`, including an unsigned subtraction below zero, is `trap(UNDERFLOW)`.
@@ -347,7 +347,7 @@ At runtime, an arithmetic failure *traps*: the current command terminates with t
 No wider intermediate type is ever used, and every intermediate result is checked by itself.
 *Sources: D-058, D-087, D-431 (OI-31); DN §3.3, §3.5, §6.2.*
 
-**EXP-24 [Agreed]** Division and remainder work as follows:
+**EXP-24** Division and remainder work as follows:
 
 1. If the divisor is zero, the result is `trap(DIV-ZERO)` for both `/` and `%`.
 2. `/` truncates toward zero.
@@ -358,10 +358,10 @@ No wider intermediate type is ever used, and every intermediate result is checke
 An implementation must produce these results even where the processor or host language behaves differently.
 *Sources: D-088, D-089, D-431 (OI-31); DN §3.5, §6.5.*
 
-**EXP-25 [Agreed]** Unary `-x` produces the negation of `x`. If `x` is the minimum value of its signed type, the result is `trap(NEGATION)`.
+**EXP-25** Unary `-x` produces the negation of `x`. If `x` is the minimum value of its signed type, the result is `trap(NEGATION)`.
 *Sources: D-090, D-334, D-431 (OI-31); DN §6.5.*
 
-**EXP-26 [Agreed]** For a shift of `x` by `n`, where `x` has unsigned type `T` of width `N` bits:
+**EXP-26** For a shift of `x` by `n`, where `x` has unsigned type `T` of width `N` bits:
 
 - If `n ≥ N`, the result is `trap(SHIFT)`.
 - `x << n` shifts the bits left. Bits moved beyond the width are discarded, and zero bits are inserted on the right. This is not checked multiplication, so it never overflows.
@@ -369,15 +369,15 @@ An implementation must produce these results even where the processor or host la
 
 *Sources: D-336; DN §3.5.*
 
-**EXP-27 [Agreed]** Bitwise operators work bit by bit on the `N`-bit unsigned value. `~x` inverts all `N` bits of `x`.
+**EXP-27** Bitwise operators work bit by bit on the `N`-bit unsigned value. `~x` inverts all `N` bits of `x`.
 *Sources: D-336; DN §3.5.*
 
-**EXP-28 [Agreed]** Ordering and equality compare the mathematical values of integers, the values of Booleans, and the variant identities of enums.
+**EXP-28** Ordering and equality compare the mathematical values of integers, the values of Booleans, and the variant identities of enums.
 *Sources: D-335; DN §3.5, §3.11.*
 
 ## 6.6 Checked and wrapping intrinsics
 
-**EXP-29 [Agreed]** The *checked arithmetic intrinsics* are:
+**EXP-29** The *checked arithmetic intrinsics* are:
 
 | Intrinsic | Operands |
 |---|---|
@@ -399,7 +399,7 @@ Operand types follow EXP-11. Each intrinsic synthesizes `Outcome(T)` (chapter 9)
 The `CardError` member names are placeholders, and their codes are platform-defined (Annex B). A trap while evaluating an operand still occurs normally.
 *Sources: D-091, D-415 (OI-15), D-431 (OI-31); DN §6.2, §6.5.*
 
-**EXP-30 [Agreed]** The *wrapping arithmetic intrinsics* are `wrapping_add(a, b)`, `wrapping_sub(a, b)` and `wrapping_mul(a, b)`. Both operands have the same integer type `T` under EXP-11. Each synthesizes `T`, a direct value. The result is the exact result modulo 2^N, where `N` is the width of `T`, interpreted as two's complement when `T` is signed. These intrinsics never fail. There are no wrapping division, remainder or negation intrinsics.
+**EXP-30** The *wrapping arithmetic intrinsics* are `wrapping_add(a, b)`, `wrapping_sub(a, b)` and `wrapping_mul(a, b)`. Both operands have the same integer type `T` under EXP-11. Each synthesizes `T`, a direct value. The result is the exact result modulo 2^N, where `N` is the width of `T`, interpreted as two's complement when `T` is signed. These intrinsics never fail. There are no wrapping division, remainder or negation intrinsics.
 *Sources: D-092; DN §6.5.*
 
 ### Examples
@@ -428,7 +428,7 @@ function debit(amount: u32) {
 
 ### Intrinsics and array comparison
 
-**EXP-52 [Agreed]** An *intrinsic* is an operation that this specification defines completely in terms of language values. The intrinsics are `fill`, `convert`, `checked_convert`, the `checked_*` and `wrapping_*` operations, `truncate`, `encode_be`, `encode_le`, `decode_be`, `decode_le`, `equal` and `compare`. Every intrinsic:
+**EXP-52** An *intrinsic* is an operation that this specification defines completely in terms of language values. The intrinsics are `fill`, `convert`, `checked_convert`, the `checked_*` and `wrapping_*` operations, `truncate`, `encode_be`, `encode_le`, `decode_be`, `decode_le`, `equal` and `compare`. Every intrinsic:
 
 - behaves identically on every conforming platform;
 - fails only as this specification says: by a compile error, a trap, or an `Err` defined for it here (such as the `checked_*` operations);
@@ -437,7 +437,7 @@ function debit(amount: u32) {
 An operation that depends on platform state or hardware is a platform API instead (PLT-30).
 *Sources: D-446 (OI-46); DN §3.2.*
 
-**EXP-53 [Agreed]** `equal(ref a, ref b)` compares two arrays element by element:
+**EXP-53** `equal(ref a, ref b)` compares two arrays element by element:
 
 - **Arguments.** Exactly two arguments (otherwise **CE-EXP-16**), each passed with `ref` (otherwise **CE-FUN-2**). Each is a fixed array, a view or a slice (FUN-18). Their element types must be identical, otherwise **CE-EXP-1**. The element type must be one that `==` accepts: an integer type, `bool` or an enum. An aggregate element type is **CE-EXP-6**.
 - **Result.** It synthesizes `bool`. The result is `true` exactly when the two lengths are equal and each pair of elements is equal under `==`.
@@ -445,7 +445,7 @@ An operation that depends on platform state or hardware is a platform API instea
 - **Timing.** Its execution time depends only on the two lengths, never on the contents (PLT-31).
 *Sources: D-448 (OI-48); DN §3.2.*
 
-**EXP-54 [Agreed]** `compare(ref a, ref b)` orders two arrays lexicographically:
+**EXP-54** `compare(ref a, ref b)` orders two arrays lexicographically:
 
 - **Arguments.** As for `equal` (EXP-53), except that the element type must be an integer type. Any other element type is **CE-EXP-6**.
 - **Result.** It synthesizes `i8`: `-1` if `a` sorts before `b`, `0` if they are equal, and `1` if `a` sorts after `b`. Elements are compared by their mathematical values from index 0. When one array is a proper prefix of the other, the shorter one sorts first.
@@ -462,19 +462,19 @@ An operation that depends on platform state or hardware is a platform API instea
 
 ## 6.7 Conversions
 
-**EXP-31 [Agreed]** The operand of `convert`, `checked_convert` and `truncate` must synthesize an integer type `S`, its *source type*, without using the type argument. A literal-only operand has no source type and is **CE-EXP-8**. The type argument `T` must be an integer type. A non-integer source or target, such as `bool`, an enum or an aggregate, is **CE-EXP-8**.
+**EXP-31** The operand of `convert`, `checked_convert` and `truncate` must synthesize an integer type `S`, its *source type*, without using the type argument. A literal-only operand has no source type and is **CE-EXP-8**. The type argument `T` must be an integer type. A non-integer source or target, such as `bool`, an enum or an aggregate, is **CE-EXP-8**.
 *Sources: D-083, D-086; DN §3.2, §3.3.*
 
-**EXP-32 [Agreed]** `convert<T>(e)` is valid only when every value of `S` is in the range of `T`. The value that `e` happens to have does not matter. Otherwise it is **CE-EXP-8**. It synthesizes `T` and yields the same numeric value. It never fails at runtime. For example, `u8` to `u16`, `i8` to `i32` and `u8` to `i16` are valid. `u16` to `i16`, `i16` to `u32` and `u32` to `u8` are not.
+**EXP-32** `convert<T>(e)` is valid only when every value of `S` is in the range of `T`. The value that `e` happens to have does not matter. Otherwise it is **CE-EXP-8**. It synthesizes `T` and yields the same numeric value. It never fails at runtime. For example, `u8` to `u16`, `i8` to `i32` and `u8` to `i16` are valid. `u16` to `i16`, `i16` to `u32` and `u32` to `u8` are not.
 *Sources: D-083, D-095; DN §3.2.*
 
-**EXP-33 [Agreed]** `checked_convert<T>(e)` synthesizes `Outcome(T)`. It produces `Ok(v)` when the value of `e` is in the range of `T`. Otherwise it produces `Err(CardError.ConversionRange)`, a placeholder name. A negative value converted to an unsigned type fails, even when the target is wider. The intrinsic never truncates, wraps or clamps.
+**EXP-33** `checked_convert<T>(e)` synthesizes `Outcome(T)`. It produces `Ok(v)` when the value of `e` is in the range of `T`. Otherwise it produces `Err(CardError.ConversionRange)`, a placeholder name. A negative value converted to an unsigned type fails, even when the target is wider. The intrinsic never truncates, wraps or clamps.
 *Sources: D-083, D-415 (OI-15); DN §3.2.*
 
-**EXP-34 [Agreed]** `truncate<T>(e)` synthesizes `T`, a direct value. Its result is the low `N` bits of the two's-complement representation of the value of `e`, interpreted in `T`, where `N` is the width of `T`. That is the value of `e` modulo 2^N, read as two's complement when `T` is signed. It never fails. `truncate` is the only deliberately lossy integer conversion.
+**EXP-34** `truncate<T>(e)` synthesizes `T`, a direct value. Its result is the low `N` bits of the two's-complement representation of the value of `e`, interpreted in `T`, where `N` is the width of `T`. That is the value of `e` modulo 2^N, read as two's complement when `T` is signed. It never fails. `truncate` is the only deliberately lossy integer conversion.
 *Sources: D-432 (OI-32).*
 
-**EXP-35 [Agreed]** There are no other conversions:
+**EXP-35** There are no other conversions:
 
 - no general cast;
 - no conversion to or from `bool` or enums;
@@ -529,21 +529,21 @@ function check(flags: u8) -> bool {
 
 ## 6.8 Integers and bytes
 
-**EXP-36 [Agreed]** `encode_be(e)` and `encode_le(e)` require `e` to synthesize one of `u16`, `u32`, `i16` or `i32`. Any other type, or a literal-only operand, is **CE-EXP-8**. Each synthesizes `u8[N]`, a direct value, where `N` is 2 or 4, the width of the operand type in bytes. The array holds the two's-complement representation of the value:
+**EXP-36** `encode_be(e)` and `encode_le(e)` require `e` to synthesize one of `u16`, `u32`, `i16` or `i32`. Any other type, or a literal-only operand, is **CE-EXP-8**. Each synthesizes `u8[N]`, a direct value, where `N` is 2 or 4, the width of the operand type in bytes. The array holds the two's-complement representation of the value:
 
 - `encode_be` writes the most significant byte at index 0;
 - `encode_le` writes the least significant byte at index 0.
 
 *Sources: D-432 (OI-32), D-342; DN §3.4.*
 
-**EXP-37 [Agreed]** `decode_be<T>(ref e)` and `decode_le<T>(ref e)` require `T` to be one of `u16`, `u32`, `i16` or `i32`. Any other `T` is **CE-EXP-8**. The single argument is passed with `ref` (chapter 8) and has the parameter type `ref u8[]`, so it may be a `u8` fixed array or a `u8` slice. Each synthesizes `T`, a direct value:
+**EXP-37** `decode_be<T>(ref e)` and `decode_le<T>(ref e)` require `T` to be one of `u16`, `u32`, `i16` or `i32`. Any other `T` is **CE-EXP-8**. The single argument is passed with `ref` (chapter 8) and has the parameter type `ref u8[]`, so it may be a `u8` fixed array or a `u8` slice. Each synthesizes `T`, a direct value:
 
 - At runtime, if the length of the argument is not the width of `T` in bytes, the result is `trap(BOUNDS)`.
 - Otherwise the bytes are read in the stated order (big-endian for `_be`, little-endian for `_le`) and interpreted as two's complement when `T` is signed.
 
 *Sources: D-432 (OI-32), D-342; DN §3.4.*
 
-**EXP-38 [Agreed]** Integers and bytes are converted only explicitly, through EXP-34, EXP-36 and EXP-37, or through arithmetic, shifts and masks. Byte order is always stated by the intrinsic chosen. The language never encodes values implicitly, for example when they are stored, passed or returned.
+**EXP-38** Integers and bytes are converted only explicitly, through EXP-34, EXP-36 and EXP-37, or through arithmetic, shifts and masks. Byte order is always stated by the intrinsic chosen. The language never encodes values implicitly, for example when they are stored, passed or returned.
 *Sources: D-342, D-427; DN §3.4, §4.*
 
 ### Examples
@@ -564,7 +564,7 @@ function encode_amount(amount: u32, request: ref u8[]) -> u8 {
 
 ## 6.9 Indexing, `.length` and field selection
 
-**EXP-39 [Agreed]** An index expression `a[i]` works as follows:
+**EXP-39** An index expression `a[i]` works as follows:
 
 - **Receiver:** `a` must have a fixed array type `T[N]` or a view type `T[]`. It synthesizes `T`.
 - **Index:** `i` must synthesize `u8`, `u16` or `u32`. An index containing no typed operand checks against `u32` (EXP-10). A typed unsigned index keeps its own type and is not converted. An index of a signed type, `bool`, an enum or an aggregate type is **CE-EXP-9**, even if its value would be valid.
@@ -572,13 +572,13 @@ function encode_amount(amount: u32, request: ref u8[]) -> u8 {
 
 *Sources: D-062, D-085; DN §3.3, §8.1.*
 
-**EXP-40 [Agreed]** `x.length`, where `x` has a fixed array type or a view type, synthesizes `u32`. Its value is the number of elements, not bytes. For a fixed array that is `N`. For a view it is the length of the supplied region. `.length` is read-only: chapter 7 rejects assigning to it. At runtime `x` is still evaluated, so its calls, `attempt` propagation and bounds checks happen even when the length is known from the type. If `x` has another type, `.length` is a field selection under EXP-41.
+**EXP-40** `x.length`, where `x` has a fixed array type or a view type, synthesizes `u32`. Its value is the number of elements, not bytes. For a fixed array that is `N`. For a view it is the length of the supplied region. `.length` is read-only: chapter 7 rejects assigning to it. At runtime `x` is still evaluated, so its calls, `attempt` propagation and bounds checks happen even when the length is known from the type. If `x` has another type, `.length` is a field selection under EXP-41.
 *Sources: D-061, D-339; DN §8.1.*
 
-**EXP-41 [Agreed]** A field selection `x.f`, where `x` has a structure type `S`, requires `S` to declare a field `f`. It synthesizes that field's type. A field selection on a structure without that field, or on a value that is neither a structure nor an array (`.length`), is **CE-EXP-13**. Qualified enum variants and error members are resolved by NAM-17. A qualified enum variant synthesizes its enum type.
+**EXP-41** A field selection `x.f`, where `x` has a structure type `S`, requires `S` to declare a field `f`. It synthesizes that field's type. A field selection on a structure without that field, or on a value that is neither a structure nor an array (`.length`), is **CE-EXP-13**. Qualified enum variants and error members are resolved by NAM-17. A qualified enum variant synthesizes its enum type.
 *Sources: D-047, D-317; DN §4.2, §9.*
 
-**EXP-42 [Agreed]** A slice `a[s..e]` is parsed by the expression grammar. Its typing, where it may appear, and its bounds checks are defined in chapter 8. A slice in any other position is rejected there.
+**EXP-42** A slice `a[s..e]` is parsed by the expression grammar. Its typing, where it may appear, and its bounds checks are defined in chapter 8. A slice in any other position is rejected there.
 *Sources: D-119, D-410 (OI-10); DN §8.4.*
 
 ### Examples
@@ -622,10 +622,10 @@ function identifier_size() -> u32 {
 
 ## 6.10 Aggregate construction
 
-**EXP-43 [Agreed]** An array list `[e1, …, en]` only checks against an expected fixed array type `T[N]`. It never synthesizes a type. Without an expected type it is **CE-EXP-10**. It must have exactly `N` elements. Any other count is **CE-EXP-11**: there is no padding or truncation. Each element checks against `T`. The elements are evaluated left to right, and the result is a direct array value.
+**EXP-43** An array list `[e1, …, en]` only checks against an expected fixed array type `T[N]`. It never synthesizes a type. Without an expected type it is **CE-EXP-10**. It must have exactly `N` elements. Any other count is **CE-EXP-11**: there is no padding or truncation. Each element checks against `T`. The elements are evaluated left to right, and the result is a direct array value.
 *Sources: D-063, D-130, D-341; DN §8, §9.*
 
-**EXP-44 [Agreed]** `fill(e)` only checks against an expected fixed array type `T[N]`. Without an expected type it is **CE-EXP-10**. The argument `e` checks against `T`. At runtime:
+**EXP-44** `fill(e)` only checks against an expected fixed array type `T[N]`. Without an expected type it is **CE-EXP-10**. The argument `e` checks against `T`. At runtime:
 
 1. `e` is evaluated exactly once.
 2. Its value is copied independently into each of the `N` elements.
@@ -633,7 +633,7 @@ function identifier_size() -> u32 {
 The value is captured before any destination is written, so `buffer = fill(buffer[0])` copies the original first element. `fill` produces a direct array value, never an outcome. It allocates nothing dynamically. A fallible value must be obtained in a local first, because of the nested-call rule (EXP-49).
 *Sources: D-063, D-064, D-079, D-340; DN §8, §8.2, §8.3.*
 
-**EXP-45 [Agreed]** A structure constructor `S { f1: e1, …, fk: ek }` requires `S` to name a structure type. It synthesizes `S`. Every field of `S` must appear exactly once:
+**EXP-45** A structure constructor `S { f1: e1, …, fk: ek }` requires `S` to name a structure type. It synthesizes `S`. Every field of `S` must appear exactly once:
 
 - a missing field is **CE-EXP-12**;
 - a field `S` does not declare is **CE-EXP-12**;
@@ -642,7 +642,7 @@ The value is captured before any destination is written, so `buffer = fill(buffe
 Fields may be written in any order. Each `ei` checks against its field's type. The field expressions are evaluated in written order, not declaration order. If one fails, the later ones are not evaluated and no value is produced. The result is a direct structure value. There are no field defaults and no shorthand for unspecified fields.
 *Sources: D-070, D-071, D-130; DN §9.3.*
 
-**EXP-46 [Agreed]** Every array list, `fill` result and constructor result is a complete, independent value. It shares nothing with the values it was built from (chapter 8).
+**EXP-46** Every array list, `fill` result and constructor result is a complete, independent value. It shares nothing with the values it was built from (chapter 8).
 *Sources: D-116; DN §3.8.*
 
 ### Examples
@@ -690,7 +690,7 @@ function build() -> Account {
 | A constructor with an undeclared field | CE-EXP-12 | `invalid/exp-132-constructor-unknown-field.card` |
 | A constructor with `balance` twice | CE-EXP-12 | `invalid/exp-133-constructor-duplicate-field.card` |
 
-**EXP-55 [Agreed]** A byte-string literal (LEX-25) of `N` bytes is an array list of `N` integer literals, one per byte, in order. It has the same typing and positions as that array list (EXP-43):
+**EXP-55** A byte-string literal (LEX-25) of `N` bytes is an array list of `N` integer literals, one per byte, in order. It has the same typing and positions as that array list (EXP-43):
 
 - it has no type of its own;
 - it checks against `u8[N]`. Another length is **CE-EXP-11**, and no expected array type is **CE-EXP-10**;
@@ -705,7 +705,7 @@ For example, `const KEY_ID: u8[2] = b"id";` is the same as `const KEY_ID: u8[2] 
 
 ## 6.11 Calls
 
-**EXP-47 [Agreed]** A call `f(a1, …, an)` names its target directly. The target is one of:
+**EXP-47** A call `f(a1, …, an)` names its target directly. The target is one of:
 
 - an ordinary function;
 - a compiler intrinsic;
@@ -714,7 +714,7 @@ For example, `const KEY_ID: u8[2] = b"id";` is the same as `const KEY_ID: u8[2] 
 Any other target is **CE-EXP-15**. That includes a constant, a variable, a type, or the `command` (chapter 12). Function values do not exist. The number of arguments must equal the number of parameters, or it is **CE-EXP-16**. Each argument checks against its parameter type (EXP-10). Its mode (`ref`, `inout` or none) must match the parameter's mode under chapter 8.
 *Sources: D-026, D-031, D-035, D-406; DN §3.7, §4.1.*
 
-**EXP-48 [Agreed]** A call synthesizes `Outcome(T)` when it is any of:
+**EXP-48** A call synthesizes `Outcome(T)` when it is any of:
 
 - a call to an ordinary function or platform API whose successful payload type is `T`;
 - a call to a checked intrinsic (EXP-29);
@@ -729,10 +729,10 @@ A call with no successful payload synthesizes `Outcome()`. An outcome is not a v
 Anywhere else it is **CE-EXP-14**: for example as an operand, an initializer, an argument, an index, a receiver or a payload. The intrinsics `convert`, `truncate`, `wrapping_*`, `fill`, `encode_*` and `decode_*` synthesize direct values instead.
 *Sources: D-012, D-015, D-016; DN §3.5, §6.1, §6.3.*
 
-**EXP-49 [Agreed]** An argument of any call must not contain a call or an `attempt` anywhere inside it, including inside an index, a constructor or another nested expression. Violating this is **CE-EXP-7**. It applies to calls to ordinary functions, platform APIs and every intrinsic, whether it produces a value or an outcome. It also applies in constant expressions (CEX-14). Evaluate the inner call into a local first. `Ok(…)`, and `Err(…)` in `return` and `abort`, are not calls, so `return Ok(attempt read_value());` is valid.
+**EXP-49** An argument of any call must not contain a call or an `attempt` anywhere inside it, including inside an index, a constructor or another nested expression. Violating this is **CE-EXP-7**. It applies to calls to ordinary functions, platform APIs and every intrinsic, whether it produces a value or an outcome. It also applies in constant expressions (CEX-14). Evaluate the inner call into a local first. `Ok(…)`, and `Err(…)` in `return` and `abort`, are not calls, so `return Ok(attempt read_value());` is valid.
 *Sources: D-027, D-331; DN §3.7.*
 
-**EXP-50 [Agreed]** The arguments of a call are evaluated left to right, and all of them are evaluated before the callee starts. Chapter 8 defines how reference and slice arguments are prepared and bounds-checked before entry.
+**EXP-50** The arguments of a call are evaluated left to right, and all of them are evaluated before the callee starts. Chapter 8 defines how reference and slice arguments are prepared and bounds-checked before entry.
 *Sources: D-104; DN §3.7.*
 
 ### Examples
@@ -749,7 +749,7 @@ Anywhere else it is **CE-EXP-14**: for example as an operand, an initializer, an
 
 ## 6.12 Where `attempt` may appear
 
-**EXP-51 [Agreed]** `attempt e` may appear as an expression in any runtime expression position, except:
+**EXP-51** `attempt e` may appear as an expression in any runtime expression position, except:
 
 - inside a call argument (EXP-49);
 - in a constant expression (CEX-5).

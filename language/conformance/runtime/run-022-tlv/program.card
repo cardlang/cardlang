@@ -1,6 +1,5 @@
 // rule: PLT-25, STM-14
 // source: platform/base-profile.md BP-41 to BP-46
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Base Profile TLV: walking BER-TLV, multi-byte tags and long lengths, DER signatures from r || s, every Malformed and Unsupported case.

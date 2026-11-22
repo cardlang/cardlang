@@ -1,6 +1,5 @@
 // rule: EXP-29, EXP-33, EXP-34, EXP-36, EXP-37
 // source: DN §3.2, §6.5; D-432
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Checked intrinsics, conversions and the byte-order intrinsics.

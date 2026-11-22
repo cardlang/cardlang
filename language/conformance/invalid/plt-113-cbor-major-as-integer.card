@@ -1,6 +1,5 @@
 // rule: PLT-25, EXP-47
 // source: platform/base-profile.md BP-34 to BP-40
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: The major type of write_head is a CborMajor, not an integer.

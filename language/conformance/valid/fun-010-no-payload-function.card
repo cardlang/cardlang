@@ -1,6 +1,5 @@
 // rule: FUN-2
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A function with no successful payload.

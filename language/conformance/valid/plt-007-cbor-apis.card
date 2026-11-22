@@ -1,6 +1,5 @@
 // rule: NAM-18, PLT-25
 // source: platform/base-profile.md BP-34 to BP-40
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Every card.cbor API, called with matching arguments.

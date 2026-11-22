@@ -1,6 +1,5 @@
 // rule: HEP-9
 // source: DN §4
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Only the counted bytes are sent; an oversized count traps; Err sends no payload.

@@ -1,6 +1,5 @@
 // rule: FUN-9
 // source: DN §3.8
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-3
 // note: A reference to a temporary constructor value.

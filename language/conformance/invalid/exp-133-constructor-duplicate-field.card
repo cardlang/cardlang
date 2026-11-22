@@ -1,6 +1,5 @@
 // rule: EXP-45
 // source: DN §9.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-12
 // note: A constructor that gives balance twice.

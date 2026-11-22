@@ -1,6 +1,5 @@
 // rule: FUN-18, FUN-20, FUN-21
 // source: DN §8.4
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A whole array, a slice and an empty slice passed to ref u8[].

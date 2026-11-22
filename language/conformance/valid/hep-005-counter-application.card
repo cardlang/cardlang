@@ -1,6 +1,5 @@
 // rule: HEP-1, HEP-9, HEP-15, TXN-3
 // source: DN §13
-// status: agreed
 // kind: application
 // expect: ok
 // note: The counter application, the first representative application.

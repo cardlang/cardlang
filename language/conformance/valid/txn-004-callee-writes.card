@@ -1,6 +1,5 @@
 // rule: TXN-1, TXN-2
 // source: DN §7.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A callee's write takes part in the caller's transaction.

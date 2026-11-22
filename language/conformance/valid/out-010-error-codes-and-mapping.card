@@ -1,6 +1,5 @@
 // rule: OUT-21, OUT-22
 // source: D-454, D-455
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An Err(Set(code)) arm, and attempt-else in both forms.

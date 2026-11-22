@@ -1,6 +1,5 @@
 // rule: NAM-18, PLT-25
 // source: D-443
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A call to a test-catalog API with matching arguments.

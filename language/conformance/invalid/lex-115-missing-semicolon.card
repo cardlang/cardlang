@@ -1,6 +1,5 @@
 // rule: LEX-23
 // source: D-024, D-312; DN §3.0
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-SYN-1
 // note: A line break does not end a declaration: no semicolon is inserted.

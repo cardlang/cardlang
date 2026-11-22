@@ -1,6 +1,5 @@
 // rule: LEX-2
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-LEX-1
 // note: A comment contains the byte FF, which is never valid UTF-8.

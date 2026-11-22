@@ -1,6 +1,5 @@
 // rule: PLT-24, PLT-25
 // source: platform/base-profile.md BP-26 to BP-33
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Base Profile crypto: published vectors through CardLang, sign and verify, multi-part operations and lifetimes, ECDH, errors, random.

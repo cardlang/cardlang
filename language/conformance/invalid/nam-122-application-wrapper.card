@@ -1,6 +1,5 @@
 // rule: NAM-8
 // source: D-022, D-039; DN §4.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-SYN-1
 // note: There is no module or import syntax: the declaration does not derive.

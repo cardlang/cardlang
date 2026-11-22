@@ -1,6 +1,5 @@
 // rule: CEX-4
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The length of a session array, which is known from its type.

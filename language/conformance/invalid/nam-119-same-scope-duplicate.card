@@ -1,6 +1,5 @@
 // rule: NAM-21
 // source: DN §4.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-4
 // note: Two locals with the same name in one block.

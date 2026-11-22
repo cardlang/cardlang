@@ -1,6 +1,5 @@
 // rule: EXP-44
 // source: DN §8.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: fill from a local, and from an element of the destination.

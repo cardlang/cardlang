@@ -1,6 +1,5 @@
 // rule: NAM-14
 // source: D-404, D-406
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-5
 // note: Redeclaring the platform root.

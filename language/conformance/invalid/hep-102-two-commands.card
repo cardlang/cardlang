@@ -1,6 +1,5 @@
 // rule: HEP-1
 // source: DN §4
-// status: agreed
 // kind: application
 // expect: compile-error CE-HEP-2
 // note: Two command declarations.

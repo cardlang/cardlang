@@ -1,6 +1,5 @@
 // rule: EXP-29, EXP-30
 // source: V-37
-// status: agreed
 // kind: application
 // expect: runtime
 // note: checked_div, checked_mul, checked_neg, wrapping_sub and wrapping_mul at their boundaries.

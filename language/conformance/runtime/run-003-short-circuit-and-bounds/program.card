@@ -1,6 +1,5 @@
 // rule: EXP-21, EXP-39
 // source: DN §3.5, §8.1
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Short-circuiting prevents an out-of-range index; an unguarded index traps.

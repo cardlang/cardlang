@@ -1,6 +1,5 @@
 // rule: STA-7
 // source: D-422
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STA-2
 // note: A handler with a payload.

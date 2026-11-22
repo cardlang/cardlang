@@ -67,7 +67,7 @@ def main(repo):
     c.notify("textDocument/didOpen", {"textDocument": {"uri": buri, "languageId": "cardlang", "version": 1,
                                                        "text": bad.read_text(encoding="utf-8")}})
     ds = c.diagnostics([buri]).get(buri, [])
-    check("a single file: its error", len(ds) == 1 and ds[0]["code"] == "CE-EXP-4" and ds[0]["range"]["start"]["line"] == 7,
+    check("a single file: its error", len(ds) == 1 and ds[0]["code"] == "CE-EXP-4" and ds[0]["range"]["start"]["line"] == 6,
           json.dumps(ds[:1])[:160])
     prelude = layout.at(repo).base_types; puri = prelude.resolve().as_uri()
     c.notify("textDocument/didOpen", {"textDocument": {"uri": puri, "languageId": "cardlang", "version": 1,

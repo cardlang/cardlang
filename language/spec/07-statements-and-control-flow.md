@@ -1,6 +1,6 @@
 # 7. Statements and control flow
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter defines blocks and statements:
 
@@ -32,13 +32,13 @@ Statement           ::= VarStatement | AssignmentStatement | ExpressionStatement
 ExpressionStatement ::= Expression ';'
 ```
 
-**STM-1 [Agreed]** A *block* is a brace-delimited sequence of statements. Every body is a block, and braces are always required, even around a single statement. That covers the bodies of functions, commands, `if`, `while`, `for` and `transaction`, and every match arm. CardLang has no `switch`, fall-through, `goto`, labelled loops or multi-level exits. `if` and `match` are statements; they produce no value.
+**STM-1** A *block* is a brace-delimited sequence of statements. Every body is a block, and braces are always required, even around a single statement. That covers the bodies of functions, commands, `if`, `while`, `for` and `transaction`, and every match arm. CardLang has no `switch`, fall-through, `goto`, labelled loops or multi-level exits. `if` and `match` are statements; they produce no value.
 *Sources: D-106, D-343, D-344; DN §3.0, §3.6.*
 
-**STM-2 [Agreed]** The only statement consisting of an expression is the `attempt` statement, `attempt call;`, defined in chapter 9. Any other expression used as a statement is **CE-STM-1**, for example `a + b;` or `x;`. A bare call `f();` discards an outcome, and chapter 9 rejects it.
+**STM-2** The only statement consisting of an expression is the `attempt` statement, `attempt call;`, defined in chapter 9. Any other expression used as a statement is **CE-STM-1**, for example `a + b;` or `x;`. A bare call `f();` discards an outcome, and chapter 9 rejects it.
 *Sources: D-433 (OI-33); DN §6.3.*
 
-**STM-3 [Agreed]** A block is not itself a statement. A standalone `{ … }` among statements does not derive, so it is **CE-SYN-1**. Nested scopes come only from the bodies of control-flow statements and match arms.
+**STM-3** A block is not itself a statement. A standalone `{ … }` among statements does not derive, so it is **CE-SYN-1**. Nested scopes come only from the bodies of control-flow statements and match arms.
 *Sources: D-434 (OI-34).*
 
 ### Examples
@@ -53,10 +53,10 @@ ExpressionStatement ::= Expression ';'
 VarStatement ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'
 ```
 
-**STM-4 [Agreed]** A local variable is declared with `var name: T;` or `var name: T = e;`. Chapter 3 rejects any other storage keyword (NAM-10). `T` must be a value type: an unsized `T[]` is rejected by TYP-21. The initializer `e` checks against `T` (EXP-10). Local variables are mutable. Their scope and visibility follow NAM-19 to NAM-21.
+**STM-4** A local variable is declared with `var name: T;` or `var name: T = e;`. Chapter 3 rejects any other storage keyword (NAM-10). `T` must be a value type: an unsized `T[]` is rejected by TYP-21. The initializer `e` checks against `T` (EXP-10). Local variables are mutable. Their scope and visibility follow NAM-19 to NAM-21.
 *Sources: D-006; DN §3.6, §5.1.*
 
-**STM-5 [Agreed]** Each time execution reaches a local declaration:
+**STM-5** Each time execution reaches a local declaration:
 
 - **Without an initializer**, the variable receives `default(T)` (TYP-22).
 - **With an initializer**, `e` is evaluated, and the variable is created holding exactly that value. No default value is stored first, and none can be observed.
@@ -85,7 +85,7 @@ AssignmentStatement ::= Expression ( '=' | CompoundOperator ) Expression ';'
 CompoundOperator    ::= '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>='
 ```
 
-**STM-6 [Agreed]** Assignment is a statement, never an expression. It has exactly one `=`. Consequently, none of these exist, and each fails to derive (**CE-SYN-1**):
+**STM-6** Assignment is a statement, never an expression. It has exactly one `=`. Consequently, none of these exist, and each fails to derive (**CE-SYN-1**):
 
 - chained assignment, such as `a = b = 0;`;
 - assignment inside a condition;
@@ -94,7 +94,7 @@ CompoundOperator    ::= '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | 
 Compound assignment, such as `x += 1;`, is defined by STM-25.
 *Sources: D-105, D-349; DN §3.5.*
 
-**STM-7 [Agreed]** The left side of an assignment must be a *place*. A place is one of:
+**STM-7** The left side of an assignment must be a *place*. A place is one of:
 
 - the name of a local variable;
 - the name of a `persistent` or `session` global;
@@ -115,7 +115,7 @@ Any other left side is **CE-STM-2**. That includes:
 Every part of a constant is immutable (TYP-16).
 *Sources: D-112, D-073, D-061, D-108, D-410; DN §3.6, §3.7, §5.1, §8.1.*
 
-**STM-8 [Agreed]** The right side checks against the type of the place (EXP-10, EXP-12):
+**STM-8** The right side checks against the type of the place (EXP-10, EXP-12):
 
 - For arrays, the element types must be identical and the lengths equal (TYP-4). A different length or element type is **CE-EXP-1**.
 - For structures, the types must be identical, because structures are nominal.
@@ -123,7 +123,7 @@ Every part of a constant is immutable (TYP-16).
 Assignment stores a complete, independent copy, including all nested fields and elements. No sharing with the source remains.
 *Sources: D-078, D-116; DN §3.8, §8.2, §9.3.*
 
-**STM-9 [Agreed]** An assignment is evaluated in this order:
+**STM-9** An assignment is evaluated in this order:
 
 1. Evaluate the place's path from left to right. Each index expression is evaluated exactly once, and its bounds are checked when it is reached. An out-of-bounds index is `trap(BOUNDS)`, and the right side has not yet been evaluated.
 2. Evaluate the right side.
@@ -132,14 +132,14 @@ Assignment stores a complete, independent copy, including all nested fields and 
 Index expressions are never re-evaluated after the right side, even if the right side changed the variables they read. The right side's value is complete before the store begins. So in `buffer = fill(buffer[0])`, the original first element is copied into every element.
 *Sources: D-080, D-409 (OI-9), D-340; DN §8.2, §8.3.*
 
-**STM-10 [Agreed]** If evaluating the right side fails, through `attempt` propagation or a trap, the store does not happen. Effects that happened earlier, while evaluating the path or the right side, are not undone. Chapter 10 defines the atomicity of stores into persistent places.
+**STM-10** If evaluating the right side fails, through `attempt` propagation or a trap, the store does not happen. Effects that happened earlier, while evaluating the path or the right side, are not undone. Chapter 10 defines the atomicity of stores into persistent places.
 *Sources: D-080, D-057; DN §7.1, §8.2.*
 
 ```
 WipeStatement ::= 'wipe' Expression ';'
 ```
 
-**STM-23 [Agreed]** `wipe p;` stores `default(T)` (TYP-22) into every element of `p`. The operand `p` must be an assignable place (STM-7), or a slice of one (FUN-24). Any other operand is **CE-STM-2**.
+**STM-23** `wipe p;` stores `default(T)` (TYP-22) into every element of `p`. The operand `p` must be an assignable place (STM-7), or a slice of one (FUN-24). Any other operand is **CE-STM-2**.
 
 - **Evaluation.** As for an assignment (STM-9): the place's path, and a slice's endpoints and region, are evaluated and checked first, and then the store happens.
 - **The stores are always performed.** They are never removed, merged or postponed past the end of the place's lifetime, even when nothing later reads the place. This is the one exception to EXP-22, so that secrets can be erased reliably (PLT-34). Locals are also erased when their frame ends (PLT-35), so `wipe` of a local only erases it sooner.
@@ -210,10 +210,10 @@ function copy() {
 IgnoreStatement ::= 'ignore' PostfixExpression ';'
 ```
 
-**STM-24 [Agreed]** `ignore c;` evaluates the call `c` and discards its outcome, whether `Ok` (with or without a payload) or `Err`. `c` must be a call that produces an outcome. Anything else is **CE-OUT-4**. Traps are not affected: a trap in `c` ends the command as usual. `ignore` never leaves the enclosing block, so it is valid inside a transaction. It is the explicit form of discarding an outcome, which OUT-7 otherwise forbids.
+**STM-24** `ignore c;` evaluates the call `c` and discards its outcome, whether `Ok` (with or without a payload) or `Err`. `c` must be a call that produces an outcome. Anything else is **CE-OUT-4**. Traps are not affected: a trap in `c` ends the command as usual. `ignore` never leaves the enclosing block, so it is valid inside a transaction. It is the explicit form of discarding an outcome, which OUT-7 otherwise forbids.
 *Sources: D-456 (OI-56).*
 
-**STM-25 [Agreed]** A *compound assignment* `p op= e;`, where `op=` is one of `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=` and `>>=`, is evaluated as follows:
+**STM-25** A *compound assignment* `p op= e;`, where `op=` is one of `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=` and `>>=`, is evaluated as follows:
 
 1. Evaluate the place `p`'s path once, and check its indices (STM-9 step 1).
 2. Read the current value of `p`.
@@ -242,7 +242,7 @@ The place is never evaluated twice: in `values[attempt next()] += 1;`, `next` is
 IfStatement ::= 'if' ConditionExpression Block ( 'else' 'if' ConditionExpression Block )* ( 'else' Block )?
 ```
 
-**STM-11 [Agreed]** Each condition checks against `bool` (EXP-10): a condition of any other type is **CE-EXP-1**. There is no numeric truthiness. The conditions are evaluated in order, and the block of the first one that is `true` runs. If none is `true`, the final `else` block runs, if there is one. At most one block runs. Parentheses around a whole condition are optional. Mixed binary operators still need grouping (EXP-2), and a structure constructor in a condition needs parentheses (EXP-6).
+**STM-11** Each condition checks against `bool` (EXP-10): a condition of any other type is **CE-EXP-1**. There is no numeric truthiness. The conditions are evaluated in order, and the block of the first one that is `true` runs. If none is `true`, the final `else` block runs, if there is one. At most one block runs. Parentheses around a whole condition are optional. Mixed binary operators still need grouping (EXP-2), and a structure constructor in a condition needs parentheses (EXP-6).
 *Sources: D-106, D-343; DN §3.6.*
 
 ### Examples
@@ -269,7 +269,7 @@ function classify(amount: u32, balance: u32) -> u8 {
 WhileStatement ::= 'while' ConditionExpression Block
 ```
 
-**STM-12 [Agreed]** The condition checks against `bool`. It is evaluated before each iteration, and the block runs while it is `true`, so the block may run zero times. `while true { … }` expresses a loop that ends only through `break`, `return`, `abort` or a trap. The language does not require termination to be proved. A command that runs out of the execution budget of its target is `trap(EXHAUSTED)` (chapter 13).
+**STM-12** The condition checks against `bool`. It is evaluated before each iteration, and the block runs while it is `true`, so the block may run zero times. `while true { … }` expresses a loop that ends only through `break`, `return`, `abort` or a trap. The language does not require termination to be proved. A command that runs out of the execution budget of its target is `trap(EXHAUSTED)` (chapter 13).
 *Sources: D-106, D-347; DN §3.6.*
 
 ## 7.6 `for`
@@ -278,10 +278,10 @@ WhileStatement ::= 'while' ConditionExpression Block
 ForStatement ::= 'for' Identifier ':' Type 'in' ConditionExpression '..' ConditionExpression Block
 ```
 
-**STM-13 [Agreed]** In `for name: T in a..b { … }`, the index type `T` must be an integer type. Any other type is **CE-STM-6**. Both bounds `a` and `b` check against `T` (EXP-10), so each must fit `T`. For example, `for index: u8 in 0..256` is **CE-EXP-2**: use a wider index type.
+**STM-13** In `for name: T in a..b { … }`, the index type `T` must be an integer type. Any other type is **CE-STM-6**. Both bounds `a` and `b` check against `T` (EXP-10), so each must fit `T`. For example, `for index: u8 in 0..256` is **CE-EXP-2**: use a wider index type.
 *Sources: D-106, D-345; DN §3.6.*
 
-**STM-14 [Agreed]** A `for` statement runs as follows:
+**STM-14** A `for` statement runs as follows:
 
 1. Evaluate `a`, then `b`, each exactly once, before any iteration. Later changes to the variables they read have no effect on the loop.
 2. If `a ≥ b`, the block runs zero times.
@@ -326,7 +326,7 @@ BreakStatement    ::= 'break' ';'
 ContinueStatement ::= 'continue' ';'
 ```
 
-**STM-15 [Agreed]** `break;` ends the nearest enclosing `while` or `for` loop. Execution continues after that loop. `continue;` ends the current iteration of the nearest enclosing loop:
+**STM-15** `break;` ends the nearest enclosing `while` or `for` loop. Execution continues after that loop. `continue;` ends the current iteration of the nearest enclosing loop:
 
 - in a `while`, the condition is evaluated again;
 - in a `for`, the next index value is used, or the loop ends.
@@ -372,7 +372,7 @@ Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
                  | '_'
 ```
 
-**STM-16 [Agreed]** If the scrutinee of a `match` synthesizes an enum type `E`, every arm's pattern must be a qualified variant `E.V` of `E`. Each variant of `E` must appear exactly once. Each of the following is **CE-STM-4**:
+**STM-16** If the scrutinee of a `match` synthesizes an enum type `E`, every arm's pattern must be a qualified variant `E.V` of `E`. Each variant of `E` must appear exactly once. Each of the following is **CE-STM-4**:
 
 - a missing variant;
 - a repeated variant;
@@ -383,7 +383,7 @@ Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
 There is no catch-all arm, so adding a variant to `E` makes every `match` on it that has not been updated an error. The scrutinee is evaluated exactly once. The arm whose variant equals the value runs, and no other arm runs. The original value is not modified.
 *Sources: D-069, D-344; DN §3.6, §3.11.*
 
-**STM-17 [Agreed]** If the scrutinee has outcome type, the `match` is an outcome match, defined in chapter 9. A scrutinee of any other type is **CE-STM-4**, because integers, Booleans, arrays and structures cannot be matched. Write `if` statements for those.
+**STM-17** If the scrutinee has outcome type, the `match` is an outcome match, defined in chapter 9. A scrutinee of any other type is **CE-STM-4**, because integers, Booleans, arrays and structures cannot be matched. Write `if` statements for those.
 *Sources: D-069; DN §3.6.*
 
 ### Examples
@@ -433,7 +433,7 @@ ReturnStatement  ::= 'return' ( 'Ok' '(' Expression? ')' | 'Err' '(' Expression 
 RequireStatement ::= 'require' Expression 'else' Expression ';'
 ```
 
-**STM-18 [Agreed]** A `return` statement ends execution of the enclosing function or command and delivers an outcome to its caller, or to the host for the command. Its forms and their typing are defined in chapter 9:
+**STM-18** A `return` statement ends execution of the enclosing function or command and delivers an outcome to its caller, or to the host for the command. Its forms and their typing are defined in chapter 9:
 
 - `return Ok(e);`
 - `return Ok();`
@@ -443,7 +443,7 @@ RequireStatement ::= 'require' Expression 'else' Expression ';'
 Chapter 11 forbids a `return` that would leave a transaction.
 *Sources: D-106, D-107; DN §3.6, §6.1.*
 
-**STM-19 [Agreed]** `require c else M;` behaves exactly like `if not c { return Err(M); }`, including evaluation and typing. Lexically inside a transaction, it behaves as `if not c { abort Err(M); }` instead (TXN-18). `c` checks against `bool`. `M` must be a qualified member of the application's error set (NAM-16). A member of `CardError` is **CE-OUT-3**, because application code never originates a platform error (OUT-19, amended by D-437). Any other operand is **CE-STM-7**, including an integer, an error binding or a call.
+**STM-19** `require c else M;` behaves exactly like `if not c { return Err(M); }`, including evaluation and typing. Lexically inside a transaction, it behaves as `if not c { abort Err(M); }` instead (TXN-18). `c` checks against `bool`. `M` must be a qualified member of the application's error set (NAM-16). A member of `CardError` is **CE-OUT-3**, because application code never originates a platform error (OUT-19, amended by D-437). Any other operand is **CE-STM-7**, including an integer, an error binding or a call.
 *Sources: D-348, D-028, D-437 (OI-37); DN §3.6, §6.2, §6.3.*
 
 ### Examples
@@ -465,7 +465,7 @@ function subtract(current_balance: u32, amount: u32) -> u32 {
 
 ## 7.10 Completion analysis
 
-**STM-20 [Agreed]** Whether a statement *may complete normally* (continue to the next statement) is decided structurally by this table. No other analysis is used: no constant folding, no data-flow analysis and no prediction of traps.
+**STM-20** Whether a statement *may complete normally* (continue to the next statement) is decided structurally by this table. No other analysis is used: no constant folding, no data-flow analysis and no prediction of traps.
 
 | Construct | May complete normally |
 |---|---|
@@ -482,10 +482,10 @@ function subtract(current_balance: u32, amount: u32) -> u32 {
 
 *Sources: D-030; DN §3.7.*
 
-**STM-21 [Agreed]** The body of every function and command must not complete normally under STM-20. A body that may complete normally is **CE-STM-5**. The compiler never inserts an implicit success. This includes a no-payload function, which must end with an explicit `return Ok();`. A computation predicted to trap does not count as ending the body.
+**STM-21** The body of every function and command must not complete normally under STM-20. A body that may complete normally is **CE-STM-5**. The compiler never inserts an implicit success. This includes a no-payload function, which must end with an explicit `return Ok();`. A computation predicted to trap does not count as ending the body.
 *Sources: D-030, D-034; DN §3.6, §3.7.*
 
-**STM-22 [Agreed]** Statements that can never be reached are permitted, for example statements after a `return`. They are still resolved, type-checked and constant-evaluated (CEX-7).
+**STM-22** Statements that can never be reached are permitted, for example statements after a `return`. They are still resolved, type-checked and constant-evaluated (CEX-7).
 *Sources: D-351; DN §3.10.*
 
 ### Examples

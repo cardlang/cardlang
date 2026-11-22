@@ -1,6 +1,5 @@
 // rule: RTF-6, RTF-3
 // source: DN §3.6
-// status: agreed
 // kind: application
 // expect: runtime
 // note: An endless loop exhausts the execution budget; the next command still runs.

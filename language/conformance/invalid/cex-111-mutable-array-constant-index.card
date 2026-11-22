@@ -1,6 +1,5 @@
 // rule: CEX-10
 // source: D-411
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-4
 // note: A constant index out of range for a mutable session array whose length is known from its type.

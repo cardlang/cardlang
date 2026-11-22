@@ -1,6 +1,5 @@
 // rule: OUT-15
 // source: D-436
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-7
 // note: An empty error set.

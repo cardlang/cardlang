@@ -1,6 +1,5 @@
 // rule: FUN-9
 // source: DN §3.8; D-435
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: References to a constant, a by-value parameter and a for index.

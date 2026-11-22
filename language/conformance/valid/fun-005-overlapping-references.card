@@ -1,6 +1,5 @@
 // rule: FUN-13
 // source: DN §3.8
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Overlapping inout/ref and inout/inout arguments.

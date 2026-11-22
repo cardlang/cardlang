@@ -1,6 +1,5 @@
 // rule: TXN-15
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A transaction ending with abort needs no return after it.

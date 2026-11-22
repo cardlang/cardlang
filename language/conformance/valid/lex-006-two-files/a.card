@@ -1,6 +1,5 @@
 // rule: LEX-7, LEX-11
 // source: DN §3.0, §4.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: a.card ends with a line comment and no final line break; b.card must not be consumed. Must pass in either file order.

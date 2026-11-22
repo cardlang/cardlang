@@ -1,6 +1,5 @@
 // rule: STA-4, STA-5
 // source: DN §3.9
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A setup helper that sets session values from constants.

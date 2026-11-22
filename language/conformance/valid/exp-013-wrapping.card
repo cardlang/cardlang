@@ -1,6 +1,5 @@
 // rule: EXP-30
 // source: DN §6.5
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A wrapping intrinsic is a direct value.

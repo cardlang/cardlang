@@ -1,6 +1,5 @@
 // rule: FUN-5
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-1
 // note: Direct recursion.

@@ -1,6 +1,5 @@
 // rule: LEX-12, LEX-14
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Identifier forms, including a leading underscore.

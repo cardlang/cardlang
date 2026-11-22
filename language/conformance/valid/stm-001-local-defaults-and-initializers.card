@@ -1,6 +1,5 @@
 // rule: STM-4, STM-5
 // source: DN §3.9
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Locals with and without initializers.

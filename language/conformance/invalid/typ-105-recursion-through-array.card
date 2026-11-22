@@ -1,6 +1,5 @@
 // rule: TYP-15
 // source: DN §9.1, §9.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TYP-4
 // note: A structure that contains itself through an array field.

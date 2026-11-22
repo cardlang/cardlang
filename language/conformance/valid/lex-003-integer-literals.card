@@ -1,6 +1,5 @@
 // rule: LEX-17, LEX-19
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Decimal, hex and binary forms; separators; mixed-case hex; leading zero is decimal.

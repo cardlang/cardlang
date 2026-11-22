@@ -1,6 +1,5 @@
 // rule: STM-2
 // source: D-433
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-1
 // note: An arithmetic expression used as a statement.

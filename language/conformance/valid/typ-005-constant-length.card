@@ -1,6 +1,5 @@
 // rule: TYP-19
 // source: DN §3.10, §8.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Lengths given by constant expressions, including a typed `u16` constant.

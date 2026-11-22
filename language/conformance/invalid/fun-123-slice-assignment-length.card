@@ -1,6 +1,5 @@
 // rule: FUN-24
 // source: D-447
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-8
 // note: Slice lengths known to differ.

@@ -1,6 +1,5 @@
 // rule: EXP-39
 // source: DN §8.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-9
 // note: A bool index.

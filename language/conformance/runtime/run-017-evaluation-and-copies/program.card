@@ -1,6 +1,5 @@
 // rule: EXP-27, EXP-46, EXP-50, FUN-11, FUN-17, FUN-23, TXN-5, HEP-7
 // source: D-336, D-116, D-104, D-353, D-358, D-133, D-356, D-383, D-372, D-385; DN §3.5, §3.7, §3.8, §4, §7.1, §7.2, §8.4, §9.2
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Evaluation order of attempt operands, independent copies, runtime bitwise results, argument preparation before entry, inout writes in an aborted transaction, no implicit command transaction, separate request and response.

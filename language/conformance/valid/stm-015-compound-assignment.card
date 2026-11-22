@@ -1,6 +1,5 @@
 // rule: STM-25
 // source: D-457
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: All ten compound operators.

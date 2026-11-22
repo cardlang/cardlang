@@ -1,6 +1,5 @@
 // rule: TYP-10, TYP-11
 // source: DN §3.11
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An enum used as a global, an array element type and a field type.

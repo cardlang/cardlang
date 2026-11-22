@@ -1,6 +1,5 @@
 // rule: EXP-54
 // source: D-448
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-6
 // note: compare on bool elements.

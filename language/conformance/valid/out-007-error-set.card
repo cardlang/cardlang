@@ -1,6 +1,5 @@
 // rule: OUT-15, OUT-16
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An error set with literal codes.

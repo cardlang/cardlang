@@ -1,6 +1,5 @@
 // rule: NAM-14, PLT-21
 // source: D-446; platform/base-profile.md BP-11
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The Base Profile types are predeclared and usable like ordinary enums and structures.

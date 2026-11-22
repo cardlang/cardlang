@@ -1,6 +1,5 @@
 // rule: PLT-25, FUN-24
 // source: platform/base-profile.md BP-34 to BP-40
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Base Profile CBOR: walking a CTAP-style map, writing a canonical COSE-style map, every Malformed and Unsupported case.

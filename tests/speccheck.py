@@ -2,7 +2,7 @@
 
 Each check prints PASS or FAIL with a short reason:
 
-  rules        every rule is defined once, has exactly one status tag and a Sources line
+  rules        every rule is defined once and has a Sources line; a rule marked [Proposal] or [Open] cites its open issue
   references   every rule, decision, open-issue, compile-error and trap ID that is referenced is defined
   ce-classes   every compile-error class is defined once in its chapter, indexed in 00-index,
                expected by at least one conformance test, and its table lists every rule that raises it
@@ -12,7 +12,8 @@ Each check prints PASS or FAIL with a short reason:
   checklist    every "platform-defined" sentence in chapters 1-13 and Annex B has a row in the B.12 checklist
   reverse      every decision a rule cites lists that rule in Annex D §D.2 and the register
   coverage     every rule has a row in the Annex D §D.3 coverage matrix
-  index        the rule status summary in 00-index matches the rules actually defined
+  index        the rule count in 00-index matches the rules actually defined
+  test-marks   a test's status field, if any, is proposal or open, and matches the marks of the rules it cites
 
 Usage: uv run python -I tests/speccheck.py .
 """
@@ -20,7 +21,8 @@ import re, sys, pathlib
 from cardlang import layout
 
 PREFIXES = "LEX|NAM|TYP|CEX|EXP|STM|FUN|OUT|STA|TXN|HEP|RTF|PLT"
-RULE_DEF = re.compile(rf"^\*\*((?:{PREFIXES})-\d+) \[(Agreed|Proposal|Open)\]\*\*", re.M)
+MARK = r"(?: \[\w+\])?"                     # [Proposal] or [Open] on an undecided rule; a decided rule has none (§1.4)
+RULE_DEF = re.compile(rf"^\*\*((?:{PREFIXES})-\d+)(?: \[(\w+)\])?\*\*", re.M)
 
 def expand_rules(s):
     out = set()
@@ -51,15 +53,16 @@ def main(repo):
         for m in RULE_DEF.finditer(text):
             rid = m.group(1)
             if rid in rules: problems.append(f"{rid} defined twice")
-            rules[rid] = (name, m.group(2))
+            mark = m.group(2)
+            rules[rid] = (name, mark)
             rest = text[m.end():]
-            nxt = re.search(rf"^\*\*(?:{PREFIXES})-\d+ \[|^#", rest, re.M)
+            nxt = re.search(rf"^\*\*(?:{PREFIXES})-\d+[ *]|^#", rest, re.M)
             body = rest[: nxt.start() if nxt else len(rest)]
             if "*Sources:" not in body: problems.append(f"{rid} has no Sources line")
-            if re.search(r"\[(Agreed|Proposal|Open)\]", body.split("*Sources:")[0]):
-                problems.append(f"{rid} has a second status tag")
-        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+)\b(?! \[(?:Agreed|Proposal|Open)\]\*\*)", text, re.M):
-            problems.append(f"{m.group(1)} has no status tag")
+            if mark is not None and mark not in ("Proposal", "Open"):
+                problems.append(f"{rid} has the mark [{mark}]; only [Proposal] and [Open] exist (§1.4)")
+            if mark in ("Proposal", "Open") and not re.search(r"OI-\d+", body.split("*Sources:")[-1].split("\n")[0]):
+                problems.append(f"{rid} is marked [{mark}] but its Sources line cites no open issue")
     report(f"rules ({len(rules)} defined)", problems)
 
     # references ------------------------------------------------------------------------------
@@ -105,7 +108,7 @@ def main(repo):
         for m in re.finditer(r"^\| \*\*(CE-[A-Z]+-\d+)\*\* \|.*\| ([^|]*) \|[ \t]*$", text, re.M):
             listed[m.group(1)] = expand_rules(m.group(2))
     for name, text in normative.items():
-        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+) \[\w+\]\*\* (.*?)(?=^\*\*(?:{PREFIXES})-\d+ |^## |\Z)", text, re.M | re.S):
+        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+){MARK}\*\* (.*?)(?=^\*\*(?:{PREFIXES})-\d+[ *]|^## |\Z)", text, re.M | re.S):
             for ce in set(re.findall(r"\*\*(CE-[A-Z]+-\d+)\*\*", m.group(2).split("*Sources:")[0])):
                 if ce in listed and m.group(1) not in listed[ce]:
                     problems.append(f"{m.group(1)} raises {ce} but its table does not list it")
@@ -165,7 +168,7 @@ def main(repo):
     listed = re.findall(r"^\| \d+ \| \[((?:%s)-\d+)\]" % PREFIXES, annex_b.split("## B.12")[1], re.M)
     wanted = []
     for name, text in normative.items():
-        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+) \[Agreed\]\*\* (.*?)(?=^\*\*(?:{PREFIXES})-\d+ |\Z|^## )", text, re.M | re.S):
+        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+)\*\* (.*?)(?=^\*\*(?:{PREFIXES})-\d+[ *]|\Z|^## )", text, re.M | re.S):
             body = m.group(2).split("*Sources:")[0]
             for sentence in re.split(r"(?<=[.)])\s+(?=[A-Z])", re.sub(r"\s+", " ", body)):
                 if "platform-defined" in sentence.lower(): wanted.append(m.group(1))
@@ -183,7 +186,7 @@ def main(repo):
     reg_rules = {m.group(1): set(re.findall(r"[A-Z]{3}-\d+", m.group(2)))
                  for m in re.finditer(r"^\| (D-\d{3}) \|.*\| ([^|]*) \|[ \t]*$", register, re.M)}
     for name, text in normative.items():
-        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+) \[\w+\]\*\*.*?^\*Sources: (.*?)$", text, re.M | re.S):
+        for m in re.finditer(rf"^\*\*((?:{PREFIXES})-\d+){MARK}\*\*.*?^\*Sources: (.*?)$", text, re.M | re.S):
             for d in set(re.findall(r"D-\d{3}", m.group(2))):
                 if m.group(1) not in d2_rules.get(d, set()): problems.append(f"{m.group(1)} cites {d}, but D.2 does not list it")
                 if m.group(1) not in reg_rules.get(d, set()): problems.append(f"{m.group(1)} cites {d}, but the register does not list it")
@@ -200,11 +203,25 @@ def main(repo):
 
     # index rule counts -----------------------------------------------------------------------
     problems = []
-    m = re.search(r"^\| \*\*Total\*\* \| (\d+) \| (\d+) \| (\d+) \| (\d+) \|", index, re.M)
-    counts = [sum(1 for r in rules.values() if r[1] == s) for s in ("Agreed", "Proposal", "Open")]
-    if not m or [int(x) for x in m.groups()] != [len(rules)] + counts:
-        problems.append(f"00-index total row does not match {len(rules)} rules {counts}")
+    m = re.search(r"^\| \*\*Total\*\* \| (\d+) \|", index, re.M)
+    if not m or int(m.group(1)) != len(rules):
+        problems.append(f"00-index total row does not match {len(rules)} rules")
     report("index", problems)
+
+    # test marks ------------------------------------------------------------------------------
+    problems = []
+    rank = {None: 0, "Proposal": 1, "Open": 2}
+    for f, h in zip(tests, headers):
+        meta = dict(re.findall(r"^// (\w+): (.*)$", h, re.M))
+        cited = expand_rules(meta.get("rule", ""))
+        strongest = max((rules[r][1] for r in cited if r in rules and rules[r][1] in rank), key=rank.get, default=None)
+        status = meta.get("status")
+        want = strongest.lower() if strongest else None
+        if status is not None and status not in ("proposal", "open"):
+            problems.append(f"{f.name}: status {status!r}; only proposal or open is written (a test of decided rules has none)")
+        elif status != want:
+            problems.append(f"{f.name}: status {status!r}, but the rules it cites call for {want!r}")
+    report(f"test-marks ({len(tests)} tests)", problems)
 
     print("ALL PASS" if all(results) else "FAILURES")
 

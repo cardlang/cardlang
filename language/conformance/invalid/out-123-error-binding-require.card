@@ -1,6 +1,5 @@
 // rule: OUT-14, STM-19
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-7
 // note: An error binding as a require operand.

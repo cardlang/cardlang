@@ -1,6 +1,5 @@
 // rule: OUT-5
 // source: DN §6.3; D-413
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Forwarding a call's outcome and a checked intrinsic's outcome.

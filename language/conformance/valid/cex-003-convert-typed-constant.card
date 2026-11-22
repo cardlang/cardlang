@@ -1,6 +1,5 @@
 // rule: CEX-3
 // source: DN §3.10; D-095
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A guaranteed conversion of a typed constant.

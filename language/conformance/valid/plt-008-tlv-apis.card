@@ -1,6 +1,5 @@
 // rule: NAM-18, PLT-25
 // source: platform/base-profile.md BP-41 to BP-46
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Every card.tlv and card.der API, called with matching arguments.

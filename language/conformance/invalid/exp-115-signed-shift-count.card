@@ -1,6 +1,5 @@
 // rule: EXP-18
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A shift count that is not u8.

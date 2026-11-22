@@ -1,6 +1,5 @@
 // rule: EXP-15
 // source: DN §3.5, §3.11
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Equality on bool and on an enum.

@@ -1,6 +1,5 @@
 // rule: CEX-9
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-3
 // note: A shift count equal to the width of the left operand.

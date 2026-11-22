@@ -1,6 +1,5 @@
 // rule: OUT-4, OUT-19
 // source: D-437
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-3
 // note: Application code originates a platform error.

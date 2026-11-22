@@ -1,6 +1,5 @@
 // rule: NAM-18, PLT-25
 // source: platform/base-profile.md BP-26 to BP-33
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Every card.crypto and card.random API, called with matching arguments.

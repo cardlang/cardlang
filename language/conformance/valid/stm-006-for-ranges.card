@@ -1,6 +1,5 @@
 // rule: STM-13, STM-14
 // source: DN §3.6, §8.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: for over u8 and i16, an empty range, and a .length bound.

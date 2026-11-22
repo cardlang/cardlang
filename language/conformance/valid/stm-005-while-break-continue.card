@@ -1,6 +1,5 @@
 // rule: STM-12, STM-15
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A while loop with continue and break.

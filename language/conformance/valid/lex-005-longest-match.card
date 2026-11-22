@@ -1,6 +1,5 @@
 // rule: LEX-10, LEX-22
 // source: DN §3.0, §3.6
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Multi-character tokens written without spaces.

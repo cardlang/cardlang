@@ -1,6 +1,5 @@
 // rule: FUN-24
 // source: D-447
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A slice assignment between different element types.

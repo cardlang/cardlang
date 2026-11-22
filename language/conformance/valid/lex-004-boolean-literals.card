@@ -1,6 +1,5 @@
 // rule: LEX-21
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The two Boolean literals.

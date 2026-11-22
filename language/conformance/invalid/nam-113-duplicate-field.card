@@ -1,6 +1,5 @@
 // rule: NAM-15
 // source: DN §4.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-8
 // note: A duplicate field.

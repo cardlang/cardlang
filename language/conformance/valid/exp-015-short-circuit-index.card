@@ -1,6 +1,5 @@
 // rule: EXP-21
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Short-circuiting guards the index.

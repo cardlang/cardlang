@@ -1,40 +1,40 @@
 # 2. Lexical structure
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter defines how the text of each source file is divided into tokens. It does not say where tokens may appear: that is the syntax, given in chapters 3–12 and the syntactic part of [Annex A](annex-A-grammar.md). Integer literals get their types in chapter 6. The complete lexical grammar is Annex A §A.1, and the grammar fragments in this chapter repeat parts of it.
 
-Rule format, status tags and notation are defined in chapter 1. A rule marked *Derivation* follows necessarily from the agreed text it names (chapter 1 §1.4: such rules add no new decision).
+Rule format, rule marks and notation are defined in chapter 1. A rule marked *Derivation* follows necessarily from the agreed text it names (chapter 1 §1.4: such rules add no new decision).
 
 ## 2.1 Source text
 
-**LEX-1 [Agreed]** A CardLang source file has the extension `.card`. The build configuration supplies the list of source files that make up an application (chapter 3).
+**LEX-1** A CardLang source file has the extension `.card`. The build configuration supplies the list of source files that make up an application (chapter 3).
 *Sources: D-023, D-401; DN §3.0, §4.1.*
 
-**LEX-2 [Agreed]** A source file is encoded in UTF-8. A file containing a byte sequence that is not valid UTF-8 is a compilation error (**CE-LEX-1**).
+**LEX-2** A source file is encoded in UTF-8. A file containing a byte sequence that is not valid UTF-8 is a compilation error (**CE-LEX-1**).
 *Sources: D-023; DN §3.0.* *Derivation: "Source files are UTF-8" (DN §3.0).*
 
-**LEX-3 [Agreed]** Characters outside the ASCII range (code points above `#x7F`) may appear only inside comments. Anywhere else they are a compilation error (**CE-LEX-2**). The only exception is the byte-order mark allowed by LEX-4.
+**LEX-3** Characters outside the ASCII range (code points above `#x7F`) may appear only inside comments. Anywhere else they are a compilation error (**CE-LEX-2**). The only exception is the byte-order mark allowed by LEX-4.
 *Sources: D-023, D-304; DN §3.0.* *Derivation: "Identifiers and language tokens remain ASCII"; only comments "may contain Unicode".*
 
-**LEX-4 [Agreed]** A file may begin with a UTF-8 byte-order mark (U+FEFF, encoded as `EF BB BF`). It is ignored. A U+FEFF anywhere else is subject to LEX-3.
+**LEX-4** A file may begin with a UTF-8 byte-order mark (U+FEFF, encoded as `EF BB BF`). It is ignored. A U+FEFF anywhere else is subject to LEX-3.
 *Sources: D-423 (OI-23).*
 
-**LEX-5 [Agreed]** A *line break* is a carriage return followed by a line feed (CRLF), a line feed (LF) on its own, or a carriage return (CR) on its own. CRLF counts as one line break. Line breaks end line comments (LEX-7) and separate tokens (LEX-6). Implementations count them when reporting the line of a diagnostic.
+**LEX-5** A *line break* is a carriage return followed by a line feed (CRLF), a line feed (LF) on its own, or a carriage return (CR) on its own. CRLF counts as one line break. Line breaks end line comments (LEX-7) and separate tokens (LEX-6). Implementations count them when reporting the line of a diagnostic.
 *Sources: D-423 (OI-23); D-311.*
 
 ## 2.2 Whitespace and comments
 
-**LEX-6 [Agreed]** *Whitespace* is the space character (`#x20`), the horizontal tab (`#x09`) and line breaks. Whitespace and comments separate tokens and have no other meaning: indentation and line structure are not significant. Outside a comment, a character that is not whitespace and cannot begin a token under §2.3 is a compilation error (**CE-LEX-2**). This includes every other control character, and characters with no meaning in CardLang such as `#`, `"`, `'`, `?`, `@`, `$` and `` ` ``.
+**LEX-6** *Whitespace* is the space character (`#x20`), the horizontal tab (`#x09`) and line breaks. Whitespace and comments separate tokens and have no other meaning: indentation and line structure are not significant. Outside a comment, a character that is not whitespace and cannot begin a token under §2.3 is a compilation error (**CE-LEX-2**). This includes every other control character, and characters with no meaning in CardLang such as `#`, `"`, `'`, `?`, `@`, `$` and `` ` ``.
 *Sources: D-305, D-312; DN §3.0.* *Derivation: whitespace is exactly "spaces, tabs and line breaks"; language tokens are the ones this chapter lists.*
 
-**LEX-7 [Agreed]** A *line comment* starts with `//` and runs to the next line break, or to the end of the file. The line break is not part of the comment.
+**LEX-7** A *line comment* starts with `//` and runs to the next line break, or to the end of the file. The line break is not part of the comment.
 *Sources: D-306; DN §3.0.*
 
-**LEX-8 [Agreed]** A *block comment* starts with `/*` and ends at the first following `*/`. Block comments do not nest. A block comment that is still open at the end of its file is a compilation error (**CE-LEX-3**).
+**LEX-8** A *block comment* starts with `/*` and ends at the first following `*/`. Block comments do not nest. A block comment that is still open at the end of its file is a compilation error (**CE-LEX-3**).
 *Sources: D-306; DN §3.0.*
 
-**LEX-9 [Agreed]** Inside a comment, the sequences `//` and `/*` have no special meaning. A line comment can contain `/*`, and a block comment can contain `//` and `/*`. Because comments do not nest, the first `*/` always ends a block comment. In `/* a /* b */ c */`, the comment ends after `b`, and ` c */` is source text.
+**LEX-9** Inside a comment, the sequences `//` and `/*` have no special meaning. A line comment can contain `/*`, and a block comment can contain `//` and `/*`. Because comments do not nest, the first `*/` always ends a block comment. In `/* a /* b */ c */`, the comment ends after `b`, and ` c */` is source text.
 *Sources: D-306; DN §3.0.* *Derivation: comments run to their terminator (LEX-7, LEX-8), and block comments do not nest.*
 
 ```
@@ -72,7 +72,7 @@ const A: u32 = 1;
 
 ## 2.3 Token formation
 
-**LEX-10 [Agreed]** The text of a file, after removing the optional byte-order mark, is divided into tokens from left to right. At each position, whitespace and comments are skipped. Then the **longest** character sequence that forms a token (an identifier, keyword, `_`, integer literal or punctuator) is taken as the next token. For example:
+**LEX-10** The text of a file, after removing the optional byte-order mark, is divided into tokens from left to right. At each position, whitespace and comments are skipped. Then the **longest** character sequence that forms a token (an identifier, keyword, `_`, integer literal or punctuator) is taken as the next token. For example:
 
 - `<=`, `->`, `=>`, `..`, `<<` and `>>` are each one token;
 - `a<=b` is the three tokens `a`, `<=` and `b`;
@@ -81,7 +81,7 @@ const A: u32 = 1;
 A `//` or `/*` always starts a comment, never a division operator.
 *Sources: D-424 (OI-24).*
 
-**LEX-11 [Agreed]** Each source file is tokenized separately. No token or comment continues from the end of one file into the next. A line comment ends at the end of its file, and a block comment open at the end of its file is an error under LEX-8. Positions in diagnostics are reported by file and line.
+**LEX-11** Each source file is tokenized separately. No token or comment continues from the end of one file into the next. A line comment ends at the end of its file, and a block comment open at the end of its file is an error under LEX-8. Positions in diagnostics are reported by file and line.
 *Sources: D-311; DN §3.0, §4.1.*
 
 ### Examples
@@ -124,10 +124,10 @@ const B: u32 = 2;
 
 ## 2.4 Identifiers, keywords and reserved names
 
-**LEX-12 [Agreed]** An *identifier* is an ASCII letter (`A`–`Z`, `a`–`z`) or underscore, followed by zero or more ASCII letters, digits and underscores. The exceptions are a keyword (LEX-13) and a lone `_` (LEX-14). Identifiers are case-sensitive: `Account` and `account` are different identifiers. Escape sequences and non-ASCII letters are not part of identifiers (LEX-3). Naming conventions, such as capitalized type names, are style only.
+**LEX-12** An *identifier* is an ASCII letter (`A`–`Z`, `a`–`z`) or underscore, followed by zero or more ASCII letters, digits and underscores. The exceptions are a keyword (LEX-13) and a lone `_` (LEX-14). Identifiers are case-sensitive: `Account` and `account` are different identifiers. Escape sequences and non-ASCII letters are not part of identifiers (LEX-3). Naming conventions, such as capitalized type names, are style only.
 *Sources: D-023, D-301, D-303; DN §3.0.*
 
-**LEX-13 [Agreed]** The following 33 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
+**LEX-13** The following 33 spellings are *keywords*. A keyword is never an identifier, so it cannot be used as the name of anything.
 
 ```text
 abort      and        attempt    break      command    const      continue
@@ -140,10 +140,10 @@ true       var        while      wipe       ignore
 `true` and `false` are also the Boolean literals (LEX-21). Using a keyword where the grammar requires an identifier is **CE-SYN-1**.
 *Sources: D-303, D-404 (OI-4), D-449 (OI-49), D-456 (OI-56); DN §3.0, §3.6.*
 
-**LEX-14 [Agreed]** A lone underscore `_` is a token of its own, not an identifier. The syntax permits it only as the ignored pattern (chapter 9). Identifiers that merely contain or start with an underscore, such as `_x` or `__count`, are ordinary identifiers.
+**LEX-14** A lone underscore `_` is a token of its own, not an identifier. The syntax permits it only as the ignored pattern (chapter 9). Identifiers that merely contain or start with an underscore, such as `_x` or `__count`, are ordinary identifiers.
 *Sources: D-302; DN §3.0.*
 
-**LEX-15 [Agreed]** The following identifiers are *reserved*. Lexically they are ordinary identifiers, but chapter 3 forbids declaring or shadowing them:
+**LEX-15** The following identifiers are *reserved*. Lexically they are ordinary identifiers, but chapter 3 forbids declaring or shadowing them:
 
 - the compiler intrinsics `fill`, `convert`, `checked_convert`, `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_rem`, `checked_neg`, `wrapping_add`, `wrapping_sub` and `wrapping_mul`;
 - the conversion and byte-order intrinsics `truncate`, `encode_be`, `encode_le`, `decode_be` and `decode_le` (added by D-432);
@@ -155,7 +155,7 @@ true       var        while      wipe       ignore
 `length` is not reserved and may be used as a field name.
 *Sources: D-044, D-404 (OI-4), D-432 (OI-32), D-422 (OI-22), D-438 (OI-38), D-448 (OI-48); DN §4.2.*
 
-**LEX-16 [Agreed]** The language sets no maximum length for identifiers. A tool may report a limit it cannot support, but it MUST NOT silently truncate or merge identifiers.
+**LEX-16** The language sets no maximum length for identifiers. A tool may report a limit it cannot support, but it MUST NOT silently truncate or merge identifiers.
 *Sources: D-424 (OI-24).*
 
 ```
@@ -198,7 +198,7 @@ const _: u8 = 1;
 
 ## 2.5 Literals
 
-**LEX-17 [Agreed]** An *integer literal* has one of three forms:
+**LEX-17** An *integer literal* has one of three forms:
 
 - **decimal:** one or more digits `0`–`9`;
 - **hexadecimal:** the prefix `0x` followed by one or more hex digits `0`–`9`, `a`–`f` or `A`–`F`;
@@ -207,7 +207,7 @@ const _: u8 = 1;
 Prefixes are lowercase only. Hex digits may be either case. A single underscore may separate two digits. An underscore may not lead, trail, appear twice in a row, or follow the prefix directly. A leading zero has no special meaning: `007` is decimal 7, not octal.
 *Sources: D-036, D-307, D-308, D-414 (OI-14); DN §3.0.*
 
-**LEX-18 [Agreed]** When a token begins with a digit, the lexer reads the *numeric run*: the longest sequence of ASCII letters, digits and underscores starting at that position. The whole numeric run must match one of the forms in LEX-17. Otherwise it is a compilation error (**CE-LEX-4**). This rule rejects, among others:
+**LEX-18** When a token begins with a digit, the lexer reads the *numeric run*: the longest sequence of ASCII letters, digits and underscores starting at that position. The whole numeric run must match one of the forms in LEX-17. Otherwise it is a compilation error (**CE-LEX-4**). This rule rejects, among others:
 
 - `1__0`, `1_` and `0x_FF` (underscore placement);
 - `0x` (prefix without digits);
@@ -217,13 +217,13 @@ Prefixes are lowercase only. Hex digits may be either case. A single underscore 
 
 *Sources: D-424 (OI-24), D-414 (OI-14), D-036.*
 
-**LEX-19 [Agreed]** The value of an integer literal is the mathematical integer its digits denote in its base, with underscores ignored. The lexer places no limit on its magnitude. Whether the value fits is checked when the literal is typed against its expected type (chapter 6). For example, `300` is a valid token, and `var x: u8 = 300;` is a typing error, not a lexical one.
+**LEX-19** The value of an integer literal is the mathematical integer its digits denote in its base, with underscores ignored. The lexer places no limit on its magnitude. Whether the value fits is checked when the literal is typed against its expected type (chapter 6). For example, `300` is a valid token, and `var x: u8 = 300;` is a typing error, not a lexical one.
 *Sources: D-414 (OI-14), D-084; DN §3.3.*
 
-**LEX-20 [Agreed]** There is no negative integer literal. `-128` is the unary operator `-` followed by the literal `128`. Chapter 6 defines how such an expression is accepted in a context like `i8`, where `128` alone would not fit.
+**LEX-20** There is no negative integer literal. `-128` is the unary operator `-` followed by the literal `128`. Chapter 6 defines how such an expression is accepted in a context like `i8`, where `128` alone would not fit.
 *Sources: D-309; DN §3.0, §6.5.*
 
-**LEX-21 [Agreed]** The Boolean literals are exactly the keywords `true` and `false`. CardLang has no string, character, floating-point or null literals.
+**LEX-21** The Boolean literals are exactly the keywords `true` and `false`. CardLang has no string, character, floating-point or null literals.
 *Sources: D-310; DN §3.0.*
 
 ```
@@ -271,7 +271,7 @@ const DISABLED: bool = false;
 
 ## 2.6 Operators and punctuators
 
-**LEX-25 [Agreed]** A *byte-string literal* is `b"`, followed by zero or more characters, followed by `"`. Each character is one of:
+**LEX-25** A *byte-string literal* is `b"`, followed by zero or more characters, followed by `"`. Each character is one of:
 
 - a printable ASCII character (`0x20`–`0x7E`) other than `"` and `\`, which stands for its own code;
 - the escape `\"`, for the byte `0x22`, or `\\`, for the byte `0x5C`;
@@ -280,7 +280,7 @@ const DISABLED: bool = false;
 A byte-string literal ends on the same line it starts on. One that is unterminated, spans a line, contains any other character, or has any other escape is **CE-LEX-5**. The literal stands for the sequence of bytes its characters denote. It is not text: there is no string type and no encoding (EXP-55).
 *Sources: D-453 (OI-53).*
 
-**LEX-22 [Agreed]** The *punctuators* are exactly the following 41 tokens:
+**LEX-22** The *punctuators* are exactly the following 41 tokens:
 
 ```text
 {   }   (   )   [   ]   ;   :   ,   .   ..
@@ -300,10 +300,10 @@ Their uses are defined by the syntax in later chapters. In summary:
 Sequences that are not tokens are not operators. For example, `+ =` with a space is the two tokens `+` and `=`, and `!` on its own is not a token (it cannot begin one, so it is **CE-LEX-2** under LEX-6). Boolean operators are the keywords `and`, `or` and `not`.
 *Sources: D-024, D-102, D-457 (OI-57); DN §3.0, §3.5, §3.6, §3.7, §8.4.* *Derivation: the token set is the punctuation used by the agreed syntax in the notes, plus the compound operators added by D-457. Spellings the notes omit, such as `?:` and `++`, are not tokens.*
 
-**LEX-23 [Agreed]** Line breaks are not tokens, and no semicolon is ever inserted automatically. Statements and declarations that need a semicolon must contain one (chapters 3 and 7).
+**LEX-23** Line breaks are not tokens, and no semicolon is ever inserted automatically. Statements and declarations that need a semicolon must contain one (chapters 3 and 7).
 *Sources: D-024, D-312; DN §3.0.*
 
-**LEX-24 [Agreed]** CardLang has no preprocessor, macros, conditional compilation, textual inclusion or other textual substitution. Directive-like text such as `#include` has no meaning: its `#` is **CE-LEX-2** under LEX-6. Combining source files is done only through the build-supplied file list (LEX-1).
+**LEX-24** CardLang has no preprocessor, macros, conditional compilation, textual inclusion or other textual substitution. Directive-like text such as `#include` has no meaning: its `#` is **CE-LEX-2** under LEX-6. Combining source files is done only through the build-supplied file list (LEX-1).
 *Sources: D-037; DN §3.0.*
 
 ```

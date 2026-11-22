@@ -1,6 +1,5 @@
 // rule: TXN-10
 // source: DN §7.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TXN-3
 // note: A transaction reached through a call from inside another.

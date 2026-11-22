@@ -1,6 +1,5 @@
 // rule: STA-6
 // source: platform/base-profile.md BP-55
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Profile BP-55: when on_session_start returns Err or traps, the application is unavailable until the next session start, and every command is reported as a trap.

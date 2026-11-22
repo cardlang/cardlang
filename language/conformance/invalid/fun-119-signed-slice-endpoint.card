@@ -1,6 +1,5 @@
 // rule: FUN-19
 // source: D-410
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-9
 // note: A signed slice endpoint.

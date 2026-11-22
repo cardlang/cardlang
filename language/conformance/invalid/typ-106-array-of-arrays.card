@@ -1,6 +1,5 @@
 // rule: TYP-18
 // source: DN §8.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TYP-6
 // note: An array of arrays.

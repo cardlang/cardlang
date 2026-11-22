@@ -1,6 +1,5 @@
 // rule: HEP-5, HEP-12, PLT-9
 // source: platform/base-profile.md BP-47 to BP-55
-// status: agreed
 // kind: application
 // binding: iso7816
 // expect: runtime

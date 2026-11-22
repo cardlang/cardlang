@@ -1,6 +1,5 @@
 // rule: HEP-15, TXN-8, OUT-20, STA-4, RTF-9
 // source: DN §13
-// status: agreed
 // kind: application
 // expect: runtime
 // note: The wallet application: PIN authorization, credit and debit, abort rollback and a security reset.

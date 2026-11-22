@@ -1,6 +1,5 @@
 // rule: TXN-3
 // source: DN §7.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An empty transaction.

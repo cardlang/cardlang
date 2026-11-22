@@ -1,6 +1,5 @@
 // rule: TYP-21
 // source: DN §8.4
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Unsized `ref` and `inout` parameters.

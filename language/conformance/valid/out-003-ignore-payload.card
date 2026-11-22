@@ -1,6 +1,5 @@
 // rule: OUT-11
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Ok(_) deliberately ignores a payload.

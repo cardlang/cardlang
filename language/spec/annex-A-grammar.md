@@ -1,9 +1,8 @@
 # Annex A — Grammar
 
-CardLang Language Specification, Draft 0.2. Annex status:
+CardLang Language Specification, Draft 0.2.
 
-- **A.1 lexical grammar:** complete.
-- **A.2 syntactic grammar:** complete and consolidated. The grammar has been checked mechanically against every conformance test (§A.3).
+The grammar has been checked mechanically against every conformance test (§A.3).
 
 The notation is defined in chapter 1 §1.7.1. This annex is normative for the *form* of programs. The chapters are normative for their meaning and for every restriction the grammar does not express. The grammar fragments in the chapters are copies of the productions here. If a fragment and this annex disagree, that is a specification error to be reported, not a choice between the two.
 

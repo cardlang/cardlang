@@ -1,6 +1,5 @@
 // rule: TYP-6, TYP-7
 // source: DN §3.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Globals of every primitive type.

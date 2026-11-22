@@ -1,6 +1,5 @@
 // rule: NAM-14
 // source: platform/base-profile.md BP-11
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-5
 // note: An application may not declare a name that the Base Profile predeclares.

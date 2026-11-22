@@ -1,6 +1,5 @@
 // rule: LEX-16
 // source: D-424
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A 333-character identifier is accepted and is not truncated.

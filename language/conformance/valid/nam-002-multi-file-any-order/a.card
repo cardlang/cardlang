@@ -1,6 +1,5 @@
 // rule: NAM-4, NAM-11, NAM-13
 // source: DN §4.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Declarations used across three files. Must pass for every order of the project's files.

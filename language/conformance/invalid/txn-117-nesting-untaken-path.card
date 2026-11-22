@@ -1,6 +1,5 @@
 // rule: TXN-10
 // source: D-403
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TXN-3
 // note: A nesting call inside if false still counts.

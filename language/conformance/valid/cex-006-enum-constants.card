@@ -1,6 +1,5 @@
 // rule: CEX-3
 // source: DN §3.11
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Enum constants, and equality between them.

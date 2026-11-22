@@ -1,6 +1,5 @@
 // rule: STM-22
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A statement after a return is permitted.

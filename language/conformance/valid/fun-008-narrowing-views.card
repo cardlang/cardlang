@@ -1,6 +1,5 @@
 // rule: FUN-18, FUN-21
 // source: DN §8.4
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Narrowing a view, and a slice as the receiver of .length.

@@ -1,6 +1,5 @@
 // rule: STM-5, STM-14, STM-15
 // source: DN §3.6, §3.9
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Locals are re-initialized each time they are reached; empty ranges run zero times.

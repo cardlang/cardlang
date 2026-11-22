@@ -1,6 +1,5 @@
 // rule: HEP-15, HEP-9
 // source: DN §4
-// status: agreed
 // kind: application
 // expect: ok
 // note: Dispatch on the first byte; a u32 encoded big-endian.

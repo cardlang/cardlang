@@ -46,7 +46,7 @@ RUNS = [
     # References stay correct: links, anchors and named files in every document; paths only through layout.
     ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout"),
     # Consistency of the specification text itself.
-    ("tests/speccheck.py", None, "rules, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index"),
+    ("tests/speccheck.py", None, "rules and marks, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index, test marks"),
     # The CardLang Base Profile (platform/).
     ("tests/profilecheck.py", None, "Base Profile rules, CardError table, types and catalog"),
     # Annex A, checked mechanically: an Earley recognizer built from the EBNF in the annex.

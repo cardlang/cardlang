@@ -63,3 +63,42 @@ Planned 2026-11-22, at the user's request. Every rule of the specification is ag
 | T4 | The index | (a) the "Rule status summary" becomes "Rules per chapter" (chapter and count only), and the chapter table and the rule index lose their Status columns; (b) remove the summary table too | (a). The count per chapter is still useful, and `speccheck` keeps checking it |
 
 **Decided (user, 2026-11-22):** T1 (a), T2 (a), T3 (a) and T4 (a), all as recommended.
+
+## 4. Done (2026-11-22)
+
+- **Chapter 1 §1.4** is now "Rule marks":
+  - a rule is normative as written;
+  - `[Proposal]` and `[Open]` mark an undecided rule, and no rule of this draft carries one;
+  - when an issue is resolved, its rule loses the mark;
+  - the example rule in §1.5 is unmarked.
+- **The rules:** ` [Agreed]` is removed from all 305 rule headings, in chapters 2–13 and Annex B. Nothing else changed.
+- **The status lines (T2):**
+  - each chapter and Annex B now reads "CardLang Language Specification, Draft 0.2.";
+  - Annex A's status list is now one sentence on its mechanical check;
+  - the index's status sentence keeps only the draft and its date.
+- **The index (T4):**
+  - "Contents and status" is "Contents", without its Status column;
+  - the summary is "Rules per chapter" (chapter and count);
+  - the generated rule index has `Rule` and `Defined in`. `rule_index.py` writes a mark after a rule's ID only when it has one.
+- **The tests (T3):**
+  - the `// status: agreed` line is removed from 412 test files and from the conformance README's example. They were edited as bytes, and each file differs from before by exactly that line;
+  - the README's field table makes `status` optional: `proposal` or `open`, or absent for normative rules.
+- **The tools:**
+  - **`speccheck`:**
+    - a rule may be unmarked;
+    - a mark other than `[Proposal]` or `[Open]` fails;
+    - a marked rule must cite an open issue on its Sources line;
+    - a new **test-marks** check requires each test's `status` to match the strongest mark among the rules it cites, and to be absent when they are all unmarked;
+    - every heading pattern accepts an optional mark;
+  - **`coverage.py`** accepts the optional mark, and regenerates Annex D §D.3 unchanged;
+  - **the line pins:** removing a header line moved every test's code up by one line. The checks that pin positions in conformance files were shifted to match: 18 pins in `poscheck`, one each in `clc_check` and `lsp_check`, the trap lines in `debug_check`, and the run-012 and run-001 lines in `dap_check`. The FIDO2 applet and the semantic sample did not move.
+- **Checked by injection, on copies:**
+  - `EXP-14 [Proposal]` without an open issue fails `rules`, and its tests then fail `test-marks`;
+  - the same with `OI-3` on its Sources line passes `rules`, and its tests still need `status: proposal`;
+  - `EXP-14 [Agreed]` fails as an unknown mark;
+  - a test with `status: agreed` fails.
+- **Checks:**
+  - `run_checks` passes all 51 runs;
+  - `speccheck` has 11 checks, one more;
+  - no `[Agreed]` remains in `language/` or `platform/`, apart from the decision register and the Draft 0.2 release notes, which are records.
+- **The generators in `devel/generators/`** still write `// status: agreed` if re-run. `test-marks` then fails on the regenerated tests, as it should.

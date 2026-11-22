@@ -1,6 +1,5 @@
 // rule: STM-16, STM-20
 // source: DN §3.7, §3.11
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A match whose arms complete normally, followed by a return.

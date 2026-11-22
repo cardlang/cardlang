@@ -1,6 +1,5 @@
 // rule: STM-13
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-2
 // note: An endpoint that does not fit u8.

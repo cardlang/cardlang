@@ -1,6 +1,5 @@
 // rule: TYP-4
 // source: DN §8.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Two array types written differently are identical, so whole-array assignment between them is accepted.

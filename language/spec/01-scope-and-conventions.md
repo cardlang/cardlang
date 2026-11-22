@@ -1,8 +1,8 @@
 # 1. Scope and conventions
 
-CardLang Language Specification, **Draft 0.2**. Chapter status: **draft complete**.
+CardLang Language Specification, **Draft 0.2**.
 
-This chapter defines what the specification covers, how its layers are separated, and the conventions every later chapter uses: rule status, rule and diagnostic identifiers, notation and examples. It contains no language rules of its own.
+This chapter defines what the specification covers, how its layers are separated, and the conventions every later chapter uses: rule marks, rule and diagnostic identifiers, notation and examples. It contains no language rules of its own.
 
 ## 1.1 Scope
 
@@ -46,17 +46,18 @@ The design notes propose a familiar imperative baseline: braces and statements, 
 - A behavior described as **platform-defined** is chosen by the platform specification within the constraints of Annex B.
 - Examples, notes and sections labelled *informative* are not normative.
 
-## 1.4 Status tags
+## 1.4 Rule marks
 
-Every normative rule carries exactly one status tag.
+A rule is normative as written. It states a decision recorded as agreed in the design or platform notes, including an "agreed direction" (DN header, line 10), or a decision recorded in Annex C's resolution log (`D-4nn`), and cites the decision's `D-` ID.
 
-| Tag | Meaning |
+A rule that is not yet decided carries one of two marks after its ID. No rule of this draft carries one.
+
+| Mark | Meaning |
 |---|---|
-| **[Agreed]** | The rule states a decision recorded as agreed in the design or platform notes, including an "agreed direction" (DN header, line 10), or a decision recorded in Annex C's resolution log (`D-4nn`). The rule cites the decision's `D-` ID. |
 | **[Proposal]** | The rule states a proposal from the notes, or a gap-filling proposal written during specification work. Its text says so and cites the open issue that tracks it. |
 | **[Open]** | No decision exists. The rule is a placeholder that states the open question and cites its open issue. Implementations MUST NOT treat an [Open] rule as fixed. |
 
-**No silent invention.** When a rule needs semantics the notes do not provide, the gap is recorded as an open issue in Annex C, with options and a recommendation. Until it is resolved, the rule is written as [Proposal] or [Open]. Resolutions are recorded in Annex C's resolution log and then reflected in the rule's tag and text.
+**No silent invention.** When a rule needs semantics the notes do not provide, the gap is recorded as an open issue in Annex C, with options and a recommendation. Until it is resolved, the rule is written as [Proposal] or [Open]. Resolutions are recorded in Annex C's resolution log, and the rule then loses its mark and states the decision.
 
 ## 1.5 Rule identifiers
 
@@ -81,7 +82,7 @@ Normative rules have stable identifiers with a chapter prefix:
 
 A rule is written as a heading line followed by its text, then a sources line:
 
-> **EXP-14 [Agreed]** Mixing different binary operators at one grouping level is a compilation error (CE-EXP-3).
+> **EXP-14** Mixing different binary operators at one grouping level is a compilation error (CE-EXP-3).
 > *Sources: D-102; DN §3.5.*
 
 Identifiers are never reused or renumbered. A withdrawn rule keeps its identifier and is marked *withdrawn*, with a reference to its replacement.

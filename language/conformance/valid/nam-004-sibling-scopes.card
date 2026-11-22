@@ -1,6 +1,5 @@
 // rule: NAM-19, NAM-21
 // source: DN §4.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The same local name in sibling scopes (DN §4.2).

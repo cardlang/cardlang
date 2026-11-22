@@ -1,6 +1,5 @@
 // rule: FUN-18
 // source: DN §8.4
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-5
 // note: A slice on the right of an assignment.

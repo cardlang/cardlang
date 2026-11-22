@@ -1,6 +1,5 @@
 // rule: EXP-45
 // source: DN §9.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Constructor fields in a different order from the declaration.

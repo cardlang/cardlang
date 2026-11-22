@@ -1,6 +1,5 @@
 // rule: FUN-10
 // source: DN §3.7, §3.8
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-4
 // note: A constant passed as inout.

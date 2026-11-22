@@ -1,6 +1,5 @@
 // rule: STM-16
 // source: DN §3.11
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-4
 // note: A catch-all arm.

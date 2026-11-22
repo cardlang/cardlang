@@ -1,6 +1,5 @@
 // rule: FUN-20
 // source: D-429
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-4
 // note: A constant slice end beyond the array length.

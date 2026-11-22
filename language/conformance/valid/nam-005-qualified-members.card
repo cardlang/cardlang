@@ -1,6 +1,5 @@
 // rule: NAM-15, NAM-16
 // source: DN §3.11, §4.2, §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Qualified members whose names equal top-level constants.

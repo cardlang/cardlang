@@ -1,6 +1,5 @@
 // rule: LEX-3, LEX-12
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-LEX-2
 // note: A non-ASCII letter in an identifier.

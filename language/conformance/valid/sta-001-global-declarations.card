@@ -1,6 +1,5 @@
 // rule: STA-1, STA-2
 // source: DN §3.9, §5.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Persistent and session globals without initializers.

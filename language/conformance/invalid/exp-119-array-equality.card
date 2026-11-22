@@ -1,6 +1,5 @@
 // rule: EXP-15
 // source: DN §8.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-6
 // note: Equality on arrays.

@@ -1,6 +1,5 @@
 // rule: OUT-11
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-SYN-1
 // note: A nested pattern Ok(State.Idle).

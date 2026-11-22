@@ -1,6 +1,5 @@
 // rule: FUN-23, EXP-44, OUT-5
 // source: V-37
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Structure fields through ref and inout references, nested and persistent; fill of structures; a forwarded aggregate payload.

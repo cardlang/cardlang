@@ -1,6 +1,5 @@
 // rule: OUT-4
 // source: DN §3.11, §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-3
 // note: An enum variant as an Err operand.

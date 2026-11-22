@@ -1,6 +1,5 @@
 // rule: STM-7, STM-8
 // source: DN §7.1, §9.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Assignment to locals, globals, nested fields, elements and an inout parameter.

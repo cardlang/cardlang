@@ -1,6 +1,5 @@
 // rule: EXP-31, EXP-32
 // source: DN §3.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Guaranteed conversions.

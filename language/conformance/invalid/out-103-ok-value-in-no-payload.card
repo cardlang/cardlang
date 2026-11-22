@@ -1,6 +1,5 @@
 // rule: OUT-3
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-2
 // note: Ok with a value in a function without a payload.

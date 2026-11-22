@@ -1,6 +1,5 @@
 // rule: FUN-8
 // source: DN §8.4; D-410
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A slice given to a fixed-size ref parameter.

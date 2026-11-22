@@ -1,6 +1,5 @@
 // rule: OUT-5
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-2
 // note: Forwarding a u32 outcome from a u16 function.

@@ -1,11 +1,11 @@
 """A scripted session with the CardLang debug adapter, run by tests/run_checks.py.
 
 Starts the debug adapter, cardlang.dap.adapter, as VS Code would, and debugs two runtime tests:
-- run-012 (the wallet): a breakpoint in `credit` (line 57) is hit on the scenario's credit command (line 11); the
+- run-012 (the wallet): a breakpoint in `credit` (line 56) is hit on the scenario's credit command (line 11); the
   stack is credit <- process <- the scenario step; `amount` is 1000 and the globals are readable; step over
-  reaches line 58 with `updated` in scope; step in reaches the `Ok` arm (line 60); step out returns to `process`;
+  reaches line 57 with `updated` in scope; step in reaches the `Ok` arm (line 59); step out returns to `process`;
   with the breakpoint removed, the scenario runs to its end and passes.
-- run-001 (integer traps): the overflow stops as an exception on line 16, before the VM cleans up, so `a` is
+- run-001 (integer traps): the overflow stops as an exception on line 15, before the VM cleans up, so `a` is
   still 255; continuing finishes the scenario.
 Usage: uv run python -I tests/dap_check.py .
 """
@@ -64,14 +64,14 @@ def main(repo):
     check("initialize", r["success"] and r["body"].get("supportsConfigurationDoneRequest"), r["body"])
     c.wait("initialized")
     r = c.request("launch", {"scenario": str(run / "scenario.txt"), "program": str(run)}); check("launch", r["success"], r.get("message"))
-    r = c.request("setBreakpoints", {"source": {"path": str(program)}, "breakpoints": [{"line": 57}]})
-    bps = r["body"]["breakpoints"]; check("the breakpoint is verified", bps and bps[0]["verified"] and bps[0]["line"] == 57, bps)
+    r = c.request("setBreakpoints", {"source": {"path": str(program)}, "breakpoints": [{"line": 56}]})
+    bps = r["body"]["breakpoints"]; check("the breakpoint is verified", bps and bps[0]["verified"] and bps[0]["line"] == 56, bps)
     c.request("setExceptionBreakpoints", {"filters": ["traps", "expect"]})
     c.request("configurationDone")
     e = c.wait("stopped"); check("stopped at the breakpoint", e["body"]["reason"] == "breakpoint", e["body"])
     st = c.stack()
     check("the stack: credit, process, the scenario step",
-          [f["name"] for f in st] == ["credit", "process", "scenario step"] and st[0]["line"] == 57 and st[-1]["line"] == 11,
+          [f["name"] for f in st] == ["credit", "process", "scenario step"] and st[0]["line"] == 56 and st[-1]["line"] == 11,
           [(f["name"], f["line"]) for f in st])
     v = c.locals()
     check("parameters and globals", v.get(("Locals", "amount")) == "1000 (0x3e8)" and v.get(("Globals", "balance")) == "0"
@@ -79,9 +79,9 @@ def main(repo):
     r = c.request("evaluate", {"expression": "amount", "frameId": 0, "context": "hover"})
     check("hover evaluates a name", r["success"] and r["body"]["result"] == "1000 (0x3e8)", r.get("body"))
     c.request("next", {"threadId": 1}); c.wait("stopped"); st = c.stack(); v = c.locals()
-    check("step over: the next statement, with its local", st[0]["line"] == 58 and v.get(("Locals", "updated")) == "0", (st[0]["line"], v))
+    check("step over: the next statement, with its local", st[0]["line"] == 57 and v.get(("Locals", "updated")) == "0", (st[0]["line"], v))
     c.request("stepIn", {"threadId": 1}); c.wait("stopped"); st = c.stack()
-    check("step in: the Ok arm", st[0]["line"] == 60 and st[0]["name"] == "credit", (st[0]["name"], st[0]["line"]))
+    check("step in: the Ok arm", st[0]["line"] == 59 and st[0]["name"] == "credit", (st[0]["name"], st[0]["line"]))
     c.request("stepOut", {"threadId": 1}); c.wait("stopped"); st = c.stack()
     check("step out: back in process", st[0]["name"] == "process", (st[0]["name"], st[0]["line"]))
     c.request("setBreakpoints", {"source": {"path": str(program)}, "breakpoints": []})
@@ -92,17 +92,17 @@ def main(repo):
     run = layout.at(repo).runtime / "run-001-integer-traps"
     c = Client(repo)
     c.request("initialize", {"adapterID": "cardlang"}); c.wait("initialized")
-    r = c.request("setBreakpoints", {"source": {"path": str(run / "program.card")}, "breakpoints": [{"line": 15}]})
+    r = c.request("setBreakpoints", {"source": {"path": str(run / "program.card")}, "breakpoints": [{"line": 14}]})
     early = r["body"]["breakpoints"][0]
     c.request("launch", {"scenario": str(run / "scenario.txt")})
     e = c.wait("breakpoint")
     check("a breakpoint set before launch is verified after the build", not early["verified"] and e["body"]["breakpoint"]["verified"]
-          and e["body"]["breakpoint"]["id"] == early["id"] and e["body"]["breakpoint"]["line"] == 15, (early, e["body"]))
+          and e["body"]["breakpoint"]["id"] == early["id"] and e["body"]["breakpoint"]["line"] == 14, (early, e["body"]))
     c.request("setBreakpoints", {"source": {"path": str(run / "program.card")}, "breakpoints": []})
     c.request("setExceptionBreakpoints", {"filters": ["traps"]}); c.request("configurationDone")
     e = c.wait("stopped"); st = c.stack(); v = c.locals()
     check("a trap stops before the cleanup", e["body"]["reason"] == "exception" and e["body"].get("text") == "trap OVERFLOW"
-          and st[0]["line"] == 16 and v.get(("Locals", "a")) == "255 (0xff)", (e["body"], st[0]["line"], v.get(("Locals", "a"))))
+          and st[0]["line"] == 15 and v.get(("Locals", "a")) == "255 (0xff)", (e["body"], st[0]["line"], v.get(("Locals", "a"))))
     c.request("setExceptionBreakpoints", {"filters": []}); c.request("continue", {"threadId": 1})
     e = c.wait("exited"); check("and the scenario still passes", e["body"]["exitCode"] == 0, c.output[-1:])
     c.close()

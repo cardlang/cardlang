@@ -1,6 +1,5 @@
 // rule: EXP-47
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-15
 // note: A call whose target is a constant.

@@ -1,6 +1,5 @@
 // rule: EXP-43
 // source: DN §8
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-11
 // note: An array list shorter than the destination.

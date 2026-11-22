@@ -1,6 +1,5 @@
 // rule: OUT-11, OUT-19
 // source: D-437
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Matching a CardError member and propagating others.

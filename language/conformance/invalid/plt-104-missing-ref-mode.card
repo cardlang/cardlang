@@ -1,6 +1,5 @@
 // rule: PLT-25, FUN-7
 // source: D-443
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-2
 // note: A ref parameter of a catalog API given an argument without ref.

@@ -1,6 +1,5 @@
 // rule: OUT-14
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An error binding that is never used.

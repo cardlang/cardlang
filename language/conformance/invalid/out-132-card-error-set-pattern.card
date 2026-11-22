@@ -1,6 +1,5 @@
 // rule: OUT-21
 // source: D-454
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-5
 // note: Err(CardError(code)) is not allowed.

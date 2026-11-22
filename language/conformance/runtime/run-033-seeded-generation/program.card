@@ -1,6 +1,5 @@
 // rule: PLT-24, PLT-25
 // source: platform/base-profile.md BP-19, BP-29, BP-32; vm/hal.md HAL-31
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Seeded generation gives the same bytes on every backend: random data over several generator blocks, generated P-256 keys (their public points, a signature and a digest signature), and generated AES and HMAC keys used once each.

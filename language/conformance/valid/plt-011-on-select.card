@@ -1,6 +1,5 @@
 // rule: STA-8, PLT-18
 // source: platform/base-profile.md BP-47 to BP-55
-// status: agreed
 // kind: fragment
 // binding: iso7816
 // expect: ok

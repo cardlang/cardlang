@@ -1,6 +1,5 @@
 // rule: LEX-3, LEX-7, LEX-8, LEX-9
 // source: DN §3.0
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Comments, Unicode inside comments, comment markers inside comments.

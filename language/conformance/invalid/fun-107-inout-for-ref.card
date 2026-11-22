@@ -1,6 +1,5 @@
 // rule: FUN-7
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-2
 // note: A ref parameter given an inout argument.

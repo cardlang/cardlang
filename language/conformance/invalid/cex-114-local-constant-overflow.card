@@ -1,6 +1,5 @@
 // rule: CEX-7, CEX-9
 // source: D-029
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-3
 // note: A constant-only overflow in a local initializer.

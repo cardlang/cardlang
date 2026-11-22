@@ -1,6 +1,6 @@
 # Annex C — Open issues
 
-This annex records every contradiction, gap and proposal-to-validate found while writing the specification. The rules that depend on an issue are tagged [Proposal] or [Open] and cite it (§1.4). A **recommendation** is the specification authors' suggestion. It is not a decision. An issue is resolved only by a decision recorded in the resolution log at the end of this annex.
+This annex records every contradiction, gap and proposal-to-validate found while writing the specification. While an issue is open, the rules that depend on it are marked [Proposal] or [Open] and cite it (§1.4). A **recommendation** is the specification authors' suggestion. It is not a decision. An issue is resolved only by a decision recorded in the resolution log at the end of this annex.
 
 **Entry format**
 

@@ -1,6 +1,6 @@
 # 9. Outcomes and errors
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter covers:
 
@@ -22,7 +22,7 @@ Related topics are covered in other chapters:
 
 ## 9.1 Outcomes
 
-**OUT-1 [Agreed]** Every call completes with exactly one *outcome*:
+**OUT-1** Every call completes with exactly one *outcome*:
 
 | Outcome | Meaning |
 |---|---|
@@ -33,7 +33,7 @@ Related topics are covered in other chapters:
 This applies to every ordinary function and platform API call, and to every call of an outcome-producing intrinsic (`checked_*` and `checked_convert`). The host entry point also completes with an outcome (chapter 12). Recoverable failures are always reported as `Err`. Execution faults are traps (chapter 13), and a trap is never an outcome. CardLang has no exceptions.
 *Sources: D-010, D-011, D-012, D-418 (OI-18); DN §6.1.*
 
-**OUT-2 [Agreed]** An outcome is not a value. The type `Outcome(T)` exists only in this specification: no CardLang type can be written for an outcome. An outcome cannot be:
+**OUT-2** An outcome is not a value. The type `Outcome(T)` exists only in this specification: no CardLang type can be written for an outcome. An outcome cannot be:
 
 - stored in a variable, constant, field or array element;
 - passed as an argument;
@@ -45,7 +45,7 @@ Any of those is CE-EXP-14 (EXP-48). Every outcome must be consumed where it is p
 
 ## 9.2 Producing outcomes
 
-**OUT-3 [Agreed]** The successful return forms depend on whether the function has a payload:
+**OUT-3** The successful return forms depend on whether the function has a payload:
 
 - In a function whose successful payload type is `T`, `return Ok(e);` returns success, and `e` checks against `T` (EXP-10).
 - In a function with no payload (no `->`), the only successful return is `return Ok();`.
@@ -53,7 +53,7 @@ Any of those is CE-EXP-14 (EXP-48). Every outcome must be consumed where it is p
 `return Ok();` in a function with a payload, or `return Ok(e);` in a function without one, is **CE-OUT-2**. There is no implicit success (STM-21).
 *Sources: D-025, D-107; DN §3.6, §3.7, §6.1.*
 
-**OUT-4 [Agreed]** `return Err(x);` returns a recoverable error. `x` must be either:
+**OUT-4** `return Err(x);` returns a recoverable error. `x` must be either:
 
 - a qualified member of the application's error set, such as `WalletError.InsufficientFunds`; or
 - an error binding introduced by an `Err(name)` pattern in an enclosing arm (OUT-14).
@@ -61,10 +61,10 @@ Any of those is CE-EXP-14 (EXP-48). Every outcome must be consumed where it is p
 Any other operand is **CE-OUT-3**, for example an integer, an enum variant, a call or a constant. That includes a member of `CardError`: application code never originates a platform error (OUT-19). The error is returned whatever the function's payload type.
 *Sources: D-028, D-107, D-437 (OI-37); DN §6.3.*
 
-**OUT-5 [Agreed]** `return c;`, where `c` is a call, forwards the call's complete outcome to the caller. The call must produce `Outcome(U)` where `U` is identical to the enclosing function's payload type `T`. If neither has a payload, they also match. Otherwise it is **CE-OUT-2**. This applies to ordinary calls, platform API calls and outcome-producing intrinsics, such as `return checked_add(a, b);` in a function returning `u32`.
+**OUT-5** `return c;`, where `c` is a call, forwards the call's complete outcome to the caller. The call must produce `Outcome(U)` where `U` is identical to the enclosing function's payload type `T`. If neither has a payload, they also match. Otherwise it is **CE-OUT-2**. This applies to ordinary calls, platform API calls and outcome-producing intrinsics, such as `return checked_add(a, b);` in a function returning `u32`.
 *Sources: D-015, D-413 (OI-13); DN §3.7, §6.3.*
 
-**OUT-6 [Agreed]** `Ok` and `Err` are keywords. They are not constructors of storable values. They appear only:
+**OUT-6** `Ok` and `Err` are keywords. They are not constructors of storable values. They appear only:
 
 - in `return Ok(…)` and `return Err(…)`;
 - in `abort Err(…)` (chapter 11);
@@ -118,7 +118,7 @@ function check() {
 
 ## 9.3 Consuming outcomes
 
-**OUT-7 [Agreed]** Every outcome must be consumed by exactly one of:
+**OUT-7** Every outcome must be consumed by exactly one of:
 
 - an outcome `match` (§9.5), which handles success and failure locally;
 - `attempt` (§9.4), which extracts the success value or propagates the error;
@@ -137,10 +137,10 @@ A call used as a statement on its own discards its outcome. That is **CE-OUT-1**
 
 ## 9.4 `attempt`
 
-**OUT-8 [Agreed]** The operand of `attempt` must be a call that produces an outcome. That means a call to an ordinary function, a platform API, a `checked_*` intrinsic or `checked_convert`. Any other operand is **CE-OUT-4**, for example a variable, a direct-value intrinsic or a literal. EXP-51 governs where `attempt` may appear.
+**OUT-8** The operand of `attempt` must be a call that produces an outcome. That means a call to an ordinary function, a platform API, a `checked_*` intrinsic or `checked_convert`. Any other operand is **CE-OUT-4**, for example a variable, a direct-value intrinsic or a literal. EXP-51 governs where `attempt` may appear.
 *Sources: D-014, D-408 (OI-8); DN §6.3.*
 
-**OUT-9 [Agreed]** `attempt` has two forms:
+**OUT-9** `attempt` has two forms:
 
 - **Expression form.** `attempt c`, applied to a call producing `Outcome(T)`, is an expression that synthesizes exactly `T`. There is no conversion and no default value.
 - **Statement form.** `attempt c;` is allowed only when `c` produces `Outcome()`.
@@ -148,7 +148,7 @@ A call used as a statement on its own discards its outcome. That is **CE-OUT-1**
 Using the statement form with a call that has a payload is **CE-OUT-4**: a payload cannot be discarded silently. Using a call without a payload as an expression is also **CE-OUT-4**: it produces no value. To ignore a payload deliberately, use `Ok(_)` in a `match`.
 *Sources: D-017; DN §6.3.*
 
-**OUT-10 [Agreed]** `attempt c` is evaluated as follows:
+**OUT-10** `attempt c` is evaluated as follows:
 
 1. Evaluate the call `c`.
 2. If its outcome is `Ok(v)`, the result of `attempt` is `v`, as an independent copy (FUN-17). For `Ok()`, the statement simply completes.
@@ -203,7 +203,7 @@ Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
                  | …
 ```
 
-**OUT-11 [Agreed]** When the scrutinee of a `match` produces `Outcome(T)`, each arm's pattern must be one of these:
+**OUT-11** When the scrutinee of a `match` produces `Outcome(T)`, each arm's pattern must be one of these:
 
 | Pattern | Meaning |
 |---|---|
@@ -217,7 +217,7 @@ Pattern        ::= 'Ok' '(' ( Identifier | '_' )? ')'
 A pattern that does not fit the scrutinee is **CE-OUT-5**: `Ok()` against a payload, `Ok(name)` against no payload, or an enum variant pattern. There are no guards, alternatives, numeric or range patterns, nested patterns or destructuring. A nested form such as `Ok(State.Idle)` does not derive (**CE-SYN-1**). To inspect an enum payload, bind it with `Ok(value)` and `match` on `value` inside the arm.
 *Sources: D-013, D-361; DN §3.6, §6.1, §6.3.*
 
-**OUT-12 [Agreed]** An outcome `match` has exactly:
+**OUT-12** An outcome `match` has exactly:
 
 1. one success arm;
 2. zero or more specific error arms `Err(Set.Member)`, each naming a different member;
@@ -234,7 +234,7 @@ The catch-all is required even when every known error is listed, because the err
 The success arm may appear before or after the specific error arms, but always before the catch-all.
 *Sources: D-108, D-360; DN §3.6, §6.3.*
 
-**OUT-13 [Agreed]** The scrutinee is evaluated exactly once, and exactly one arm runs:
+**OUT-13** The scrutinee is evaluated exactly once, and exactly one arm runs:
 
 - On `Ok`, the success arm runs.
 - On `Err(e)`, the specific arm naming `e` runs if there is one. Otherwise the catch-all runs.
@@ -242,7 +242,7 @@ The success arm may appear before or after the specific error arms, but always b
 A payload binding `Ok(name)` is a read-only, independent copy of the payload, local to its arm (NAM-19). It is not a reference, and assigning to it is CE-STM-2. A `match` catches no traps.
 *Sources: D-108, D-362; DN §3.6.*
 
-**OUT-14 [Agreed]** An `Err(name)` pattern introduces an *error binding*. It is read-only, local to its arm, needs no type annotation, and need not be used. Its only allowed uses are:
+**OUT-14** An `Err(name)` pattern introduces an *error binding*. It is read-only, local to its arm, needs no type annotation, and need not be used. Its only allowed uses are:
 
 - `return Err(name);`
 - `abort Err(name);`, inside a transaction (chapter 11).
@@ -354,14 +354,14 @@ function add_to_total(amount: u32) -> bool {
 | `attempt log_error(error);` | CE-OUT-6 | `invalid/out-122-pass-error-binding.card` |
 | `require ready else error;` | CE-STM-7 | `invalid/out-123-error-binding-require.card` |
 
-**OUT-21 [Agreed]** The pattern `Err(Set(name))`, where `Set` is the application's error set, matches every `Err` whose error is a member of `Set`. It binds `name` as a read-only local of type `u16` that holds the member's code (OUT-16). Platform errors never match it.
+**OUT-21** The pattern `Err(Set(name))`, where `Set` is the application's error set, matches every `Err` whose error is a member of `Set`. It binds `name` as a read-only local of type `u16` that holds the member's code (OUT-16). Platform errors never match it.
 
 - **Arm order.** It counts as a specific arm for every member of `Set`. An arm for a member of `Set` after it, or a second `Err(Set(…))` arm, is **CE-OUT-5**.
 - **No error values.** The binding is an integer, not an error value. OUT-14 is unchanged: an `Err(name)` binding still cannot be inspected.
 - **`CardError`.** `Err(CardError(name))` is **CE-OUT-5**.
 *Sources: D-454 (OI-54).*
 
-**OUT-22 [Agreed]** `attempt c else M`, where `M` is a qualified member of the application's error set, is `attempt c` (OUT-9, OUT-10) with one difference: when `c` produces `Err` of any kind, the enclosing function or command returns `Err(M)` instead of the original error. Lexically inside a transaction, it aborts with `Err(M)` instead (TXN-18). It has the expression and the statement forms of `attempt`.
+**OUT-22** `attempt c else M`, where `M` is a qualified member of the application's error set, is `attempt c` (OUT-9, OUT-10) with one difference: when `c` produces `Err` of any kind, the enclosing function or command returns `Err(M)` instead of the original error. Lexically inside a transaction, it aborts with `Err(M)` instead (TXN-18). It has the expression and the statement forms of `attempt`.
 
 - **The operand.** An operand `M` that is not such a member, including a `CardError` member, is **CE-OUT-3**.
 - **Traps** are never caught.
@@ -381,10 +381,10 @@ ErrorSetDeclaration ::= 'errors' Identifier '{' ErrorMember* '}'   /* §A.2.1 */
 ErrorMember         ::= Identifier '=' Expression ';'
 ```
 
-**OUT-15 [Agreed]** An `errors` declaration declares the application's error set. It is a top-level declaration (NAM-7), and its name is in the application scope (NAM-11). An application declares at most one error set, and may declare none. A second `errors` declaration is **CE-OUT-7**. An error set must declare at least one member. An empty set is **CE-OUT-7**. Enums never act as error sets (TYP-12).
+**OUT-15** An `errors` declaration declares the application's error set. It is a top-level declaration (NAM-7), and its name is in the application scope (NAM-11). An application declares at most one error set, and may declare none. A second `errors` declaration is **CE-OUT-7**. An error set must declare at least one member. An empty set is **CE-OUT-7**. Enums never act as error sets (TYP-12).
 *Sources: D-018, D-413 (OI-13), D-436 (OI-36); DN §6.3.*
 
-**OUT-16 [Agreed]** Each member is written `Name = code;`. The rules for the code are:
+**OUT-16** Each member is written `Name = code;`. The rules for the code are:
 
 - It must be an integer literal, typed as `u16` (EXP-7). A literal above 65 535 is CE-EXP-2.
 - It must not be zero, because zero is reserved and never identifies an error.
@@ -393,7 +393,7 @@ ErrorMember         ::= Identifier '=' Expression ';'
 A non-literal code, a zero code and a duplicate code are each **CE-OUT-7**. Member names are unique within the set (NAM-15) and are always used qualified (NAM-16). Members carry only their identity: no strings or payloads.
 *Sources: D-018, D-365, D-428 (OI-28); DN §6.3.*
 
-**OUT-17 [Agreed]** Once an application has published an error code, later versions of that application must not change the code's meaning. If an error is removed, its code must not be reused for a different error. This is an obligation on how an application evolves, and no compiler can check it.
+**OUT-17** Once an application has published an error code, later versions of that application must not change the code's meaning. If an error is removed, its code must not be reused for a different error. This is an obligation on how an application evolves, and no compiler can check it.
 *Sources: D-366, D-209; DN §6.3; PN §5.*
 
 ### Examples
@@ -426,7 +426,7 @@ function refuse() {
 
 ## 9.7 Error values and categories
 
-**OUT-18 [Agreed]** Every error value has two parts:
+**OUT-18** Every error value has two parts:
 
 - a *category*, either *application* or *platform*;
 - a nonzero `u16` code.
@@ -434,7 +434,7 @@ function refuse() {
 An error carries nothing else: no message, no payload and no field naming its source application. The two categories are distinct even when their codes are equal, so an application error and a platform error are never confused. Propagation never changes an error, whether through `attempt`, a forwarding `return`, `return Err(binding)` or `abort Err(binding)`. Applications are isolated, so no error ever crosses from one application to another.
 *Sources: D-019, D-365, D-367; DN §6.3.*
 
-**OUT-19 [Agreed]** Platform errors are the members of the reserved error set `CardError`. Applications cannot declare it (NAM-14). Its member names and codes are platform-defined (Annex B). The names used in this specification are placeholders (D-415). Application code may name a `CardError` member only in an `Err(CardError.Member)` pattern. It may propagate a platform error that it received through an error binding. It never originates one:
+**OUT-19** Platform errors are the members of the reserved error set `CardError`. Applications cannot declare it (NAM-14). Its member names and codes are platform-defined (Annex B). The names used in this specification are placeholders (D-415). Application code may name a `CardError` member only in an `Err(CardError.Member)` pattern. It may propagate a platform error that it received through an error binding. It never originates one:
 
 - `return Err(CardError.…)` is **CE-OUT-3** (OUT-4).
 - `abort Err(CardError.…)` is **CE-OUT-3** (chapter 11).
@@ -448,7 +448,7 @@ An error carries nothing else: no message, no payload and no field naming its so
 
 ## 9.8 `Err` is not rollback
 
-**OUT-20 [Agreed]** Returning or propagating `Err` undoes nothing. Earlier writes stay, whether they are to persistent state, to session state, or through references (FUN-23). When a callee returns `Err` inside a caller's transaction, the transaction stays active. The caller may handle the error and continue to commit. Only `abort Err(…)` rolls back a transaction's persistent writes (chapter 11). To avoid partial updates, validate before changing data.
+**OUT-20** Returning or propagating `Err` undoes nothing. Earlier writes stay, whether they are to persistent state, to session state, or through references (FUN-23). When a callee returns `Err` inside a caller's transaction, the transaction stays active. The caller may handle the error and continue to commit. Only `abort Err(…)` rolls back a transaction's persistent writes (chapter 11). To avoid partial updates, validate before changing data.
 *Sources: D-368, D-356; DN §6.3, §7.2.*
 
 ## 9.9 Errors defined in this chapter

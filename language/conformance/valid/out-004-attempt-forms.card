@@ -1,6 +1,5 @@
 // rule: OUT-9, OUT-10
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: attempt as an initializer and as a statement.

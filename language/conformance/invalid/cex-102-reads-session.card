@@ -1,6 +1,5 @@
 // rule: CEX-5, CEX-6
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-2
 // note: Reading the contents of session state.

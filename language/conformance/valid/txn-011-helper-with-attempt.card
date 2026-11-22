@@ -1,6 +1,5 @@
 // rule: TXN-6
 // source: DN §3.6, §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A helper using attempt, called from a transaction.

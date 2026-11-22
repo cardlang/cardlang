@@ -1,6 +1,5 @@
 // rule: OUT-21, OUT-22, STM-24, STM-25, EXP-55, TXN-18
 // source: D-453, D-454, D-455, D-456, D-457
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Error codes through Err(Set(code)), attempt-else in and out of a transaction, ignore, compound assignment and its single evaluation.

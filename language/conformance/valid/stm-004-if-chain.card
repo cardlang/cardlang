@@ -1,6 +1,5 @@
 // rule: STM-11, STM-20
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An if/else if/else chain in which every branch returns.

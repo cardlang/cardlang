@@ -1,6 +1,5 @@
 // rule: STA-11, STA-12
 // source: DN §7.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Persistent assignments to scalars, fields, elements and whole aggregates.

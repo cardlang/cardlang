@@ -27,7 +27,7 @@ def main(repo):
         bad = str(layout.at(repo).invalid / "exp-105-mixed-arithmetic.card")
         rc, out = clc(repo, "check", bad, "--fragment", "--json")
         d = json.loads(out)[0] if rc == 1 else {}
-        check("check reports an error with its position", rc == 1 and d.get("code") == "CE-EXP-4" and d.get("line") == 8, out)
+        check("check reports an error with its position", rc == 1 and d.get("code") == "CE-EXP-4" and d.get("line") == 7, out)
         cex = str(layout.at(repo).invalid / "cex-105-overflow.card")    # the code generator alone would accept it
         rc, out = clc(repo, "build", cex, "--fragment", "-o", str(tmp / "cex.clvm"))
         check("build refuses an invalid program", rc == 1 and "CE-CEX-3" in out and not (tmp / "cex.clvm").exists(), out)

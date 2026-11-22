@@ -1,6 +1,5 @@
 // rule: EXP-55
 // source: D-453
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Byte strings as constants and initializers, and compared with equal.

@@ -1,6 +1,5 @@
 // rule: EXP-12
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A typed u8 constant is not implicitly widened.

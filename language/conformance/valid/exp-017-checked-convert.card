@@ -1,6 +1,5 @@
 // rule: EXP-33
 // source: DN §3.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A checked conversion consumed by match.

@@ -1,6 +1,5 @@
 // rule: CEX-8, CEX-9
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-3
 // note: Overflow in a constant.

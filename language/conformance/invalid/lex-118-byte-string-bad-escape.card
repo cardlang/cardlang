@@ -1,6 +1,5 @@
 // rule: LEX-25
 // source: D-453
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-LEX-5
 // note: An escape other than \", \\ or \xHH.

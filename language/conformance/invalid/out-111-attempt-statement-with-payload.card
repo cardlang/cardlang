@@ -1,6 +1,5 @@
 // rule: OUT-9
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-4
 // note: The statement form with a call that has a payload.

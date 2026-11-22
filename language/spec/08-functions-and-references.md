@@ -1,6 +1,6 @@
 # 8. Functions, references and slices
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter covers:
 
@@ -29,7 +29,7 @@ Parameter           ::= Identifier ':' ( 'ref' | 'inout' )? Type
 ReturnType          ::= '->' Type
 ```
 
-**FUN-1 [Agreed]** A function declaration gives the function's name, its parameters in order, an optional successful payload type and its body. Each parameter has an explicit name, an optional mode and a type:
+**FUN-1** A function declaration gives the function's name, its parameters in order, an optional successful payload type and its body. Each parameter has an explicit name, an optional mode and a type:
 
 | Form | Mode |
 |---|---|
@@ -40,10 +40,10 @@ ReturnType          ::= '->' Type
 A trailing comma is allowed after the last parameter. Arguments are positional only. There are no named arguments, default values, optional parameters or variadic parameters.
 *Sources: D-026, D-112; DN §3.0, §3.7.*
 
-**FUN-2 [Agreed]** `-> T` names the successful payload type. `T` must be a value type: an integer, `bool`, an enum, a fixed array or a structure, including nested aggregates. An unsized `T[]` return type is rejected by TYP-21. Omitting the arrow means success carries no payload. A function returns at most one value. There are no tuples, and references are never returned. To return several values, group them in a structure.
+**FUN-2** `-> T` names the successful payload type. `T` must be a value type: an integer, `bool`, an enum, a fixed array or a structure, including nested aggregates. An unsized `T[]` return type is rejected by TYP-21. Omitting the arrow means success carries no payload. A function returns at most one value. There are no tuples, and references are never returned. To return several values, group them in a structure.
 *Sources: D-025, D-033; DN §3.0, §3.7.*
 
-**FUN-3 [Agreed]** CardLang has none of the following:
+**FUN-3** CardLang has none of the following:
 
 - function prototypes, forward declarations or application-defined external declarations (a function's single definition is visible everywhere, NAM-13);
 - nested functions (NAM-7);
@@ -80,10 +80,10 @@ function clear(target: inout u32) {
 
 ## 8.2 The static call graph
 
-**FUN-4 [Agreed]** Every call names its target directly (EXP-47). Functions are not values. There are no function pointers, no variables or parameters holding functions, no functions returned as values, and no callbacks. Choosing between functions at runtime is written with ordinary control flow.
+**FUN-4** Every call names its target directly (EXP-47). Functions are not values. There are no function pointers, no variables or parameters holding functions, no functions returned as values, and no callbacks. Choosing between functions at runtime is written with ordinary control flow.
 *Sources: D-031; DN §3.7.*
 
-**FUN-5 [Agreed]** The *call graph* of an application has one node per function. It has an edge from `F` to `G` whenever the body of `F` contains a call to `G`, whether or not that call can actually run. The command is also a node in this graph (chapter 12). A cycle in the call graph is **CE-FUN-1**. This covers:
+**FUN-5** The *call graph* of an application has one node per function. It has an edge from `F` to `G` whenever the body of `F` contains a call to `G`, whether or not that call can actually run. The command is also a node in this graph (chapter 12). A cycle in the call graph is **CE-FUN-1**. This covers:
 
 - direct recursion;
 - indirect recursion through any number of functions;
@@ -112,7 +112,7 @@ function second() {
 
 ## 8.3 Parameter modes and call-site modes
 
-**FUN-6 [Agreed]** The three parameter modes mean:
+**FUN-6** The three parameter modes mean:
 
 | Mode | Inside the callee | Copy? | Can change caller data? |
 |---|---|---|---|
@@ -123,7 +123,7 @@ function second() {
 A read-only parameter binding is not a local `const`. Its immutability comes from its mode.
 *Sources: D-112, D-114, D-115, D-116; DN §3.7.*
 
-**FUN-7 [Agreed]** At the call site, each argument carries exactly the mode of its parameter:
+**FUN-7** At the call site, each argument carries exactly the mode of its parameter:
 
 | Parameter mode | Argument form |
 |---|---|
@@ -134,7 +134,7 @@ A read-only parameter binding is not a local `const`. Its immutability comes fro
 A missing, extra or different mode is **CE-FUN-2**. The same rule applies to platform APIs and intrinsics: `decode_be` and `decode_le` take a `ref` argument, and every other intrinsic takes by-value arguments.
 *Sources: D-113; DN §3.7.*
 
-**FUN-8 [Agreed]** An argument's type must be identical to its parameter's type (TYP-4), with literals typed by context (EXP-10). Otherwise it is **CE-EXP-1**. The single exception is a `ref T[]` or `inout T[]` parameter, which accepts:
+**FUN-8** An argument's type must be identical to its parameter's type (TYP-4), with literals typed by context (EXP-10). Otherwise it is **CE-EXP-1**. The single exception is a `ref T[]` or `inout T[]` parameter, which accepts:
 
 - a fixed array `T[N]` of any length;
 - a slice;
@@ -158,7 +158,7 @@ In every case the element type must be exactly `T`. A slice or view never satisf
 
 ## 8.4 Reference arguments
 
-**FUN-9 [Agreed]** A `ref` or `inout` argument must *identify existing storage*. It must be one of:
+**FUN-9** A `ref` or `inout` argument must *identify existing storage*. It must be one of:
 
 - the name of a local variable, global, constant or parameter of any mode;
 - a `for` index or pattern binding (`ref` only, FUN-10);
@@ -168,7 +168,7 @@ In every case the element type must be exactly `T`. A slice or view never satisf
 Anything else is **CE-FUN-3**. That includes literals, calls, structure constructors, array lists, `fill`, operator expressions, `attempt` and `.length`. A reference to a field covers that field only, not the whole structure that contains it.
 *Sources: D-117, D-435 (OI-35); DN §3.8.*
 
-**FUN-10 [Agreed]** An `inout` argument must also be an assignable place under STM-7. Each of the following passed as `inout` is **CE-FUN-4**:
+**FUN-10** An `inout` argument must also be an assignable place under STM-7. Each of the following passed as `inout` is **CE-FUN-4**:
 
 - a constant, or any part of one;
 - a by-value parameter;
@@ -215,7 +215,7 @@ function readers(limit: u32) -> u32 {
 
 ## 8.5 Argument preparation
 
-**FUN-11 [Agreed]** Before the callee starts, the arguments of a call are prepared one at a time, left to right:
+**FUN-11** Before the callee starts, the arguments of a call are prepared one at a time, left to right:
 
 1. **By-value argument:** evaluate it, and establish its value as an independent copy.
 2. **Reference argument:** evaluate its path, and check every index on the path against its array's bounds. Out of range is `trap(BOUNDS)`.
@@ -226,7 +226,7 @@ Every check completes before the callee runs. Paths and regions are fixed at thi
 
 ## 8.6 Access-path permissions and aliasing
 
-**FUN-12 [Agreed]** Permissions belong to *access paths*, not to storage:
+**FUN-12** Permissions belong to *access paths*, not to storage:
 
 - **`ref`:** a `ref` parameter, and every field, element or slice derived from it, can be read but not written. Writing through it is rejected by STM-7.
 - **`inout`:** an `inout` parameter, and everything derived from it, can be read and written.
@@ -235,10 +235,10 @@ Every check completes before the callee runs. Paths and regions are fixed at thi
 
 *Sources: D-115, D-118; DN §3.7, §3.8.*
 
-**FUN-13 [Agreed]** References and slices may overlap in any combination, and overlap is neither a compilation error nor a trap. That includes `ref` with `ref`, `inout` with `ref`, `inout` with `inout`, and an aggregate with its own fields or elements. There are no overlap checks.
+**FUN-13** References and slices may overlap in any combination, and overlap is neither a compilation error nor a trap. That includes `ref` with `ref`, `inout` with `ref`, `inout` with `inout`, and an aggregate with its own fields or elements. There are no overlap checks.
 *Sources: D-118; DN §3.7, §3.8, §8.4.*
 
-**FUN-14 [Agreed]** An implementation must preserve every observable effect of aliasing, including effects through globals and nested calls. It must not assume that storage behind a `ref` parameter is unchanged during the call, or that storage behind an `inout` parameter has no other access path. It must not substitute independent copies to hide aliasing. Optional warnings about suspicious overlap do not affect whether a program is accepted or how it runs.
+**FUN-14** An implementation must preserve every observable effect of aliasing, including effects through globals and nested calls. It must not assume that storage behind a `ref` parameter is unchanged during the call, or that storage behind an `inout` parameter has no other access path. It must not substitute independent copies to hide aliasing. Optional warnings about suspicious overlap do not affect whether a program is accepted or how it runs.
 *Sources: D-357; DN §3.7, §3.8.*
 
 ### Examples
@@ -289,7 +289,7 @@ function overlap(first_index: u8, second_index: u8) {
 
 ## 8.7 Forwarding references
 
-**FUN-15 [Agreed]** A callee may pass its own reference parameters, or paths and slices derived from them, as arguments to further calls:
+**FUN-15** A callee may pass its own reference parameters, or paths and slices derived from them, as arguments to further calls:
 
 - Something derived from a `ref` parameter may be passed only as `ref`. Passing it as `inout` is **CE-FUN-4**.
 - Something derived from an `inout` parameter may be passed as `ref` or as `inout`.
@@ -326,7 +326,7 @@ function process(target: inout Account) {
 
 ## 8.8 Lifetimes of references
 
-**FUN-16 [Agreed]** A reference or view exists only for the duration of the call it was passed to. It ends when the callee returns `Ok` or `Err`, or when a trap ends the callee's frame. References and views:
+**FUN-16** A reference or view exists only for the duration of the call it was passed to. It ends when the callee returns `Ok` or `Err`, or when a trap ends the callee's frame. References and views:
 
 - cannot be returned (FUN-2, TYP-21);
 - cannot be stored in a variable, global, field or array element;
@@ -346,7 +346,7 @@ function check(value: ref u8) {
 
 ## 8.9 Value semantics
 
-**FUN-17 [Agreed]** By-value arguments and successful return payloads are complete, independent copies, including every nested field and element. Changing a copy never changes its source, and changing the source never changes a copy. An implementation may avoid a physical copy only when no program can observe the difference. It must never substitute sharing for copying, even to save memory. A program whose copies exceed the capacity of the target profile is rejected (TYP-23). Passing a large aggregate with `ref` or `inout` avoids the copy.
+**FUN-17** By-value arguments and successful return payloads are complete, independent copies, including every nested field and element. Changing a copy never changes its source, and changing the source never changes a copy. An implementation may avoid a physical copy only when no program can observe the difference. It must never substitute sharing for copying, even to save memory. A program whose copies exceed the capacity of the target profile is rejected (TYP-23). Passing a large aggregate with `ref` or `inout` avoids the copy.
 *Sources: D-116, D-358, D-133; DN §3.7, §3.8, §9.2.*
 
 ### Examples
@@ -382,7 +382,7 @@ function use_references() -> u32 {
 PostfixPart ::= … | '[' Expression '..' Expression ']'      /* §A.2.4 */
 ```
 
-**FUN-18 [Agreed]** A slice `a[s..e]`, where `a` has type `T[N]` or `T[]`, has the view type `T[]`. A slice may appear only:
+**FUN-18** A slice `a[s..e]`, where `a` has type `T[N]` or `T[]`, has the view type `T[]`. A slice may appear only:
 
 - as a `ref` or `inout` argument whose parameter type is `T[]`, including the argument of `decode_be` and `decode_le` and the arguments of `equal` and `compare`;
 - as the receiver of an index operation, of `.length`, or of another slice;
@@ -391,10 +391,10 @@ PostfixPart ::= … | '[' Expression '..' Expression ']'      /* §A.2.4 */
 A slice in any other position is **CE-FUN-5**: for example in an initializer, either side of an assignment, an operand, a by-value argument or a return payload. A slice assignment is defined by FUN-24. There are no local slice variables.
 *Sources: D-119, D-410 (OI-10); DN §8.4.*
 
-**FUN-19 [Agreed]** Both endpoints are required. Each endpoint is typed separately: it must synthesize `u8`, `u16` or `u32`, and an endpoint containing no typed operand is typed `u32` (as for indices, EXP-39). A signed or non-integer endpoint is **CE-EXP-9**.
+**FUN-19** Both endpoints are required. Each endpoint is typed separately: it must synthesize `u8`, `u16` or `u32`, and an endpoint containing no typed operand is typed `u32` (as for indices, EXP-39). A signed or non-integer endpoint is **CE-EXP-9**.
 *Sources: D-410 (OI-10); DN §8.4.*
 
-**FUN-20 [Agreed]** A slice is evaluated as follows:
+**FUN-20** A slice is evaluated as follows:
 
 1. Evaluate the receiver `a`.
 2. Evaluate `s`.
@@ -404,7 +404,7 @@ A slice in any other position is **CE-FUN-5**: for example in an initializer, ei
 When `a` has a fixed array type and both endpoints are constant-only, the check is done during compilation instead (CEX-10). A slice with `s = e` is a valid empty view, including at the end of an array: its length is 0, and every index into it is out of bounds.
 *Sources: D-119, D-410 (OI-10), D-429 (OI-29); DN §8.4.*
 
-**FUN-21 [Agreed]** A view refers to the elements `a[s]` to `a[e − 1]` of the existing storage, without copying or allocating. Through the view:
+**FUN-21** A view refers to the elements `a[s]` to `a[e − 1]` of the existing storage, without copying or allocating. Through the view:
 
 - index 0 refers to `a[s]`;
 - `.length` is `e − s`, of type `u32`;
@@ -413,7 +413,7 @@ When `a` has a fixed array type and both endpoints are constant-only, the check 
 A view has the permissions of the path it was taken from: read-only through `ref`, read-write through `inout` (FUN-12). A callee cannot resize or rebind its view, and cannot change the length of the caller's array. It may pass on a narrower slice of its view under FUN-15. The same applies to a whole fixed array passed to a `T[]` parameter: index 0 is its first element, and `.length` is its length `N`.
 *Sources: D-120, D-359; DN §8.4.*
 
-**FUN-24 [Agreed]** A *slice assignment* `p[s..e] = x;` copies elements into an existing region:
+**FUN-24** A *slice assignment* `p[s..e] = x;` copies elements into an existing region:
 
 - **Left side.** A slice of an assignable place (STM-7), of type `T[N]` or an `inout` view `T[]`. A slice rooted in a `ref` parameter or a constant is **CE-STM-2**.
 - **Right side.** Any expression of type `T[M]` or of a view `T[]`: an array place, an array list, `fill`, a call's payload, or a slice. Its element type must be `T`, otherwise **CE-EXP-1**. An array list or `fill` takes its expected type `T[e − s]` from the left side, so both endpoints must then be constant-only, otherwise **CE-EXP-10**.
@@ -487,10 +487,10 @@ function narrow(data: inout u8[]) -> u32 {
 
 ## 8.11 Effects, persistence and errors through references
 
-**FUN-22 [Agreed]** Functions may read and write any global, call platform APIs, and open transactions, subject to chapter 11. Calls have no purity or effect restrictions beyond those rules.
+**FUN-22** Functions may read and write any global, call platform APIs, and open transactions, subject to chapter 11. Calls have no purity or effect restrictions beyond those rules.
 *Sources: D-352; DN §3.7.*
 
-**FUN-23 [Agreed]** Passing storage by reference keeps its identity. A write through an `inout` path into persistent storage is a persistent write. It is atomic for its destination, and it participates in an active transaction (chapters 10 and 11). Two such writes are not atomic together unless a transaction groups them. A function that returns `Err` does not undo writes it made through references. Validate before changing data, or use a transaction and `abort` (chapter 11), which rolls back only the persistent writes.
+**FUN-23** Passing storage by reference keeps its identity. A write through an `inout` path into persistent storage is a persistent write. It is atomic for its destination, and it participates in an active transaction (chapters 10 and 11). Two such writes are not atomic together unless a transaction groups them. A function that returns `Err` does not undo writes it made through references. Validate before changing data, or use a transaction and `abort` (chapter 11), which rolls back only the persistent writes.
 *Sources: D-356; DN §3.7, §3.8, §8.4.*
 
 ## 8.12 Errors defined in this chapter

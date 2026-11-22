@@ -1,6 +1,5 @@
 // rule: NAM-14
 // source: platform/base-profile.md BP-18 to BP-25
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-5
 // note: KeyType is predeclared by the Base Profile.

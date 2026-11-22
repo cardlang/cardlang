@@ -1,6 +1,5 @@
 // rule: EXP-49
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-7
 // note: attempt inside a call argument.

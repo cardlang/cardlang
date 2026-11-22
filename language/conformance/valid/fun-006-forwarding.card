@@ -1,6 +1,5 @@
 // rule: FUN-15
 // source: DN §3.8
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An inout parameter forwarded as ref and as inout.

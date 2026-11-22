@@ -1,6 +1,5 @@
 // rule: HEP-1, HEP-2
 // source: D-405
-// status: agreed
 // kind: application
 // expect: ok
 // note: Application-chosen command and parameter names.

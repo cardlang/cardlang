@@ -1,6 +1,5 @@
 // rule: NAM-21
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-3
 // note: An inner local that shadows an outer local.

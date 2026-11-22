@@ -1,6 +1,5 @@
 // rule: OUT-22
 // source: D-455
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-3
 // note: The replacement error must be an application error member.

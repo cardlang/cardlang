@@ -1,6 +1,5 @@
 // rule: EXP-53, EXP-54, STM-23
 // source: D-448, D-449
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: equal and compare on views and slices, and wipe of a slice.

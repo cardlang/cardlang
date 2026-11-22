@@ -1,6 +1,5 @@
 // rule: EXP-17
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-6
 // note: Bitwise and on signed operands.

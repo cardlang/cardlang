@@ -22,14 +22,15 @@ KNOWN_GAPS = {
     "nam-119-same-scope-duplicate.card", "nam-121-parameter-shadows-primitive.card",
 }
 
-# The line each of these is reported on, checked by hand against the source (2026-11-21).
+# The line each of these is reported on, checked by hand against the source (2026-11-21; one line earlier since the
+# tests' status line was removed, 2026-11-22).
 PINNED = {
-    "exp-145-equal-element-types.card": 11, "fun-115-slice-in-assignment.card": 11, "exp-111-convert-narrowing.card": 8,
-    "lex-106-literal-underscore-after-prefix.card": 7, "nam-111-self-reference.card": 8, "exp-124-nested-convert.card": 8,
-    "exp-108-mixed-boolean.card": 8, "exp-102-literal-out-of-range.card": 8, "cex-106-division-by-zero.card": 7,
-    "lex-107-empty-hex-prefix.card": 7, "out-107-err-enum-variant.card": 13, "txn-113-abort-ok.card": 12,
-    "fun-112-ref-forwarded-as-inout.card": 13, "stm-104-increment.card": 9, "cex-116-signed-minimum-division.card": 7,
-    "exp-141-unary-minus-unsigned.card": 8, "out-104-ok-empty-in-payload.card": 8, "fun-108-temporary-reference.card": 16,
+    "exp-145-equal-element-types.card": 10, "fun-115-slice-in-assignment.card": 10, "exp-111-convert-narrowing.card": 7,
+    "lex-106-literal-underscore-after-prefix.card": 6, "nam-111-self-reference.card": 7, "exp-124-nested-convert.card": 7,
+    "exp-108-mixed-boolean.card": 7, "exp-102-literal-out-of-range.card": 7, "cex-106-division-by-zero.card": 6,
+    "lex-107-empty-hex-prefix.card": 6, "out-107-err-enum-variant.card": 12, "txn-113-abort-ok.card": 11,
+    "fun-112-ref-forwarded-as-inout.card": 12, "stm-104-increment.card": 8, "cex-116-signed-minimum-division.card": 6,
+    "exp-141-unary-minus-unsigned.card": 7, "out-104-ok-empty-in-payload.card": 7, "fun-108-temporary-reference.card": 15,
 }
 
 def files_of(t):

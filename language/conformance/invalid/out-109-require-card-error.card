@@ -1,6 +1,5 @@
 // rule: OUT-19, STM-19
 // source: D-437
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-3
 // note: A require naming a platform error.

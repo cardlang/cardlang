@@ -1,6 +1,5 @@
 // rule: EXP-2, EXP-5
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-4
 // note: Mixed and/or without grouping.

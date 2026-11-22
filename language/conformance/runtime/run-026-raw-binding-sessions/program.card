@@ -1,6 +1,5 @@
 // rule: STA-4, STA-6, PLT-9
 // source: D-459; platform/base-profile.md BP-53, BP-56
-// status: agreed
 // kind: application
 // binding: raw
 // expect: runtime

@@ -1,6 +1,6 @@
 # 10. State and initialization
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter defines:
 
@@ -22,7 +22,7 @@ State declarations use the `GlobalValueDeclaration` production of chapter 3 (Ann
 
 ## 10.1 Storage classes
 
-**STA-1 [Agreed]** Every value an application stores belongs to one of four storage classes:
+**STA-1** Every value an application stores belongs to one of four storage classes:
 
 | Class | Declared with | Lifetime | Mutable |
 |---|---|---|---|
@@ -36,7 +36,7 @@ Every field and element of an instance has its instance's storage class and muta
 
 ## 10.2 No initializers on mutable globals
 
-**STA-2 [Agreed]** A `persistent` or `session` declaration has no initializer. Writing `= e` on one is **CE-STA-1**, even when `e` is zero, `false`, or `fill` of a default value. There is exactly one form of mutable global declaration, and it has no `=`. Global constants are the separate case that requires an initializer (CEX-1). Nondefault values are set by lifecycle handlers (§10.4) or by ordinary code.
+**STA-2** A `persistent` or `session` declaration has no initializer. Writing `= e` on one is **CE-STA-1**, even when `e` is zero, `false`, or `fill` of a default value. There is exactly one form of mutable global declaration, and it has no `=`. Global constants are the separate case that requires an initializer (CEX-1). Nondefault values are set by lifecycle handlers (§10.4) or by ordinary code.
 *Sources: D-122; DN §3.9.*
 
 ### Examples
@@ -73,7 +73,7 @@ session scratch: u8[128];
 
 ## 10.3 When defaults are applied
 
-**STA-3 [Agreed]** Persistent state receives its default values once:
+**STA-3** Persistent state receives its default values once:
 
 - When an application's persistent state is first created, every `persistent` global holds `default(T)` (TYP-22). The platform defines when that is, for example at installation (Annex B).
 - After that, persistent values survive commands, traps, resets and power loss.
@@ -82,7 +82,7 @@ session scratch: u8[128];
 Deleting persistent state, upgrading an application, and migrating persistent values between versions are platform-defined (Annex B).
 *Sources: D-123, D-128, D-369, D-416 (OI-16); DN §3.9, §5.*
 
-**STA-4 [Agreed]** A *session* is the period during which an application's session state lives. It begins at a *session start* and finishes at a *session end*.
+**STA-4** A *session* is the period during which an application's session state lives. It begins at a *session start* and finishes at a *session end*.
 
 - **The events.** The events that start and end a session are defined by the platform's transport binding (PLT-18). A security reset always ends every application's session (RTF-9). On a smart card, a session starts at power-on and ends at power-off or at a security reset.
 - **One at a time.** An application has at most one session at a time. A session start ends the application's previous session, if one is still open.
@@ -95,7 +95,7 @@ Which events start and end a session, including whether deselection or logical c
 
 ## 10.4 Lifecycle handlers
 
-**STA-5 [Agreed]** Setup that needs nondefault values runs in *lifecycle handlers*. A lifecycle handler is a function whose name and signature are reserved by the platform for a lifecycle event. Examples are provisioning persistent data and preparing session state. The platform defines all of the following (Annex B):
+**STA-5** Setup that needs nondefault values runs in *lifecycle handlers*. A lifecycle handler is a function whose name and signature are reserved by the platform for a lifecycle event. Examples are provisioning persistent data and preparing session state. The platform defines all of the following (Annex B):
 
 - which lifecycle events exist;
 - when each handler runs, and in what order;
@@ -106,7 +106,7 @@ Which events start and end a session, including whether deselection or logical c
 Setup that writes persistent values must be designed to run only when the platform runs it. Resetting a durable balance at every session start, for example, would destroy existing state.
 *Sources: D-124, D-370, D-407 (OI-7); DN §3.9; PN §3.*
 
-**STA-6 [Agreed]** Until the platform catalog defines lifecycle handlers, this specification uses two placeholder handlers:
+**STA-6** Until the platform catalog defines lifecycle handlers, this specification uses two placeholder handlers:
 
 | Handler | Signature | Runs |
 |---|---|---|
@@ -116,16 +116,16 @@ Setup that writes persistent values must be designed to run only when the platfo
 Annex B confirms or replaces these names, as for the `CardError` placeholders (D-415).
 *Sources: D-438 (OI-38).*
 
-**STA-7 [Agreed]** An application defines a handler by declaring a `function` with the handler's reserved name and exactly its reserved signature: the same parameters and modes, and the same payload type. A function with a handler's name but any other signature is **CE-STA-2**.
+**STA-7** An application defines a handler by declaring a `function` with the handler's reserved name and exactly its reserved signature: the same parameters and modes, and the same payload type. A function with a handler's name but any other signature is **CE-STA-2**.
 *Sources: D-422 (OI-22), D-438 (OI-38).*
 
-**STA-8 [Agreed]** Handler names are reserved in every application, whether or not the application defines the handler (NAM-14). Declaring anything other than a function under a handler name is **CE-NAM-5**. Defining a handler is optional unless the platform requires it.
+**STA-8** Handler names are reserved in every application, whether or not the application defines the handler (NAM-14). Declaring anything other than a function under a handler name is **CE-NAM-5**. Defining a handler is optional unless the platform requires it.
 *Sources: D-422 (OI-22).*
 
-**STA-9 [Agreed]** Application code never calls a lifecycle handler. Only the platform does. A call to a handler anywhere in the application is **CE-STA-3**. To share logic between a handler and other code, put it in an ordinary function that both call.
+**STA-9** Application code never calls a lifecycle handler. Only the platform does. A call to a handler anywhere in the application is **CE-STA-3**. To share logic between a handler and other code, put it in an ordinary function that both call.
 *Sources: D-422 (OI-22); DN §3.7 (by analogy with the command).*
 
-**STA-10 [Agreed]** In every other respect a lifecycle handler is an ordinary function:
+**STA-10** In every other respect a lifecycle handler is an ordinary function:
 
 - It must end with an explicit outcome (STM-21).
 - It may call ordinary functions and platform APIs.
@@ -178,7 +178,7 @@ function example_setup() {
 
 ## 10.5 Atomic persistent assignment
 
-**STA-11 [Agreed]** Every assignment whose destination is persistent storage is *atomic* for its whole destination. This covers every kind of destination:
+**STA-11** Every assignment whose destination is persistent storage is *atomic* for its whole destination. This covers every kind of destination:
 
 - a scalar global;
 - a field or element at any depth;
@@ -188,7 +188,7 @@ function example_setup() {
 If execution is interrupted and the platform then recovers, the destination holds either its complete previous value or its complete new value. It never holds a mixture or a partly written value.
 *Sources: D-057, D-371, D-373; DN §7.1, §8.2, §8.3, §9.3.*
 
-**STA-12 [Agreed]** Atomicity has these limits:
+**STA-12** Atomicity has these limits:
 
 - **Failed right-hand side.** If evaluating the right-hand side fails, the destination is not updated, and side effects that happened while evaluating it remain (STM-10).
 - **Separate assignments.** Two persistent assignments are not atomic together. An interruption may fall between them, unless a transaction groups them (chapter 11).
@@ -197,7 +197,7 @@ If execution is interrupted and the platform then recovers, the destination hold
 
 *Sources: D-371, D-372; DN §7.1.*
 
-**STA-13 [Agreed]** A target profile may support atomic updates only up to some size. An application containing a persistent assignment whose destination exceeds what its target can update atomically is rejected for that target at build or load time. It is never run with a non-atomic update. A destination whose size is known only at runtime is possible, for example a slice with runtime endpoints or a view (FUN-24, STM-23). If such a destination exceeds what the target can update atomically, the result is `trap(TXN-CAPACITY)`, and nothing is stored. The limit values, and how the rejection is reported, are platform-defined (Annex B).
+**STA-13** A target profile may support atomic updates only up to some size. An application containing a persistent assignment whose destination exceeds what its target can update atomically is rejected for that target at build or load time. It is never run with a non-atomic update. A destination whose size is known only at runtime is possible, for example a slice with runtime endpoints or a view (FUN-24, STM-23). If such a destination exceeds what the target can update atomically, the result is `trap(TXN-CAPACITY)`, and nothing is stored. The limit values, and how the rejection is reported, are platform-defined (Annex B).
 *Sources: D-419 (OI-19), D-206, D-451 (OI-51); DN §7.1, §7.4.*
 
 ### Examples
@@ -233,7 +233,7 @@ function update(amount: u32) {
 
 ## 10.6 Consistency between session and persistent state
 
-**STA-14 [Agreed]** The runtime never synchronizes, repairs or invalidates session state to match persistent state. That holds when a transaction is rolled back, when a command traps, and in every other case. A session copy of a persistent value may therefore disagree with it after a failure, for example a session cache updated before an `abort`. Keeping session and persistent state logically consistent is the application's responsibility. Commands never interleave (chapter 12), but that does not remove this responsibility after a failure.
+**STA-14** The runtime never synchronizes, repairs or invalidates session state to match persistent state. That holds when a transaction is rolled back, when a command traps, and in every other case. A session copy of a persistent value may therefore disagree with it after a failure, for example a session cache updated before an `abort`. Keeping session and persistent state logically consistent is the application's responsibility. Commands never interleave (chapter 12), but that does not remove this responsibility after a failure.
 *Sources: D-053; DN §6.4.*
 
 ## 10.7 Errors defined in this chapter

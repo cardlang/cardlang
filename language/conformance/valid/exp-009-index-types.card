@@ -1,6 +1,5 @@
 // rule: EXP-39
 // source: DN §3.3, §8.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Literal-only, u8 and u16 indices.

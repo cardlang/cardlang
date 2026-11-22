@@ -1,6 +1,5 @@
 // rule: STA-6, STA-7, STA-10
 // source: D-422, D-438
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The two placeholder handlers.

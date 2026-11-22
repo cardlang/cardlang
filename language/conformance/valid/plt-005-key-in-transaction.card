@@ -1,6 +1,5 @@
 // rule: TXN-17, PLT-24
 // source: platform/base-profile.md BP-18 to BP-25
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Persistent key changes participate in transactions, so they are permitted inside one.

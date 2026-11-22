@@ -1,6 +1,5 @@
 // rule: PLT-25, EXP-47
 // source: platform/base-profile.md BP-26 to BP-33
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A MAC algorithm passed where a digest algorithm is required.

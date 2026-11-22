@@ -1,6 +1,5 @@
 // rule: STM-20, STM-21
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-5
 // note: while true with a break, and no return after the loop.

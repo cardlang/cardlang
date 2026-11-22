@@ -1,6 +1,5 @@
 // rule: EXP-29, EXP-48
 // source: DN §6.2, §6.5
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A checked intrinsic consumed by match.

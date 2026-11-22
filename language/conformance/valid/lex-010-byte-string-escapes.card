@@ -1,6 +1,5 @@
 // rule: LEX-25
 // source: D-453
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Byte strings with every escape.

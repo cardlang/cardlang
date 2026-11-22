@@ -1,6 +1,5 @@
 // rule: CEX-9
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-4
 // note: An index out of range for a constant array.

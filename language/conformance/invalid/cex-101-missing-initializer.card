@@ -1,6 +1,5 @@
 // rule: CEX-1
 // source: D-129
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-CEX-1
 // note: A constant without an initializer.

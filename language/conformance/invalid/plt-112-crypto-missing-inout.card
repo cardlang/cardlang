@@ -1,6 +1,5 @@
 // rule: PLT-25, FUN-7
 // source: platform/base-profile.md BP-26 to BP-33
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-FUN-2
 // note: The output of card.crypto.digest is an inout parameter.

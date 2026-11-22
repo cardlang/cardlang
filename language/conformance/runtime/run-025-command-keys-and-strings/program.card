@@ -1,6 +1,5 @@
 // rule: PLT-22, PLT-23
 // source: platform/base-profile.md BP-14, BP-24, BP-39
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Command-lifetime keys end with their command, also on a trap; card.cbor.write_string and its errors; write_bool.

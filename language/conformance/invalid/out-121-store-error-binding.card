@@ -1,6 +1,5 @@
 // rule: OUT-14
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-6
 // note: An error binding stored in a variable.

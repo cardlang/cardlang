@@ -1,6 +1,5 @@
 // rule: RTF-4, EXP-23, EXP-24, EXP-25, EXP-26, EXP-30
 // source: DN §3.5, §6.5
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Integer traps and wrapping results, with operand values taken from the request.

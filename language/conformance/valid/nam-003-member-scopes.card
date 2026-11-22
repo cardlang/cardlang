@@ -1,6 +1,5 @@
 // rule: NAM-15, NAM-17
 // source: DN §3.11, §4.2
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Reused field and variant names, and a field named `length`.

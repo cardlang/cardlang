@@ -1,6 +1,5 @@
 // rule: EXP-53, EXP-54
 // source: D-448
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: equal and compare on whole arrays.

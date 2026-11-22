@@ -1,6 +1,5 @@
 // rule: TXN-18
 // source: D-445; DN §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: attempt inside a transaction: its error path aborts the transaction.

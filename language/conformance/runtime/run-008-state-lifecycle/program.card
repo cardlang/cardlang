@@ -1,6 +1,5 @@
 // rule: STA-3, STA-4, STA-6, RTF-2, RTF-9
 // source: DN §3.9, §6.4
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Persistent defaults once, session defaults at power-on, session kept by traps and cleared by reset.

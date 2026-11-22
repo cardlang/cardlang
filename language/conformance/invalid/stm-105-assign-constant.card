@@ -1,6 +1,5 @@
 // rule: STM-7
 // source: DN §5.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-2
 // note: Assignment to a constant.

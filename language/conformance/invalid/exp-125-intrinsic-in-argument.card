@@ -1,6 +1,5 @@
 // rule: EXP-49
 // source: DN §3.7
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-7
 // note: An intrinsic call inside a call argument.

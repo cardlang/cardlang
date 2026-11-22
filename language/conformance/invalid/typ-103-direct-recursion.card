@@ -1,6 +1,5 @@
 // rule: TYP-15
 // source: DN §9.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TYP-4
 // note: A structure that directly contains itself (DN §9.1).

@@ -1,6 +1,5 @@
 // rule: NAM-18
 // source: D-406
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-10
 // note: A platform path that is not in the catalog.

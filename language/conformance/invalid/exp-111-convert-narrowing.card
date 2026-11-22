@@ -1,6 +1,5 @@
 // rule: EXP-32
 // source: DN §3.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-8
 // note: convert from u16 to u8 is not guaranteed.

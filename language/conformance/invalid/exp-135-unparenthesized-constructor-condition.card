@@ -1,6 +1,5 @@
 // rule: EXP-6
 // source: D-430
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-SYN-1
 // note: A constructor directly in an if condition.

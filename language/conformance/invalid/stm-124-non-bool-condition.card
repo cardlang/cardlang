@@ -1,6 +1,5 @@
 // rule: STM-11
 // source: DN §3.4, §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: An integer condition.

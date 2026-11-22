@@ -1,6 +1,5 @@
 // rule: TXN-17, PLT-24
 // source: D-440, D-443
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: An API marked immediate may be called inside a transaction.

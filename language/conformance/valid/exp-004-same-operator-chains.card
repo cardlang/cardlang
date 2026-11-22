@@ -1,6 +1,5 @@
 // rule: EXP-2, EXP-3
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Chains of one operator and explicit grouping.

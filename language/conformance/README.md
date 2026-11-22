@@ -23,7 +23,6 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 ```text
 // rule: EXP-14, EXP-15
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-3
 // note: Mixed + and * without grouping.
@@ -33,7 +32,7 @@ Every test file starts with a block of `//` comment lines, one field per line. F
 |---|---|---|
 | `rule` | yes | One or more rule IDs from `language/spec/`, comma-separated |
 | `source` | yes | DN/PN sections or `D-` IDs that the example comes from |
-| `status` | yes | `agreed`, `proposal` or `open`: the strongest tag among the rules tested. A test that depends on a [Proposal] or [Open] rule is not normative until that rule is agreed |
+| `status` | no | `proposal` or `open`, for a test of a rule marked [Proposal] or [Open] (chapter 1 §1.4): the strongest mark among the rules tested. Such a test is not normative until the rule is decided. Absent, the tested rules are normative |
 | `kind` | yes | `application` (a complete application, including its single `command`) or `fragment` (declarations checked on their own; see below) |
 | `expect` | yes | `ok`, `compile-error CE-<PREFIX>-<n>`, `profile-error BP-<n>` (a build rejected by a Base Profile rule, `platform/base-profile.md`), or `runtime` for a runtime test, whose expected results are in its `scenario.txt` |
 | `binding` | no | The Base Profile transport binding the test is built for: `iso7816` or `raw` (profile BP-47). Absent means no binding check |

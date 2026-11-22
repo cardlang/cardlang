@@ -1,6 +1,5 @@
 // rule: STM-19
 // source: DN §6.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: require before a subtraction it makes safe.

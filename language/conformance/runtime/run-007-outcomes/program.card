@@ -1,6 +1,5 @@
 // rule: OUT-10, OUT-18, OUT-20
 // source: DN §6.3
-// status: agreed
 // kind: application
 // expect: runtime
 // note: attempt propagates errors unchanged, and Err does not roll back.

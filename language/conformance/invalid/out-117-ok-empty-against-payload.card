@@ -1,6 +1,5 @@
 // rule: OUT-11
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-5
 // note: Ok() against an outcome with a payload.

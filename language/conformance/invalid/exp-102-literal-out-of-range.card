@@ -1,6 +1,5 @@
 // rule: EXP-7
 // source: DN §3.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-2
 // note: A literal out of range for u8.

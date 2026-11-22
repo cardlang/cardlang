@@ -1,6 +1,6 @@
 # 11. Transactions
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 A *transaction* groups persistent writes so that they commit together or not at all. This chapter covers:
 
@@ -20,7 +20,7 @@ TransactionStatement ::= 'transaction' Block
 AbortStatement       ::= 'abort' 'Err' '(' Expression ')' ';'
 ```
 
-**TXN-1 [Agreed]** A `transaction` statement may appear in the body of any function, command or lifecycle handler. While its block executes, the transaction is *active*. Every persistent write performed while a transaction is active is *pending* in it. That covers:
+**TXN-1** A `transaction` statement may appear in the body of any function, command or lifecycle handler. While its block executes, the transaction is *active*. Every persistent write performed while a transaction is active is *pending* in it. That covers:
 
 - writes in the block itself;
 - writes in any function the block calls, directly or indirectly;
@@ -30,13 +30,13 @@ AbortStatement       ::= 'abort' 'Err' '(' Expression ')' ';'
 
 ## 11.2 Execution and commit
 
-**TXN-2 [Agreed]** While a transaction is active, every read observes the pending writes that come before it in evaluation order. This holds whether the read is direct, through a reference or a view, or in a called function. Pending writes are not visible outside the active transaction (TXN-14).
+**TXN-2** While a transaction is active, every read observes the pending writes that come before it in evaluation order. This holds whether the read is direct, through a reference or a view, or in a called function. Pending writes are not visible outside the active transaction (TXN-14).
 *Sources: D-376; DN §7.2.*
 
-**TXN-3 [Agreed]** When the block completes normally, the transaction *commits*: all of its pending persistent writes take effect together. Execution continues after the block only after the commit has succeeded. A transaction with no persistent writes is valid, and it commits trivially. The language defines no other commit protocol.
+**TXN-3** When the block completes normally, the transaction *commits*: all of its pending persistent writes take effect together. Execution continues after the block only after the commit has succeeded. A transaction with no persistent writes is valid, and it commits trivially. The language defines no other commit protocol.
 *Sources: D-375; DN §7.2.*
 
-**TXN-4 [Agreed]** Only persistent state participates in a transaction. Rollback never restores:
+**TXN-4** Only persistent state participates in a transaction. Rollback never restores:
 
 - session state;
 - local variables;
@@ -46,7 +46,7 @@ AbortStatement       ::= 'abort' 'Err' '(' Expression ')' ';'
 A platform API's effects participate only if that API's contract says so. Otherwise its contract states its behaviour inside a transaction, or prohibits use there (TXN-17, Annex B).
 *Sources: D-055, D-377, D-205; DN §7.2; PN §5.*
 
-**TXN-5 [Agreed]** A command is never implicitly a transaction, and neither is a function. Persistent writes outside any transaction are each atomic on their own (STA-11), and they are not atomic together.
+**TXN-5** A command is never implicitly a transaction, and neither is a function. Persistent writes outside any transaction are each atomic on their own (STA-11), and they are not atomic together.
 *Sources: D-383, D-372; DN §4, §7.1, §7.2.*
 
 ### Examples
@@ -110,7 +110,7 @@ function credit_and_record(amount: u32) {
 
 ## 11.3 Leaving a transaction
 
-**TXN-6 [Agreed]** A *boundary-crossing transfer* is a control transfer that would leave the block of an active transaction other than by reaching its closing brace. Each of the following, written lexically inside a transaction's block in the same function or command, is a boundary-crossing transfer and is **CE-TXN-1**:
+**TXN-6** A *boundary-crossing transfer* is a control transfer that would leave the block of an active transaction other than by reaching its closing brace. Each of the following, written lexically inside a transaction's block in the same function or command, is a boundary-crossing transfer and is **CE-TXN-1**:
 
 - `return …;` in any form, including a forwarding `return`;
 - `break;` or `continue;` whose target loop encloses the transaction;
@@ -118,7 +118,7 @@ function credit_and_record(amount: u32) {
 Transfers that stay inside the block are valid. Examples are a `break` or `continue` targeting a loop that is itself inside the transaction, and a `return` inside a called function: that `return` leaves only the callee. The caller then handles the callee's outcome without leaving its transaction, for example with `match` or `abort`. `attempt` and `require` are not boundary-crossing transfers: inside a transaction, their error path aborts the transaction (TXN-18). The only ways to leave a transaction are to reach its closing brace, `abort Err(…)`, the error path of `attempt` or `require`, or a trap.
 *Sources: D-109, D-381; DN §3.6, §6.3, §7.2.*
 
-**TXN-7 [Agreed]** `abort Err(x);` is valid only lexically inside the block of a transaction in the same function or command. Anywhere else it is **CE-TXN-2**. That includes a function called from within a transaction, which returns `Err` instead and lets the transaction's owner decide. The operand `x` must be either:
+**TXN-7** `abort Err(x);` is valid only lexically inside the block of a transaction in the same function or command. Anywhere else it is **CE-TXN-2**. That includes a function called from within a transaction, which returns `Err` instead and lets the transaction's owner decide. The operand `x` must be either:
 
 - a qualified member of the application's error set; or
 - an error binding in scope (OUT-14).
@@ -126,7 +126,7 @@ Transfers that stay inside the block are valid. Examples are a `break` or `conti
 Any other operand is **CE-OUT-3**, including a `CardError` member (OUT-19). `abort` is a statement and needs its semicolon. The forms `abort;`, `abort x;` and `abort Ok(…);` do not derive (**CE-SYN-1**).
 *Sources: D-110, D-111, D-380, D-437 (OI-37); DN §7.2.*
 
-**TXN-8 [Agreed]** `abort Err(x);` is executed as follows:
+**TXN-8** `abort Err(x);` is executed as follows:
 
 1. Stop executing the transaction's block. No later statement runs, either in the block or after it.
 2. Roll back every pending persistent write of the transaction, including writes through references and in called functions.
@@ -135,7 +135,7 @@ Any other operand is **CE-OUT-3**, including a `CardError` member (OUT-19). `abo
 Session changes made during the transaction remain. Local variables end as for any return. Persistent changes committed earlier stay committed. `abort` is not a trap: a caller receives an ordinary `Err` and may handle it. There are no savepoints, and there is no form that rolls back and then continues.
 *Sources: D-110, D-379; DN §6.4, §7.2.*
 
-**TXN-18 [Agreed]** Lexically inside the block of a transaction in the same function or command, the error path of `attempt` and of `require` aborts the transaction:
+**TXN-18** Lexically inside the block of a transaction in the same function or command, the error path of `attempt` and of `require` aborts the transaction:
 
 - `attempt c`, in either form, whose call produces `Err(e)`, behaves as `abort Err(e);`, and `attempt c else M` behaves as `abort Err(M);` (OUT-22);
 - `require c else M;` whose condition is `false` behaves as `abort Err(M);`.
@@ -143,7 +143,7 @@ Session changes made during the transaction remain. Local variables end as for a
 Each is executed by the steps of TXN-8: the block stops, the pending persistent writes roll back, and the error is returned unchanged. Unlike an `abort` operand, `e` may be a platform error, because `attempt` propagates an error and does not originate one (OUT-18, OUT-19). Inside a function called from the transaction, `attempt` and `require` return from that function as usual, and the caller's transaction stays active (TXN-9).
 *Sources: D-445 (OI-45), D-109, D-110; DN §3.6, §6.3, §7.2.*
 
-**TXN-9 [Agreed]** A callee that returns `Err` does not end or abort the caller's transaction. The callee's pending writes remain pending. The transaction's owner either handles the error and continues, so the writes commit at the closing brace, or uses `abort` to roll them back.
+**TXN-9** A callee that returns `Err` does not end or abort the caller's transaction. The callee's pending writes remain pending. The transaction's owner either handles the error and continues, so the writes commit at the closing brace, or uses `abort` to roll them back.
 *Sources: D-378, D-368; DN §6.3, §7.2.*
 
 ### Examples
@@ -246,7 +246,7 @@ function debit(amount: u32) -> u32 {
 
 ## 11.4 No nested transactions
 
-**TXN-10 [Agreed]** At most one transaction is ever active. It is **CE-TXN-3** if the block of a transaction contains another `transaction` statement, either:
+**TXN-10** At most one transaction is ever active. It is **CE-TXN-3** if the block of a transaction contains another `transaction` statement, either:
 
 - lexically, at any depth; or
 - in the body of any function reachable from a call in the block, along the static call graph (FUN-5), at any depth.
@@ -291,27 +291,27 @@ function outer() {
 
 ## 11.5 Failures, recovery and isolation
 
-**TXN-11 [Agreed]** If a trap occurs while a transaction is active, all of the transaction's pending persistent writes are rolled back, and the current command terminates (chapter 13). Session changes remain. Persistent changes committed earlier stay committed.
+**TXN-11** If a trap occurs while a transaction is active, all of the transaction's pending persistent writes are rolled back, and the current command terminates (chapter 13). Session changes remain. Persistent changes committed earlier stay committed.
 *Sources: D-382, D-055; DN §6.4, §7.2.*
 
-**TXN-12 [Agreed]** A failed commit never lets execution continue after the block as though it had succeeded. If the platform can contain the failure, the result is `trap(COMMIT)`. A failure that threatens integrity requires a security reset (chapter 13). Annex B defines how failures are classified.
+**TXN-12** A failed commit never lets execution continue after the block as though it had succeeded. If the platform can contain the failure, the result is `trap(COMMIT)`. A failure that threatens integrity requires a security reset (chapter 13). Annex B defines how failures are classified.
 *Sources: D-207; DN §7.2; PN §5.*
 
-**TXN-13 [Agreed]** After an interruption, such as power loss during a transaction or its commit, and the platform's recovery, persistent state reflects either the complete transaction or none of it. It never reflects part of it. If recovery cannot establish integrity, the platform fails closed and does not resume with partial state (Annex B). A trap that happens after a commit never undoes that commit.
+**TXN-13** After an interruption, such as power loss during a transaction or its commit, and the platform's recovery, persistent state reflects either the complete transaction or none of it. It never reflects part of it. If recovery cannot establish integrity, the platform fails closed and does not resume with partial state (Annex B). A trap that happens after a commit never undoes that commit.
 *Sources: D-207; DN §7.2; PN §5.*
 
-**TXN-14 [Agreed]** No other execution context can observe the pending state of an active transaction. That includes other commands, lifecycle handlers and callbacks. Commands never interleave (chapter 12). The mechanism the platform uses to provide this isolation is platform-defined (Annex B).
+**TXN-14** No other execution context can observe the pending state of an active transaction. That includes other commands, lifecycle handlers and callbacks. Commands never interleave (chapter 12). The mechanism the platform uses to provide this isolation is platform-defined (Annex B).
 *Sources: D-208, D-049; DN §4, §7.2; PN §5.*
 
 ## 11.6 Completion and limits
 
-**TXN-15 [Agreed]** For completion analysis, a `transaction` statement may complete normally exactly when its block may (STM-20). `abort` never completes normally. A function whose transaction ends with `abort` on every path needs no `return` after it.
+**TXN-15** For completion analysis, a `transaction` statement may complete normally exactly when its block may (STM-20). `abort` never completes normally. A function whose transaction ends with `abort` on every path needs no `return` after it.
 *Sources: D-030; DN §3.7.*
 
-**TXN-16 [Agreed]** A target profile may limit how many pending writes a transaction can hold. That number generally cannot be known at compile time. If a running transaction would exceed the limit, the result is `trap(TXN-CAPACITY)`, and its pending writes roll back (TXN-11). The limit values are platform-defined (Annex B).
+**TXN-16** A target profile may limit how many pending writes a transaction can hold. That number generally cannot be known at compile time. If a running transaction would exceed the limit, the result is `trap(TXN-CAPACITY)`, and its pending writes roll back (TXN-11). The limit values are platform-defined (Annex B).
 *Sources: D-439 (OI-39), D-206; DN §7.4.*
 
-**TXN-17 [Agreed]** The platform API catalog may mark an API as not permitted inside a transaction (Annex B). A call to such an API is **CE-TXN-4** if it is either:
+**TXN-17** The platform API catalog may mark an API as not permitted inside a transaction (Annex B). A call to such an API is **CE-TXN-4** if it is either:
 
 - lexically inside a transaction block; or
 - in a function reachable from a call in such a block, along the static call graph.

@@ -1,6 +1,5 @@
 // rule: EXP-8, EXP-19
 // source: DN §3.0, §6.5
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: The minimum signed value as a literal, and negation of a signed value.

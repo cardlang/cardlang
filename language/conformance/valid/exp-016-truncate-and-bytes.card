@@ -1,6 +1,5 @@
 // rule: EXP-34, EXP-36, EXP-37
 // source: D-432
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: truncate and the byte-order intrinsics.

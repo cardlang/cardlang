@@ -1,6 +1,5 @@
 // rule: HEP-15, PLT-20, PLT-22, STA-6
 // source: DN §13
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Signer application skeleton up to the API boundary: a provisioned key, PIN-guarded signing, and a reset clearing authorization. The signing API is the fictional test-catalog entry.

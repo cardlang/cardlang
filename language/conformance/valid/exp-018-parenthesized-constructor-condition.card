@@ -1,6 +1,5 @@
 // rule: EXP-6
 // source: D-430
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: A parenthesized constructor in an if condition.

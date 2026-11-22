@@ -1,6 +1,5 @@
 // rule: PLT-25, EXP-47
 // source: platform/base-profile.md BP-18 to BP-25
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A KeySpec parameter given an integer.

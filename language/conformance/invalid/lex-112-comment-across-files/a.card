@@ -1,6 +1,5 @@
 // rule: LEX-8, LEX-11
 // source: DN §3.0, §4.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-LEX-3
 // also: CE-SYN-1

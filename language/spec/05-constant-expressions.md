@@ -1,6 +1,6 @@
 # 5. Constant expressions
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 This chapter defines:
 
@@ -20,10 +20,10 @@ Constant expressions use the ordinary expression grammar (Annex A §A.2.4). This
 GlobalValueDeclaration ::= StorageKeyword+ Identifier ':' Type ( '=' Expression )? ';'   /* §A.2.1 */
 ```
 
-**CEX-1 [Agreed]** A declaration `const name: T = e;` declares a *global constant* of value type `T`. Its value is computed during compilation. A `const` declaration without an initializer is **CE-CEX-1**. Chapter 3 governs the storage keyword itself (NAM-9).
+**CEX-1** A declaration `const name: T = e;` declares a *global constant* of value type `T`. Its value is computed during compilation. A `const` declaration without an initializer is **CE-CEX-1**. Chapter 3 governs the storage keyword itself (NAM-9).
 *Sources: D-005, D-129; DN §3.9, §3.10, §5.1.*
 
-**CEX-2 [Agreed]** The initializer of a global constant must be a constant expression (§5.2). Its type must be `T` under the typing rules of chapter 6 (EXP-7 to EXP-12), including contextual typing of literals. A global constant has:
+**CEX-2** The initializer of a global constant must be a constant expression (§5.2). Its type must be `T` under the typing rules of chapter 6 (EXP-7 to EXP-12), including contextual typing of literals. A global constant has:
 
 - no lifetime and no writable state;
 - no observable representation;
@@ -51,7 +51,7 @@ const LIMIT: u32;
 
 ## 5.2 The constant-expression subset
 
-**CEX-3 [Agreed]** An expression is a *constant expression* when it is one of the forms below, and every subexpression it contains is also a constant expression:
+**CEX-3** An expression is a *constant expression* when it is one of the forms below, and every subexpression it contains is also a constant expression:
 
 | Form | Condition |
 |---|---|
@@ -70,7 +70,7 @@ const LIMIT: u32;
 
 *Sources: D-094, D-095, D-326, D-327; DN §3.10, §3.11.*
 
-**CEX-4 [Agreed]** An expression `x.length`, where `x` has a fixed-array type, is a constant expression when either:
+**CEX-4** An expression `x.length`, where `x` has a fixed-array type, is a constant expression when either:
 
 - `x` is a *plain path*: a name of a variable, constant, global or parameter, followed by zero or more field selections. This holds whatever the storage class, because only the type of `x` is used and its contents are not read; or
 - `x` is itself a constant expression.
@@ -78,7 +78,7 @@ const LIMIT: u32;
 In every other case `x.length` is not a constant expression. An example is a receiver that indexes a mutable array. At runtime its receiver is still evaluated (EXP-40).
 *Sources: D-328; DN §3.10, §8.1.*
 
-**CEX-5 [Agreed]** The following are never constant expressions, even when every operand is constant:
+**CEX-5** The following are never constant expressions, even when every operand is constant:
 
 - reading the value of a local variable or parameter, or the contents of persistent or session state, including through indexing or field selection;
 - calls to ordinary functions or platform APIs;
@@ -88,7 +88,7 @@ In every other case `x.length` is not a constant expression. An example is a rec
 There are no user-defined compile-time functions.
 *Sources: D-093, D-096, D-326, D-332, D-432 (OI-32); DN §3.10, §6.5.*
 
-**CEX-6 [Agreed]** A constant expression is required in exactly two places:
+**CEX-6** A constant expression is required in exactly two places:
 
 - the initializer of a global constant (CEX-2);
 - the length of a fixed array type (TYP-19).
@@ -166,7 +166,7 @@ const W: u8 = wrapping_add(A, B);
 
 ## 5.3 Mandatory compile-time evaluation
 
-**CEX-7 [Agreed]** Every *constant-only* subexpression of every expression in the application is evaluated during compilation. That covers global initializers, array lengths, local initializers, conditions, arguments and every other runtime expression. A subexpression is constant-only when it is a constant expression under §5.2. An implementation determines and evaluates these subexpressions as follows:
+**CEX-7** Every *constant-only* subexpression of every expression in the application is evaluated during compilation. That covers global initializers, array lengths, local initializers, conditions, arguments and every other runtime expression. A subexpression is constant-only when it is a constant expression under §5.2. An implementation determines and evaluates these subexpressions as follows:
 
 1. **Resolve and type-check everything.** Resolve names and type-check every expression. This includes the operands that step 3 skips and the expressions in unreachable statements.
 2. **Classify structurally.** Classify each subexpression as constant-only or runtime-dependent using only the forms of §5.2. A mutable variable is runtime-dependent even if its value could be inferred, for example a local initialized to zero and never changed. Guaranteed `convert` counts as constant-only when its operand is. The intrinsics excluded by CEX-5 never count as constant-only, even with constant operands.
@@ -177,10 +177,10 @@ const W: u8 = wrapping_add(A, B);
 
 *Sources: D-029, D-097, D-411 (OI-11); DN §3.10.*
 
-**CEX-8 [Agreed]** Compile-time evaluation uses exactly the semantics that the same expression would have at runtime (EXP-20 to EXP-46). That covers contextual literal types, checked arithmetic on each intermediate result, division truncating toward zero, shifts, `fill`, constructors and conversion. No wider intermediate type is used, and an out-of-range intermediate result is never repaired by a later operation.
+**CEX-8** Compile-time evaluation uses exactly the semantics that the same expression would have at runtime (EXP-20 to EXP-46). That covers contextual literal types, checked arithmetic on each intermediate result, division truncating toward zero, shifts, `fill`, constructors and conversion. No wider intermediate type is used, and an out-of-range intermediate result is never repaired by a later operation.
 *Sources: D-029, D-087; DN §3.10, §6.5.*
 
-**CEX-9 [Agreed]** A failure during compile-time evaluation is a compilation error, never a runtime trap:
+**CEX-9** A failure during compile-time evaluation is a compilation error, never a runtime trap:
 
 - **CE-CEX-3** covers the arithmetic failures that chapter 6 defines as traps at runtime (EXP-23 to EXP-26):
   - overflow or underflow;
@@ -193,7 +193,7 @@ const W: u8 = wrapping_add(A, B);
 The minimum signed value remainder −1 is not a failure. Its result is zero (EXP-24).
 *Sources: D-029, D-088, D-089, D-090; DN §3.5, §3.10, §6.5.*
 
-**CEX-10 [Agreed]** The following must be checked during compilation, even when the array is mutable state:
+**CEX-10** The following must be checked during compilation, even when the array is mutable state:
 
 - an index expression that is constant-only;
 - slice endpoints that are both constant-only.
@@ -207,7 +207,7 @@ This applies when the array being indexed or sliced has a fixed-array type, so i
 Indexes and slices of unsized `T[]` parameters, whose lengths are known only at runtime, are checked at runtime (EXP-39, chapter 8).
 *Sources: D-411 (OI-11), D-429 (OI-29); DN §3.10, §8.4.*
 
-**CEX-11 [Agreed]** An operand that is skipped by short-circuiting is not evaluated, but it is still resolved and type-checked (CEX-7 step 1). Name and type errors in it are reported as usual.
+**CEX-11** An operand that is skipped by short-circuiting is not evaluated, but it is still resolved and type-checked (CEX-7 step 1). Name and type errors in it are reported as usual.
 *Sources: D-329; DN §3.10.*
 
 ### Examples
@@ -329,10 +329,10 @@ function write_far() {
 
 ## 5.4 Dependencies
 
-**CEX-12 [Agreed]** A constant may refer to any global constant, including one declared later in the same file or in another file. Constant evaluation has no side effects, so the order in which constants are evaluated is not defined and cannot be observed. Source-file order never matters (NAM-4).
+**CEX-12** A constant may refer to any global constant, including one declared later in the same file or in another file. Constant evaluation has no side effects, so the order in which constants are evaluated is not defined and cannot be observed. Source-file order never matters (NAM-4).
 *Sources: D-098, D-326; DN §3.10.*
 
-**CEX-13 [Agreed]** It is **CE-CEX-5** when the value of a global constant or an array length depends on itself, directly or through any chain of:
+**CEX-13** It is **CE-CEX-5** when the value of a global constant or an array length depends on itself, directly or through any chain of:
 
 - other constants;
 - array lengths;
@@ -341,7 +341,7 @@ function write_far() {
 
 *Sources: D-098; DN §3.10.*
 
-**CEX-14 [Agreed]** The ban on calls inside call arguments (EXP-49) also applies inside constant expressions. In particular, one `convert` cannot be nested inside another. Each intermediate value must be declared as a separate constant.
+**CEX-14** The ban on calls inside call arguments (EXP-49) also applies inside constant expressions. In particular, one `convert` cannot be nested inside another. Each intermediate value must be declared as a separate constant.
 *Sources: D-331, D-027; DN §3.7, §3.10.*
 
 ### Examples

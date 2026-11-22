@@ -7,7 +7,7 @@
 3. Every image's debug section decodes completely, and every variable's scope lies inside its function's code.
 4. The sample tests/testdata/semantic-sample.card has exactly its declared parameters and locals, with their
    types, and a breakpoint offset for each statement line.
-5. Traps report their statement: run-001's overflow and underflow, on lines 16 and 20.
+5. Traps report their statement: run-001's overflow and underflow, on lines 15 and 19.
 Usage: uv run python -I tests/debug_check.py .
 """
 import sys, pathlib, hashlib
@@ -87,7 +87,7 @@ def main(repo):
     for req in ([1, 0xFF], [2, 0]):
         r = card.command(req, 8); p = card.trap_position()
         positions.append((r, (pathlib.Path(p[0]).name, p[1]) if p else None))
-    check("traps report their statement", positions == [(("trap", "OVERFLOW"), ("program.card", 16)), (("trap", "UNDERFLOW"), ("program.card", 20))],
+    check("traps report their statement", positions == [(("trap", "OVERFLOW"), ("program.card", 15)), (("trap", "UNDERFLOW"), ("program.card", 19))],
           str(positions))
     print("ALL PASS" if ok else "FAILURES")
     return ok

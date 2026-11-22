@@ -1,6 +1,5 @@
 // rule: PLT-25, EXP-47
 // source: D-443
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: A bool argument where the catalog says u32.

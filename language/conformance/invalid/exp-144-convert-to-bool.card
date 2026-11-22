@@ -1,6 +1,5 @@
 // rule: EXP-35
 // source: D-100, D-101; DN §3.2, §3.4, §3.11
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-8
 // note: There is no conversion to bool; write a comparison instead.

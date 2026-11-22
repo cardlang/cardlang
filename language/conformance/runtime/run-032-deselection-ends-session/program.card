@@ -1,6 +1,5 @@
 // rule: STA-4, STA-6
 // source: platform/base-profile.md BP-55, BP-56
-// status: agreed
 // kind: application
 // binding: iso7816
 // expect: runtime

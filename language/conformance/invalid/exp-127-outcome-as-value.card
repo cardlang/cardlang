@@ -1,6 +1,5 @@
 // rule: EXP-48
 // source: DN §3.5
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-14
 // note: A call outcome used as an arithmetic operand.

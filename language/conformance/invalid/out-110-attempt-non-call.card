@@ -1,6 +1,5 @@
 // rule: OUT-8
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-4
 // note: attempt applied to a variable.

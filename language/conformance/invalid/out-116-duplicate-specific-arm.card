@@ -1,6 +1,5 @@
 // rule: OUT-12
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-5
 // note: A specific error listed twice.

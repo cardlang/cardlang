@@ -1,6 +1,5 @@
 // rule: HEP-15, OUT-20, TXN-3
 // source: DN §13
-// status: agreed
 // kind: application
 // expect: runtime
 // note: The counter application (chapter 12) across a sequence of commands.

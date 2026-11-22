@@ -1,6 +1,5 @@
 // rule: TYP-13
 // source: DN §9.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TYP-3
 // note: A structure with no fields (DN §9.3).

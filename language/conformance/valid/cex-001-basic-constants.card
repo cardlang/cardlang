@@ -1,6 +1,5 @@
 // rule: CEX-1, CEX-3
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Global constants built from literals, other constants, operators and `fill`.

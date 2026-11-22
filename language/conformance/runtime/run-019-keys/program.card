@@ -1,6 +1,5 @@
 // rule: PLT-22, PLT-24, TXN-11
 // source: platform/base-profile.md BP-18 to BP-25
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Base Profile keys: a published P-256 vector, generation checked by re-import, every error, rollback by abort and by trap, volatile keys at reset.

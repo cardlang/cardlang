@@ -1,6 +1,5 @@
 // rule: TXN-6
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: break and continue targeting a loop inside the transaction.

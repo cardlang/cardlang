@@ -1,6 +1,5 @@
 // rule: PLT-25, EXP-47
 // source: platform/base-profile.md BP-41 to BP-46
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: The length of der.write_head is a u32, not a bool.

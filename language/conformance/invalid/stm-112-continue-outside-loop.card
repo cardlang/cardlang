@@ -1,6 +1,5 @@
 // rule: STM-15
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-3
 // note: continue outside a loop.

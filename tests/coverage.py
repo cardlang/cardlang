@@ -87,7 +87,7 @@ for r in "PLT-1 PLT-2 PLT-4 PLT-5 PLT-6 PLT-7 PLT-10 PLT-11 PLT-14 PLT-15 PLT-16
 ORDER = "LEX NAM TYP CEX EXP STM FUN OUT STA TXN HEP RTF PLT".split()
 rules = []
 for f in sorted(spec.glob("*.md")):
-    rules += re.findall(r"^\*\*([A-Z]{3}-\d+) \[\w+\]\*\*", f.read_text(encoding="utf-8"), re.M)
+    rules += re.findall(r"^\*\*([A-Z]{3}-\d+)(?: \[(?:Proposal|Open)\])?\*\*", f.read_text(encoding="utf-8"), re.M)
 rules.sort(key=lambda r: (ORDER.index(r.split("-")[0]), int(r.split("-")[1])))
 
 tests = {}

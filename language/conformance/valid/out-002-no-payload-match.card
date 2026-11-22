@@ -1,6 +1,5 @@
 // rule: OUT-11, OUT-12
 // source: DN §3.7, §6.3
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Ok() and a specific error arm before the catch-all.

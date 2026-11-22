@@ -1,6 +1,5 @@
 // rule: STM-24
 // source: D-456
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: ignore with and without a payload.

@@ -1,6 +1,5 @@
 // rule: EXP-53
 // source: D-448
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-1
 // note: equal on arrays with different element types.

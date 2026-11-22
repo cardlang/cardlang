@@ -1,6 +1,5 @@
 // rule: HEP-1, HEP-2
 // source: DN §4
-// status: agreed
 // kind: application
 // expect: ok
 // note: The minimal entry point.

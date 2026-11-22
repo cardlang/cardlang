@@ -1,6 +1,5 @@
 // rule: FUN-24
 // source: D-447
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Slice assignments from a list, fill, another slice, a whole array and a view.

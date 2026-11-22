@@ -1,6 +1,5 @@
 // rule: OUT-11, OUT-12, OUT-13
 // source: DN §6.1
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Handling success and failure locally.

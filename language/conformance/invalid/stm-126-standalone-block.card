@@ -1,6 +1,5 @@
 // rule: STM-3
 // source: D-434
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-SYN-1
 // note: A standalone block.

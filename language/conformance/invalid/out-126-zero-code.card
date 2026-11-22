@@ -1,6 +1,5 @@
 // rule: OUT-16
 // source: DN §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-OUT-7
 // note: A zero error code.

@@ -1,6 +1,5 @@
 // rule: HEP-11
 // source: DN §4
-// status: agreed
 // kind: application
 // expect: ok
 // note: A protocol status in the payload and an Err.

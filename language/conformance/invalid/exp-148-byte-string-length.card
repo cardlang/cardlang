@@ -1,6 +1,5 @@
 // rule: EXP-55
 // source: D-453
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-EXP-11
 // note: A 2-byte string for a u8[3].

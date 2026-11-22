@@ -1,6 +1,5 @@
 // rule: TXN-18
 // source: D-445; DN §3.6
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: require inside a transaction: a false condition aborts the transaction.

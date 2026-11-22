@@ -1,6 +1,5 @@
 // rule: STM-19
 // source: DN §3.6
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-STM-7
 // note: A require operand that is an integer.

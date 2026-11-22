@@ -1,6 +1,5 @@
 // rule: STA-6
 // source: platform/base-profile.md BP-55
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Profile BP-55: when on_install returns Err, installation fails and the outcome is reported.

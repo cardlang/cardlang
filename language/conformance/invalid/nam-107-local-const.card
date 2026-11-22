@@ -1,6 +1,5 @@
 // rule: NAM-10
 // source: DN §5.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-7
 // note: Local `const`, which is deferred.

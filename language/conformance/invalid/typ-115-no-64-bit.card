@@ -1,6 +1,5 @@
 // rule: TYP-8
 // source: D-075; DN §3.1
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-2
 // note: There is no u64 type: the name does not resolve.

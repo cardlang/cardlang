@@ -1,6 +1,5 @@
 // rule: FUN-12, FUN-14, FUN-20
 // source: DN §3.8, §8.4
-// status: agreed
 // kind: application
 // expect: runtime
 // note: Observable aliasing through references, and slice bounds at runtime.

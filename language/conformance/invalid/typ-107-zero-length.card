@@ -1,6 +1,5 @@
 // rule: TYP-19
 // source: DN §8.2
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-TYP-7
 // note: A zero length.

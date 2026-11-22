@@ -1,6 +1,5 @@
 // rule: NAM-16
 // source: DN §4.2, §6.3
-// status: agreed
 // kind: fragment
 // expect: compile-error CE-NAM-9
 // note: An unknown error member.

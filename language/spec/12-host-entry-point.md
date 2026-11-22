@@ -1,6 +1,6 @@
 # 12. Host entry point
 
-CardLang Language Specification, Draft 0.2. Chapter status: **draft complete**.
+CardLang Language Specification, Draft 0.2.
 
 Every host request to an application enters through a single declaration: the application's `command`. This chapter defines:
 
@@ -26,7 +26,7 @@ The following are platform-defined (Annex B):
 CommandDeclaration ::= 'command' Identifier ParameterList ReturnType? Block   /* §A.2.1 */
 ```
 
-**HEP-1 [Agreed]** An application declares exactly one `command`. It is the application's *host entry point*. Its name is chosen by the application. Each of the following is an error:
+**HEP-1** An application declares exactly one `command`. It is the application's *host entry point*. Its name is chosen by the application. Each of the following is an error:
 
 - no `command` declaration: **CE-HEP-1**;
 - more than one `command` declaration, across all source files: **CE-HEP-2**.
@@ -34,7 +34,7 @@ CommandDeclaration ::= 'command' Identifier ParameterList ReturnType? Block   /*
 The command's name is in the application scope like any other top-level name (NAM-11).
 *Sources: D-041, D-405 (OI-5); DN §4, §4.1.*
 
-**HEP-2 [Agreed]** The command's signature must be exactly:
+**HEP-2** The command's signature must be exactly:
 
 ```text
 command name(p1: ref u8[], p2: inout u8[]) -> u32
@@ -48,10 +48,10 @@ That is, exactly two parameters, in this order:
 The successful payload type is `u32`. The parameter names are chosen by the application. Any other signature is **CE-HEP-3**. That includes a different number of parameters, different modes or types, a missing return type, or a return type other than `u32`.
 *Sources: D-041; DN §4.*
 
-**HEP-3 [Agreed]** Application code never calls the command. A call to it anywhere is **CE-EXP-15** (EXP-47), including from an ordinary function or a lifecycle handler. The command is a node of the call graph (FUN-5). Logic that the command shares with other code belongs in ordinary functions.
+**HEP-3** Application code never calls the command. A call to it anywhere is **CE-EXP-15** (EXP-47), including from an ordinary function or a lifecycle handler. The command is a node of the call graph (FUN-5). Logic that the command shares with other code belongs in ordinary functions.
 *Sources: D-035; DN §3.7, §4.1.*
 
-**HEP-4 [Agreed]** Apart from HEP-1 to HEP-3, the command body follows every ordinary rule:
+**HEP-4** Apart from HEP-1 to HEP-3, the command body follows every ordinary rule:
 
 - it must end with an explicit outcome (STM-21);
 - an `attempt` whose call returns `Err` returns that error from the command to the host (OUT-10);
@@ -97,21 +97,21 @@ command handle_apdu(input: ref u8[], output: inout u8[]) -> u32 {
 
 ## 12.2 Request and response
 
-**HEP-5 [Agreed]** The first parameter, the *request*, is a read-only view of the bytes the host sent for this invocation. Its `.length` is the number of request bytes. Which received bytes form the request is platform-defined (Annex B), including the treatment of transport or APDU headers. The application cannot write the request.
+**HEP-5** The first parameter, the *request*, is a read-only view of the bytes the host sent for this invocation. Its `.length` is the number of request bytes. Which received bytes form the request is platform-defined (Annex B), including the treatment of transport or APDU headers. The application cannot write the request.
 *Sources: D-384; DN §4.*
 
-**HEP-6 [Agreed]** The second parameter, the *response*, is a read-write view of the output capacity for this invocation. Its `.length` is the number of bytes the application may produce. The capacity is platform-defined (Annex B).
+**HEP-6** The second parameter, the *response*, is a read-write view of the output capacity for this invocation. Its `.length` is the number of bytes the application may produce. The capacity is platform-defined (Annex B).
 *Sources: D-384; DN §4.*
 
-**HEP-7 [Agreed]** The platform supplies the request and response as separate regions that do not overlap. They are valid only while the command executes. The application cannot resize either one, and cannot keep a reference to either one beyond the invocation (FUN-16). The host can never pass a reference into card memory. The separation of the two regions belongs to this entry contract only. In general, references may overlap (FUN-13).
+**HEP-7** The platform supplies the request and response as separate regions that do not overlap. They are valid only while the command executes. The application cannot resize either one, and cannot keep a reference to either one beyond the invocation (FUN-16). The host can never pass a reference into card memory. The separation of the two regions belongs to this entry contract only. In general, references may overlap (FUN-13).
 *Sources: D-385; DN §4.*
 
-**HEP-8 [Agreed]** The language promises nothing about the initial contents of the response region. The application must write every byte it includes in its returned count. The platform must ensure that the region never contains data from another application or from the platform itself (Annex B). Bytes left over from an earlier command of the same application are possible. Writing to the response transmits nothing (HEP-10).
+**HEP-8** The language promises nothing about the initial contents of the response region. The application must write every byte it includes in its returned count. The platform must ensure that the region never contains data from another application or from the platform itself (Annex B). Bytes left over from an earlier command of the same application are possible. Writing to the response transmits nothing (HEP-10).
 *Sources: D-386, D-441 (OI-41); DN §4.*
 
 ## 12.3 The outcome contract
 
-**HEP-9 [Agreed]** When the command finishes, the platform acts on its outcome as follows:
+**HEP-9** When the command finishes, the platform acts on its outcome as follows:
 
 | Outcome of the command | Platform action |
 |---|---|
@@ -123,10 +123,10 @@ command handle_apdu(input: ref u8[], output: inout u8[]) -> u32 {
 Bytes beyond `count` are never transmitted. A partially written response is never transmitted after `Err` or a trap. The returned `u32` is a byte count. It is never a status word.
 *Sources: D-387, D-390; DN §4, §6.3.*
 
-**HEP-10 [Agreed]** Transmission happens only after the command has finished. Any transaction in the command has therefore already committed, or been rolled back, before anything is transmitted. Response transmission never happens inside a transaction. Assignments to the response are ordinary volatile writes: they are not transmissions and they are not persistent changes.
+**HEP-10** Transmission happens only after the command has finished. Any transaction in the command has therefore already committed, or been rolled back, before anything is transmitted. Response transmission never happens inside a transaction. Assignments to the response are ordinary volatile writes: they are not transmissions and they are not persistent changes.
 *Sources: D-393; DN §7.4.*
 
-**HEP-11 [Agreed]** `Ok(count)` means that a response was produced. It does not mean that the requested operation succeeded. An application may report a protocol-level failure in the response bytes with `Ok`, or as an `Err`. Choosing between them is part of the application's protocol.
+**HEP-11** `Ok(count)` means that a response was produced. It does not mean that the requested operation succeeded. An application may report a protocol-level failure in the response bytes with `Ok`, or as an `Err`. Choosing between them is part of the application's protocol.
 *Sources: D-388; DN §4.*
 
 ### Examples
@@ -156,7 +156,7 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 
 ## 12.4 Reporting categories
 
-**HEP-12 [Agreed]** The host can always distinguish four outcome categories:
+**HEP-12** The host can always distinguish four outcome categories:
 
 | Category | Produced by |
 |---|---|
@@ -170,15 +170,15 @@ A trap is never reported as an `Err`, and an `Err` is never reported as a trap. 
 
 ## 12.5 Command execution
 
-**HEP-13 [Agreed]** Commands never interleave. Each command completes, returns `Err`, or traps before any other command of any application starts. No scheduling, callback or lifecycle activity starts a command while another one is active. A security reset may interrupt a command (chapter 13).
+**HEP-13** Commands never interleave. Each command completes, returns `Err`, or traps before any other command of any application starts. No scheduling, callback or lifecycle activity starts a command while another one is active. A security reset may interrupt a command (chapter 13).
 *Sources: D-049; DN §4.*
 
-**HEP-14 [Agreed]** A trap ends only the current command. It does not make the device or the application unusable. After the trap has been handled, which includes rolling back any active transaction, later commands may run. Running commands one at a time does not make a command an implicit transaction: its persistent writes outside transactions are separately atomic (STA-11).
+**HEP-14** A trap ends only the current command. It does not make the device or the application unusable. After the trap has been handled, which includes rolling back any active transaction, later commands may run. Running commands one at a time does not make a command an implicit transaction: its persistent writes outside transactions are separately atomic (STA-11).
 *Sources: D-392; DN §4.*
 
 ## 12.6 The application protocol
 
-**HEP-15 [Agreed]** These are application code, written with the ordinary features of the language:
+**HEP-15** These are application code, written with the ordinary features of the language:
 
 - parsing request bytes;
 - choosing the requested operation;
@@ -272,7 +272,7 @@ When `counter` is at its maximum, an increment traps with `OVERFLOW` (EXP-23). T
 
 ## 12.7 The conformance scaffold (informative)
 
-**HEP-16 [Agreed]** A conformance test with `kind: fragment` contains no `command`. The test harness completes it by adding this declaration, which satisfies HEP-1 and HEP-2:
+**HEP-16** A conformance test with `kind: fragment` contains no `command`. The test harness completes it by adding this declaration, which satisfies HEP-1 and HEP-2:
 
 ```text
 command scaffold_entry(request: ref u8[], response: inout u8[]) -> u32 {

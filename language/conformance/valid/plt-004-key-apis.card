@@ -1,6 +1,5 @@
 // rule: NAM-18, PLT-25
 // source: platform/base-profile.md BP-18 to BP-25
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Every card.key API, called with matching arguments.

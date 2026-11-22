@@ -1,6 +1,5 @@
 // rule: CEX-3
 // source: DN §3.10
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Indexing a constant array, and selecting a field of a constant structure.

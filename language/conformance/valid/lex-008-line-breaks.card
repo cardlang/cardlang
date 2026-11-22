@@ -1,6 +1,5 @@
 // rule: LEX-5, LEX-7
 // source: D-423
-// status: agreed
 // kind: fragment
 // expect: ok
 // note: Lines end with a lone CR, CRLF and LF. The line comment ends at the lone CR, so B is declared.
