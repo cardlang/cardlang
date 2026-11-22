@@ -2,7 +2,7 @@
 - persistent storage, atomic updates, transactions, recovery and the interrupt hook (HAL-15 to HAL-20);
 - the key store, with persistent key changes joining transactions (HAL-21 to HAL-23);
 - every cryptographic operation and randomness (HAL-25 to HAL-28), done by the test-only implementations in
-  tools/interp (testcrypto.py, p256.py), with the same deterministic generator as the reference interpreter;
+  cardlang.platform (testcrypto, p256), with the same deterministic generator as the reference interpreter;
 - the test hooks (HAL-31), and the fictional resources of the test-only catalog (card.test.*, V-33).
 
 Statuses are raised as HalStatus(code). A simulated power loss during a commit is raised as PowerLoss, after the HAL
@@ -11,7 +11,7 @@ descriptors of HAL-11 and HAL-12 are a concern of the C interface.
 """
 import sys, pathlib, hashlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "interp"))
-import p256, testcrypto
+from cardlang.platform import p256, testcrypto
 
 CL_TXN_CAPACITY, CL_COMMIT_FAILED, CL_FATAL = 0x0100, 0x0101, 0x01FF
 NOT_FOUND, WRONG_RESOURCE, INVALID_STATE, CAPACITY, MALFORMED = 0x0010, 0x0012, 0x0013, 0x0014, 0x0021

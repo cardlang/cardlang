@@ -12,7 +12,7 @@ A <program> is any of:
 
 check runs the full front end (src/cardlang/front/diagnose.py) and prints each diagnostic as
 `file:line:column: CE-XXX-n: message`, or a JSON list with --json. Exit status 1 if there are diagnostics.
-build checks first (the compiler alone skips some rules, TL1 finding T1), then compiles to an image, written to
+build compiles to an image, which the compiler checks first with the full front end (finding T1), written to
 `-o`, or to `build/<name>.clvm` in the program's directory. It prints the image's figures.
 run runs a scenario file (tools/harness/README.md), printing every step and its outcome; its program is
 --program, or else the scenario's own directory.
@@ -68,13 +68,14 @@ def cmd_check(a):
     return 1 if ds else 0
 
 def compile_program(prog):
-    import compiler
+    from cardlang.compiler import compiler
     return compiler.compile_files(prog.files, prog.binding, prog.kind == "fragment")
 
 def cmd_build(a):
-    prog = Program(a.program, a.binding, a.fragment); ds = diagnostics(prog)
-    if ds: print_diagnostics(ds, a.json); return 1
-    c = compile_program(prog)
+    from cardlang.compiler import compiler
+    prog = Program(a.program, a.binding, a.fragment)
+    try: c = compile_program(prog)                       # checks with the full diagnostics first (T1)
+    except compiler.InvalidProgram as e: print_diagnostics(e.diagnostics, a.json); return 1
     out = pathlib.Path(a.output) if a.output else prog.dir / "build" / f"{prog.name}.clvm"
     out.parent.mkdir(parents=True, exist_ok=True); out.write_bytes(c.image)
     r = c.report
@@ -89,13 +90,14 @@ def cmd_build(a):
     return 0
 
 def cmd_disasm(a):
-    import disasm
+    from cardlang.bytecode import disasm
     src = pathlib.Path(a.program[0])
     if len(a.program) == 1 and src.is_file() and src.suffix in (".clvm", ".bin"): img = src.read_bytes()
     else:
-        prog = Program(a.program, a.binding, a.fragment); ds = diagnostics(prog)
-        if ds: print_diagnostics(ds, False); return 1
-        img = compile_program(prog).image
+        from cardlang.compiler import compiler
+        prog = Program(a.program, a.binding, a.fragment)
+        try: img = compile_program(prog).image
+        except compiler.InvalidProgram as e: print_diagnostics(e.diagnostics, False); return 1
     print(disasm.listing(img)); return 0
 
 def describe(outcome):

@@ -12,9 +12,7 @@ from cardlang import layout
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-PROFILE = layout.at(ROOT).base_profile
-CARD_ERROR_CODES = {m: int(c, 16) for m, c in re.findall(r"^\| `(\w+)` \| `0x([0-9A-Fa-f]{4})` \|",
-                                                         PROFILE.read_text(encoding="utf-8"), re.M)}
+from cardlang.platform.errors import CARD_ERROR_CODES          # kept importable from here
 
 # ------------------------------------------------------------------ outcomes and the binding encodings
 # An outcome is one of: ("ok", [bytes]), ("err", "app", code), ("err", "platform", CardError member name),

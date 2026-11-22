@@ -8,7 +8,7 @@ Compiler.shorten. Usage (from the repository root):
 import sys, pathlib, json
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "harness")]   # moved to devel/ in PR2
-import compiler, typer
+from cardlang.compiler import compiler, typer
 
 VERSION_1 = ["frame", "addr", "slice", "push", "jump"]             # VM6 (V-38)
 STEPS = [("version 1", VERSION_1), ("(e) LDFB, STFB", ["byte"]), ("(d) ADDRH", ["addr16"]), ("(b) compare and branch", ["cmpjump"]), ("(c) SLICEFK", ["slicek"]), ("(a) shared error exits", ["errexit"])]   # VM7b steps, in order (VM7b plan §3)

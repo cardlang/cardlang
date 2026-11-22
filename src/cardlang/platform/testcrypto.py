@@ -4,7 +4,7 @@ AES-128/256 (FIPS 197) with CBC, HKDF-SHA-256 (RFC 5869), ECDSA P-256 with SHA-2
 Not constant-time and not hardened: it exists only to produce and check real values in conformance tests.
 """
 import hashlib, hmac
-import p256
+from cardlang.platform import p256
 
 # ------------------------------------------------------------------ AES
 def _xtime(a): return ((a << 1) ^ 0x1B) & 0xFF if a & 0x80 else a << 1

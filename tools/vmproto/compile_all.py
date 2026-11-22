@@ -11,7 +11,8 @@ import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import compiler, typer, isa, disasm
+from cardlang.compiler import compiler, typer
+from cardlang.bytecode import isa, disasm
 
 def decodes(image):
     h, funcs, _, _ = disasm.read_image(image)

@@ -11,10 +11,12 @@ import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "interp", HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import vm, isa, testcbor, testtlv
+import vm
+from cardlang.bytecode import isa
+from cardlang.platform import testcbor, testtlv
 from cardlang.front import pltcheck, consteval
 from hal import HalStatus
-from scenario import CARD_ERROR_CODES
+from cardlang.platform.errors import CARD_ERROR_CODES
 
 def is_view(t): return isinstance(t, tuple) and t[0] == "arr" and t[2] is None
 

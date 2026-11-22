@@ -117,6 +117,16 @@ MOVED = [
     ("tools/checkers/linkcheck.py", "tests/linkcheck.py"),
     ("tools/checkers/poscheck.py", "tests/poscheck.py"),
     ("tools/checkers", "src/cardlang/front"),
+    # PR5b: the host side of the platform, the bytecode and the compiler
+    ("tools/interp/p256.py", "src/cardlang/platform/p256.py"),
+    ("tools/interp/testcrypto.py", "src/cardlang/platform/testcrypto.py"),
+    ("tools/interp/testcbor.py", "src/cardlang/platform/testcbor.py"),
+    ("tools/interp/testtlv.py", "src/cardlang/platform/testtlv.py"),
+    ("tools/vmproto/isa.py", "src/cardlang/bytecode/isa.py"),
+    ("tools/vmproto/debuginfo.py", "src/cardlang/bytecode/debuginfo.py"),
+    ("tools/vmproto/disasm.py", "src/cardlang/bytecode/disasm.py"),
+    ("tools/vmproto/typer.py", "src/cardlang/compiler/typer.py"),
+    ("tools/vmproto/compiler.py", "src/cardlang/compiler/compiler.py"),
 ]
 
 def moved(path):

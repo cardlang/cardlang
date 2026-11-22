@@ -1,13 +1,11 @@
 """Disassembler for images (VM4; named disasm, not dis, so as not to shadow the standard module): prints the header, the function table and annotated listings.
 
 Usage:
-    uv run python -I tools/vmproto/disasm.py <image.bin>
-    uv run python -I tools/vmproto/disasm.py <program dir or .card file>      (compiles it first)
+    uv run python -I -m cardlang.bytecode.disasm <image.bin>
+    uv run python -I -m cardlang.bytecode.disasm <program dir or .card file>      (compiles it first)
 """
 import sys, pathlib, struct
-HERE = pathlib.Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-import isa
+from cardlang.bytecode import isa
 
 def read_image(img):
     h = dict(zip(["magic", "format", "profile", "binding", "image_size", "persistent_size", "session_size", "stack_need",
@@ -40,7 +38,7 @@ def operand_text(name, kinds, ops, end):
 
 def listing(img):
     """The annotated listing; with debug information (TL1), each statement's source line and each variable's scope."""
-    import debuginfo
+    from cardlang.bytecode import debuginfo
     info = debuginfo.DebugInfo.of(img)
     marks = {}
     for off, f, line in info.lines: marks.setdefault(off, []).append(f"; {pathlib.Path(info.files[f]).name}:{line}")
@@ -76,10 +74,9 @@ if __name__ == "__main__":
     if src.suffix == ".bin":
         img = src.read_bytes()
     else:
-        sys.path.insert(0, str(HERE.parent / "harness"))
-        import compiler
+        from cardlang.compiler import compiler
         from cardlang.front.lexcheck import header
-        from scenario import program_files
+        from cardlang.front.project import program_files
         files = program_files(src) if src.is_dir() else [src]
         meta = header(files[0].read_bytes())
         img = compiler.compile_files(files, meta.get("binding"), meta.get("kind", "fragment" if "conformance" in str(src) else "application") == "fragment").image

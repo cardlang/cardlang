@@ -55,7 +55,7 @@ RUNS = [
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("tools/interp/interp.py", None, "runtime scenarios in language/conformance/runtime/"),
     # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
-    ("tools/vmproto/typer.py", None, "vmproto typer: every valid, runtime and example program fully typed"),
+    ("cardlang.compiler.typer", None, "vmproto typer: every valid, runtime and example program fully typed"),
     ("tools/vmproto/compile_all.py", None, "vmproto compiler: every valid, runtime and example program compiles (V-12 item 3)"),
     # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios (V-12).
     ("tools/harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),

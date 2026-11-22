@@ -9,7 +9,9 @@ FIDO2 session. Prints a JSON document. Usage:
 import sys, pathlib, json, collections, io, contextlib
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parents[1] / "tools" / d) for d in ("vmproto", "harness", "interp")]   # moved to devel/ in PR2
-import compiler, typer, isa, disasm, vm, backends, scenario
+import vm, backends, scenario
+from cardlang.compiler import compiler, typer
+from cardlang.bytecode import isa, disasm
 from cardlang import layout
 
 def instructions(image):

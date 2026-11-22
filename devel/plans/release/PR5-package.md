@@ -125,3 +125,32 @@ Each stage is one commit, ends with `run_checks` passing, and updates `layout`, 
 - **Scripts:**
   - the 33 generators and history scripts, and `revision.py`, run against a copy as before, and the same three fail;
   - `pyvm_measure.py` had been broken since PR4, because it imported `check_fido2` from `tools/fido/`. It now loads `examples/fido2/check.py`, and it runs.
+
+## 8. Done: stage 5b (2026-11-22)
+
+- **Moved with `git mv`:**
+  - `p256`, `testcrypto`, `testcbor` and `testtlv` from `tools/interp/` to `src/cardlang/platform/`;
+  - `isa`, `debuginfo` and `disasm` from `tools/vmproto/` to `src/cardlang/bytecode/`;
+  - `typer` and `compiler` to `src/cardlang/compiler/`.
+
+  Each subpackage has an `__init__.py` that says what it holds.
+- **The layering:**
+  - **`CARD_ERROR_CODES`** is now in the new `cardlang/platform/errors.py`. The compiler and the Python VM's card and natives import it from there. `scenario.py` imports it too, so it is still importable from the harness.
+  - **`program_files`:** the compiler, the typer and the disassembler take it from `cardlang.front.project`, where it already lived. `scenario.program_files` remains, as a delegate.
+  - Nothing in `src/` imports the harness.
+- **Imports:**
+  - 28 files rewritten by package, covering the moved modules, the unmoved tools, the examples' checkers and two measurement scripts;
+  - every `sys.path` line in the moved modules is gone;
+  - usage lines are now `python -m cardlang.compiler.compiler`, `cardlang.compiler.typer` and `cardlang.bytecode.disasm`.
+- **T1 (S3):**
+  - `compile_files` runs `diagnose.check` first, and raises the new `InvalidProgram` with the diagnostics;
+  - `clc build` and `clc disasm` rely on it instead of checking separately;
+  - `backends.build` turns `InvalidProgram` into its `BuildError`;
+  - `clc_check` gained a check that `compile_files` refuses `cex-105` (CE-CEX-3) by itself.
+- **`run_checks`:**
+  - it runs the typer as `-m cardlang.compiler.typer`;
+  - all 51 runs pass with the same counts as after 5a, and `clc_check` has 13 checks, one more.
+- **`layout.MOVED`:** has the 5b rows, and the current documents were rewritten through it: the readme, the VS Code README, the VM documents and a C VM comment.
+- **Scripts:**
+  - the 33 generators and history scripts, and `revision.py`, run against a copy, and the same three fail;
+  - both measurement scripts run.

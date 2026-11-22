@@ -2,7 +2,7 @@
 
 Builds examples/fido2 with the full checker and the ISO 7816 binding check (BP-50a, BP-52), runs a scripted CTAP
 session through the reference interpreter, and checks every response with code of its own: a CBOR codec, a DER
-parser, and ECDSA verification from tools/interp/testcrypto.py. None of the applet's logic is reused.
+parser, and ECDSA verification from src/cardlang/platform/testcrypto.py. None of the applet's logic is reused.
 
 Usage: uv run python -I examples/fido2/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
@@ -15,7 +15,8 @@ BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
 sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from cardlang.front.lexcheck import lex
-import backends, p256, testcrypto
+import backends
+from cardlang.platform import p256, testcrypto
 from cardlang.front import grammar
 
 # ------------------------------------------------------------------ a small, independent CBOR codec

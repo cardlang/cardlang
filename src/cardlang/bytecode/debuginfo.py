@@ -42,7 +42,7 @@ class DebugInfo:
     @classmethod
     def of(cls, image):
         h = struct.unpack_from("<4sHBBIIIII", image, 0)
-        import disasm
+        from cardlang.bytecode import disasm
         hdr, funcs, _, _ = disasm.read_image(image)
         info = cls(); info.function_starts = [f["code"] for f in funcs]
         if not hdr["debug_size"]: return info

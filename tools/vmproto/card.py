@@ -6,10 +6,12 @@ import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 for p in (HERE, HERE.parent / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import compiler, vm, isa
+import vm
+from cardlang.compiler import compiler
+from cardlang.bytecode import isa
 from hal import TestHal
 from natives import Natives
-from scenario import CARD_ERROR_CODES
+from cardlang.platform.errors import CARD_ERROR_CODES
 
 CARD_ERROR_NAMES = {v: k for k, v in CARD_ERROR_CODES.items()}
 STACK, RESPONSE, REQUEST = vm.STACK, vm.RESPONSE, vm.REQUEST
@@ -40,7 +42,7 @@ class VmCard:
     def trap_position(self):
         """(file, line) of the statement where the last outcome trapped, from the debug section, or None."""
         if getattr(self, "trap_pc", None) is None: return None
-        import debuginfo
+        from cardlang.bytecode import debuginfo
         if not hasattr(self, "_debug"): self._debug = debuginfo.DebugInfo.of(self.image)
         return self._debug.position(self.trap_pc)
 

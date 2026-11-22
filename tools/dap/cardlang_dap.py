@@ -2,7 +2,7 @@
 
 It runs a scenario file (tools/harness/README.md) against an applet on the prototype VM (tools/vmproto/vm.py),
 which executes exactly what the C VM does, and stops where asked:
-- at breakpoints in `.card` files, through the image's line table (IMG-10, tools/vmproto/debuginfo.py);
+- at breakpoints in `.card` files, through the image's line table (IMG-10, src/cardlang/bytecode/debuginfo.py);
 - at breakpoints on scenario lines, before that step;
 - when a trap happens, before the VM cleans up, so the frames are still there (exception filter `traps`);
 - when an `expect` fails (exception filter `expect`).
@@ -19,7 +19,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
 for d in (TOOLS / "lsp", TOOLS / "vmproto", TOOLS / "harness", TOOLS):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import jsonrpc, vm, debuginfo, isa
+import jsonrpc, vm
+from cardlang.bytecode import debuginfo, isa
 
 THREAD = 1
 REGION = {"STACK": vm.STACK, "PERSISTENT": vm.PERSISTENT, "SESSION": vm.SESSION, "CONST": vm.CONST}

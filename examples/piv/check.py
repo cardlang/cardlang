@@ -15,7 +15,8 @@ BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
 sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from cardlang.front.lexcheck import lex
-import backends, testcrypto
+import backends
+from cardlang.platform import testcrypto
 from cardlang.front import grammar
 
 PIV_AID = bytes.fromhex("A000000308000010000100")
@@ -201,7 +202,8 @@ def der_to_raw(der):
     return b"".join(int.from_bytes(v, "big").to_bytes(32, "big") for _, v in ints)
 
 def key_checks(s):
-    import hashlib, p256
+    import hashlib
+    from cardlang.platform import p256
     s.card.select()
     generate = lambda key, mech=0x11: s.apdu(0x47, 0x00, key, tlv(0xAC, tlv(0x80, bytes([mech]))))
     verify_pin = lambda: s.apdu(0x20, 0x00, 0x80, pin("123456"))[0]

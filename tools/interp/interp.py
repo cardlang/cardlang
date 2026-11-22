@@ -14,10 +14,10 @@ from cardlang.front import hepcheck, pltcheck, expcheck, consteval
 from cardlang.front.expcheck import P, p_expr, p_postfix, p_type, CE
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "harness"))
-import p256                                              # test-only P-256 (WP3)
-import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
-import testcbor                                          # test-only canonical CBOR (WP5)
-import testtlv                                           # test-only BER-TLV reader and DER writer (WP6)
+from cardlang.platform import p256                                              # test-only P-256 (WP3)
+from cardlang.platform import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
+from cardlang.platform import testcbor                                          # test-only canonical CBOR (WP5)
+from cardlang.platform import testtlv                                           # test-only BER-TLV reader and DER writer (WP6)
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}

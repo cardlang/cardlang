@@ -10,18 +10,15 @@ Types use the checkers' representation:
     ("outcome", T) with T "none" for no payload, ("error", Set) for an error member.
 
 Usage (from the repository root):
-    python -I tools/vmproto/typer.py .        types every valid test, runtime test and example; prints PASS/FAIL
+    uv run python -I -m cardlang.compiler.typer .      types every valid test, runtime test and example; prints PASS/FAIL
 """
 import sys, pathlib
-TOOLS = pathlib.Path(__file__).resolve().parents[1]
-for sub in ("harness",):
-    if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
 from cardlang.front.lexcheck import lex, header
 from cardlang import layout
 from cardlang.front import hepcheck, pltcheck, consteval
 from cardlang.front.expcheck import P, CE
 from cardlang.front.stmtparse import parse_block
-from scenario import program_files
+from cardlang.front.project import program_files
 
 class Typed:
     """A typed program: declarations from the checker, parsed bodies, and the type of every expression node."""

@@ -2,17 +2,14 @@
 
 Stages: accept (pltcheck) -> parse and type (typer.py) -> lay out -> generate -> emit. Constants are folded; nothing
 else is optimised (V-32). Usage:
-    python -I tools/vmproto/compiler.py <program dir or .card file> [-o image.bin] [--report]
+    uv run python -I -m cardlang.compiler.compiler <program dir or .card file> [-o image.bin] [--report]
 """
 import sys, pathlib, struct
-HERE = pathlib.Path(__file__).resolve().parent
-TOOLS = HERE.parent
-for sub in ("harness", "vmproto"):
-    if str(TOOLS / sub) not in sys.path: sys.path.insert(0, str(TOOLS / sub))
-import isa, typer
+from cardlang.bytecode import isa
+from cardlang.compiler import typer
 from cardlang.front import pltcheck
-from isa import TYPES, WIDTH, REGIONS, CAT_APP, CAT_PLATFORM
-from scenario import CARD_ERROR_CODES
+from cardlang.bytecode.isa import TYPES, WIDTH, REGIONS, CAT_APP, CAT_PLATFORM
+from cardlang.platform.errors import CARD_ERROR_CODES
 
 INTS = set(TYPES)
 ARITH = {"+": "ADD", "-": "SUB", "*": "MUL", "/": "DIV", "%": "REM"}
@@ -25,6 +22,14 @@ TERMINATORS = {"RET", "RETV", "ERR", "FWD", "ERRRAISE", "JMP"}
 
 class CompileError(Exception):
     """Something the version-0 compiler cannot express (not a language error: the program was accepted)."""
+
+class InvalidProgram(Exception):
+    """The program is not valid CardLang: the full diagnostics (cardlang.front.diagnose) reported an error, so it is
+    not compiled (PR5 S3, finding T1). `diagnostics` holds them, in diagnose's form."""
+    def __init__(self, diagnostics):
+        self.diagnostics = diagnostics
+        from cardlang.front import diagnose
+        super().__init__("; ".join(diagnose.format_diagnostic(d) for d in diagnostics))
 
 # ------------------------------------------------------------------ types and layout (VEX-4)
 class Layout:
@@ -831,7 +836,7 @@ def _str(s):
 
 def debug_section(self, offsets):
     """IMG-10, the debug section: files, function names, the line table, then (TL1) types, variables and globals.
-    The device VM never reads it; tools/vmproto/debuginfo.py decodes it."""
+    The device VM never reads it; cardlang/bytecode/debuginfo.py decodes it."""
     L = self.layout; types, index = [], {}
     def tid(t):
         key = repr(t)
@@ -893,15 +898,20 @@ def pltcheck_error_codes(toks):
     return codes
 
 def compile_files(files, binding=None, fragment=False):
+    """Compile a program to an image. It is checked first by the full diagnostics, the same as `clc check`, and an
+    invalid program raises InvalidProgram: the code generator alone skips some rules (finding T1)."""
     from cardlang.front.lexcheck import lex
-    from cardlang.front import hepcheck
+    from cardlang.front import hepcheck, diagnose
+    files = [pathlib.Path(f) for f in files]
+    ds = diagnose.check(files, binding, "fragment" if fragment else "application")
+    if ds: raise InvalidProgram(ds)
     toks = sum((lex(f.read_bytes(), str(f)) for f in files), [])
     if fragment: toks = toks + lex(hepcheck.SCAFFOLD, "<scaffold>")
     c = Compiler(toks, binding); c.compile(); return c
 
 if __name__ == "__main__":
     from cardlang.front.lexcheck import header
-    from scenario import program_files
+    from cardlang.front.project import program_files
     src = pathlib.Path(sys.argv[1]); files = program_files(src) if src.is_dir() else [src]
     meta = header(files[0].read_bytes())
     c = compile_files(files, meta.get("binding"), meta.get("kind", "fragment" if "conformance" in str(src) else "application") == "fragment")

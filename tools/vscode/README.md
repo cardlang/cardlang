@@ -160,7 +160,7 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 | The JSON-RPC framing both use | `tools/lsp/jsonrpc.py` |
 | The command line | `tools/clc.py` |
 | Diagnostics with positions | `src/cardlang/front/diagnose.py` |
-| Debug information in images (IMG-10) | `tools/vmproto/debuginfo.py` |
+| Debug information in images (IMG-10) | `src/cardlang/bytecode/debuginfo.py` |
 
 **The checks** are rows of `tools/run_checks.py`:
 - `poscheck.py`: diagnostics and their positions;

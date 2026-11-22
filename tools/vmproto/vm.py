@@ -8,8 +8,8 @@ Traps are raised as Trap inside the single interpreter loop and turned into the 
 import sys, pathlib, struct
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import isa
-from isa import TYPE_NAMES, WIDTH, SIGNED, REGIONS
+from cardlang.bytecode import isa
+from cardlang.bytecode.isa import TYPE_NAMES, WIDTH, SIGNED, REGIONS
 from hal import HalStatus, PowerLoss, CL_TXN_CAPACITY, CL_COMMIT_FAILED, CL_FATAL
 
 CONST, PERSISTENT, SESSION, STACK, REQUEST, RESPONSE = range(6)

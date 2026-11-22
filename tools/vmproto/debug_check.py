@@ -14,7 +14,9 @@ import sys, pathlib, hashlib
 HERE = pathlib.Path(__file__).resolve().parent
 for d in (HERE, HERE.parent / "harness"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import compiler, typer, disasm, debuginfo, backends, scenario
+import backends, scenario
+from cardlang.compiler import compiler, typer
+from cardlang.bytecode import disasm, debuginfo
 from cardlang import layout
 
 def body(img):

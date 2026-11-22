@@ -115,7 +115,7 @@ A row applies from its code offset up to the next row's. A statement that emits 
 - `clc disasm` shows source lines and variable scopes;
 - the debugger sets breakpoints and reads variables through it.
 
-`tools/vmproto/debuginfo.py` decodes it. Debug information never changes the code: `tools/vmproto/debug_check.py` compiles every program with it and without it, and compares.
+`src/cardlang/bytecode/debuginfo.py` decodes it. Debug information never changes the code: `tools/vmproto/debug_check.py` compiles every program with it and without it, and compares.
 *Serves: V-27; TL1.*
 
 ## 3. Loading

@@ -1,6 +1,6 @@
 """The `cvm-msvc` and `cvm-clang` backends of the harness (VM7, J3): the C VM, driven through cffi.
 
-A program is compiled by the prototype compiler (tools/vmproto/compiler.py) into a version-1 image, which the C VM
+A program is compiled by the prototype compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
 built by vm/c/build.py loads through the shared library cvm.dll (vm/c/test/cvm.c). The card interface is that of
 tools/harness/README.md, so scenarios and the applet checks run unchanged. Build the library first:
     uv run python -I vm/c/build.py all
@@ -12,8 +12,9 @@ TOOLS = pathlib.Path(__file__).resolve().parents[1]
 ROOT = TOOLS.parent
 for p in (TOOLS / "vmproto", TOOLS / "harness"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
-import compiler, isa
-from scenario import CARD_ERROR_CODES
+from cardlang.compiler import compiler
+from cardlang.bytecode import isa
+from cardlang.platform.errors import CARD_ERROR_CODES
 import sys, pathlib
 from cardlang import layout
 

@@ -207,7 +207,7 @@ static bool utf8_ok(src *s, uint32_t i, uint32_t n) {
     return true;
 }
 
-/* ------------------------------------------------------------------ CBOR (BP-34 to BP-40; tools/interp/testcbor.py) */
+/* ------------------------------------------------------------------ CBOR (BP-34 to BP-40; src/cardlang/platform/testcbor.py) */
 static int cbor_read_head(src *s, uint32_t i, uint8_t *major, uint64_t *val, uint32_t *size) {
     if (i >= s->len) return ERR(CL_ERR_MALFORMED);
     uint8_t ib = at(s, i), ai = ib & 31u;

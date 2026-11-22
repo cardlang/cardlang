@@ -5,7 +5,7 @@ CardLang is a small, statically typed, imperative language for writing smart-car
 **Status: Draft 0.2** (tag `spec-draft-0.2`). All 305 rules are agreed and every open issue is resolved. See [the release notes](language/releases/draft-0.2.md) for what changed since Draft 0.1, including the first platform profile and a FIDO2 authenticator example.
 
 Since Draft 0.2, the repository also holds:
-- a compiler to a compact bytecode (`tools/vmproto/compiler.py`);
+- a compiler to a compact bytecode (`src/cardlang/compiler/compiler.py`);
 - a prototype VM in Python, and the VM in portable C11 (`vm/c/`), which pass the same tests;
 - a VS Code extension, with errors as you type, go to definition, completion and a debugger ([`tools/vscode/`](tools/vscode/README.md)).
 
