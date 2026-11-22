@@ -9,10 +9,8 @@ Over every Markdown file the repository tracks:
    extension or its first part is a known folder, so `and/or` is not one. Build outputs (in a build or
    node_modules folder, or a generated file such as a .vsix) are not checked: a fresh checkout has none.
 
-   Historical documents (layout.historical: the plans, reports, findings and step notes) keep the paths they were
-   written with. A path to a file that has moved since resolves through layout.MOVED; any other unresolved
-   path is reported as INFO, never as a failure. Their links are checked like any other. A current-state document
-   must name a moved file by its new path.
+   The documents in devel/ (layout.historical) record the past, and name files where they were when they were
+   written, so their file paths are not checked. Their links are checked like any other.
 
 A line carrying `<!-- linkcheck: ignore -->` is not checked.
 
@@ -20,8 +18,7 @@ Over every Python file it tracks (4): only `layout` builds paths into the reposi
 sets up `sys.path` is exempt: it bootstraps imports, as some scripts in devel/ do.
 
 Over every source file it tracks outside the historical folders (5: .card, .c, .h, .py, .js): a repository path named
-anywhere in it, in a comment, a docstring or a string, must exist. A path counts if its first part is a top-level folder,
-or one that a move retired. `layout.py` is exempt, since its table of moves names the old paths on purpose.
+anywhere in it, in a comment, a docstring or a string, must exist. A path counts if its first part is a top-level folder.
 Usage: uv run python -I tests/linkcheck.py .
 """
 import re, sys, pathlib, subprocess, collections
@@ -67,10 +64,9 @@ def main(root):
     L = layout.at(root); root = L.root
     bases = [root, L.conformance, L.vm_c]
     known_dirs = {p.name for p in root.iterdir() if p.is_dir()} | {"valid", "invalid", "runtime", "platform", "src", "include",
-                                                                    "hal-host", "test", "cmake", "testdata", "syntaxes", "snippets"} \
-                 | {old.split("/")[0] for old, _ in layout.MOVED}           # former top-level folders
+                                                                    "hal-host", "test", "cmake", "testdata", "syntaxes", "snippets"}
     historical = [pathlib.Path(h) for h in L.historical]
-    fails = infos = files = 0
+    fails = files = 0
     def fail(where, msg):
         nonlocal fails
         fails += 1; print(f"FAIL {where} | {msg}")
@@ -90,19 +86,12 @@ def main(root):
                 if not dest.exists(): fail(f"{rel}:{n}", f"link to a missing file: {target}"); continue
                 if anchor and dest.is_file() and dest.suffix == ".md" and anchor.lower() not in anchors(dest):
                     fail(f"{rel}:{n}", f"link to a missing heading: {target}")
-            for m in re.finditer(r"`([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+)/?`", line):
+            for m in ([] if hist else re.finditer(r"`([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+)/?`", line)):
                 p = m.group(1); parts = p.split("/")
                 if not (pathlib.PurePosixPath(parts[-1]).suffix.lower() in EXTENSIONS or parts[0] in known_dirs): continue
                 if set(parts) & SKIP_DIRS or pathlib.PurePosixPath(parts[-1]).suffix.lower() in GENERATED: continue   # a build output
                 if any((b / p).exists() for b in bases + [md.parent]): continue
-                now = layout.moved(p)
-                if hist and now is not None and (root / now).exists(): continue  # moved since: a record keeps its old path
-                if now is not None and not hist:
-                    fail(f"{rel}:{n}", f"a moved file, now at {now}: {p}"); continue
-                if hist:
-                    infos += 1; print(f"INFO {rel}:{n} | a path as of writing, not found now: {p}")
-                else:
-                    fail(f"{rel}:{n}", f"a named file that does not exist: {p}")
+                fail(f"{rel}:{n}", f"a named file that does not exist: {p}")
         if fails == before: print(f"PASS {rel}")
     # 4. only layout builds paths into the top-level parts
     top = "|".join(layout.TOP_LEVEL)
@@ -116,20 +105,18 @@ def main(root):
                 bad += 1; fail(f"{py.relative_to(root).as_posix()}:{n}", "a repository path built outside layout: " + line.strip()[:100])
     if not bad: print("PASS only layout builds paths into the top-level parts")
     # 5. repository paths named in source files: comments, docstrings and strings
-    tops = ({p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")} - SKIP_DIRS) \
-           | {old.split("/")[0] for old, _ in layout.MOVED}
+    tops = {p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")} - SKIP_DIRS
     rx = re.compile(r"(?<![\w./-])((?:" + "|".join(sorted(tops)) + r")(?:/[A-Za-z0-9_.*-]+)+)")
     bad = 0
     for src in sorted(sum((tracked(root, f"*{ext}") for ext in SOURCES), [])):
-        if src.name == "layout.py" or any(src.resolve().is_relative_to(h) for h in historical): continue
+        if any(src.resolve().is_relative_to(h) for h in historical): continue
         if set(src.relative_to(root).parts) & SKIP_DIRS: continue
         for n, line in enumerate(src.read_text(encoding="utf-8", errors="replace").split("\n"), 1):
             if IGNORE in line: continue
             for m in rx.finditer(line):
                 p = m.group(1).rstrip(".,;:")
                 if "*" in p or set(p.split("/")) & SKIP_DIRS or pathlib.PurePosixPath(p).suffix.lower() in GENERATED or (root / p).exists() or (src.parent / p).exists(): continue
-                where = f"{src.relative_to(root).as_posix()}:{n}"; now = layout.moved(p)
-                bad += 1; fail(where, f"a moved file, now at {now}: {p}" if now else f"a named file that does not exist: {p}")
+                bad += 1; fail(f"{src.relative_to(root).as_posix()}:{n}", f"a named file that does not exist: {p}")
     if not bad: print("PASS repository paths named in source files exist")
     # 6. development steps stay in devel/, and 7. no absolute path into a user's home folder, in any tracked text file
     step = re.compile(r"\b(?:WP|SP|VM|TL|PR)\d+[a-z]?\b")
@@ -143,13 +130,13 @@ def main(root):
         rel = f.relative_to(root).as_posix(); in_devel = f.resolve().is_relative_to(devel.resolve())
         for n, line in enumerate(data.decode("utf-8", errors="replace").split("\n"), 1):
             if IGNORE in line or "linkcheck: ignore" in line: continue
-            if not in_devel and f.name != "layout.py" and step.search(line):
+            if not in_devel and step.search(line):
                 bad_step += 1; fail(f"{rel}:{n}", f"a development step outside devel/: {step.search(line).group(0)}")
             if home.search(line):
                 bad_home += 1; fail(f"{rel}:{n}", f"an absolute path into a home folder: {home.search(line).group(0)}")
     if not bad_step: print("PASS development steps are named only in devel/")
     if not bad_home: print("PASS no absolute path into a home folder")
-    print(f"{files} documents; {fails} failures; {infos} historical paths as of writing")
+    print(f"{files} documents; {fails} failures")
     print("ALL PASS" if fails == 0 else "FAILURES")
     return fails == 0
 

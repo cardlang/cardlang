@@ -54,7 +54,7 @@ RUNS = [
     ("cardlang.front.grammar", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("cardlang.interp.interp", None, "runtime scenarios in language/conformance/runtime/"),
-    # The prototype compiler: its static typer types every expression of every program it must compile.
+    # The compiler: its static typer types every expression of every program it must compile.
     ("cardlang.compiler.typer", None, "compiler typer: every valid, runtime and example program fully typed"),
     ("tests/compile_all.py", None, "compiler: every valid, runtime and example program compiles (V-12 item 3)"),
     # The compiler and the Python VM as a backend of the harness: the same scenarios (V-12).

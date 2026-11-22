@@ -1,4 +1,4 @@
-"""The prototype's test HAL, following vm/hal.md:
+"""The Python VM's test HAL, following vm/hal.md:
 - persistent storage, atomic updates, transactions, recovery and the interrupt hook (HAL-15 to HAL-20);
 - the key store, with persistent key changes joining transactions (HAL-21 to HAL-23);
 - every cryptographic operation and randomness (HAL-25 to HAL-28), done by the test-only implementations in
@@ -6,7 +6,7 @@
 - the test hooks (HAL-31), and the fictional resources of the test-only catalog (card.test.*, V-33).
 
 Statuses are raised as HalStatus(code). A simulated power loss during a commit is raised as PowerLoss, after the HAL
-has done its recovery (the transaction is undone: HAL-6, HAL-19). The prototype passes data as byte strings; the
+has done its recovery (the transaction is undone: HAL-6, HAL-19). The Python VM passes data as byte strings; the
 descriptors of HAL-11 and HAL-12 are a concern of the C interface.
 """
 import sys, pathlib, hashlib

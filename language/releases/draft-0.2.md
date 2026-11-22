@@ -11,7 +11,7 @@ Draft 0.2 is Draft 0.1 corrected and extended by its first real use: a FIDO2 aut
 | Conformance tests (valid / invalid / runtime) | 102 / 231 / 17 | 122 / 257 / 26 |
 | Platform profile | — | Base Profile 1: 58 rules (BP-1 to BP-56, plus BP-50a and BP-53a), 34 catalog APIs |
 | Example applications | Counter, wallet, signer skeleton | Plus a FIDO2 authenticator (`examples/fido2`, 778 lines) |
-| `tools/run_checks.py` runs | 22 | 24 |
+| `tests/run_checks.py` runs | 22 | 24 |
 
 ## 1. Language changes
 
@@ -59,7 +59,7 @@ A platform specification, separate from the language specification:
 
 ## 3. The FIDO2 check
 
-`examples/fido2` implements `getInfo`, `makeCredential` (ES256, non-resident derived credentials, `"none"` attestation), `getAssertion`, `reset` and `clientPIN` (protocols two and one). `tools/fido/check_fido2.py` runs 59 checks against an independent platform-side implementation.
+`examples/fido2` implements `getInfo`, `makeCredential` (ES256, non-resident derived credentials, `"none"` attestation), `getAssertion`, `reset` and `clientPIN` (protocols two and one). `examples/fido2/check.py` runs 59 checks against an independent platform-side implementation.
 
 Writing the applet shaped this draft. Its size went from 552 to 449 lines through the language changes, then grew to 778 with the PIN protocol.
 

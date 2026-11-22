@@ -1,4 +1,4 @@
-"""The prototype's native library: the catalog APIs as `NATIVE n` executes them (vm/bytecode.md §5).
+"""The Python VM's native library: the catalog APIs as `NATIVE n` executes them (vm/bytecode.md §5).
 
 It does only what involves no cryptography (HAL-1 to HAL-3): it takes the arguments off the operand stack
 (BC-34), resolves identifiers in the single identifier space (PLT-20), keeps the operation table with its lifetimes

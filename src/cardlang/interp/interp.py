@@ -72,7 +72,7 @@ def restore(live, snap):
             live[k] = copy_value(snap[k])
 
 # ------------------------------------------------------------------ statement parser
-from cardlang.front.stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the prototype compiler
+from cardlang.front.stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the compiler
 
 # ------------------------------------------------------------------ the machine
 class Card:

@@ -1,4 +1,4 @@
-"""The static typing pass of the prototype compiler (vm/decisions.md V-29).
+"""The static typing pass of the compiler (vm/decisions.md V-29).
 
 The program has already been accepted by the full reference checker (pltcheck). This pass parses every function
 body with the shared statement parser (checkers/stmtparse.py) and records the type of every expression node, by
@@ -193,7 +193,7 @@ def untyped(typed):
     return missing
 
 def programs(repo):
-    """(name, tokens) of every program the prototype compiler must handle: valid tests, runtime tests, examples."""
+    """(name, tokens) of every program the compiler must handle: valid tests, runtime tests, examples."""
     conf = layout.at(repo).conformance
     for f in sorted((conf / "valid").iterdir()):
         files = program_files(f) if f.is_dir() else [f] if f.suffix == ".card" else []

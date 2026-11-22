@@ -31,7 +31,7 @@ IDs are never reused or renumbered. A withdrawn decision keeps its row, marked "
 
 "Deferred" in a recorded status (D-006 local `const`, D-077 multidimensional arrays) means *excluded from this version*. These rows are [Agreed] exclusions with no open issue: a future version may revisit them.
 
-D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited as informative design intent in `spec/01-scope-and-conventions.md`. The concrete agreed rows supersede it wherever they are more specific.
+D-134 ("Familiar imperative syntax, static types", a proposed baseline) is cited as informative design intent in `language/spec/01-scope-and-conventions.md`. The concrete agreed rows supersede it wherever they are more specific.
 
 ## DN §2 decisions
 

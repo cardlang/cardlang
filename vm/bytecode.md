@@ -300,7 +300,7 @@ A trap while a transaction is active aborts it during cleanup (VEX-40). The comp
 
 ### 2.12 Short forms
 
-**BC-39** Each short form is a shorter encoding of the instructions on the right. It has exactly their semantics, traps and stack effect. A compiler may use either form; the prototype compiler always uses the shortest that applies.
+**BC-39** Each short form is a shorter encoding of the instructions on the right. It has exactly their semantics, traps and stack effect. A compiler may use either form; the CardLang compiler always uses the shortest that applies.
 
 | Op | Mnemonic | Operands | Same as |
 |---|---|---|---|
@@ -324,7 +324,7 @@ A trap while a transaction is active aborts it during cleanup (VEX-40). The comp
 
 ### 2.13 The second revision
 
-**BC-40** These forms were added in a second revision, measured on both applets. Like the short forms of §2.12, each has exactly the semantics, traps and stack effect of what it replaces, and charges 1 (BC-35). The prototype compiler uses each wherever it applies. The bytecode keeps its version number: it is living until a public release (V-51).
+**BC-40** These forms were added in a second revision, measured on both applets. Like the short forms of §2.12, each has exactly the semantics, traps and stack effect of what it replaces, and charges 1 (BC-35). The compiler uses each wherever it applies. The bytecode keeps its version number: it is living until a public release (V-51).
 
 | Op | Mnemonic | Operands | Same as |
 |---|---|---|---|
@@ -554,7 +554,7 @@ Every construct maps onto version 0. No VM state is needed beyond VEX-49.
 
 ## Annex B: compiled examples
 
-These listings are the prototype compiler's output (`src/cardlang/bytecode/disasm.py`), for bytecode version 1. Each line shows the code offset, the encoded bytes, and the instruction. Version 0's listings were compiled by hand, before the compiler existed.
+These listings are the compiler's output (`src/cardlang/bytecode/disasm.py`), for bytecode version 1. Each line shows the code offset, the encoded bytes, and the instruction. Version 0's listings were compiled by hand, before the compiler existed.
 
 ### B.1 The counter application (`language/conformance/runtime/run-011-counter-application`)
 

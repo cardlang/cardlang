@@ -1,12 +1,12 @@
 /*
- * hal_host.c - the host HAL (vm/hal.md), a port of the prototype's src/cardlang/pyvm/hal.py:
+ * hal_host.c - the host HAL (vm/hal.md), a port of the Python VM's src/cardlang/pyvm/hal.py:
  * - storage with atomic updates, transactions and recovery (HAL-15 to HAL-20). Recovery is immediate: a power loss
  *   injected at a commit (the interrupt hook) undoes the transaction, then the call returns CL_FATAL, which the VM
  *   reports as "no result" (VEX-43, HAL-6);
  * - the key store (HAL-21 to HAL-23);
  * - cryptography through Mbed TLS: PSA Crypto for hashes, HMAC, deterministic ECDSA (RFC 6979, as the
- *   prototype), ECDH and AES-CBC; mbedtls_hkdf for HKDF; and the bignum module to reduce generated EC scalars;
- * - the deterministic generator of the test hook: SHA-256(seed || counter), as the prototype (HAL-31);
+ *   Python VM), ECDH and AES-CBC; mbedtls_hkdf for HKDF; and the bignum module to reduce generated EC scalars;
+ * - the deterministic generator of the test hook: SHA-256(seed || counter), as the Python VM's (HAL-31);
  * - the resources of the test-only catalog (V-33).
  *
  * Every function computes its result into the HAL's own memory first, and checks the output's capacity last
@@ -24,7 +24,7 @@
 
 bool cl_host_hal_init(cl_hal *hal) {
     memset(hal, 0, sizeof *hal);
-    static const char seed[] = "cardlang-test-drbg";            /* the prototype's default seed */
+    static const char seed[] = "cardlang-test-drbg";            /* the Python VM's default seed */
     memcpy(hal->seed, seed, sizeof seed - 1); hal->seed_len = (uint32_t)(sizeof seed - 1);
     return psa_crypto_init() == PSA_SUCCESS;
 }
@@ -204,8 +204,8 @@ static const uint8_t P256_N_MINUS_1[32] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xBC, 0xE6, 0xFA, 0xAD, 0xA7, 0x17, 0x9E, 0x84, 0xF3, 0xB9, 0xCA, 0xC2, 0xFC, 0x63, 0x25, 0x50};
 
-/* The prototype's generation: random bytes for AES and HMAC; for P-256, d = 1 + (40 random bytes mod (n - 1)).
- * The generator runs before the capacity check, as in the prototype. */
+/* The Python VM's generation: random bytes for AES and HMAC; for P-256, d = 1 + (40 random bytes mod (n - 1)).
+ * The generator runs before the capacity check, as in the Python VM. */
 cl_status cl_hal_key_generate(cl_hal *hal, uint32_t id, cl_key_type type, cl_key_storage storage) {
     uint8_t m[40];
     uint32_t len = type == CL_KEY_AES128 ? 16u : 32u;

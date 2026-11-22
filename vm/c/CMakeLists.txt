@@ -1,6 +1,6 @@
 # The CardLang VM in portable C11.
 #
-# Built with two compilers, both warning-free: MSVC, and clang from llvm-mingw (cmake/llvm-mingw-x86_64.cmake).
+# Built with two compilers, both warning-free: MSVC, and a MinGW-w64 clang such as llvm-mingw's.
 # Use vm/c/build.py, which sets up either toolchain, rather than calling CMake directly.
 cmake_minimum_required(VERSION 3.25)
 project(cardlang_vm VERSION 1.0 LANGUAGES C)

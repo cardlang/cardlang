@@ -111,7 +111,7 @@ A global's `kind`:
 - 3, a constant scalar, whose last field is its value.
 
 A row applies from its code offset up to the next row's. A statement that emits no code, because it is unreachable (V-35), has no row. The tools use the section in three ways:
-- the prototype VM's card reports a trap with its statement's position;
+- the Python VM's card reports a trap with its statement's position;
 - `clc disasm` shows source lines and variable scopes;
 - the debugger sets breakpoints and reads variables through it.
 

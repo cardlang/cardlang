@@ -1,4 +1,4 @@
-"""The `pyvm` backend of the harness (V-10): compile a program, load it into a prototype VM over the test HAL, and
+"""The `pyvm` backend of the harness (V-10): compile a program, load it into the Python VM over the test HAL, and
 offer the scenario steps of src/cardlang/harness/README.md. This module plays the platform: it owns the buffers, the main
 loop's calls into the VM (VEX-45) and the lifecycle state the platform reports.
 """

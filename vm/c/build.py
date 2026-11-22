@@ -1,18 +1,17 @@
-"""Configure and build the C VM with both toolchains: MSVC and clang from llvm-mingw.
+"""Configure and build the C VM with both toolchains: MSVC, and a MinGW-w64 clang.
 
 Run with the project's uv environment, from the repository root:
     uv run python -I vm/c/build.py [msvc | clang | all] [--clean]
 
 - MSVC is found with vswhere, and its environment is taken from vcvars64.bat. CMake and Ninja are Visual Studio's.
-- llvm-mingw is the folder named by CARDLANG_LLVM_MINGW, or the newest `llvm-mingw-*` folder next to the
-  repository. It is driven by cmake/llvm-mingw-x86_64.cmake, with the global CMake and Ninja from the PATH,
-  and needs no Visual Studio.
+- clang is `x86_64-w64-mingw32-clang` from the PATH, or the compiler named by CC. It must target 64-bit Windows,
+  because the harness loads the VM's library into 64-bit Python. llvm-mingw provides it: put its `bin` folder on
+  the PATH. CMake and Ninja come from the PATH too, and no Visual Studio is needed.
 - Build trees go to vm/c/build/<toolchain>, which git ignores.
 """
 import os, sys, json, shutil, pathlib, subprocess
 
 HERE = pathlib.Path(__file__).resolve().parent
-REPO = HERE.parents[1]
 INSTALLER = pathlib.Path(r"C:\Program Files (x86)\Microsoft Visual Studio\Installer")
 
 def fail(msg):
@@ -40,12 +39,12 @@ def msvc_environment(vs):
     if not shutil.which("cl", path=env_path(result)): fail("vcvars64.bat did not put cl on the path")
     return result
 
-def llvm_mingw():
-    root = os.environ.get("CARDLANG_LLVM_MINGW")
-    if root: return pathlib.Path(root)
-    candidates = sorted(p for p in REPO.parent.glob("llvm-mingw-*") if p.is_dir())
-    if not candidates: fail("llvm-mingw not found: set CARDLANG_LLVM_MINGW")
-    return candidates[-1]
+def clang_compiler(env):
+    """The C compiler of the clang build: CC, or the MinGW-w64 clang that targets 64-bit Windows, from the PATH."""
+    cc = env.get("CC") or "x86_64-w64-mingw32-clang"
+    if not shutil.which(cc, path=env_path(env)):
+        fail(f"{cc} not found on the PATH: put a MinGW-w64 clang for 64-bit Windows on the PATH (llvm-mingw's bin folder), or set CC")
+    return cc
 
 def env_path(env):
     return next((v for k, v in env.items() if k.upper() == "PATH"), "")
@@ -77,8 +76,8 @@ def run(cmd, env):
     if r.returncode != 0: fail(f"failed: {cmd[0]} (exit {r.returncode})")
 
 def build(name, clean):
-    # MSVC: Visual Studio's environment, which also carries its CMake and Ninja. clang: no Visual Studio at all, but the
-    # global CMake and Ninja (installed by the user, 2026-11-21).
+    # MSVC: Visual Studio's environment, which also carries its CMake and Ninja. clang: no Visual Studio at all, but
+    # CMake, Ninja and the compiler from the PATH.
     env = msvc_environment(visual_studio()) if name == "msvc" else system_environment()
     tree = HERE / "build" / name
     if clean and tree.exists(): shutil.rmtree(tree)
@@ -86,7 +85,7 @@ def build(name, clean):
     if name == "msvc":
         args += ["-DCMAKE_C_COMPILER=cl"]
     else:
-        args += [f"-DCMAKE_TOOLCHAIN_FILE={HERE / 'cmake' / 'llvm-mingw-x86_64.cmake'}", f"-DLLVM_MINGW_ROOT={llvm_mingw().as_posix()}"]
+        args += [f"-DCMAKE_C_COMPILER={clang_compiler(env)}"]
     run(args, env)
     run(["cmake", "--build", tree], env)
 

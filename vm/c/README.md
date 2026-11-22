@@ -14,7 +14,7 @@ This builds with both toolchains. Build trees go to `vm/c/build/<toolchain>/`, w
 
 The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) from its GitHub releases into `vm/c/build/downloads/`, and checks it against the SHA-256 the release publishes. Both build trees share that one archive.
 - **`msvc`:** MSVC from the newest Visual Studio, found with `vswhere`, with Visual Studio's CMake and Ninja.
-- **`clang`:** clang from llvm-mingw, targeting 64-bit Windows (`cmake/llvm-mingw-x86_64.cmake`), with the global CMake and Ninja from the `PATH`. It needs no Visual Studio. `build.py` refreshes the `PATH` from the registry, so tools installed after the shell started are found. The folder is `CARDLANG_LLVM_MINGW`, or else the newest `llvm-mingw-*` next to the repository.
+- **`clang`:** `x86_64-w64-mingw32-clang`, a clang that targets 64-bit Windows, with CMake and Ninja, all from the `PATH`. [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) provides it: put its `bin` folder on the `PATH`. `CC` names another compiler. It needs no Visual Studio. `build.py` refreshes the `PATH` from the registry, so tools installed after the shell started are found.
 
 ## Rules
 

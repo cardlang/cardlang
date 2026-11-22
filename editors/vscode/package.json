@@ -187,7 +187,7 @@
             "cvm-clang"
           ],
           "enumDescriptions": [
-            "The prototype VM, in Python",
+            "The Python VM",
             "The reference interpreter",
             "The C VM, MSVC build (build it first with vm/c/build.py)",
             "The C VM, clang build (build it first with vm/c/build.py)"
@@ -290,7 +290,7 @@
         "configurationSnippets": [
           {
             "label": "CardLang: Debug a scenario",
-            "description": "Run a scenario file against its applet on the prototype VM",
+            "description": "Run a scenario file against its applet on the Python VM",
             "body": {
               "type": "cardlang",
               "request": "launch",

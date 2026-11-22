@@ -1,6 +1,6 @@
 """The `cvm-msvc` and `cvm-clang` backends of the harness: the C VM, driven through cffi.
 
-A program is compiled by the prototype compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
+A program is compiled by the compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
 built by vm/c/build.py loads through the shared library cvm.dll (vm/c/test/cvm.c). The card interface is that of
 src/cardlang/harness/README.md, so scenarios and the applet checks run unchanged. Build the library first:
     uv run python -I vm/c/build.py all

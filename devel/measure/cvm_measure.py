@@ -14,7 +14,7 @@ Run with the project's uv environment, from the repository root, after `vm/c/bui
 4. Speed, for scale only: vm/c/test/bench.card, a loop without natives, so the budget used is the number of
    instructions executed. The same program on the prototype VM gives the ratio.
 """
-import sys, re, json, time, pathlib, subprocess, collections
+import sys, re, json, time, shutil, pathlib, subprocess, collections
 
 from cardlang import layout
 HERE = layout.at().vm_c            # the C VM, which this script measures (the script moved to devel/measure in PR2)
@@ -159,5 +159,8 @@ def speed():
     return out
 
 if __name__ == "__main__":
-    root = build.llvm_mingw()
+    env = build.system_environment()                     # the toolchain is the one the clang build uses, from the PATH
+    cc = shutil.which(env.get("CC") or "x86_64-w64-mingw32-clang", path=env["PATH"])
+    if not cc: sys.exit("cvm_measure: put llvm-mingw's bin folder on the PATH")
+    root = pathlib.Path(cc).parent.parent
     print(json.dumps({"host": host(root), "cross": cross(root), "speed": speed()}, indent=1))

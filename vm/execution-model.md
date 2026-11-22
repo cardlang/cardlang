@@ -246,7 +246,7 @@ Session state, persistent writes outside a transaction, and other resources are 
 
 *Serves: V-2.*
 
-**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. Measured for the C VM: 252 bytes on 32-bit targets, of which 128 are the bounce buffer (V-22), and 296 on 64-bit hosts. The prototype's context was 216 bytes.
+**VEX-50 The bound.** `sizeof(cl_vm)` is at most 1 KiB on every target. Measured for the C VM: 252 bytes on 32-bit targets, of which 128 are the bounce buffer (V-22), and 296 on 64-bit hosts. The Python VM's context is 216 bytes.
 *Serves: V-2, V-12.*
 
 ## 12. What the HAL must provide

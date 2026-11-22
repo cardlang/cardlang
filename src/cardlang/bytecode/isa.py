@@ -1,4 +1,4 @@
-"""Bytecode version 0: the instruction table shared by the prototype compiler, VM and disassembler.
+"""The bytecode's instruction table, shared by the compiler, the Python VM and the disassembler.
 
 The authority is vm/bytecode.md. Each entry is: mnemonic -> (opcode, operand kinds), with the kinds of BC-2:
     T type code   R region tag   C error category   O byte order

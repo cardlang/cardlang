@@ -1,4 +1,4 @@
-"""The prototype CardLang VM: executes version-0 images (vm/bytecode.md) as the C VM will.
+"""The Python CardLang VM: executes bytecode images (vm/bytecode.md) as the C VM does.
 
 All of the VM's own mutable state is in one context object, Ctx, whose fields have declared C sizes (V-31). The
 interpreter is a set of functions over that context; it keeps no other state. Regions (SESSION, STACK, REQUEST,

@@ -37,7 +37,7 @@ BACKENDS = {
     "interp": _interp,          # the reference interpreter (src/cardlang/interp/interp.py)
     "pyvm": _pyvm,        # the compiler and the Python VM (cardlang.pyvm)
     "cvm-msvc": _cvm("msvc"),   # the C VM built with MSVC (vm/c/), through cffi
-    "cvm-clang": _cvm("clang"), # the C VM built with clang from llvm-mingw
+    "cvm-clang": _cvm("clang"), # the C VM built with a MinGW-w64 clang
 }
 
 def build(name, files, binding=None):

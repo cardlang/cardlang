@@ -2,7 +2,7 @@
 
 This folder holds how CardLang was built: the work-package plans, the reports written along the way, and the scripts used to produce and measure things. None of it is needed to use the language or its tools. It is kept as the record of why things are the way they are, and of how they were checked.
 
-**Paths are as of writing.** A plan or report names files where they were when it was written, and some have moved since. The link check (`tests/linkcheck.py`) resolves those old paths through the table of moves in `src/cardlang/layout.py`, so every reference is still checked; the table also says where each file went.
+**Paths are as of writing.** A plan or report names files where they were when it was written, and some have moved since. The link check (`tests/linkcheck.py`) therefore does not check the file paths named in this folder, only its links.
 
 | Folder | What is in it |
 |---|---|

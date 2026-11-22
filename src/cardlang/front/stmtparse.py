@@ -1,4 +1,4 @@
-"""The statement parser shared by the reference interpreter and the prototype compiler.
+"""The statement parser shared by the reference interpreter and the compiler.
 
 Statements become tuples; expressions come from the checkers' expression parser (expcheck.p_expr). The parser
 assumes a program the checkers have accepted, so it reports no errors of its own beyond CE-SYN-1 from expcheck.

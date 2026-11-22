@@ -1,4 +1,4 @@
-"""The prototype CardLang compiler: a checked program to a version-0 image (vm/bytecode.md, vm/image-format.md).
+"""The CardLang compiler: a checked program to a bytecode image (vm/bytecode.md, vm/image-format.md).
 
 Stages: accept (pltcheck) -> parse and type (typer.py) -> lay out -> generate -> emit. Constants are folded; nothing
 else is optimised (V-32). Usage:

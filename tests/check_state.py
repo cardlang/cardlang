@@ -1,4 +1,4 @@
-"""V-31: the prototype VM keeps all of its own mutable state in its context (vm.Ctx), and nowhere else.
+"""V-31: the Python VM keeps all of its own mutable state in its context (vm.Ctx), and nowhere else.
 
 Checks, while every runtime scenario runs on the pyvm backend:
 1. Ctx has __slots__ only (no per-instance dictionary), so no field can be added at run time;

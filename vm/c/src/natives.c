@@ -1,7 +1,7 @@
 /*
  * natives.c - the native library (HAL-3): the catalog APIs as NATIVE n executes them (vm/bytecode.md section 5).
  *
- * A port of the prototype src/cardlang/pyvm/natives.py, check for check, so that both give identical outcomes. It does
+ * A port of the Python VM's src/cardlang/pyvm/natives.py, check for check, so that both give identical outcomes. It does
  * no cryptography (HAL-1): it takes the arguments off the operand stack (BC-34), resolves identifiers in the single
  * identifier space (PLT-20), keeps the operation table with its lifetimes (BP-14, BP-31), applies the profile's
  * checks in the error precedence of BP-8, and hands views to the HAL as descriptors (HAL-11, HAL-12). CBOR, BER-TLV
