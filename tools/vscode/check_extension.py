@@ -1,4 +1,4 @@
-"""Consistency checks of the VS Code extension's static parts (TL1 step 3), run by tools/run_checks.py.
+"""Consistency checks of the VS Code extension's static parts (TL1 step 3), run by tests/run_checks.py.
 
 - Every JSON file of the extension parses.
 - The grammar's keywords are exactly the lexer's (src/cardlang/front/lexcheck.py KEYWORDS), and its intrinsics exactly

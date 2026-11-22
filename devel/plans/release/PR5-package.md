@@ -180,3 +180,42 @@ Each stage is one commit, ends with `run_checks` passing, and updates `layout`, 
 - **Scripts:**
   - the 33 generators and history scripts, and `revision.py`, run against a copy as before;
   - both measurement scripts run.
+
+## 10. Done: stage 5d, and PR5 (2026-11-22)
+
+- **Moved with `git mv`:**
+  - `tools/clc.py` to `src/cardlang/cli.py`;
+  - `tools/lsp/jsonrpc.py` to `src/cardlang/jsonrpc.py`;
+  - `cardlang_lsp.py`, `complete.py` and `semantic.py` to `src/cardlang/lsp/`, as `server.py`, `complete.py` and `semantic.py`;
+  - `tools/dap/cardlang_dap.py` to `src/cardlang/dap/adapter.py`;
+  - `clc_check`, `lsp_check`, `semantic_check` (with `testdata/`), `dap_check` and `run_checks.py` to `tests/`;
+  - `tools/README.md` to `src/cardlang/README.md`.
+- **The commands:**
+  - `[project.scripts]` installs `clc` (`cardlang.cli:entry`), `cardlang-lsp` (`cardlang.lsp.server:main`) and `cardlang-dap` (`cardlang.dap.adapter:main`);
+  - each was checked by `uv run`: `clc check` and `clc run` work, and both servers answer `initialize`.
+- **The launchers (S2):**
+  - `tools/clc.py`, `tools/lsp/cardlang_lsp.py` and `tools/dap/cardlang_dap.py` are now each a few lines that call the package;
+  - each says that the installed extension (0.1.1) runs it and that PR6 removes it;
+  - all three were checked: `clc run` passes a scenario, including with the old backend name, and both servers answer `initialize`.
+- **The checks:**
+  - they start the servers and `clc` as modules: `-m cardlang.lsp.server`, `-m cardlang.dap.adapter` and `-m cardlang.cli`;
+  - `semantic_check` loads `lsp_check`'s client from the file beside it, because `python -I` does not put a script's folder on `sys.path`;
+  - `debug_check` and `example_scenarios` had built paths into `tools/` through `layout.tools`, which the link check's rule does not see. They now use `layout.tests` and `-m cardlang.cli`.
+- **Documents:**
+  - `src/cardlang/README.md` now describes the package: its modules, its commands, and how to run everything;
+  - `tests/README.md` is new, and lists every check;
+  - the readme's layout table has rows for `src/cardlang/`, `tests/` and `tools/vscode/`;
+  - the examples' READMEs use `uv run clc`;
+  - every `tools/run_checks.py` became `tests/run_checks.py`, through `MOVED`.
+- **Checks:**
+  - `run_checks`, now at `tests/run_checks.py`, passes all 51 runs with the same counts;
+  - the link check passes;
+  - the 33 generators and history scripts and `revision.py` run against a copy as before, and both measurement scripts run.
+
+**PR5's "done when", checked:**
+- `tools/` holds only `vscode/` and the three launchers.
+- `uv sync` installs `cardlang`.
+- The three commands run.
+- No file in `src/`, `tests/` or `examples/` edits `sys.path`. In `devel/`, only `cvm_measure.py` does, to import the C VM's `build.py`.
+- `run_checks` passes.
+- The extension's paths still work, through the launchers. Not checked: the extension itself, opened in VS Code.

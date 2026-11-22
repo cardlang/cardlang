@@ -23,7 +23,6 @@ The kinds are VS Code's standard token types, so every colour theme colours them
 | a Base Profile type or member (KeySpec, KeyType.Aes128) | struct, enum, enumMember | defaultLibrary |
 """
 import sys, pathlib
-HERE = pathlib.Path(__file__).resolve().parent
 from cardlang.front.lexcheck import lex, LexError
 from cardlang import layout
 from cardlang.front import expcheck

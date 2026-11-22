@@ -1,23 +1,22 @@
-"""A scripted session with the CardLang debug adapter (TL1 step 5), run by tools/run_checks.py.
+"""A scripted session with the CardLang debug adapter (TL1 step 5), run by tests/run_checks.py.
 
-Starts tools/dap/cardlang_dap.py as VS Code would, and debugs two runtime tests:
+Starts the debug adapter, cardlang.dap.adapter, as VS Code would, and debugs two runtime tests:
 - run-012 (the wallet): a breakpoint in `credit` (line 57) is hit on the scenario's credit command (line 11); the
   stack is credit <- process <- the scenario step; `amount` is 1000 and the globals are readable; step over
   reaches line 58 with `updated` in scope; step in reaches the `Ok` arm (line 60); step out returns to `process`;
   with the breakpoint removed, the scenario runs to its end and passes.
 - run-001 (integer traps): the overflow stops as an exception on line 16, before the VM cleans up, so `a` is
   still 255; continuing finishes the scenario.
-Usage: uv run python -I tools/dap/dap_check.py .
+Usage: uv run python -I tests/dap_check.py .
 """
 import sys, json, pathlib, subprocess, queue, time
 HERE = pathlib.Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "lsp"))
-import jsonrpc
+from cardlang import jsonrpc
 from cardlang import layout
 
 class Client:
     def __init__(self, repo):
-        self.p = subprocess.Popen([sys.executable, "-I", str(HERE / "cardlang_dap.py")], stdin=subprocess.PIPE,
+        self.p = subprocess.Popen([sys.executable, "-I", "-m", "cardlang.dap.adapter"], stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=repo)
         self.ch = jsonrpc.Channel(self.p.stdout, self.p.stdin); self.q = jsonrpc.reader_thread(self.ch)
         self.seq = 1; self.events = []; self.output = []

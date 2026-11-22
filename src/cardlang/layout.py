@@ -144,6 +144,20 @@ MOVED = [
     ("tools/interp", "src/cardlang/interp"),
     ("tools/vmproto", "src/cardlang/pyvm"),
     ("tools/harness", "src/cardlang/harness"),
+    # PR5d: the language server, the debug adapter, the command line, and the checks of the tools into tests/
+    ("tools/clc.py", "src/cardlang/cli.py"),
+    ("tools/lsp/jsonrpc.py", "src/cardlang/jsonrpc.py"),
+    ("tools/lsp/cardlang_lsp.py", "src/cardlang/lsp/server.py"),
+    ("tools/lsp/complete.py", "src/cardlang/lsp/complete.py"),
+    ("tools/lsp/semantic.py", "src/cardlang/lsp/semantic.py"),
+    ("tools/dap/cardlang_dap.py", "src/cardlang/dap/adapter.py"),
+    ("tools/lsp/lsp_check.py", "tests/lsp_check.py"),
+    ("tools/lsp/semantic_check.py", "tests/semantic_check.py"),
+    ("tools/lsp/testdata", "tests/testdata"),
+    ("tools/dap/dap_check.py", "tests/dap_check.py"),
+    ("tools/clc_check.py", "tests/clc_check.py"),
+    ("tools/run_checks.py", "tests/run_checks.py"),
+    ("tools/README.md", "src/cardlang/README.md"),
 ]
 
 def moved(path):

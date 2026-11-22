@@ -1,18 +1,43 @@
-# Specification tools
+# The `cardlang` package
 
-These scripts support the CardLang specification work. They are not a compiler, and they are not normative: when a script and `language/spec/` disagree, the specification wins, and the script is the thing to fix.
+The CardLang toolchain in Python: the front end, the compiler, the reference interpreter, the Python VM, the harness, the command line, the language server and the debug adapter. None of it is normative: when the package and `language/spec/` disagree, the specification wins, and the package is the thing to fix.
 
-All scripts need only Python 3 and its standard library.
+It is installed, editable, into the repository's uv environment by `uv sync`, and it works from a checkout of the repository: `cardlang.layout` finds the specification, the conformance suite and the Base Profile there. Its one dependency is `cffi`, for the C VM.
+
+| Module | What it is |
+|---|---|
+| `layout` | Where the repository's parts are. Every path into the repository goes through it |
+| `front/` | The lexer, the reference checker of each chapter, the Annex A grammar, and `diagnose`, which runs them all and reports errors with positions |
+| `platform/` | The host side of the Base Profile: the `CardError` codes, and the test-only crypto, CBOR and TLV |
+| `bytecode/` | The instruction set, the debug section and the disassembler |
+| `compiler/` | The typer and the code generator. `compile_files` refuses a program that `diagnose` rejects |
+| `interp/` | The reference interpreter |
+| `pyvm/` | The Python VM, its test HAL and natives, and the card that the harness drives |
+| `harness/` | The scenario runner and the backends: `interp`, `pyvm`, `cvm-msvc` and `cvm-clang` (see its [README](harness/README.md)) |
+| `cli` | `clc`: check, build, disassemble, and run a scenario |
+| `lsp/`, `dap/`, `jsonrpc` | The language server and the debug adapter, and the protocol framing they share |
+
+## Commands
+
+`uv sync` installs three commands into the environment:
+
+```bash
+uv run clc check examples/fido2
+uv run clc build examples/fido2
+uv run clc run examples/fido2/getinfo.scenario --backend pyvm
+```
+
+`cardlang-lsp` and `cardlang-dap` are the language server and the debug adapter, which the editor starts. Any module with its own entry runs as `uv run python -I -m cardlang.<module>`.
 
 ## Run everything
 
 From the repository root:
 
 ```bash
-python -I tools/run_checks.py
+uv run python -I tests/run_checks.py
 ```
 
-It runs every checker over the conformance tests it covers. It prints one line per run and exits non-zero if any test does not give its expected result. Run it after every change to `language/spec/` or `language/conformance/`.
+It runs every checker over the conformance tests it covers, and every check of the tools. It prints one line per run and exits non-zero if any test does not give its expected result. Run it after every change. The checks are described in [`tests/README.md`](../../tests/README.md).
 
 ## The reference checkers: `src/cardlang/front/`
 
@@ -56,7 +81,7 @@ uv run python -I tests/speccheck.py .
 - On some malformed input the checkers stop with a Python assertion instead of reporting CE-SYN-1. `grammar.py` is the authority for CE-SYN-1.
 - The full chain does not report an unresolved type name in a global declaration, such as `session big: u64;`. `typecheck.py` does, and it checks the `typ-*` tests.
 
-## `interp/`: reference interpreter
+## `interp/`: the reference interpreter
 
 `interp.py` runs the runtime tests in `language/conformance/runtime/`. For each test it does three things:
 
@@ -82,9 +107,9 @@ It is not normative and not optimized. Its execution budget is a fixed number of
 
 ## The example applets' checks
 
-Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `tests/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../examples/README.md).
+Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `tests/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../../examples/README.md).
 
 ## Development aids
 
-The conformance-test generators, the one-off history scripts and the measurement scripts are in [`devel/`](../devel/README.md), with the plans and reports.
+The conformance-test generators, the one-off history scripts and the measurement scripts are in [`devel/`](../../devel/README.md), with the plans and reports.
 

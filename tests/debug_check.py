@@ -1,11 +1,11 @@
-"""Checks of the images' debug information (TL1 step 4; vm/image-format.md IMG-10), run by tools/run_checks.py.
+"""Checks of the images' debug information (TL1 step 4; vm/image-format.md IMG-10), run by tests/run_checks.py.
 
 1. Debug information never changes the code: with it on and off, every program's functions, imports, constants
    and code are byte-identical.
 2. Every statement of every program has a line-table row, unless it is unreachable and emits no code (V-35).
    Every row names one of the program's files, at a line that exists.
 3. Every image's debug section decodes completely, and every variable's scope lies inside its function's code.
-4. The sample tools/lsp/testdata/semantic-sample.card has exactly its declared parameters and locals, with their
+4. The sample tests/testdata/semantic-sample.card has exactly its declared parameters and locals, with their
    types, and a breakpoint offset for each statement line.
 5. Traps report their statement: run-001's overflow and underflow, on lines 16 and 20.
 Usage: uv run python -I tests/debug_check.py .
@@ -66,7 +66,7 @@ def main(repo):
     check("every reachable statement has a line-table row", missing == 0, f"{statements} statements, {missing} without a row")
     check("every row names an existing line of a program file", bad_rows == 0, f"{bad_rows} bad rows")
     check("every debug section decodes; scopes lie inside their functions", bad_scopes == 0, f"{decoded} images, {bad_scopes} bad scopes")
-    sample = layout.at(repo).tools / "lsp" / "testdata" / "semantic-sample.card"
+    sample = layout.at(repo).tests / "testdata" / "semantic-sample.card"
     c = compiler.compile_files([sample]); info = debuginfo.DebugInfo.of(c.image)
     got = sorted((info.functions[v["function"]], v["name"], info.type_name(v["type"]), v["kind"], v["param"]) for v in info.vars)
     want = sorted([("add", "values", "u8[]", "view", True), ("add", "extra", "u32", "frame", True),

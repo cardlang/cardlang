@@ -2,7 +2,7 @@
 
 Usage (from the repository root), after building the C VM:
     uv run python -I vm/c/build.py all
-    uv run python -I tools/run_checks.py
+    uv run python -I tests/run_checks.py
 
 Exit status 0 means every test produced its expected result.
 """
@@ -37,11 +37,11 @@ RUNS = [
     ("cardlang.front.pltcheck", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
     # Diagnostics with source positions (TL1): the front end the language server and `clc` use.
     ("tests/poscheck.py", None, "diagnostics: valid programs clean; every error with its code at a position (TL1)"),
-    ("tools/clc_check.py", None, "clc: check, build, disasm and run on the applets and scenarios (TL1)"),
+    ("tests/clc_check.py", None, "clc: check, build, disasm and run on the applets and scenarios (TL1)"),
     ("tests/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code (TL1)"),
-    ("tools/lsp/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
-    ("tools/lsp/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
-    ("tools/dap/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
+    ("tests/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
+    ("tests/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
+    ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
     ("tools/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
     # References stay correct (PR1): links, anchors and named files in every document; paths only through layout.
     ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout (PR1)"),

@@ -16,4 +16,4 @@ Each folder is self-contained:
 - **`check.py`:** an independent check, which runs a session and checks every response with code of its own, without reusing the applet's logic;
 - **a README:** what it implements and leaves out, its files, and how to check, build, run and debug it.
 
-`tools/run_checks.py` finds every `examples/*/check.py` and every `examples/*/*.scenario`, and runs them on every backend: the reference interpreter, the Python VM, and the C VM built with MSVC and with clang. A new example is checked as soon as its folder holds these files.
+`tests/run_checks.py` finds every `examples/*/check.py` and every `examples/*/*.scenario`, and runs them on every backend: the reference interpreter, the Python VM, and the C VM built with MSVC and with clang. A new example is checked as soon as its folder holds these files.

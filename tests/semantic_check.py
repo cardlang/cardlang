@@ -1,16 +1,14 @@
-"""Checks of semantic colouring (TL1 step 3b), run by tools/run_checks.py.
+"""Checks of semantic colouring (TL1 step 3b), run by tests/run_checks.py.
 
 1. Every identifier of both applets and of every runtime test gets a kind.
-2. The sample tools/lsp/testdata/semantic-sample.card is classified exactly as pinned below, reviewed by hand
+2. The sample tests/testdata/semantic-sample.card is classified exactly as pinned below, reviewed by hand
    (2026-11-21): every kind and modifier the server produces.
 3. Through the language server: a semanticTokens/full request returns the same tokens, in the LSP's encoding.
-Usage: uv run python -I tools/lsp/semantic_check.py .
+Usage: uv run python -I tests/semantic_check.py .
 """
 import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE,):
-    if str(d) not in sys.path: sys.path.insert(0, str(d))
-import semantic
+from cardlang.lsp import semantic
 from cardlang.front import project
 from cardlang.front.lexcheck import lex
 from cardlang import layout
@@ -138,7 +136,7 @@ def main(repo):
     d = semantic.definition(ctap, texts, ln, cl[ln].index("client_pin"))
     check("go to definition across files", len(d) == 1 and pathlib.Path(d[0][0]).name == "pin.card"
           and "function client_pin" in texts[d[0][0]].splitlines()[d[0][1]], str(d))
-    import complete
+    from cardlang.lsp import complete
     def comp(src, extra=None):
         texts = {"x.card": src, **(extra or {})}; return complete.completions("x.card", texts, 0, len(src))
     labels = [i["label"] for i in comp("    var n: u32 = attempt card.")]
@@ -159,7 +157,9 @@ def main(repo):
     got = {o: [i["label"] for i in comp(f"x = {o}.", {str(SAMPLE): text})] for o in ("Mode", "AppError", "KeyType", "CardError")}
     check("completion: members of the program's and the Base Profile's enums and error sets",
           got["Mode"] == ["Idle", "Active"] and got["AppError"] == ["Busy"] and "EcP256Private" in got["KeyType"] and len(got["CardError"]) == 11, got)
-    from lsp_check import Client
+    import importlib.util                                   # the editor-session client of lsp_check, beside this file
+    spec = importlib.util.spec_from_file_location("lsp_check", pathlib.Path(__file__).with_name("lsp_check.py"))
+    lsp_check = importlib.util.module_from_spec(spec); spec.loader.exec_module(lsp_check); Client = lsp_check.Client
     c = Client(repo)
     c.request("initialize", {"processId": None, "rootUri": repo.as_uri(), "capabilities": {}})
     uri = SAMPLE.resolve().as_uri()

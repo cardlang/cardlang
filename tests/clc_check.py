@@ -1,13 +1,13 @@
-"""Checks of tools/clc.py (TL1 step 2), run by tools/run_checks.py.
+"""Checks of clc, cardlang.cli (TL1 step 2), run by tests/run_checks.py.
 
 Each check runs clc as a subprocess, as the extension will, and looks at its exit status and output.
-Usage: uv run python -I tools/clc_check.py .
+Usage: uv run python -I tests/clc_check.py .
 """
 import sys, subprocess, pathlib, tempfile, json, shutil
 from cardlang import layout
 
 def clc(repo, *args):
-    r = subprocess.run([sys.executable, "-I", str(layout.at(repo).tools / "clc.py"), *args], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-I", "-m", "cardlang.cli", *args], capture_output=True, text=True,
                        encoding="utf-8", errors="replace", cwd=repo)
     return r.returncode, r.stdout + r.stderr
 

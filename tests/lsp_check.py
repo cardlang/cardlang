@@ -1,22 +1,21 @@
-"""A scripted session with the CardLang language server (TL1 step 3), run by tools/run_checks.py.
+"""A scripted session with the CardLang language server (TL1 step 3), run by tests/run_checks.py.
 
-Starts tools/lsp/cardlang_lsp.py as the editor would, then:
+Starts the language server, cardlang.lsp.server, as the editor would, then:
 1. opens a file of the FIDO2 applet: every file of the program gets an empty diagnostics list;
 2. edits it, without saving, to mix two operators: CE-EXP-4 appears in that file, on the edited line;
 3. undoes the edit: the diagnostic is cleared;
 4. opens an invalid conformance fragment on its own: its error is reported with its code;
 5. shuts the server down cleanly.
-Usage: uv run python -I tools/lsp/lsp_check.py .
+Usage: uv run python -I tests/lsp_check.py .
 """
 import sys, json, pathlib, subprocess, threading, queue, time
 HERE = pathlib.Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-import jsonrpc
+from cardlang import jsonrpc
 from cardlang import layout
 
 class Client:
     def __init__(self, repo):
-        self.p = subprocess.Popen([sys.executable, "-I", str(HERE / "cardlang_lsp.py")], stdin=subprocess.PIPE,
+        self.p = subprocess.Popen([sys.executable, "-I", "-m", "cardlang.lsp.server"], stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=repo)
         self.ch = jsonrpc.Channel(self.p.stdout, self.p.stdin); self.q = jsonrpc.reader_thread(self.ch); self.next = 1
     def request(self, method, params):

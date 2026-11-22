@@ -107,10 +107,10 @@ Tests that call platform APIs use the **test-only catalog** in `platform/test-ca
 The reference checkers, the front end in `src/cardlang/front/`, verify the compile-time tests against the rules of chapters 2–12. `grammar.py` checks every test against the Annex A grammar, and it is the authority for CE-SYN-1. The reference interpreter in `src/cardlang/interp/` runs the runtime tests. Run them all from the repository root:
 
 ```bash
-python -I tools/run_checks.py
+uv run python -I tests/run_checks.py
 ```
 
-See `tools/README.md` for details and known limitations.
+See `src/cardlang/README.md` for details and known limitations.
 
 ## Relation to the specification
 

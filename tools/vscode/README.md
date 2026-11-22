@@ -155,14 +155,14 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 | Part | Where |
 |---|---|
 | The extension: grammars, snippets, commands, the language client and the debugger contribution | `tools/vscode/` (plain JavaScript, using `vscode-languageclient`) |
-| The language server: diagnostics, semantic tokens, definitions and completion | `tools/lsp/cardlang_lsp.py`, `semantic.py`, `complete.py` |
-| The debug adapter | `tools/dap/cardlang_dap.py` |
-| The JSON-RPC framing both use | `tools/lsp/jsonrpc.py` |
-| The command line | `tools/clc.py` |
+| The language server: diagnostics, semantic tokens, definitions and completion | `cardlang.lsp`: `server.py`, `semantic.py`, `complete.py` |
+| The debug adapter | `cardlang.dap.adapter` |
+| The JSON-RPC framing both use | `src/cardlang/jsonrpc.py` |
+| The command line | `cardlang.cli`, the command `clc` |
 | Diagnostics with positions | `src/cardlang/front/diagnose.py` |
 | Debug information in images (IMG-10) | `src/cardlang/bytecode/debuginfo.py` |
 
-**The checks** are rows of `tools/run_checks.py`:
+**The checks** are rows of `tests/run_checks.py`:
 - `poscheck.py`: diagnostics and their positions;
 - `clc_check.py`: the command line;
 - `lsp_check.py` and `semantic_check.py`: the language server;

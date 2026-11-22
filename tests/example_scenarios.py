@@ -1,4 +1,4 @@
-"""Every example applet's scenarios pass (PR4 E2), run by tools/run_checks.py.
+"""Every example applet's scenarios pass (PR4 E2), run by tests/run_checks.py.
 
 Runs each `examples/*/*.scenario` through `clc run`, as the editor's Run Scenario does, on one backend, and prints
 PASS or FAIL for each. A scenario's program is its own folder, with its `cardlang.json`.
@@ -16,7 +16,7 @@ def main(argv):
     ok = bool(scenarios)
     if not scenarios: print("FAIL no example scenarios found")
     for sc in scenarios:
-        r = subprocess.run([sys.executable, "-I", str(L.tools / "clc.py"), "run", str(sc), "--backend", backend],
+        r = subprocess.run([sys.executable, "-I", "-m", "cardlang.cli", "run", str(sc), "--backend", backend],
                            capture_output=True, text=True, encoding="utf-8", errors="replace")
         name = sc.relative_to(L.root).as_posix()
         out = (r.stdout + r.stderr).strip().splitlines()

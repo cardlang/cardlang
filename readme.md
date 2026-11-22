@@ -73,9 +73,9 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`examples/`](examples/README.md) | The example applets, each self-contained, with its sources, scenarios, its own checker and a README: |
 | [`examples/fido2/`](examples/fido2/README.md) | a FIDO2 (CTAP 2.0) authenticator, with PIN protocols two and one |
 | [`examples/piv/`](examples/piv/README.md) | a PIV card application (NIST SP 800-73-5, contact-interface subset) |
-| [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
-| [`tools/clc.py`](tools/clc.py) | The command line: check, build, disassemble, and run a scenario |
-| [`tools/vscode/`](tools/vscode/README.md), `tools/lsp/`, `tools/dap/` | The VS Code extension, its language server and its debug adapter |
+| [`src/cardlang/`](src/cardlang/README.md) | The Python toolchain, one package installed by `uv sync`: the reference checkers (the front end), the compiler, the reference interpreter, the Python VM, the harness, the command line `clc`, the language server and the debug adapter |
+| [`tests/`](tests/README.md) | `run_checks.py`, and the checks of the tools and of the definition |
+| [`tools/vscode/`](tools/vscode/README.md) | The VS Code extension |
 | [`vm/`](vm/decisions.md) | The VM's design (execution model, HAL, bytecode, image format) and the C VM (`vm/c/`) |
 | [`devel/`](devel/README.md) | Development aids: the plans of plans and every work-package plan, measurement reports and findings, the conformance-test generators, and the history and measurement scripts |
 
@@ -93,7 +93,7 @@ The tools run in the repository's uv environment (`uv sync` once). The C VM is b
 
 ```bash
 uv run python -I vm/c/build.py all
-uv run python -I tools/run_checks.py
+uv run python -I tests/run_checks.py
 ```
 
 This runs every checker over the conformance tests it covers, the grammar check, the specification consistency check and the runtime scenarios. It exits non-zero on any failure. Run it after every change to `language/spec/` or `language/conformance/`. The tools are not normative: when a tool and `language/spec/` disagree, the specification wins.

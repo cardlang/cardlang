@@ -9,10 +9,7 @@ completions(target, texts, line, character) returns LSP CompletionItems for the 
   DigestAlgorithm and the rest), CardError, and the program's own.
 """
 import re, sys, pathlib
-HERE = pathlib.Path(__file__).resolve().parent
-for d in (HERE,):
-    if str(d) not in sys.path: sys.path.insert(0, str(d))
-import semantic
+from cardlang.lsp import semantic
 from cardlang.front import pltcheck
 from cardlang.front.lexcheck import lex, LexError
 from cardlang import layout

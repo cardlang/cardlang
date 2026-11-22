@@ -47,9 +47,9 @@ In the order of `cardlang.json`:
 From the repository root, in the uv environment:
 
 ```bash
-uv run python -I tools/clc.py check examples/piv
-uv run python -I tools/clc.py build examples/piv
-uv run python -I tools/clc.py run examples/piv/basic.scenario --backend pyvm
+uv run clc check examples/piv
+uv run clc build examples/piv
+uv run clc run examples/piv/basic.scenario --backend pyvm
 uv run python -I examples/piv/check.py . --backend interp
 ```
 
@@ -59,7 +59,7 @@ uv run python -I examples/piv/check.py . --backend interp
 
 ## The independent check
 
-`check.py` runs a host-side PIV session, 69 checks in all, and checks every response with code of its own, without reusing any of the applet's logic. It has a BER-TLV encoder and parser, and uses the interpreter's test-only AES and P-256 for the host's side of authentication, signature verification and ECDH. `tools/run_checks.py` runs it on all four backends, together with the scenario.
+`check.py` runs a host-side PIV session, 69 checks in all, and checks every response with code of its own, without reusing any of the applet's logic. It has a BER-TLV encoder and parser, and uses the interpreter's test-only AES and P-256 for the host's side of authentication, signature verification and ECDH. `tests/run_checks.py` runs it on all four backends, together with the scenario.
 
 ## Background
 

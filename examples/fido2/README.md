@@ -45,9 +45,9 @@ In the order of `cardlang.json`:
 From the repository root, in the uv environment:
 
 ```bash
-uv run python -I tools/clc.py check examples/fido2
-uv run python -I tools/clc.py build examples/fido2
-uv run python -I tools/clc.py run examples/fido2/getinfo.scenario --backend pyvm
+uv run clc check examples/fido2
+uv run clc build examples/fido2
+uv run clc run examples/fido2/getinfo.scenario --backend pyvm
 uv run python -I examples/fido2/check.py . --backend interp
 ```
 
@@ -65,7 +65,7 @@ uv run python -I examples/fido2/check.py . --backend interp
 - credentials surviving a security reset;
 - for each PIN protocol: setting and changing the PIN, getting a token, PIN-based UV, retries and blocking.
 
-`tools/run_checks.py` runs it on all four backends, together with the scenario.
+`tests/run_checks.py` runs it on all four backends, together with the scenario.
 
 ## Background
 
