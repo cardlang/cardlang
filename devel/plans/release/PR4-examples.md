@@ -55,9 +55,43 @@ Planned 2026-11-22, the fourth work package of PR0 (R6). Each example applet bec
 
 | ID | Question | Options | Recommendation |
 |---|---|---|---|
-| E1 | The checker's name in its folder | (a) keep it: `examples/fido2/check_fido2.py`, as PR0 says; (b) one name for all: `examples/fido2/check.py` | (a). The name says what it checks wherever it appears: in an editor tab, a traceback or `run_checks` output. The historical documents also name it so |
+| E1 | The checker's name in its folder | (a) keep it: `examples/fido2/check_fido2.py`, as PR0 says; (b) one name for all: `examples/fido2/check.py` | (a). The name says what it checks wherever it appears: in an editor tab, a traceback or `run_checks` output. The historical documents also name it so | <!-- linkcheck: ignore -->
 | E2 | Checking the scenarios | (a) every example scenario runs on every backend in `run_checks`; (b) leave them to the editor | (a). They are the example a new user runs first, so they should be known to pass. It costs a few seconds |
 | E3 | How `run_checks` finds the applets | (a) discovers `examples/*/check.py`, and runs each on every backend; (b) keeps listing them by hand | (a). It is what makes an example self-contained: drop in a folder and it is checked |
 | E4 | How much goes in each README | (a) a complete page as in §2 step 5, with the limits summarised from the findings; (b) a stub that links to the findings, filled in by PR7 | (a). The README is what a visitor reads first, and the findings report is a development record in `devel/` |
 
 **Decided (user, 2026-11-22):** E1 (b), one name for all: `check.py`. E2 (a), E3 (a) and E4 (a), as recommended. Because of E1, PR0's mention of `check_fido2.py` and `check_piv.py` becomes `check.py`, and `run_checks` labels each run with its applet's folder name.
+
+## 4. Done (2026-11-22)
+
+- **Moved with `git mv`:**
+  - `tools/fido/check_fido2.py` to `examples/fido2/check.py`;
+  - `tools/piv/check_piv.py` to `examples/piv/check.py`.
+
+  `tools/fido/` and `tools/piv/` are gone.
+- **The checkers:**
+  - they find `layout` with one bootstrap line, and the toolchain through it;
+  - their usage lines name their new paths;
+  - nothing else changed.
+- **`run_checks`:**
+  - it no longer lists the applets;
+  - `example_runs()` finds every `examples/*/check.py` and runs it on the four backends, labelled by its folder (`fido2/check.py`);
+  - the new `tools/harness/example_scenarios.py` runs every `examples/*/*.scenario` through `clc run`, on each backend;
+  - there are now 51 runs: the same 8 applet runs as before, now on all four backends with `interp` named explicitly, plus 4 scenario runs. All pass.
+  - Checked by mutation: a scenario with a wrong `expect` fails the scenario run.
+- **READMEs:**
+  - `examples/README.md`: the applets, and what an example folder holds;
+  - `examples/fido2/README.md` and `examples/piv/README.md`: what each implements and leaves out, its limits, its test defaults, its files, how to check, build, run and debug it, what its checker covers, and a link to its findings report.
+
+  The commands in them were run.
+- **References:**
+  - `layout.MOVED` has the two checkers, and the two folders, which map to their applets;
+  - the top-level readme's layout table has an `examples/` group;
+  - `tools/README.md` points to the examples in place of its `fido/` section;
+  - `vm/README.md` and `tools/harness/README.md` have the new paths, including in their command blocks, which the link check does not read.
+- **Left as they are:**
+  - `vm/decisions.md` (V-12, V-42) and the step table in `vm/c/README.md` name the checks `check_fido2` and `check_piv`, as decided and done at the time;
+  - `vm/README.md` still says the only backend is `interp`.
+
+  PR7's content cleanup takes these up.
+- **The link check passes,** with the same four historical INFO paths as before.

@@ -101,6 +101,11 @@ MOVED = [
     ("plans_and_notes/decision-register.md", "language/rationale/decision-register.md"),
     ("plans_and_notes/draft-0.2-release-notes.md", "language/releases/draft-0.2.md"),
     ("plans_and_notes/draft-0.2-candidates.md", "language/releases/draft-0.2-candidates.md"),
+    # PR4: each applet's checker into its applet
+    ("tools/fido/check_fido2.py", "examples/fido2/check.py"),
+    ("tools/piv/check_piv.py", "examples/piv/check.py"),
+    ("tools/fido", "examples/fido2"),
+    ("tools/piv", "examples/piv"),
 ]
 
 def moved(path):

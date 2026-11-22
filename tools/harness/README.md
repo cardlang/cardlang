@@ -10,7 +10,7 @@ python -I tools/harness/scenario.py . --backend interp
 ```
 
 ```bash
-python -I tools/fido/check_fido2.py . --backend interp
+python -I examples/fido2/check.py . --backend interp
 ```
 
 ## The backend interface

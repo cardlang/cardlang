@@ -70,8 +70,9 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`language/rationale/`](language/rationale/) | the design notes, the platform notes and the decision register, which the rules cite |
 | [`language/releases/`](language/releases/) | the Draft 0.2 release notes, and the candidates for Draft 0.3 |
 | [`platform/`](platform/base-profile.md) | The CardLang Base Profile 1, a platform specification separate from the language: API conventions, platform types (`base-types.card`), `CardError` codes, keys, crypto, CBOR, TLV, transport bindings and the API catalog (`base-catalog.txt`) |
-| [`examples/fido2/`](examples/fido2/) | A FIDO2 (CTAP 2.0) authenticator in CardLang, with PIN protocols two and one, checked by `tools/fido/check_fido2.py` |
-| [`examples/piv/`](examples/piv/) | A PIV card application (NIST SP 800-73-5, contact-interface subset), checked by `tools/piv/check_piv.py` |
+| [`examples/`](examples/README.md) | The example applets, each self-contained, with its sources, scenarios, its own checker and a README: |
+| [`examples/fido2/`](examples/fido2/README.md) | a FIDO2 (CTAP 2.0) authenticator, with PIN protocols two and one |
+| [`examples/piv/`](examples/piv/README.md) | a PIV card application (NIST SP 800-73-5, contact-interface subset) |
 | [`tools/`](tools/README.md) | Reference checkers for each chapter, an Earley grammar checker built from Annex A, a spec consistency checker, a reference interpreter for the runtime tests, and test generators |
 | [`tools/clc.py`](tools/clc.py) | The command line: check, build, disassemble, and run a scenario |
 | [`tools/vscode/`](tools/vscode/README.md), `tools/lsp/`, `tools/dap/` | The VS Code extension, its language server and its debug adapter |

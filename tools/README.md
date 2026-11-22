@@ -79,9 +79,9 @@ python -I tools/interp/interp.py .
 
 It is not normative and not optimized. Its execution budget is a fixed number of statements, enough for the tests. A deliberately wrong expectation makes it fail, which was checked when it was written: a missing rollback, a reversed assignment order and a cleared session each made their test fail.
 
-## `fido/`: the FIDO2 example check
+## The example applets' checks
 
-`check_fido2.py` builds `examples/fido2` with the full checker, the Annex A grammar and the ISO 7816 binding check. It runs a scripted CTAP session through the interpreter, and checks every response with its own CBOR codec and DER parser. Only the ECDSA verification comes from `interp/testcrypto.py`. It is part of `run_checks.py`.
+Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `harness/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../examples/README.md).
 
 ## Development aids
 

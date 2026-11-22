@@ -4,17 +4,18 @@ Builds examples/fido2 with the full checker and the ISO 7816 binding check (BP-5
 session through the reference interpreter, and checks every response with code of its own: a CBOR codec, a DER
 parser, and ECDSA verification from tools/interp/testcrypto.py. None of the applet's logic is reused.
 
-Usage: python -I tools/fido/check_fido2.py . [--backend NAME]      (default: interp, the reference interpreter)
+Usage: uv run python -I examples/fido2/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, hashlib, hmac
-TOOLS = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
+import layout
+TOOLS = layout.at().tools
 sys.path.insert(0, str(TOOLS / "harness"))
 import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
-ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else TOOLS.parent
+ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
 sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from lexcheck import lex
-import layout
 import grammar, backends, p256, testcrypto
 
 # ------------------------------------------------------------------ a small, independent CBOR codec

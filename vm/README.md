@@ -53,7 +53,7 @@ The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` 
 Every VM backend is checked by the same harness (`tools/harness/`, V-10) against the criteria of V-12:
 
 1. every runtime conformance test passes (`language/conformance/runtime/`);
-2. `tools/fido/check_fido2.py` passes;
+2. `examples/fido2/check.py` passes;
 3. every valid conformance program compiles to an image;
 4. the backend reports its bytecode size, stack and frame figures, and its bookkeeping RAM.
 
@@ -66,7 +66,7 @@ python -I tools/harness/scenario.py . --backend interp
 and the FIDO2 check with:
 
 ```bash
-python -I tools/fido/check_fido2.py . --backend interp
+python -I examples/fido2/check.py . --backend interp
 ```
 
 The only backend so far is `interp`, the reference interpreter.

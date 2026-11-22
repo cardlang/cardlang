@@ -55,32 +55,42 @@ RUNS = [
     ("grammar.py", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("../interp/interp.py", None, "runtime scenarios in language/conformance/runtime/"),
-    # The FIDO2 example applet (WP8), checked independently of its own logic.
-    ("../fido/check_fido2.py", None, "examples/fido2: a CTAP session, checked independently"),
     # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
     ("../vmproto/typer.py", None, "vmproto typer: every valid, runtime and example program fully typed"),
     ("../vmproto/compile_all.py", None, "vmproto compiler: every valid, runtime and example program compiles (V-12 item 3)"),
-    # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios and FIDO2 check (V-12).
+    # The prototype compiler and VM as a backend of the harness (VM5): the same scenarios (V-12).
     ("../harness/scenario.py", "--backend vmproto", "vmproto: runtime scenarios on the prototype VM (V-12 item 1)"),
-    ("../fido/check_fido2.py", "--backend vmproto", "vmproto: the FIDO2 check on the prototype VM (V-12 item 2)"),
     ("../vmproto/check_state.py", None, "vmproto: all VM state in its context, within 1 KiB (V-31, V-2)"),
-    # The PIV example applet (WP12), checked independently, on both backends.
-    ("../piv/check_piv.py", None, "examples/piv: a PIV session, checked independently"),
-    ("../piv/check_piv.py", "--backend vmproto", "examples/piv on the prototype VM"),
-    # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios and applet checks.
+    # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios.
     ("../vmproto/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3, K1)"),
     ("../vmproto/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3, K1)"),
     ("../harness/scenario.py", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
     ("../harness/scenario.py", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
-    ("../fido/check_fido2.py", "--backend cvm-msvc", "cvm-msvc: the FIDO2 check on the C VM"),
-    ("../fido/check_fido2.py", "--backend cvm-clang", "cvm-clang: the FIDO2 check on the C VM"),
-    ("../piv/check_piv.py", "--backend cvm-msvc", "cvm-msvc: examples/piv on the C VM"),
-    ("../piv/check_piv.py", "--backend cvm-clang", "cvm-clang: examples/piv on the C VM"),
 ]
+
+# The example applets (PR4): each examples/<app>/check.py checks its applet independently of the applet's own logic,
+# and every example scenario must pass, on every backend (V-12 item 2). They are found, not listed, so a new applet is
+# checked as soon as its folder exists.
+BACKENDS = ("interp", "vmproto", "cvm-msvc", "cvm-clang")
+
+def example_runs():
+    L = layout.at(ROOT)
+    for check in sorted(L.examples.glob("*/check.py")):
+        app = check.parent.name
+        for b in BACKENDS:
+            yield (check, f"--backend {b}", f"examples/{app} on {b}: a session, checked independently")
+    for b in BACKENDS:
+        yield (L.tools / "harness" / "example_scenarios.py", f"--backend {b}", f"every example scenario on {b}")
+
+def label(script):
+    """How a run's script is shown: a checker by its name, an applet's checker by its applet."""
+    s = pathlib.Path(script)
+    if s.name == "check.py": return f"{s.parent.name}/check.py"
+    return s.name if s.is_absolute() else str(script)
 
 def main():
     failures = 0
-    for script, glob, what in RUNS:
+    for script, glob, what in RUNS + list(example_runs()):
         extra = glob.split() if glob else []                 # e.g. "--backend vmproto"
         cmd = [sys.executable, "-I", str(CHECKERS / script), str(ROOT)] + extra
         out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -89,7 +99,7 @@ def main():
         failed = [l for l in lines if l.startswith("FAIL")]
         crashed = out.returncode != 0
         status = "ok" if not failed and not crashed else "FAILED"
-        print(f"[{status:6}] {script:13} {glob or '(default)':18} {passed:4} passed  - {what}")
+        print(f"[{status:6}] {label(script):13} {glob or '(default)':18} {passed:4} passed  - {what}")
         for l in failed:
             print("         " + l)
         if crashed:

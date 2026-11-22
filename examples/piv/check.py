@@ -4,17 +4,18 @@ Builds examples/piv with the full checker and the ISO 7816 binding check, runs a
 800-73-5 Part 2) through a harness backend, and checks every response with code of its own: a small BER-TLV
 encoder and parser, and the test-only AES and P-256 of tools/interp. None of the applet's logic is reused.
 
-Usage: python -I tools/piv/check_piv.py . [--backend NAME]      (default: interp, the reference interpreter)
+Usage: uv run python -I examples/piv/check.py . [--backend NAME]      (default: interp, the reference interpreter)
 """
 import sys, pathlib, os
-TOOLS = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "tools" / "checkers"))   # find layout
+import layout
+TOOLS = layout.at().tools
 sys.path.insert(0, str(TOOLS / "harness"))
 import scenario
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:])
-ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else TOOLS.parent
+ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
 sys.path.insert(0, str(ROOT / "tools" / "checkers")); sys.path.insert(0, str(ROOT / "tools" / "interp"))
 from lexcheck import lex
-import layout
 import grammar, backends, testcrypto
 
 PIV_AID = bytes.fromhex("A000000308000010000100")
