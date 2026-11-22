@@ -15,7 +15,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 TOOLS = HERE.parent
 for d in (HERE, TOOLS / "checkers"):
     if str(d) not in sys.path: sys.path.insert(0, str(d))
-import jsonrpc, diagnose, project, semantic
+import jsonrpc, diagnose, project, semantic, complete
 from lexcheck import header
 
 DEBOUNCE = 0.3                          # seconds of quiet before checking
@@ -75,7 +75,8 @@ class Server:
                                                 "semanticTokensProvider": {"legend": {"tokenTypes": semantic.TYPES,
                                                                                       "tokenModifiers": semantic.MODIFIERS},
                                                                            "full": True},
-                                                "definitionProvider": True},
+                                                "definitionProvider": True,
+                                                "completionProvider": {"triggerCharacters": ["."], "resolveProvider": False}},
                                "serverInfo": {"name": "cardlang-lsp", "version": "0.1"}})
         elif method == "shutdown": self.shutting_down = True; self.respond(mid, None)
         elif method == "exit": self.exit(0 if self.shutting_down else 1)
@@ -91,6 +92,9 @@ class Server:
             prog = program_of(p)
             if len(prog.files) == 1: self.notify("textDocument/publishDiagnostics", {"uri": path_to_uri(p), "diagnostics": []})
             else: self.pending.add(p)
+        elif method == "textDocument/completion":
+            pos = params["position"]
+            self.respond(mid, {"isIncomplete": False, "items": self.completion(uri_to_path(params["textDocument"]["uri"]), pos["line"], pos["character"])})
         elif method == "textDocument/definition":
             pos = params["position"]
             self.respond(mid, self.definition(uri_to_path(params["textDocument"]["uri"]), pos["line"], pos["character"]))
@@ -105,6 +109,16 @@ class Server:
         if k in self.docs: return self.docs[k]
         try: return pathlib.Path(path).read_text(encoding="utf-8", errors="replace")
         except OSError: return ""
+
+    def completion(self, path, line, character):
+        """Completion (TL1): the runtime APIs after `card.`, and enum and error-set members after `Owner.`."""
+        prog = program_of(path, self.docs.get(key(path)))
+        texts = {str(f): self.text_of(f) for f in prog.files}
+        target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))
+        texts.setdefault(target, self.text_of(path))
+        try: return complete.completions(target, texts, line, character)
+        except Exception:
+            self.log("cardlang-lsp: completion failed: " + traceback.format_exc()); return []
 
     def definition(self, path, line, character):
         """Go to definition (TL1): the declaring locations of the name at the position, from the program's texts."""
@@ -129,6 +143,11 @@ class Server:
             self.log("cardlang-lsp: semantic tokens failed: " + traceback.format_exc()); return []
 
     def check(self, path):
+        import pltcheck
+        if key(path) == key(pltcheck.BASE_TYPES):
+            # The Base Profile's prelude: every program already includes it, so checked as a program of its own each
+            # of its declarations would clash with itself (CE-NAM-5). It is the platform's file, not an applet.
+            self.notify("textDocument/publishDiagnostics", {"uri": path_to_uri(path), "diagnostics": []}); return
         prog = program_of(path, self.docs.get(key(path)))
         sources = {str(f): self.docs[key(f)] for f in prog.files if key(f) in self.docs}
         try:

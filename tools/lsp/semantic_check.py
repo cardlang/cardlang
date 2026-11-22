@@ -136,6 +136,27 @@ def main(repo):
     d = semantic.definition(ctap, texts, ln, cl[ln].index("client_pin"))
     check("go to definition across files", len(d) == 1 and pathlib.Path(d[0][0]).name == "pin.card"
           and "function client_pin" in texts[d[0][0]].splitlines()[d[0][1]], str(d))
+    import complete
+    def comp(src, extra=None):
+        texts = {"x.card": src, **(extra or {})}; return complete.completions("x.card", texts, 0, len(src))
+    labels = [i["label"] for i in comp("    var n: u32 = attempt card.")]
+    check("completion: card. offers the Base Profile's namespaces", labels == ["cbor", "crypto", "der", "key", "random", "tlv"], labels)
+    catalog, _ = complete.apis(); missing, wrong = [], []
+    for path, e in catalog.items():
+        ns, name = path.rsplit(".", 1)
+        item = next((i for i in comp(ns + ".") if i["label"] == name), None)
+        if item is None: missing.append(path); continue
+        want = name + "(" + ", ".join((f"{m} " if m else "") + f"${{{k}:{p}}}" for k, (p, m, _) in enumerate(e["params"], 1)) + ")"
+        if item["insertText"] != want or item["insertTextFormat"] != 2: wrong.append(path)
+    check("completion: every catalog API, with a snippet per argument and its mode", not missing and not wrong and len(catalog) == 36,
+          f"{len(catalog)} APIs; missing {missing[:3]}, wrong {wrong[:3]}")
+    d = next(i for i in comp("card.crypto.") if i["label"] == "digest")
+    check("completion: an API's signature and documentation", d["detail"] == "card.crypto.digest(alg: DigestAlgorithm, ref data: u8[], inout out: u8[]) -> u32"
+          and "32-byte digest" in d["documentation"]["value"] and "Errors: Capacity" in d["documentation"]["value"], d["detail"])
+    check("completion: no test-only APIs", comp("card.test.") == [] and "test" not in labels, "")
+    got = {o: [i["label"] for i in comp(f"x = {o}.", {str(SAMPLE): text})] for o in ("Mode", "AppError", "KeyType", "CardError")}
+    check("completion: members of the program's and the Base Profile's enums and error sets",
+          got["Mode"] == ["Idle", "Active"] and got["AppError"] == ["Busy"] and "EcP256Private" in got["KeyType"] and len(got["CardError"]) == 11, got)
     from lsp_check import Client
     c = Client(repo)
     c.request("initialize", {"processId": None, "rootUri": repo.as_uri(), "capabilities": {}})
@@ -148,6 +169,10 @@ def main(repo):
     r = c.request("textDocument/definition", {"textDocument": {"uri": uri}, "position": {"line": 31, "character": lines[31].index("LIMIT")}})
     locs = r.get("result") or []
     check("the server answers definition requests", len(locs) == 1 and locs[0]["range"]["start"]["line"] == 16 and locs[0]["uri"] == uri, str(locs)[:160])
+    r = c.request("textDocument/completion", {"textDocument": {"uri": uri}, "position": {"line": 32, "character": lines[32].index("crypto")}})
+    items = (r.get("result") or {}).get("items", [])
+    check("the server answers completion requests", [i["label"] for i in items] == ["cbor", "crypto", "der", "key", "random", "tlv"],
+          [i["label"] for i in items])
     c.request("shutdown", None); c.notify("exit", None)
     try: c.p.wait(timeout=10)
     except Exception: c.p.kill()

@@ -69,6 +69,11 @@ def main(repo):
     ds = c.diagnostics([buri]).get(buri, [])
     check("a single file: its error", len(ds) == 1 and ds[0]["code"] == "CE-EXP-4" and ds[0]["range"]["start"]["line"] == 7,
           json.dumps(ds[:1])[:160])
+    prelude = repo / "platform" / "base-types.card"; puri = prelude.resolve().as_uri()
+    c.notify("textDocument/didOpen", {"textDocument": {"uri": puri, "languageId": "cardlang", "version": 1,
+                                                       "text": prelude.read_text(encoding="utf-8")}})
+    ds = c.diagnostics([puri]).get(puri, [1])
+    check("the Base Profile's prelude is not checked as an applet", ds == [], json.dumps(ds)[:120])
     r = c.request("shutdown", None); c.notify("exit", None)
     try: rc = c.p.wait(timeout=10)
     except subprocess.TimeoutExpired: c.p.kill(); rc = None

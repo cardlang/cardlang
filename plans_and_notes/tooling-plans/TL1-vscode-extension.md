@@ -311,3 +311,19 @@ Steps 1, 2 and 4 need no Node.js. The extension in step 3 can first be tried by 
   - 13 definitions pinned in the sample;
   - one across files, from `ctap.card` to `client_pin` in `pin.card`;
   - one request through the server.
+
+**Fixed (2026-11-22): a false error on the Base Profile prelude.** Opening `platform/base-types.card`, which F12 now reaches, made the server check it as a program of its own. Every program already includes that file as its prelude, so each declaration clashed with itself (CE-NAM-5). The server now publishes no diagnostics for the prelude; colouring and go to definition still work in it. `lsp_check.py` checks this (8 checks).
+
+**Completion of the runtime APIs (user, 2026-11-22),** an addition to step 3b. `tools/lsp/complete.py`:
+- **After `card.` and each namespace:** the next segments of the Base Profile catalog.
+  - A namespace is offered with its description from `base-profile.md`.
+  - An API is offered with its signature, its summary, its transaction rule and its errors. It inserts a snippet with a placeholder per argument, and the `ref` or `inout` mode written in.
+  - The test-only `card.test.*` APIs are left out.
+- **After `Owner.`:** the members of an enum or error set, in declaration order. That covers the Base Profile's enums, `CardError`, and the program's own.
+- **The server** answers `textDocument/completion`, triggered by `.`.
+- **Checks:** `semantic_check.py` now passes 46 checks:
+  - all six namespaces, and all 36 APIs each with a correct snippet;
+  - `digest`'s signature and documentation, pinned;
+  - no test-only APIs;
+  - members for the sample's enums, `KeyType` and `CardError`;
+  - one request through the server.
