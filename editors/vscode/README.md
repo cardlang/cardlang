@@ -18,20 +18,20 @@ server, the build tools and the debug adapter are the Python tools of the CardLa
 
 ## Requirements
 
-- **The CardLang repository,** with its uv environment (`uv sync` once).
+- **The CardLang repository,** with its uv environment (`uv sync` once). `uv sync` installs the `cardlang` package and its commands `clc`, `cardlang-lsp` and `cardlang-dap`, which the extension runs with `uv run --project <repository>`.
 - **[uv](https://docs.astral.sh/uv/)** on the `PATH`, or named by the `cardlang.uvPath` setting.
 - **VS Code 1.91 or later.**
 - **Node.js and npm,** only to develop or package the extension itself.
 
-The extension finds the repository, the folder that holds `tools/clc.py`, in the workspace or in a folder above it. You can also set `cardlang.toolsPath`.
+The extension finds the repository, the folder whose `pyproject.toml` names the `cardlang` project, in the workspace or in a folder above it. You can also set `cardlang.repository`.
 
 ## Installing
 
 **For development,** VS Code loads the extension straight from the repository:
 
 ```bash
-cd tools/vscode && npm install
-uv run python -I tools/vscode/install.py
+cd editors/vscode && npm install
+uv run python -I editors/vscode/install.py
 ```
 
 Then run **Developer: Reload Window**. After any change to the extension, reload again. `install.py --remove` removes the link.
@@ -39,12 +39,12 @@ Then run **Developer: Reload Window**. After any change to the extension, reload
 **From a package,** for normal use. Build it, remove a development link if you made one, and install it:
 
 ```bash
-cd tools/vscode && npm install && npm run package
-uv run python -I tools/vscode/install.py --remove
-code --install-extension tools/vscode/cardlang.vsix
+cd editors/vscode && npm install && npm run package
+uv run python -I editors/vscode/install.py --remove
+code --install-extension editors/vscode/cardlang.vsix --force
 ```
 
-`npm run package` writes `tools/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools stay in the repository, so the extension still needs it, through `cardlang.toolsPath` or the workspace.
+`npm run package` writes `editors/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools are the `cardlang` package in the repository, so the extension still needs the repository, through `cardlang.repository` or the workspace. `--force` replaces an installed copy of the same version.
 
 ## Applets and projects
 
@@ -63,9 +63,9 @@ A `.card` file listed there is checked as part of the whole applet. A `.card` fi
 
 | Command | What it does | The same in a terminal |
 |---|---|---|
-| **CardLang: Check Applet** | Runs every check of the specification | `uv run python -I tools/clc.py check examples/fido2` |
-| **CardLang: Build Applet** (the package icon) | Checks, then writes `build/<name>.clvm` in the applet's directory and prints the image's figures | `uv run python -I tools/clc.py build examples/fido2` |
-| | Lists the code, with source lines and variable scopes | `uv run python -I tools/clc.py disasm examples/fido2/build/fido2.clvm` |
+| **CardLang: Check Applet** | Runs every check of the specification | `uv run clc check examples/fido2` |
+| **CardLang: Build Applet** (the package icon) | Checks, then writes `build/<name>.clvm` in the applet's directory and prints the image's figures | `uv run clc build examples/fido2` |
+| | Lists the code, with source lines and variable scopes | `uv run clc disasm examples/fido2/build/fido2.clvm` |
 
 ## Scenarios
 
@@ -117,13 +117,13 @@ Open a scenario and press F5, or click **CardLang: Debug Scenario** (the debug i
 - **Traps** stop where a trap happens, with the faulting frame and its variables still intact;
 - **Failed expectations** stop at an `expect` that does not match.
 
-The debugger runs the applet on the prototype VM, which executes exactly what the C VM does: both pass the same tests.
+The debugger runs the applet on the Python VM (`pyvm`), which executes exactly what the C VM does: both pass the same tests.
 
 ## Settings
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `cardlang.toolsPath` | empty | The CardLang repository. Empty: found from the workspace |
+| `cardlang.repository` | empty | The CardLang repository. Empty: found from the workspace |
 | `cardlang.uvPath` | `uv` | The uv executable |
 | `cardlang.scenarioBackend` | `pyvm` | Where Run Scenario runs the applet |
 
@@ -148,13 +148,13 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 - **Placement:** some errors are placed at the end of their construct; for example, a `match` missing an arm is reported at its closing brace.
 - **Missing name rules:** fourteen name rules of chapter 3 have no checker yet. Duplicate names, shadowing, and redeclared intrinsics are not reported.
 - **Completion:** it covers the `card` APIs and enum and error-set members. Fields after a variable (`head.`) are not completed yet.
-- **The debugger** runs on the prototype VM only. The C VM has no debug hook yet.
+- **The debugger** runs on the Python VM only. The C VM has no debug hook yet.
 
 ## How it is built
 
 | Part | Where |
 |---|---|
-| The extension: grammars, snippets, commands, the language client and the debugger contribution | `tools/vscode/` (plain JavaScript, using `vscode-languageclient`) |
+| The extension: grammars, snippets, commands, the language client and the debugger contribution | `editors/vscode/` (plain JavaScript, using `vscode-languageclient`) |
 | The language server: diagnostics, semantic tokens, definitions and completion | `cardlang.lsp`: `server.py`, `semantic.py`, `complete.py` |
 | The debug adapter | `cardlang.dap.adapter` |
 | The JSON-RPC framing both use | `src/cardlang/jsonrpc.py` |

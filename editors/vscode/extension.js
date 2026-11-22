@@ -1,10 +1,11 @@
 // The CardLang extension for VS Code (TL1). Plain JavaScript, no build step.
 //
 // - Highlighting comes from the TextMate grammars in syntaxes/ (declared in package.json).
-// - Diagnostics as you type come from the CardLang language server, tools/lsp/cardlang_lsp.py, a Python program
-//   in the CardLang repository, started through uv and spoken to with vscode-languageclient.
-// - Build Applet, Check Applet and Run Scenario run tools/clc.py as tasks; build errors also go to the Problems
+// - Diagnostics as you type come from the CardLang language server, the command cardlang-lsp of the cardlang
+//   package in the CardLang repository, started through uv and spoken to with vscode-languageclient.
+// - Build Applet, Check Applet and Run Scenario run the command clc as tasks; build errors also go to the Problems
 //   panel through the $cardlang problem matcher.
+// - Debugging runs the command cardlang-dap. Each command runs in the repository's environment: uv run --project.
 "use strict";
 const vscode = require("vscode");
 const path = require("path");
@@ -14,14 +15,20 @@ const { LanguageClient } = require("vscode-languageclient/node");
 let client = null;
 let output = null;
 
-/** The CardLang repository: the setting, else a workspace folder (or a parent of one) with tools/clc.py. */
+/** Whether dir holds the CardLang repository: a pyproject.toml whose project is named cardlang. */
+function isRepository(dir) {
+  try { return /^\s*name\s*=\s*"cardlang"\s*$/m.test(fs.readFileSync(path.join(dir, "pyproject.toml"), "utf8")); }
+  catch (e) { return false; }
+}
+
+/** The CardLang repository: the setting, else a workspace folder (or a parent of one) that is the repository. */
 function toolsRoot() {
-  const configured = vscode.workspace.getConfiguration("cardlang").get("toolsPath");
+  const configured = vscode.workspace.getConfiguration("cardlang").get("repository");
   if (configured) return configured;
   for (const folder of vscode.workspace.workspaceFolders || []) {
     let dir = folder.uri.fsPath;
     for (let i = 0; i < 6; i++) {
-      if (fs.existsSync(path.join(dir, "tools", "clc.py"))) return dir;
+      if (isRepository(dir)) return dir;
       const up = path.dirname(dir);
       if (up === dir) break;
       dir = up;
@@ -34,9 +41,10 @@ function uv() {
   return vscode.workspace.getConfiguration("cardlang").get("uvPath") || "uv";
 }
 
-/** uv arguments that run a Python script of the repository in its environment. */
-function pythonArgs(root, script, args) {
-  return ["run", "--project", root, "python", "-I", path.join(root, script), ...args];
+/** uv arguments that run a command of the cardlang package (clc, cardlang-lsp, cardlang-dap) in the repository's
+ *  environment. */
+function commandArgs(root, command, args) {
+  return ["run", "--project", root, command, ...args];
 }
 
 /** The program of the active editor: the directory of its cardlang.json if it lists the file, else the file. */
@@ -53,7 +61,7 @@ function programOf(file) {
 }
 
 function runTask(root, name, args, matchErrors) {
-  const execution = new vscode.ProcessExecution(uv(), pythonArgs(root, path.join("tools", "clc.py"), args), { cwd: root });
+  const execution = new vscode.ProcessExecution(uv(), commandArgs(root, "clc", args), { cwd: root });
   const task = new vscode.Task({ type: "cardlang", command: args[0] }, vscode.TaskScope.Workspace, name, "cardlang",
                                execution, matchErrors ? ["$cardlang"] : []);
   task.presentationOptions = { reveal: vscode.TaskRevealKind.Always, clear: true };
@@ -68,7 +76,7 @@ function activeFile(languageId) {
 }
 
 async function startClient(context, root) {
-  const server = { command: uv(), args: pythonArgs(root, path.join("tools", "lsp", "cardlang_lsp.py"), []), options: { cwd: root } };
+  const server = { command: uv(), args: commandArgs(root, "cardlang-lsp", []), options: { cwd: root } };
   client = new LanguageClient("cardlang", "CardLang", { run: server, debug: server }, {
     documentSelector: [{ scheme: "file", language: "cardlang" }],
     outputChannel: output,
@@ -83,7 +91,7 @@ async function activate(context) {
   context.subscriptions.push(output);
   const root = toolsRoot();
   if (!root) {
-    vscode.window.showWarningMessage("CardLang: set cardlang.toolsPath to the CardLang repository (the folder with tools/clc.py).");
+    vscode.window.showWarningMessage("CardLang: set cardlang.repository to the CardLang repository (the folder whose pyproject.toml names cardlang).");
     return;
   }
   output.info(`CardLang tools: ${root}`);
@@ -119,7 +127,7 @@ async function activate(context) {
       if (client) await client.stop();
       await startClient(context, root);
     }),
-    // Debugging (TL1 step 6): tools/dap/cardlang_dap.py runs a scenario on the prototype VM.
+    // Debugging (TL1 step 6): cardlang-dap runs a scenario on the Python VM.
     vscode.commands.registerCommand("cardlang.debugScenario", async () => {
       const doc = activeFile("cardlang-scenario");
       if (!doc) { vscode.window.showInformationMessage("CardLang: open a scenario file first."); return; }
@@ -129,7 +137,7 @@ async function activate(context) {
     }),
     vscode.debug.registerDebugAdapterDescriptorFactory("cardlang", {
       createDebugAdapterDescriptor: () =>
-        new vscode.DebugAdapterExecutable(uv(), pythonArgs(root, path.join("tools", "dap", "cardlang_dap.py"), []), { cwd: root }),
+        new vscode.DebugAdapterExecutable(uv(), commandArgs(root, "cardlang-dap", []), { cwd: root }),
     }),
     vscode.debug.registerDebugConfigurationProvider("cardlang", {
       // F5 without a launch.json: debug the scenario in the editor.

@@ -42,7 +42,7 @@ RUNS = [
     ("tests/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
     ("tests/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
     ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
-    ("tools/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
+    ("editors/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
     # References stay correct (PR1): links, anchors and named files in every document; paths only through layout.
     ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout (PR1)"),
     # Consistency of the specification text itself (SP14).

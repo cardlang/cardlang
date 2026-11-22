@@ -167,15 +167,15 @@
     "configuration": {
       "title": "CardLang",
       "properties": {
-        "cardlang.toolsPath": {
+        "cardlang.repository": {
           "type": "string",
           "default": "",
-          "description": "The CardLang repository, which holds tools/clc.py. Empty: the workspace folder that contains it."
+          "description": "The CardLang repository, whose pyproject.toml names the cardlang package. Empty: the workspace folder that contains it, or a folder above it."
         },
         "cardlang.uvPath": {
           "type": "string",
           "default": "uv",
-          "description": "The uv executable that runs the CardLang tools in the repository's Python environment."
+          "description": "The uv executable that runs the CardLang commands (clc, cardlang-lsp, cardlang-dap) in the repository's Python environment."
         },
         "cardlang.scenarioBackend": {
           "type": "string",

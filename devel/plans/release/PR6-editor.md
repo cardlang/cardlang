@@ -62,3 +62,41 @@ Planned 2026-11-22, the sixth work package of PR0. The VS Code extension moves t
 | X4 | Where `check_extension.py` lives | (a) with the extension, in `editors/vscode/`, like each example's `check.py`; (b) in `tests/`, with the other tool checks | (a). The extension folder stays self-contained, and its `.vscodeignore` already leaves the check out of the `.vsix` |
 
 **Decided (user, 2026-11-22):** X1 (a) the installed commands through uv, X2 (a) the `pyproject.toml` search and the setting renamed `cardlang.repository`, X3 (a) keep 0.1.1 and reinstall with `--force`, and X4 (a) the check stays with the extension. All four are as recommended.
+
+## 4. Done (2026-11-22)
+
+- **Moved:** `git mv tools/vscode editors/vscode`. The ignored `node_modules/` and `cardlang.vsix` moved with the folder, so nothing was downloaded.
+- **The extension runs the installed commands (X1):**
+  - `commandArgs(root, command, args)` replaces `pythonArgs`;
+  - tasks run `uv run --project <repo> clc …`, the language server `cardlang-lsp`, and the debugger `cardlang-dap`;
+  - `extension.js` names no file of the package.
+- **The repository (X2):**
+  - `isRepository` looks for a `pyproject.toml` whose project is `name = "cardlang"`, in the workspace or a folder above it. It was checked against this repository's `pyproject.toml`, and to reject the extension's own `package.json`;
+  - the setting is now `cardlang.repository`, and its description and the warning say what it points at;
+  - your user settings had no `cardlang.toolsPath` to move.
+- **Removed:**
+  - the three launchers, and with them `tools/`;
+  - `clc`'s `vmproto` alias.
+- **`check_extension.py`** stays in `editors/vscode/` (X4), and `run_checks` runs it from there. It gained two checks:
+  - the extension runs only `clc`, `cardlang-lsp` and `cardlang-dap`, and each is in `pyproject.toml`'s `[project.scripts]`;
+  - `extension.js` names no `.py` file.
+
+  Its debugger check now looks for `cardlang-dap` in `extension.js`, not for a script in `tools/`.
+- **`layout`:**
+  - `tools` is gone;
+  - `editors` and `vscode` are new;
+  - `TOP_LEVEL` is `language`, `platform`, `examples`, `vm`, `src`, `tests`, `editors` and `devel`;
+  - `MOVED` maps `tools/vscode` to `editors/vscode`.
+- **Documents:**
+  - the extension's README now has the new install commands (with `--force`), how the extension finds the repository and runs the commands, the new setting, and `uv run clc` in its command table;
+  - the other current documents were rewritten through `MOVED`.
+- **Checks:**
+  - `run_checks` passes all 51 runs, with two more checks in `check_extension`;
+  - the link check passes.
+- **Packaged and installed (X3):**
+  - `npm run package` rebuilt `cardlang.vsix`, 0.1.1, 400 KB, with the local `vsce`. Its `extension.js` uses `commandArgs`, its `package.json` has `cardlang.repository`, and it holds no `.py` file;
+  - with your go-ahead, `code --install-extension editors/vscode/cardlang.vsix --force` replaced the installed copy, and VS Code lists `cardlang.cardlang@0.1.1`.
+
+**Checked by you in VS Code (2026-11-22):** after a restart, the reinstalled extension works:
+- highlighting, errors as you type, go to definition and completion;
+- Build, Run Scenario and Debug Scenario, on both applets.

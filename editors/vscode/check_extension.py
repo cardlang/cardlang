@@ -6,11 +6,11 @@
 - The scenario grammar's steps are exactly those the scenario runner accepts (src/cardlang/harness/scenario.py).
 - Every regular expression of both grammars compiles (in Python's syntax, which these patterns share with
   Oniguruma), and the keyword patterns colour every keyword token of both applets.
-Usage: uv run python -I tools/vscode/check_extension.py .
+- The extension starts the tools only by the commands the package installs (PR6), never a script by its path.
+Usage: uv run python -I editors/vscode/check_extension.py .
 """
-import sys, re, json, pathlib
+import sys, re, json, pathlib, tomllib
 HERE = pathlib.Path(__file__).resolve().parent
-TOOLS = HERE.parent
 from cardlang.front import lexcheck, expcheck, project
 from cardlang import layout
 
@@ -62,7 +62,12 @@ def main(repo):
     dbg = (contrib.get("debuggers") or [{}])[0]
     check("the debugger contribution", dbg.get("type") == "cardlang" and dbg["configurationAttributes"]["launch"]["required"] == ["scenario"]
           and {b["language"] for b in contrib.get("breakpoints", [])} == {"cardlang", "cardlang-scenario"}
-          and 'registerDebugAdapterDescriptorFactory("cardlang"' in js and (TOOLS / "dap" / "cardlang_dap.py").exists(), str(dbg.get("type")))
+          and 'registerDebugAdapterDescriptorFactory("cardlang"' in js and 'commandArgs(root, "cardlang-dap"' in js, str(dbg.get("type")))
+    scripts = tomllib.loads((layout.at(repo).root / "pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("scripts", {})
+    used = set(re.findall(r'commandArgs\(root, "([\w-]+)"', js))
+    check("the extension runs only commands the package installs", used == {"clc", "cardlang-lsp", "cardlang-dap"} and used <= set(scripts),
+          f"uses {sorted(used)}; installed {sorted(scripts)}")
+    check("the extension names no script by its path", not re.search(r'\.py\b', js), "")
     kw_rx = [re.compile(p["match"]) for p in g["repository"]["keywords"]["patterns"]]
     missed = set()
     for app in ("fido2", "piv"):

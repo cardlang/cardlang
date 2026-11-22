@@ -105,7 +105,6 @@ def describe(outcome):
 
 def cmd_run(a):
     from cardlang.harness import backends, scenario
-    if a.backend == "vmproto": a.backend = "pyvm"          # the old name (see main)
     sc = pathlib.Path(a.scenario)
     prog = Program(a.program or [str(sc.parent)], a.binding)
     ds = diagnostics(prog)
@@ -134,8 +133,7 @@ def main(argv=None):
     p = sub.add_parser("disasm", help="list an image's code"); program_arg(p)
     p = sub.add_parser("run", help="run a scenario against a program")
     p.add_argument("scenario"); p.add_argument("--program", nargs="+"); p.add_argument("--binding", choices=["iso7816", "raw"])
-    # "vmproto" is the Python VM's name before PR5c, which the installed extension (0.1.1) still sends; PR6 drops it.
-    p.add_argument("--backend", default="pyvm", choices=["interp", "pyvm", "cvm-msvc", "cvm-clang", "vmproto"])
+    p.add_argument("--backend", default="pyvm", choices=["interp", "pyvm", "cvm-msvc", "cvm-clang"])
     a = ap.parse_args(argv)
     return {"check": cmd_check, "build": cmd_build, "disasm": cmd_disasm, "run": cmd_run}[a.cmd](a)
 

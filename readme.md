@@ -7,7 +7,7 @@ CardLang is a small, statically typed, imperative language for writing smart-car
 Since Draft 0.2, the repository also holds:
 - a compiler to a compact bytecode (`src/cardlang/compiler/compiler.py`);
 - a prototype VM in Python, and the VM in portable C11 (`vm/c/`), which pass the same tests;
-- a VS Code extension, with errors as you type, go to definition, completion and a debugger ([`tools/vscode/`](tools/vscode/README.md)).
+- a VS Code extension, with errors as you type, go to definition, completion and a debugger ([`editors/vscode/`](editors/vscode/README.md)).
 
 ## The language at a glance
 
@@ -75,7 +75,7 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`examples/piv/`](examples/piv/README.md) | a PIV card application (NIST SP 800-73-5, contact-interface subset) |
 | [`src/cardlang/`](src/cardlang/README.md) | The Python toolchain, one package installed by `uv sync`: the reference checkers (the front end), the compiler, the reference interpreter, the Python VM, the harness, the command line `clc`, the language server and the debug adapter |
 | [`tests/`](tests/README.md) | `run_checks.py`, and the checks of the tools and of the definition |
-| [`tools/vscode/`](tools/vscode/README.md) | The VS Code extension |
+| [`editors/vscode/`](editors/vscode/README.md) | The VS Code extension |
 | [`vm/`](vm/decisions.md) | The VM's design (execution model, HAL, bytecode, image format) and the C VM (`vm/c/`) |
 | [`devel/`](devel/README.md) | Development aids: the plans of plans and every work-package plan, measurement reports and findings, the conformance-test generators, and the history and measurement scripts |
 

@@ -43,4 +43,4 @@ It prints one line per run, with the number of tests that passed, and exits non-
 | `lsp_check.py` | The language server, through a scripted editor session |
 | `semantic_check.py` | Semantic colouring, against a pinned sample in `testdata/`, and completion |
 | `dap_check.py` | The debug adapter: breakpoints, stepping, the stack, variables and traps |
-| `tools/vscode/check_extension.py` | The extension's grammars, keywords and scenario steps match the language |
+| `editors/vscode/check_extension.py` | The extension's grammars, keywords and scenario steps match the language |

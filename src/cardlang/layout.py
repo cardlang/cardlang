@@ -42,7 +42,8 @@ class Layout:
         self.examples = r / "examples"
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
-        self.tools = r / "tools"
+        self.editors = r / "editors"
+        self.vscode = self.editors / "vscode"         # the VS Code extension (PR6)
         self.src = r / "src"
         self.package = self.src / "cardlang"          # the Python toolchain (PR5)
         self.front = self.package / "front"
@@ -71,7 +72,7 @@ def at(root=None):
     return Layout(root)
 
 # The top-level parts, for linkcheck's check that only this module builds paths into them.
-TOP_LEVEL = ("language", "platform", "examples", "vm", "tools", "src", "tests", "devel")
+TOP_LEVEL = ("language", "platform", "examples", "vm", "src", "tests", "editors", "devel")
 
 # Where moved files went: (old path or folder, new path or folder), relative to the root. Historical documents keep the
 # paths they were written with (PR1 L4); linkcheck resolves them through this table, so they are still checked.
@@ -158,6 +159,8 @@ MOVED = [
     ("tools/clc_check.py", "tests/clc_check.py"),
     ("tools/run_checks.py", "tests/run_checks.py"),
     ("tools/README.md", "src/cardlang/README.md"),
+    # PR6: the extension into editors/; the launchers that PR5 kept for it are gone
+    ("tools/vscode", "editors/vscode"),
 ]
 
 def moved(path):
