@@ -10,8 +10,9 @@ Over every Markdown file the repository tracks:
    node_modules folder, or a generated file such as a .vsix) are not checked: a fresh checkout has none.
 
    Historical documents (layout.historical: the plans, reports, findings and step notes) keep the paths they were
-   written with (PR1 L4). There, an unresolved path is reported as INFO, never as a failure; their links are checked
-   like any other.
+   written with (PR1 L4). A path to a file that has moved since resolves through layout.MOVED; any other unresolved
+   path is reported as INFO, never as a failure. Their links are checked like any other. A current-state document
+   must name a moved file by its new path.
 
 A line carrying `<!-- linkcheck: ignore -->` is not checked.
 
@@ -89,6 +90,10 @@ def main(root):
                 if not (pathlib.PurePosixPath(parts[-1]).suffix.lower() in EXTENSIONS or parts[0] in known_dirs): continue
                 if set(parts) & SKIP_DIRS or pathlib.PurePosixPath(parts[-1]).suffix.lower() in GENERATED: continue   # a build output
                 if any((b / p).exists() for b in bases + [md.parent]): continue
+                now = layout.moved(p)
+                if hist and now is not None and (root / now).exists(): continue  # moved since: a record keeps its old path
+                if now is not None and not hist:
+                    fail(f"{rel}:{n}", f"a moved file, now at {now}: {p}"); continue
                 if hist:
                     infos += 1; print(f"INFO {rel}:{n} | a path as of writing, not found now: {p}")
                 else:

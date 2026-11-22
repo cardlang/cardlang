@@ -1,4 +1,4 @@
-# The CardLang VM in portable C11 (VM7, plans_and_notes/vm-plans/VM7-c-vm.md).
+# The CardLang VM in portable C11 (VM7, devel/plans/vm/VM7-c-vm.md).
 #
 # Built with two compilers, both warning-free (J1): MSVC, and clang from llvm-mingw (cmake/llvm-mingw-x86_64.cmake).
 # Use vm/c/build.py, which sets up either toolchain, rather than calling CMake directly.

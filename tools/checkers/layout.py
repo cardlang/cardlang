@@ -40,11 +40,17 @@ class Layout:
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
         self.tools = r / "tools"
-        # development aids
-        self.notes = r / "plans_and_notes"
-        # Documents that record the past: their file paths are as of writing (PR1 L4). The rationale files in
-        # plans_and_notes/ (design notes, decision register) are part of the definition, but they too are a record.
-        self.historical = [self.notes]
+        self.notes = r / "plans_and_notes"           # the rationale, until PR3 moves it into language/
+        # development aids (PR2)
+        self.devel = r / "devel"
+        self.plans = self.devel / "plans"
+        self.reports = self.devel / "reports"
+        self.generators = self.devel / "generators"
+        self.history = self.devel / "history"
+        self.measure = self.devel / "measure"
+        # Documents that record the past: their file paths are as of writing (PR1 L4). The rationale files are part
+        # of the definition, but they too are a record.
+        self.historical = [self.devel, self.notes]
 
     def __repr__(self): return f"Layout({str(self.root)!r})"
 
@@ -59,4 +65,37 @@ def at(root=None):
     return Layout(root)
 
 # The top-level parts, for linkcheck's check that only this module builds paths into them.
-TOP_LEVEL = ("spec", "conformance", "platform", "examples", "vm", "tools", "plans_and_notes")
+TOP_LEVEL = ("spec", "conformance", "platform", "examples", "vm", "tools", "plans_and_notes", "devel")
+
+# Where moved files went: (old path or folder, new path or folder), relative to the root. Historical documents keep the
+# paths they were written with (PR1 L4); linkcheck resolves them through this table, so they are still checked.
+MOVED = [
+    # PR2: development aids into devel/
+    ("plans_and_notes/specification-plan-of-plans.md", "devel/plans/specification-plan-of-plans.md"),
+    ("plans_and_notes/vm-plan-of-plans.md", "devel/plans/vm-plan-of-plans.md"),
+    ("plans_and_notes/spec-plans", "devel/plans/spec"),
+    ("plans_and_notes/vm-plans", "devel/plans/vm"),
+    ("plans_and_notes/tooling-plans", "devel/plans/tooling"),
+    ("plans_and_notes/release-plans", "devel/plans/release"),
+    ("plans_and_notes/base-api-plan.md", "devel/plans/spec/base-api-plan.md"),
+    ("plans_and_notes/SP14-consolidation-report.md", "devel/reports/SP14-consolidation-report.md"),
+    ("plans_and_notes/VM5-measurements.md", "devel/reports/VM5-measurements.md"),
+    ("plans_and_notes/VM7-measurements.md", "devel/reports/VM7-measurements.md"),
+    ("plans_and_notes/VM7b-measurements.md", "devel/reports/VM7b-measurements.md"),
+    ("plans_and_notes/WP8-fido2-findings.md", "devel/reports/WP8-fido2-findings.md"),
+    ("plans_and_notes/WP12-piv-findings.md", "devel/reports/WP12-piv-findings.md"),
+    ("plans_and_notes/WP8-step0-notes.md", "devel/reports/WP8-step0-notes.md"),
+    ("plans_and_notes/PIV-step0-notes.md", "devel/reports/PIV-step0-notes.md"),
+    ("tools/generators", "devel/generators"),
+    ("tools/history", "devel/history"),
+    ("tools/vmproto/measure.py", "devel/measure/pyvm_measure.py"),
+    ("tools/vmproto/revision.py", "devel/measure/revision.py"),
+    ("vm/c/measure.py", "devel/measure/cvm_measure.py"),
+]
+
+def moved(path):
+    """Where a root-relative path, or a path inside a moved folder, is now; None if it never moved."""
+    for old, new in MOVED:
+        if path == old: return new
+        if path.startswith(old + "/"): return new + path[len(old):]
+    return None

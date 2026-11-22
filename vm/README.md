@@ -2,7 +2,7 @@
 
 This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
 
-The plan is in `plans_and_notes/vm-plan-of-plans.md`. Each work package (VM0 to VM8) has a sub-plan in `plans_and_notes/vm-plans/`.
+The plan is in `devel/plans/vm-plan-of-plans.md`. Each work package (VM0 to VM8) has a sub-plan in `devel/plans/vm/`.
 
 ## Goals
 
@@ -41,7 +41,7 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 | `image-format.md` | The application image and the load-time checks (`IMG-n`) | VM3, VM6 | format 1: IMG-1 to IMG-13 |
 | `c/` | The product VM in C11, and a host HAL | VM7 | not started |
 
-The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11). They meet acceptance criteria 1 to 3 of V-12 as the harness backend `vmproto`: all runtime tests, the FIDO2 check, and every program compiles. The measurements (criterion 4) are in `plans_and_notes/VM5-measurements.md`: the VM context is 216 bytes.
+The prototypes (a Python compiler and VM, VM4 and VM5) live in `tools/vmproto/` (V-11). They meet acceptance criteria 1 to 3 of V-12 as the harness backend `vmproto`: all runtime tests, the FIDO2 check, and every program compiles. The measurements (criterion 4) are in `devel/reports/VM5-measurements.md`: the VM context is 216 bytes.
 
 ## Conventions
 

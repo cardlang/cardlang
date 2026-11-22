@@ -1,6 +1,6 @@
 # CardLang VM — Image format, version 1
 
-Work package VM3. Plan: `plans_and_notes/vm-plans/VM3-bytecode-and-image.md`. Instructions: `vm/bytecode.md`.
+Work package VM3. Plan: `devel/plans/vm/VM3-bytecode-and-image.md`. Instructions: `vm/bytecode.md`.
 
 An *image* is one compiled CardLang application, as the platform's loader stores it and `cl_vm_load` receives it (VEX-45). Requirements are numbered `IMG-n` and cite the decisions and the rules they serve (V-9). Like the bytecode, format 1 is living until a public release (V-51): changes are made in place, a VM accepts only format 1, and no older image is kept working. The change log is `vm/bytecode.md` §9.
 

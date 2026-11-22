@@ -744,7 +744,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-46 — The line between intrinsics and platform APIs
 
-- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
 - **Sources:** Draft 0.1 never stated when an operation is an intrinsic and when it is a platform API.
 - **Affected rules:** EXP-52, PLT-30
 - **Decision basis:** the intrinsic/API boundary rule (base API plan §2)
@@ -755,7 +755,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-47 — Moving array data
 
-- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
 - **Sources:** Draft 0.1 had no way to copy part of an array except an element loop, because FUN-18 forbade slice assignment.
 - **Affected rules:** FUN-24, FUN-18, STM-7
 - **Decision basis:** B1(a), B1(c); WP1 D1
@@ -766,7 +766,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-48 — Comparing arrays
 
-- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
 - **Sources:** Draft 0.1 had no array comparison.
 - **Affected rules:** EXP-53, EXP-54, LEX-15, NAM-14
 - **Decision basis:** B1(b); WP1 D2
@@ -777,7 +777,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-49 — Wiping secrets
 
-- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
 - **Sources:** EXP-22 lets an implementation remove a store that nothing reads, which includes a zeroizing fill of a secret about to go out of scope.
 - **Affected rules:** STM-23, EXP-22, LEX-13, PLT-34
 - **Decision basis:** WP1 D3
@@ -788,7 +788,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-50 — Security expectations for platforms
 
-- **Kind:** gap (raised by the base platform API plan, `plans_and_notes/base-api-plan.md`)
+- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
 - **Sources:** The specification stated no constant-time, side-channel or key-material obligations.
 - **Affected rules:** PLT-31 to PLT-34
 - **Decision basis:** base API plan §3.3
@@ -814,7 +814,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-52 — Derived secrets are application data
 
-- **Kind:** gap (raised by WP4, `plans_and_notes/spec-plans/WP4-crypto.md`, decision C1)
+- **Kind:** gap (raised by WP4, `devel/plans/spec/WP4-crypto.md`, decision C1)
 - **Sources:** PLT-33 as written in WP1; the FIDO2 PIN/UV protocol, which derives keys from an ECDH secret
 - **Affected rules:** PLT-33
 - **Question:** PLT-33 said that secret key material never appears in application memory. But key agreement and key derivation produce secrets that an application must handle. Do those results fall under PLT-33?
@@ -828,7 +828,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-53 — Byte-string literals
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
 - **Affected rules:** LEX-25, EXP-55
 - **Basis:** WP8 L1; WP9 G1. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-453)
@@ -838,7 +838,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-54 — The code of an application error
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
 - **Affected rules:** OUT-21
 - **Basis:** WP8 L2; WP9 G2. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-454)
@@ -848,7 +848,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-55 — attempt with a replacement error
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
 - **Affected rules:** OUT-22, TXN-18
 - **Basis:** WP8 L4; WP9 G3. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-455)
@@ -858,7 +858,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-56 — Discarding an outcome
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
 - **Affected rules:** STM-24, LEX-13
 - **Basis:** WP8 L5; WP9 G4. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-456)
@@ -868,7 +868,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-57 — Compound assignment
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `plans_and_notes/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
 - **Affected rules:** STM-25, STM-6, LEX-22
 - **Basis:** WP8 L6; WP9 G5. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-457)
@@ -879,7 +879,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-58 — Erasing a frame's locals on exit
 
 - **Kind:** gap (from the FIDO2 check, finding L10)
-- **Sources:** STM-23, PLT-34; `plans_and_notes/WP8-fido2-findings.md` §4
+- **Sources:** STM-23, PLT-34; `devel/reports/WP8-fido2-findings.md` §4
 - **Affected rules:** PLT-35 (new), STM-23
 - **Question:** A secret held in a local must be erased on every way out of a function. `wipe` must run before each exit, so `attempt … else` cannot be used, and nothing erases a local when a trap discards its frame. How should secrets in locals be erased?
 - **Options:**
@@ -893,7 +893,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-59 — Session boundaries defined by the transport binding
 
 - **Kind:** proposal-to-validate (Draft 0.2 candidate 1, from the review of the transport bindings)
-- **Sources:** STA-4, STA-6, RTF-9, PLT-18, PLT-19; profile BP-14, BP-55; `plans_and_notes/spec-plans/WP11-sessions-and-raw-envelope.md`
+- **Sources:** STA-4, STA-6, RTF-9, PLT-18, PLT-19; profile BP-14, BP-55; `devel/plans/spec/WP11-sessions-and-raw-envelope.md`
 - **Affected rules:** STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23, the chapter 1 glossary, NAM-14, LEX-15
 - **Question:** Session state and volatile resources were tied to power-on, which is card-centric. In a TEE, power-on is device boot, while clients open and close sessions many times between boots. How should session boundaries be defined?
 - **Options:**

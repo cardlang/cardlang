@@ -1,6 +1,6 @@
 # CardLang VM — The HAL interface
 
-Work package VM2. Plan: `plans_and_notes/vm-plans/VM2-hal.md`. Decisions: `vm/decisions.md`. Declarations: `vm/c/include/cl_hal.h` and `cl_hal_test.h`.
+Work package VM2. Plan: `devel/plans/vm/VM2-hal.md`. Decisions: `vm/decisions.md`. Declarations: `vm/c/include/cl_hal.h` and `cl_hal_test.h`.
 
 The HAL is everything the VM, and the native library that ships with it, asks of a platform. Requirements are numbered `HAL-n` and cite the decisions, the VM requirements (`VEX-n`, `vm/execution-model.md`) and the specification or profile rules they serve (V-9). Where this document and the specification or the Base Profile disagree, they win.
 

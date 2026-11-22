@@ -1,4 +1,4 @@
-"""Independent check of the PIV example applet (WP12, plans_and_notes/spec-plans/WP12-piv.md §4).
+"""Independent check of the PIV example applet (WP12, devel/plans/spec/WP12-piv.md §4).
 
 Builds examples/piv with the full checker and the ISO 7816 binding check, runs a host-side PIV session (NIST SP
 800-73-5 Part 2) through a harness backend, and checks every response with code of its own: a small BER-TLV

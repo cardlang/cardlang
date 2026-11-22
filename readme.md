@@ -73,7 +73,8 @@ This is a shortened version of the counter, one of the representative applicatio
 | [`tools/clc.py`](tools/clc.py) | The command line: check, build, disassemble, and run a scenario |
 | [`tools/vscode/`](tools/vscode/README.md), `tools/lsp/`, `tools/dap/` | The VS Code extension, its language server and its debug adapter |
 | [`vm/`](vm/decisions.md) | The VM's design (execution model, HAL, bytecode, image format) and the C VM (`vm/c/`) |
-| [`plans_and_notes/`](plans_and_notes/) | The source design notes, the decision register, the plan of plans with one sub-plan per chapter, and the SP14 consolidation report |
+| [`plans_and_notes/`](plans_and_notes/) | The rationale: the source design notes, the platform notes, the decision register, and the Draft 0.2 release notes and candidates (to move into `language/`, PR3) |
+| [`devel/`](devel/README.md) | Development aids: the plans of plans and every work-package plan, measurement reports and findings, the conformance-test generators, and the history and measurement scripts |
 
 ## How the specification is organized
 
@@ -96,7 +97,7 @@ This runs every checker over the conformance tests it covers, the grammar check,
 
 ## Next steps
 
-The plans are in [`plans_and_notes/vm-plan-of-plans.md`](plans_and_notes/vm-plan-of-plans.md) and `plans_and_notes/tooling-plans/`:
+The plans are in [`devel/plans/vm-plan-of-plans.md`](devel/plans/vm-plan-of-plans.md) and `devel/plans/tooling/`:
 
 - **VM8:** the C VM on a real Cortex-M;
 - **VM9:** a bridge to real host software, through a virtual smart-card reader;
