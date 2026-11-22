@@ -27,6 +27,14 @@ The extension finds the repository, the folder whose `pyproject.toml` names the 
 
 ## Installing
 
+**From a release,** for normal use: download `cardlang-<version>.vsix` from the repository's [Releases](https://github.com/cardlang/cardlang/releases) and install it:
+
+```bash
+code --install-extension cardlang-<version>.vsix
+```
+
+A newer release installs over an older one. The extension still needs a clone of the repository, with `uv sync` run once (see Requirements).
+
 **For development,** VS Code loads the extension straight from the repository:
 
 ```bash
@@ -36,7 +44,7 @@ uv run python -I editors/vscode/install.py
 
 Then run **Developer: Reload Window**. After any change to the extension, reload again. `install.py --remove` removes the link.
 
-**From a package,** for normal use. Build it, remove a development link if you made one, and install it:
+**From a package you build,** for trying a change. Build it, remove a development link if you made one, and install it:
 
 ```bash
 cd editors/vscode && npm install && npm run package
@@ -45,6 +53,20 @@ code --install-extension editors/vscode/cardlang.vsix --force
 ```
 
 `npm run package` writes `editors/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools are the `cardlang` package in the repository, so the extension still needs the repository, through `cardlang.repository` or the workspace. `--force` replaces an installed copy of the same version.
+
+## Releasing
+
+GitHub builds and checks the extension on every push or pull request that touches it, or the toolchain it checks against (`.github/workflows/vscode-extension.yml`); each run keeps the `.vsix` as a downloadable artifact. To publish a release:
+
+1. Raise `version` in `package.json` (and in `package-lock.json`, with `npm install`), and commit it to `main`.
+2. Tag that commit `vscode-v<version>` and push the tag:
+
+   ```bash
+   git tag vscode-v0.1.2
+   git push origin vscode-v0.1.2
+   ```
+
+The workflow checks that the tag matches `package.json`'s version, builds `cardlang-<version>.vsix`, and creates the GitHub Release with it attached.
 
 ## Applets and projects
 

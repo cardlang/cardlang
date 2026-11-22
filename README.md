@@ -70,15 +70,19 @@ Key properties of the language:
 
 The VS Code extension is the easiest way into CardLang: open an example applet, read it with highlighting and errors as you type, build it, run it, and step through it in a debugger.
 
-**1. Set up the repository.** You need [uv](https://docs.astral.sh/uv/), VS Code, and Node.js with npm to package the extension. From the repository root:
+**1. Set up the repository and the extension.** You need [uv](https://docs.astral.sh/uv/) and VS Code. Clone this repository, and from its root run:
 
 ```bash
 uv sync
-cd editors/vscode && npm install && npm run package
-code --install-extension cardlang.vsix
 ```
 
-`uv sync` installs the CardLang toolchain into the repository's environment. The extension runs it from there.
+`uv sync` installs the CardLang toolchain into the repository's environment. The extension runs it from there. Then download `cardlang-<version>.vsix` from the [latest release of the extension](https://github.com/cardlang/cardlang/releases), and install it:
+
+```bash
+code --install-extension cardlang-<version>.vsix
+```
+
+To build the extension yourself instead, with Node.js and npm, see its [README](editors/vscode/README.md#installing).
 
 **2. Open the repository folder in VS Code,** then open `examples/fido2/ctap.card`, a FIDO2 authenticator's command handlers.
 - **Errors as you type:** change a type or misspell a name, and the error appears at once, with its code from the specification (`CE-EXP-4`) and its message.

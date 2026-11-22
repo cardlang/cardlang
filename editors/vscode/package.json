@@ -7,6 +7,9 @@
   "icon": "images/icon.png",
   "galleryBanner": { "color": "#14264D", "theme": "dark" },
   "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/cardlang/cardlang", "directory": "editors/vscode" },
+  "homepage": "https://github.com/cardlang/cardlang#readme",
+  "bugs": { "url": "https://github.com/cardlang/cardlang/issues" },
   "private": true,
   "engines": {
     "vscode": "^1.91.0"
@@ -24,7 +27,7 @@
     "onDebugDynamicConfigurations:cardlang"
   ],
   "scripts": {
-    "package": "vsce package --allow-missing-repository --out cardlang.vsix"
+    "package": "vsce package --out cardlang.vsix"
   },
   "contributes": {
     "semanticTokenModifiers": [

@@ -1,0 +1,90 @@
+# Builds the VS Code extension, checks it, and on a release tag publishes it.
+#
+# - A push or pull request that touches the extension or the toolchain it checks against builds cardlang.vsix and keeps
+#   it as an artifact of the run, for trying a change out.
+# - A tag vscode-v<version>, such as vscode-v0.1.2, also creates a GitHub Release with the .vsix attached. The tag's
+#   version must equal editors/vscode/package.json's. (Path filters do not apply to tag pushes.)
+# - It can also be run by hand, from the Actions tab.
+name: VS Code extension
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["vscode-v*"]
+    paths:
+      - "editors/vscode/**"
+      - "src/cardlang/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/vscode-extension.yml"
+  pull_request:
+    paths:
+      - "editors/vscode/**"
+      - "src/cardlang/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/vscode-extension.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # to create the release on a tag
+    steps:
+      - uses: actions/checkout@v4
+
+      # The check: the extension's grammars, keywords, scenario steps and commands match the language and the package.
+      - uses: astral-sh/setup-uv@v5
+      - name: Install the cardlang package
+        run: uv sync --locked
+      - name: Check the extension
+        run: uv run python -I editors/vscode/check_extension.py .
+
+      # The build.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: editors/vscode/package-lock.json
+      - name: Build cardlang.vsix
+        working-directory: editors/vscode
+        run: |
+          npm ci
+          npm run package
+          version=$(node -p "require('./package.json').version")
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          cp cardlang.vsix "cardlang-$version.vsix"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cardlang-${{ env.VERSION }}.vsix
+          path: editors/vscode/cardlang-${{ env.VERSION }}.vsix
+          if-no-files-found: error
+
+      # The release, on a tag only.
+      - name: Check the tag against the version
+        if: startsWith(github.ref, 'refs/tags/vscode-v')
+        run: |
+          tag="${GITHUB_REF_NAME#vscode-v}"
+          if [ "$tag" != "$VERSION" ]; then
+            echo "::error::the tag says $tag, but editors/vscode/package.json says $VERSION"
+            exit 1
+          fi
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/vscode-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "editors/vscode/cardlang-$VERSION.vsix" \
+            --title "CardLang for VS Code $VERSION" \
+            --notes "Install it with:
+
+          \`\`\`
+          code --install-extension cardlang-$VERSION.vsix
+          \`\`\`
+
+          The extension runs the CardLang toolchain from a clone of this repository: clone it and run \`uv sync\` once. See the README's chapter *Getting started in VS Code*."

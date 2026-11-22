@@ -47,3 +47,22 @@ Planned 2026-11-22, on the branch `vscode-release`. Today the `.vsix` is built b
 | R4 | What the workflow checks before packaging | (a) `check_extension.py`, with uv; (b) nothing beyond the packaging itself | (a). It takes seconds, and catches the grammar or the commands drifting from the language |
 
 **Decided (user, 2026-11-22):** R1 (a), a release on each `vscode-v<version>` tag. R2 (a), the version is raised for each release. R3 (a), GitHub Releases only. R4 (a), `check_extension.py` runs before packaging. All four are as recommended.
+
+## 4. Done (2026-11-22, on `vscode-release`)
+
+- **`.github/workflows/vscode-extension.yml`** runs on Ubuntu, using `actions/checkout`, `astral-sh/setup-uv`, `actions/setup-node` with npm's cache, and `actions/upload-artifact`.
+  - **What starts it:** a push or pull request that touches the extension, `src/cardlang/`, `pyproject.toml`, `uv.lock` or the workflow itself; a `vscode-v*` tag, whatever it touches, since path filters do not apply to tags; or a run by hand.
+  - **The steps:** `uv sync --locked` and `check_extension.py`, then `npm ci` and `npm run package`. The `.vsix` is copied to `cardlang-<version>.vsix` and kept as an artifact of the run.
+  - **On a tag,** it also checks that the tag's version equals `package.json`'s, and runs `gh release create` with the `.vsix` and install notes. The job may write to the repository's contents; the rest of the workflow only reads.
+- **`package.json`** names the repository (with `directory: editors/vscode`), the homepage and the issue tracker. `--allow-missing-repository` is gone.
+- **The READMEs:**
+  - the getting-started step 1 is now: clone, `uv sync`, then download the `.vsix` from Releases and install it, with building it yourself linked as the alternative;
+  - the extension's README has "From a release" first;
+  - its new "Releasing" section explains how to raise the version, tag `vscode-v<version>` and push the tag.
+- **Checked locally:**
+  - `uv sync --locked`, `check_extension.py`, `npm ci` and `npm run package` all pass; the `.vsix` carries the licence;
+  - the version lookup gives `0.1.1`;
+  - the link check passes.
+
+  The workflow itself is not run until the branch is pushed. Its first run is the test.
+- **The first release** can be `vscode-v0.1.1`, since 0.1.1 has never been published. Each later one raises the version first.
