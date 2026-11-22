@@ -169,5 +169,3 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 - `check_extension.py`: the extension's static parts;
 - `debug_check.py`: the image's debug information;
 - `dap_check.py`: the debug adapter.
-
-The plan and its history are in `devel/plans/tooling/TL1-vscode-extension.md`.

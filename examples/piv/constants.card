@@ -1,8 +1,8 @@
 // A PIV card application (NIST SP 800-73-5) in CardLang: constants, errors and state.
-// WP12 of devel/plans/spec/WP12-piv.md. Contact interface only; no secure messaging (PIV step 0, §2).
+// Contact interface only; no secure messaging.
 
 // The one application error set (OUT-16): ISO 7816 status words (BP-51, BP-52). VERIFY and the PIN commands report
-// the retries left as 63CX; the retry counters are at most 10 (Part 2 §3.2.1), so 63C0 to 63CA (PIV step 0, Q5).
+// the retries left as 63CX; the retry counters are at most 10 (Part 2 §3.2.1), so 63C0 to 63CA.
 errors Sw {
     Retries0 = 0x63C0;
     Retries1 = 0x63C1;
@@ -38,7 +38,7 @@ const KEY_CARD_AUTH: u32 = 0x9E;
 const ALG_AES128: u8 = 0x08;
 const ALG_P256: u8 = 0x11;
 
-// The administration key's test default (WP12 H2): 01 02 .. 08, twice. A real issuer personalises it.
+// The administration key's test default: 01 02 .. 08, twice. A real issuer personalises it.
 const DEFAULT_ADMIN_KEY: u8[16] = [1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8];
 
 // The application property template returned by SELECT (Part 2, Tables 3 to 5): the full AID, the coexistent tag
@@ -49,7 +49,7 @@ const APT: u8[49] = [0x61, 0x2F,
     0x50, 0x0C, 0x43, 0x61, 0x72, 0x64, 0x4C, 0x61, 0x6E, 0x67, 0x20, 0x50, 0x49, 0x56,
     0xAC, 0x09, 0x80, 0x01, 0x11, 0x80, 0x01, 0x08, 0x06, 0x01, 0x00];
 
-// Data objects (Part 1, Tables 2 and 3), by index into `lengths` (WP12 H1).
+// Data objects (Part 1, Tables 2 and 3), by index into `lengths`.
 const OBJ_CCC: u8 = 0;
 const OBJ_CHUID: u8 = 1;
 const OBJ_SECURITY: u8 = 2;
@@ -73,7 +73,7 @@ persistent discovery: u8[64];
 persistent lengths: u16[8];
 
 // The PIV Card Application PIN (key reference 80) and the PIN Unblocking Key (81), each 8 bytes as presented to the
-// card (Part 2 §2.4.3), with their retry counters. The test defaults (WP12 H2) are "123456" padded with FF, and
+// card (Part 2 §2.4.3), with their retry counters. The test defaults are "123456" padded with FF, and
 // "12345678". Both counters start at 3; FIPS 201 allows at most 10.
 const PIN_TRIES: u8 = 3;
 const PUK_TRIES: u8 = 3;

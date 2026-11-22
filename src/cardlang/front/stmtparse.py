@@ -1,4 +1,4 @@
-"""The statement parser shared by the reference interpreter and the prototype compiler (VM4 stage 1).
+"""The statement parser shared by the reference interpreter and the prototype compiler.
 
 Statements become tuples; expressions come from the checkers' expression parser (expcheck.p_expr). The parser
 assumes a program the checkers have accepted, so it reports no errors of its own beyond CE-SYN-1 from expcheck.
@@ -29,7 +29,7 @@ def parse_pattern(p):
     owner = p.take(); p.expect("."); return ("enum", owner, p.take())
 
 class Node(tuple):
-    """A statement: still a tuple for every consumer, with .pos = (file, line, column) of its first token (TL1)."""
+    """A statement: still a tuple for every consumer, with .pos = (file, line, column) of its first token."""
     def __new__(cls, t, pos):
         n = tuple.__new__(cls, t); n.pos = pos; return n
 

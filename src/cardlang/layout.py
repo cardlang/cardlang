@@ -1,7 +1,7 @@
-"""Where the repository's parts are (PR1): the one place that knows the repository's layout.
+"""Where the repository's parts are: the one place that knows the repository's layout.
 
 Every tool asks this module, `layout.at(root).spec`, instead of building `root / "spec"` itself, so moving a part
-of the repository (PR0: PR2 to PR6) changes this module and nothing else. `tests/linkcheck.py` checks that
+of the repository changes this module and nothing else. `tests/linkcheck.py` checks that
 no other Python file builds a path into a top-level part.
 
     from cardlang import layout
@@ -9,7 +9,7 @@ no other Python file builds a path into a top-level part.
     L.spec / "00-index.md"
     L.runtime / "run-012-wallet-application"
 
-It is `cardlang.layout` since PR5. It finds the repository from its own place, two levels above `src/cardlang/`.
+It finds the repository from its own place, two levels above `src/cardlang/`.
 """
 import pathlib
 
@@ -20,7 +20,7 @@ class Layout:
     def __init__(self, root=None):
         r = pathlib.Path(root).resolve() if root is not None else ROOT
         self.root = r
-        # the language definition (PR3)
+        # the language definition
         self.language = r / "language"
         self.spec = self.language / "spec"
         self.conformance = self.language / "conformance"
@@ -43,19 +43,19 @@ class Layout:
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
         self.editors = r / "editors"
-        self.vscode = self.editors / "vscode"         # the VS Code extension (PR6)
+        self.vscode = self.editors / "vscode"         # the VS Code extension
         self.src = r / "src"
-        self.package = self.src / "cardlang"          # the Python toolchain (PR5)
+        self.package = self.src / "cardlang"          # the Python toolchain
         self.front = self.package / "front"
-        self.tests = r / "tests"                      # the checks of the tools and of the definition (PR5)
-        # development aids (PR2)
+        self.tests = r / "tests"                      # the checks of the tools and of the definition
+        # development aids
         self.devel = r / "devel"
         self.plans = self.devel / "plans"
         self.reports = self.devel / "reports"
         self.generators = self.devel / "generators"
         self.history = self.devel / "history"
         self.measure = self.devel / "measure"
-        # Documents that record the past: their file paths are as of writing (PR1 L4). The rationale and the release
+        # Documents that record the past: their file paths are as of writing. The rationale and the release
         # notes are part of the definition, but they too are a record.
         self.historical = [self.devel, self.rationale, self.releases]
 
@@ -75,9 +75,14 @@ def at(root=None):
 TOP_LEVEL = ("language", "platform", "examples", "vm", "src", "tests", "editors", "devel")
 
 # Where moved files went: (old path or folder, new path or folder), relative to the root. Historical documents keep the
-# paths they were written with (PR1 L4); linkcheck resolves them through this table, so they are still checked.
+# paths they were written with; linkcheck resolves them through this table, so they are still checked.
 MOVED = [
-    # PR2: development aids into devel/
+    # the two live generators of the specification, into tests/ (listed first: a path matches its first row)
+    ("tools/generators/coverage.py", "tests/coverage.py"),
+    ("tools/generators/rule_index.py", "tests/rule_index.py"),
+    ("devel/generators/coverage.py", "tests/coverage.py"),
+    ("devel/generators/rule_index.py", "tests/rule_index.py"),
+    # development aids into devel/
     ("plans_and_notes/specification-plan-of-plans.md", "devel/plans/specification-plan-of-plans.md"),
     ("plans_and_notes/vm-plan-of-plans.md", "devel/plans/vm-plan-of-plans.md"),
     ("plans_and_notes/spec-plans", "devel/plans/spec"),
@@ -98,7 +103,7 @@ MOVED = [
     ("tools/vmproto/measure.py", "devel/measure/pyvm_measure.py"),
     ("tools/vmproto/revision.py", "devel/measure/revision.py"),
     ("vm/c/measure.py", "devel/measure/cvm_measure.py"),
-    # PR3: the definition into language/
+    # the definition into language/
     ("spec", "language/spec"),
     ("conformance", "language/conformance"),
     ("plans_and_notes/card-language-design-notes.md", "language/rationale/card-language-design-notes.md"),
@@ -106,19 +111,19 @@ MOVED = [
     ("plans_and_notes/decision-register.md", "language/rationale/decision-register.md"),
     ("plans_and_notes/draft-0.2-release-notes.md", "language/releases/draft-0.2.md"),
     ("plans_and_notes/draft-0.2-candidates.md", "language/releases/draft-0.2-candidates.md"),
-    # PR4: each applet's checker into its applet
+    # each applet's checker into its applet
     ("tools/fido/check_fido2.py", "examples/fido2/check.py"),
     ("tools/piv/check_piv.py", "examples/piv/check.py"),
     ("tools/fido", "examples/fido2"),
     ("tools/piv", "examples/piv"),
-    # PR5a: the package, layout and the front end; the specification checks into tests/
+    # the package, layout and the front end; the specification checks into tests/
     ("tools/checkers/layout.py", "src/cardlang/layout.py"),
     ("tools/checkers/speccheck.py", "tests/speccheck.py"),
     ("tools/checkers/profilecheck.py", "tests/profilecheck.py"),
     ("tools/checkers/linkcheck.py", "tests/linkcheck.py"),
     ("tools/checkers/poscheck.py", "tests/poscheck.py"),
     ("tools/checkers", "src/cardlang/front"),
-    # PR5b: the host side of the platform, the bytecode and the compiler
+    # the host side of the platform, the bytecode and the compiler
     ("tools/interp/p256.py", "src/cardlang/platform/p256.py"),
     ("tools/interp/testcrypto.py", "src/cardlang/platform/testcrypto.py"),
     ("tools/interp/testcbor.py", "src/cardlang/platform/testcbor.py"),
@@ -128,7 +133,7 @@ MOVED = [
     ("tools/vmproto/disasm.py", "src/cardlang/bytecode/disasm.py"),
     ("tools/vmproto/typer.py", "src/cardlang/compiler/typer.py"),
     ("tools/vmproto/compiler.py", "src/cardlang/compiler/compiler.py"),
-    # PR5c: the interpreter, the Python VM (vmproto becomes pyvm, R7) and the harness; their checks into tests/
+    # the interpreter, the Python VM (once vmproto) and the harness; their checks into tests/
     ("tools/interp/interp.py", "src/cardlang/interp/interp.py"),
     ("tools/vmproto/vm.py", "src/cardlang/pyvm/vm.py"),
     ("tools/vmproto/hal.py", "src/cardlang/pyvm/hal.py"),
@@ -145,7 +150,7 @@ MOVED = [
     ("tools/interp", "src/cardlang/interp"),
     ("tools/vmproto", "src/cardlang/pyvm"),
     ("tools/harness", "src/cardlang/harness"),
-    # PR5d: the language server, the debug adapter, the command line, and the checks of the tools into tests/
+    # the language server, the debug adapter, the command line, and the checks of the tools into tests/
     ("tools/clc.py", "src/cardlang/cli.py"),
     ("tools/lsp/jsonrpc.py", "src/cardlang/jsonrpc.py"),
     ("tools/lsp/cardlang_lsp.py", "src/cardlang/lsp/server.py"),
@@ -159,7 +164,7 @@ MOVED = [
     ("tools/clc_check.py", "tests/clc_check.py"),
     ("tools/run_checks.py", "tests/run_checks.py"),
     ("tools/README.md", "src/cardlang/README.md"),
-    # PR6: the extension into editors/; the launchers that PR5 kept for it are gone
+    # the extension into editors/
     ("tools/vscode", "editors/vscode"),
 ]
 

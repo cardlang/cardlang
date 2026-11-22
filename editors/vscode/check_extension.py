@@ -1,4 +1,4 @@
-"""Consistency checks of the VS Code extension's static parts (TL1 step 3), run by tests/run_checks.py.
+"""Consistency checks of the VS Code extension's static parts, run by tests/run_checks.py.
 
 - Every JSON file of the extension parses.
 - The grammar's keywords are exactly the lexer's (src/cardlang/front/lexcheck.py KEYWORDS), and its intrinsics exactly
@@ -6,7 +6,7 @@
 - The scenario grammar's steps are exactly those the scenario runner accepts (src/cardlang/harness/scenario.py).
 - Every regular expression of both grammars compiles (in Python's syntax, which these patterns share with
   Oniguruma), and the keyword patterns colour every keyword token of both applets.
-- The extension starts the tools only by the commands the package installs (PR6), never a script by its path.
+- The extension starts the tools only by the commands the package installs, never a script by its path.
 Usage: uv run python -I editors/vscode/check_extension.py .
 """
 import sys, re, json, pathlib, tomllib

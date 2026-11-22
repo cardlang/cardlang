@@ -22,7 +22,7 @@ class P:
     def __init__(self, toks): self.t = toks; self.i = 0
     def peek(self, k=0):
         if self.i + k >= len(self.t): return None
-        if k == 0: note(self.t[self.i])                     # the token being examined (TL1: error positions)
+        if k == 0: note(self.t[self.i])                     # the token being examined (error positions)
         return self.t[self.i + k][1]
     def take(self): v = self.t[self.i]; note(v); self.i += 1; return v
     def expect(self, v):
@@ -66,7 +66,7 @@ def args(p):
 
 def primary(p):
     k, v = p.take()
-    if k == "bytes": return ("list", [("int", b) for b in v])                  # WP9 L1
+    if k == "bytes": return ("list", [("int", b) for b in v])                  # a byte string
     if k == "int":
         s = v.replace("_", "")  # LEX-17/LEX-19: a leading zero is decimal, never octal
         return ("int", int(s[2:], 16) if s.startswith("0x") else int(s[2:], 2) if s.startswith("0b") else int(s, 10))

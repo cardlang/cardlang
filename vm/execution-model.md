@@ -1,6 +1,6 @@
 # CardLang VM — Execution and memory model
 
-Work package VM1, amended by VM2 (VEX-32, VEX-34, VEX-35, VEX-37, VEX-45, VEX-50). Plan: `devel/plans/vm/VM1-execution-model.md`. Decisions: `vm/decisions.md`.
+Decisions: `vm/decisions.md`.
 
 This document states how a CardLang program's values, storage, calls, outcomes and failures are represented inside the VM. It does not define instructions or their encoding (`bytecode.md`), the image layout (`image-format.md`), or HAL function signatures (`hal.md`). Requirements are numbered `VEX-n` and cite the decisions and the specification or profile rules they serve (V-9). Where this document and the specification disagree, the specification wins.
 
@@ -9,7 +9,7 @@ This document states how a CardLang program's values, storage, calls, outcomes a
 **VEX-1 Trusted bytecode.** The VM executes an image without verifying it. Every static guarantee of the language (types, definite completion, the call graph, transaction nesting, permissions of references) is established before the image reaches the device. The VM checks only the image header against its configuration (VEX-9) and whatever is cheap, such as an opcode outside the instruction set (VEX-41).
 *Serves: V-1; RTF-4 (`VM`), PLT-28.*
 
-**VEX-2 Bounded bookkeeping.** All state the VM itself keeps is in one context structure, `cl_vm`, whose size is a compile-time constant of the VM, independent of the application (VEX-50). The VM allocates no memory, keeps no C globals, and its C stack use is a constant independent of the application. That stack is VM bookkeeping too, and is measured with the context (V-47). VM7 measured the C VM's at most 856 bytes on Cortex-M4 and 904 on Cortex-M0+, below the HAL's own frames (`devel/reports/VM7-measurements.md` §3).
+**VEX-2 Bounded bookkeeping.** All state the VM itself keeps is in one context structure, `cl_vm`, whose size is a compile-time constant of the VM, independent of the application (VEX-50). The VM allocates no memory, keeps no C globals, and its C stack use is a constant independent of the application. That stack is VM bookkeeping too, and is measured with the context (V-47). The C VM's is at most 856 bytes on Cortex-M4 and 904 on Cortex-M0+, below the HAL's own frames.
 *Serves: V-2, V-8.*
 
 **VEX-3 One context, one application.** A context runs one application. Several contexts may coexist; they share nothing that the VM owns.

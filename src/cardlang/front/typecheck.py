@@ -6,7 +6,7 @@ from cardlang import layout
 PRIM = {"u8", "u16", "u32", "i8", "i16", "i32", "bool"}
 SIGNED = {"i8", "i16", "i32"}
 
-decl = {}                                    # the name token of each struct and enum scanned last (TL1)
+decl = {}                                    # the name token of each struct and enum scanned last
 
 def scan(toks):
     """Collect declarations and type positions. Returns (structs, enums, consts, others, positions)."""
@@ -22,7 +22,7 @@ def scan(toks):
                 if toks[k][1] == "]": depth -= 1
                 k += 1
             suffixes.append([t[1] for t in toks[j+1:k-1]]); j = k
-        positions.append((name, suffixes, ctx, toks[start])); return j      # the type's first token (TL1)
+        positions.append((name, suffixes, ctx, toks[start])); return j      # the type's first token
     paren_ctx = []  # stack of booleans: inside a parameter list
     while i < n:
         k, v = toks[i]
@@ -46,7 +46,7 @@ def scan(toks):
             paren_ctx and paren_ctx.pop()
         declares = i > 1 and (toks[i-2][1] in ("var", "const", "persistent", "session", "for")
                               or (paren_ctx and paren_ctx[-1] and toks[i-2][1] in ("(", ",")))
-        if v == ":" and k == "p" and toks[i-1][0] == "id" and declares:      # not a constructor's field (TL1)
+        if v == ":" and k == "p" and toks[i-1][0] == "id" and declares:      # not a constructor's field
             j = i + 1; mode = None
             if toks[j][1] in ("ref", "inout"):
                 mode = toks[j][1]; j += 1
@@ -63,7 +63,7 @@ def check(toks):
     return sorted({code for code, _ in errs}), positions
 
 def check_located(toks):
-    """The errors as (code, token) in source order, and the type positions (TL1)."""
+    """The errors as (code, token) in source order, and the type positions."""
     structs, enums, consts, others, positions = scan(toks)
     errs = []
     for name, members in enums.items():

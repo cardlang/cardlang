@@ -1,4 +1,4 @@
-"""The debug section of an image, decoded (IMG-10; TL1 step 4).
+"""The debug section of an image, decoded (IMG-10).
 
     info = DebugInfo.of(image)
     info.position(code_offset)   -> (file, line), the statement that code offset belongs to
@@ -50,7 +50,7 @@ class DebugInfo:
         info.files = [r.str() for _ in range(r.u16())]
         info.functions = [r.str() for _ in range(r.u16())]
         info.lines = [(r.u32(), r.u16(), r.u32()) for _ in range(r.u32())]
-        if r.i >= end: return info                               # an image without the TL1 parts
+        if r.i >= end: return info                               # an image without types, variables and globals
         for _ in range(r.u16()):
             tag = r.u8()
             if tag == 0: info.types.append(("int", TYPE_NAMES[r.u8()]))

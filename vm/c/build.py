@@ -1,11 +1,11 @@
-"""Configure and build the C VM with both toolchains (VM7, J1): MSVC and clang from llvm-mingw.
+"""Configure and build the C VM with both toolchains: MSVC and clang from llvm-mingw.
 
 Run with the project's uv environment, from the repository root:
     uv run python -I vm/c/build.py [msvc | clang | all] [--clean]
 
 - MSVC is found with vswhere, and its environment is taken from vcvars64.bat. CMake and Ninja are Visual Studio's.
 - llvm-mingw is the folder named by CARDLANG_LLVM_MINGW, or the newest `llvm-mingw-*` folder next to the
-  repository (VM7 §2a). It is driven by cmake/llvm-mingw-x86_64.cmake, with the global CMake and Ninja from the PATH,
+  repository. It is driven by cmake/llvm-mingw-x86_64.cmake, with the global CMake and Ninja from the PATH,
   and needs no Visual Studio.
 - Build trees go to vm/c/build/<toolchain>, which git ignores.
 """

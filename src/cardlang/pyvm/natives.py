@@ -1,4 +1,4 @@
-"""The prototype's native library (VM5): the catalog APIs as `NATIVE n` executes them (vm/bytecode.md §5).
+"""The prototype's native library: the catalog APIs as `NATIVE n` executes them (vm/bytecode.md §5).
 
 It does only what involves no cryptography (HAL-1 to HAL-3): it takes the arguments off the operand stack
 (BC-34), resolves identifiers in the single identifier space (PLT-20), keeps the operation table with its lifetimes
@@ -197,7 +197,7 @@ class Natives:
         if o["purpose"] == "verify": raise NativeError("InvalidState")
         result = self.hal.op_finish(o["ctx"])
         if out[1] < len(result): raise NativeError("Capacity")           # the operation continues (BP-31)
-        self.drop(op); return self.out(out, result)  # it has ended before the write, which may trap (HAL-26, K3)
+        self.drop(op); return self.out(out, result)  # it has ended before the write, which may trap (HAL-26)
 
     def n_crypto_finish_verify(self, op, signature):
         o = self.operation(op); self.hal._op_key(o["ctx"])

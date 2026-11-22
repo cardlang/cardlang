@@ -1,5 +1,5 @@
 /*
- * header_check.c - VM7 step 1: the VM's public headers compile, warning-free, on both compilers (J1).
+ * header_check.c - the VM's public headers compile, warning-free, on both compilers.
  * It also pins the sizes and values the interface documents (vm/hal.md HAL-7, HAL-30).
  */
 #include "cl_hal.h"

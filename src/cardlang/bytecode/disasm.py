@@ -1,4 +1,4 @@
-"""Disassembler for images (VM4; named disasm, not dis, so as not to shadow the standard module): prints the header, the function table and annotated listings.
+"""Disassembler for images (named disasm, not dis, so as not to shadow the standard module): prints the header, the function table and annotated listings.
 
 Usage:
     uv run python -I -m cardlang.bytecode.disasm <image.bin>
@@ -37,7 +37,7 @@ def operand_text(name, kinds, ops, end):
     return " ".join(out)
 
 def listing(img):
-    """The annotated listing; with debug information (TL1), each statement's source line and each variable's scope."""
+    """The annotated listing; with debug information, each statement's source line and each variable's scope."""
     from cardlang.bytecode import debuginfo
     info = debuginfo.DebugInfo.of(img)
     marks = {}

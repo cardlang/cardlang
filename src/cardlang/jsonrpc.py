@@ -1,4 +1,4 @@
-"""JSON-RPC over standard input and output, with Content-Length framing (TL1, N2).
+"""JSON-RPC over standard input and output, with Content-Length framing.
 
 The framing that both the Language Server Protocol and the Debug Adapter Protocol use: a header block of
 `Name: value` lines ended by an empty line, then a UTF-8 JSON body of Content-Length bytes. No dependencies.

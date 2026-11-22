@@ -27,7 +27,7 @@ class P:
     def __init__(self, toks): self.t = toks; self.i = 0
     def peek(self, k=0):
         if self.i + k >= len(self.t): return None
-        if k == 0: note(self.t[self.i])                     # the token being examined (TL1: error positions)
+        if k == 0: note(self.t[self.i])                     # the token being examined (error positions)
         return self.t[self.i + k][1]
     def kind(self, k=0): return self.t[self.i + k][0] if self.i + k < len(self.t) else None
     def take(self): v = self.t[self.i]; note(v); self.i += 1; return v[1]
@@ -51,7 +51,7 @@ def p_unary(p, ns):
         op = p.take(); return ("un", op, p_unary(p, ns))
     if p.peek() == "attempt":
         p.take(); call = p_postfix(p, ns)
-        if p.peek() == "else":                                 # attempt c else E.M (WP9 L4)
+        if p.peek() == "else":                                 # attempt c else E.M
             p.take(); return ("attempt", call, p_postfix(p, ns))
         return ("attempt", call)
     return p_postfix(p, ns)
@@ -90,7 +90,7 @@ def p_type(p):
 
 def p_primary(p, ns):
     k = p.kind(); v = p.take()
-    if k == "bytes": return ("list", [("int", b) for b in v])                  # WP9 L1: an array list of bytes
+    if k == "bytes": return ("list", [("int", b) for b in v])                  # a byte string: an array list of bytes
     if k == "int": return ("int", consteval.primary(consteval.P([("int", v)]))[1])
     if v in ("true", "false"): return ("bool", v == "true")
     if v == "(":

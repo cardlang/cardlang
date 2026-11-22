@@ -1,4 +1,4 @@
-"""The prototype's test HAL (VM5), following vm/hal.md:
+"""The prototype's test HAL, following vm/hal.md:
 - persistent storage, atomic updates, transactions, recovery and the interrupt hook (HAL-15 to HAL-20);
 - the key store, with persistent key changes joining transactions (HAL-21 to HAL-23);
 - every cryptographic operation and randomness (HAL-25 to HAL-28), done by the test-only implementations in

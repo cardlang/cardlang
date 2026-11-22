@@ -1,5 +1,5 @@
-// The PIV Card Application Administration Key '9B' (Part 2, Appendix A.1 and A.2): AES-128 (algorithm '08', WP12
-// H3), one block in ECB mode. ECB on one block is CBC with a zero IV, so the profile's AES-CBC serves (PIV step 0).
+// The PIV Card Application Administration Key '9B' (Part 2, Appendix A.1 and A.2): AES-128 (algorithm '08'),
+// one block in ECB mode. ECB on one block is CBC with a zero IV, so the profile's AES-CBC serves.
 
 const ZERO_IV: u8[16] = fill(0);
 

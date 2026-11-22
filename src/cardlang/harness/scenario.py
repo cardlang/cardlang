@@ -1,4 +1,4 @@
-"""The scenario runner shared by every CardLang execution backend (VM0, vm/decisions.md V-10).
+"""The scenario runner shared by every CardLang execution backend (vm/decisions.md V-10).
 
 A scenario (language/conformance/runtime/*/scenario.txt) is a list of steps and expectations. This module runs one against a
 backend, a "card" built from a checked program, and compares host-visible results. The backend interface is
@@ -47,7 +47,7 @@ def parse_expect(words):
 def run_scenario(card, text, trace=None, before=None):
     """Run one scenario against a backend. Returns None on success, or a description of the first mismatch.
     trace, if given, is called after each step as trace(lineno, step, words, outcome); outcome is None for a step
-    that has none, and for `expect` it is ("expect", want, got) (TL1: `clc run` and the debugger).
+    that has none, and for `expect` it is ("expect", want, got) (`clc run` and the debugger).
     before, if given, is called before each step as before(lineno, step, words): the debugger's scenario breakpoints."""
     pending = None
     for lineno, raw in enumerate(text.splitlines(), 1):
@@ -82,7 +82,7 @@ def run_scenario(card, text, trace=None, before=None):
 
 def program_files(d):
     """The source files of a test or example directory, in build order."""
-    from cardlang.front import project                                      # src/cardlang/front: cardlang.json, or the .card files (TL1)
+    from cardlang.front import project                                      # src/cardlang/front: cardlang.json, or the .card files
     return project.program_files(d)
 
 def take_backend(argv, default="interp"):

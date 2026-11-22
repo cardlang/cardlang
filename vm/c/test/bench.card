@@ -1,4 +1,4 @@
-// The speed benchmark of VM7 step 5 (devel/measure/cvm_measure.py): a loop of locals, arithmetic, array reads and writes, and a
+// A speed benchmark: a loop of locals, arithmetic, array reads and writes, and a
 // small copy, with no natives, so the budget used is the number of instructions executed. Request: the number of
 // rounds, big-endian, in two bytes.
 command process(request: ref u8[], response: inout u8[]) -> u32 {

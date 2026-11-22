@@ -66,7 +66,3 @@ uv run python -I examples/fido2/check.py . --backend interp
 - for each PIN protocol: setting and changing the PIN, getting a token, PIN-based UV, retries and blocking.
 
 `tests/run_checks.py` runs it on all four backends, together with the scenario.
-
-## Background
-
-The applet was written in work package WP8, in steps: the CTAP core first, then the PIN protocols. What it showed about the language and the profile, and what changed as a result, is in [the findings report](../../devel/reports/WP8-fido2-findings.md).

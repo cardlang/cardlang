@@ -1,4 +1,4 @@
-"""The prototype CardLang VM (VM5): executes version-0 images (vm/bytecode.md) as the C VM will.
+"""The prototype CardLang VM: executes version-0 images (vm/bytecode.md) as the C VM will.
 
 All of the VM's own mutable state is in one context object, Ctx, whose fields have declared C sizes (V-31). The
 interpreter is a set of functions over that context; it keeps no other state. Regions (SESSION, STACK, REQUEST,
@@ -201,7 +201,7 @@ def step(ctx, name, ops, next_pc, natives):
         elif name in ("LDFB", "STFB"): ops = [isa.TYPES["u8"], ops[0]]
         elif name == "ADDRF": ops = [STACK, ops[0]]
         name = SHORT[name]
-    elif name in CMP_BRANCH:                            # PUSH.B k; the comparison; JNZ (VM7b, bytecode.md 2.13)
+    elif name in CMP_BRANCH:                            # PUSH.B k; the comparison; JNZ (bytecode.md 2.13)
         x = pop(ctx); k = ops[-2]
         if name in ("JEQI8", "JNEI8"): taken = (x == k) == (name == "JEQI8")
         else:
@@ -209,7 +209,7 @@ def step(ctx, name, ops, next_pc, natives):
             taken = {"JLTI8": xv < kv, "JLEI8": xv <= kv, "JGTI8": xv > kv, "JGEI8": xv >= kv}[name]
         ctx.pc = next_pc + ops[-1] if taken else next_pc; return None
     elif name in ("SLICEF", "SLICEFK"):                 # the frame view at base, from the u32 at start (SLICEF) or
-        size, base, start = ops                         # from the constant start (SLICEFK, VM7b) to its end
+        size, base, start = ops                         # from the constant start (SLICEFK) to its end
         a = load_scalar(ctx, (STACK << 29) | (ctx.fp + base), U32)
         n = load_scalar(ctx, (STACK << 29) | (ctx.fp + base + 4), U32)
         s = start if name == "SLICEFK" else load_scalar(ctx, (STACK << 29) | (ctx.fp + start), U32)

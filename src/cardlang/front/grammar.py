@@ -1,4 +1,4 @@
-"""Mechanical check of the Annex A syntactic grammar (SP14).
+"""Mechanical check of the Annex A syntactic grammar.
 
 Reads the EBNF productions of Annex A §A.2 directly from language/spec/annex-A-grammar.md, converts them to BNF,
 and runs an Earley recognizer over the tokens of every conformance test file:

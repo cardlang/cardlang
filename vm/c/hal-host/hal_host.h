@@ -1,9 +1,9 @@
 /*
- * hal_host.h - the host (PC) HAL for tests (VM7): the definition of struct cl_hal, and the platform-side calls a
+ * hal_host.h - the host (PC) HAL for tests: the definition of struct cl_hal, and the platform-side calls a
  * loader makes. It follows vm/hal.md and mirrors the prototype's test HAL, src/cardlang/pyvm/hal.py:
  * - persistent storage with atomic updates, transactions, recovery and the interrupt hook (HAL-15 to HAL-20);
  * - the key store, whose persistent keys join transactions (HAL-21 to HAL-23);
- * - every cryptographic operation, through Mbed TLS's PSA Crypto API (J2), and the deterministic generator of the
+ * - every cryptographic operation, through Mbed TLS's PSA Crypto API, and the deterministic generator of the
  *   test hook (HAL-28, HAL-31);
  * - the fictional resources of the test-only catalog (V-33).
  *

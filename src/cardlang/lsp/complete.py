@@ -1,4 +1,4 @@
-"""Completion (TL1): the runtime APIs and the members of enums and error sets.
+"""Completion: the runtime APIs and the members of enums and error sets.
 
 completions(target, texts, line, character) returns LSP CompletionItems for the position, 0-based, in file target:
 - after `card.` and each namespace below it: the next path segments of the Base Profile catalog

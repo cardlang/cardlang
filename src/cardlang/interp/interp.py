@@ -1,5 +1,5 @@
 """Reference interpreter for CardLang runtime conformance tests (non-normative). It is the `interp` backend of the
-harness in src/cardlang/harness/ (VM0).
+harness in src/cardlang/harness/.
 
 It executes the scenario of every test in language/conformance/runtime/ and compares host-visible results
 (responses, errors, traps) with the scenario's `expect` lines. Each program is first checked by the
@@ -12,10 +12,10 @@ import copy, sys, pathlib, hashlib
 from cardlang.front.lexcheck import lex, header
 from cardlang.front import hepcheck, pltcheck, expcheck, consteval
 from cardlang.front.expcheck import P, p_expr, p_postfix, p_type, CE
-from cardlang.platform import p256                                              # test-only P-256 (WP3)
-from cardlang.platform import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH (WP4)
-from cardlang.platform import testcbor                                          # test-only canonical CBOR (WP5)
-from cardlang.platform import testtlv                                           # test-only BER-TLV reader and DER writer (WP6)
+from cardlang.platform import p256                                              # test-only P-256
+from cardlang.platform import testcrypto                                        # test-only AES, HKDF, ECDSA, ECDH
+from cardlang.platform import testcbor                                          # test-only canonical CBOR
+from cardlang.platform import testtlv                                           # test-only BER-TLV reader and DER writer
 
 RANGES = consteval.RANGES
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
@@ -72,7 +72,7 @@ def restore(live, snap):
             live[k] = copy_value(snap[k])
 
 # ------------------------------------------------------------------ statement parser
-from cardlang.front.stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the prototype compiler (VM4)
+from cardlang.front.stmtparse import parse_block, parse_pattern, parse_stmt   # shared with the prototype compiler
 
 # ------------------------------------------------------------------ the machine
 class Card:
@@ -338,7 +338,7 @@ class Card:
 
     # ---- Base Profile 1 (platform/base-profile.md), test implementation
     def seed(self, data):
-        """Deterministic random generator for tests (WP3 K4): SHA-256 of seed and counter."""
+        """Deterministic random generator for tests: SHA-256 of seed and counter."""
         self.drbg = (bytes(data), 0)
 
     def random_bytes(self, n):
@@ -432,7 +432,7 @@ class Card:
                      "encrypt": AES, "decrypt": AES, "sign_digest": ("EcP256Private",), "verify_digest": EC}[name]
             key, e = get_key(num(0), types)
             if e: return e
-            if name in ("sign_digest", "verify_digest"):                       # BP-29 (WP12): the digest as is
+            if name in ("sign_digest", "verify_digest"):                       # BP-29: the digest as is
                 digest = data(2)
                 if len(digest) != 32: return err("Malformed")
                 if name == "sign_digest": return write(3, testcrypto.ecdsa_sign_digest(key[1], digest))
@@ -482,7 +482,7 @@ class Card:
                    "mac": lambda: testcrypto.hmac_sha256(key[1], o["data"]),
                    "sign": lambda: testcrypto.ecdsa_sign(key[1], o["data"])}[o["purpose"]]()
             if view(1).length < len(out): return err("Capacity")       # the operation continues (BP-31)
-            del ops[op]                       # it ends once its result is computed, before the write (HAL-26, K3)
+            del ops[op]                       # it ends once its result is computed, before the write (HAL-26)
             return write(1, out)
         if name == "finish_verify":
             if o["purpose"] != "verify": return err("InvalidState")
@@ -820,7 +820,7 @@ class Card:
         return ("ok", [resp.lst[i].v for i in range(count)])
 
 # ------------------------------------------------------------------ scenarios
-# The scenario runner and the binding encoders live in src/cardlang/harness/scenario.py (VM0), shared by every backend.
+# The scenario runner and the binding encoders live in src/cardlang/harness/scenario.py, shared by every backend.
 from cardlang.harness.scenario import status_word, raw_envelope, run_scenario                     # kept importable from here
 
 if __name__ == "__main__":

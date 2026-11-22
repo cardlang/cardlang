@@ -1,5 +1,5 @@
 /*
- * vm.c - the CardLang VM: loader, interpreter loop, memory, calls, outcomes, traps and entry points (VM7).
+ * vm.c - the CardLang VM: loader, interpreter loop, memory, calls, outcomes, traps and entry points.
  *
  * A port of the prototype src/cardlang/pyvm/vm.py, instruction for instruction (bytecode version 1, vm/bytecode.md).
  * The interpreter is one loop in one function, with no recursion (VEX-19); a trap leaves the loop through a single

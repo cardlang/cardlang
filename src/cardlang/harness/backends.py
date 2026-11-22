@@ -1,4 +1,4 @@
-"""The execution backends known to the harness (VM0, vm/decisions.md V-10).
+"""The execution backends known to the harness (vm/decisions.md V-10).
 
 A backend is built from a program's source files and returns a "card" object implementing the interface in
 src/cardlang/harness/README.md. Building checks the program first: a program the checkers reject raises BuildError.
@@ -35,8 +35,8 @@ def _cvm(toolchain):
 
 BACKENDS = {
     "interp": _interp,          # the reference interpreter (src/cardlang/interp/interp.py)
-    "pyvm": _pyvm,        # the compiler and the Python VM (cardlang.pyvm, VM4 and VM5)
-    "cvm-msvc": _cvm("msvc"),   # the C VM built with MSVC (vm/c/, VM7), through cffi
+    "pyvm": _pyvm,        # the compiler and the Python VM (cardlang.pyvm)
+    "cvm-msvc": _cvm("msvc"),   # the C VM built with MSVC (vm/c/), through cffi
     "cvm-clang": _cvm("clang"), # the C VM built with clang from llvm-mingw
 }
 

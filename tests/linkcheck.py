@@ -1,4 +1,4 @@
-"""The link check (PR1): references in the documentation, and repository paths in the code, stay correct.
+"""The link check: references in the documentation, and repository paths in the code, stay correct.
 
 Over every Markdown file the repository tracks:
 1. **Links:** a relative link must reach an existing file or folder.
@@ -10,18 +10,18 @@ Over every Markdown file the repository tracks:
    node_modules folder, or a generated file such as a .vsix) are not checked: a fresh checkout has none.
 
    Historical documents (layout.historical: the plans, reports, findings and step notes) keep the paths they were
-   written with (PR1 L4). A path to a file that has moved since resolves through layout.MOVED; any other unresolved
+   written with. A path to a file that has moved since resolves through layout.MOVED; any other unresolved
    path is reported as INFO, never as a failure. Their links are checked like any other. A current-state document
    must name a moved file by its new path.
 
 A line carrying `<!-- linkcheck: ignore -->` is not checked.
 
 Over every Python file it tracks (4): only `layout` builds paths into the repository's top-level parts. A line that
-sets up `sys.path` is exempt: it bootstraps imports, and goes away when the tools become a package (PR5).
+sets up `sys.path` is exempt: it bootstraps imports, as some scripts in devel/ do.
 
 Over every source file it tracks outside the historical folders (5: .card, .c, .h, .py, .js): a repository path named
 anywhere in it, in a comment, a docstring or a string, must exist. A path counts if its first part is a top-level folder,
-or one that a move retired. `layout.py` is exempt, since its table of moves names the old paths on purpose (PR3 P4).
+or one that a move retired. `layout.py` is exempt, since its table of moves names the old paths on purpose.
 Usage: uv run python -I tests/linkcheck.py .
 """
 import re, sys, pathlib, subprocess, collections
@@ -115,7 +115,7 @@ def main(root):
             if rx.search(line):
                 bad += 1; fail(f"{py.relative_to(root).as_posix()}:{n}", "a repository path built outside layout: " + line.strip()[:100])
     if not bad: print("PASS only layout builds paths into the top-level parts")
-    # 5. repository paths named in source files: comments, docstrings and strings (PR3 P4)
+    # 5. repository paths named in source files: comments, docstrings and strings
     tops = ({p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")} - SKIP_DIRS) \
            | {old.split("/")[0] for old, _ in layout.MOVED}
     rx = re.compile(r"(?<![\w./-])((?:" + "|".join(sorted(tops)) + r")(?:/[A-Za-z0-9_.*-]+)+)")

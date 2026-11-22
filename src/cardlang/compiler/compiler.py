@@ -1,4 +1,4 @@
-"""The prototype CardLang compiler (VM4): a checked program to a version-0 image (vm/bytecode.md, vm/image-format.md).
+"""The prototype CardLang compiler: a checked program to a version-0 image (vm/bytecode.md, vm/image-format.md).
 
 Stages: accept (pltcheck) -> parse and type (typer.py) -> lay out -> generate -> emit. Constants are folded; nothing
 else is optimised (V-32). Usage:
@@ -25,7 +25,7 @@ class CompileError(Exception):
 
 class InvalidProgram(Exception):
     """The program is not valid CardLang: the full diagnostics (cardlang.front.diagnose) reported an error, so it is
-    not compiled (PR5 S3, finding T1). `diagnostics` holds them, in diagnose's form."""
+    not compiled. `diagnostics` holds them, in diagnose's form."""
     def __init__(self, diagnostics):
         self.diagnostics = diagnostics
         from cardlang.front import diagnose
@@ -98,7 +98,7 @@ class FuncGen:
         self.callees = set()
         # parameters (BC-24)
         self.scopes = [{}]; off = 8; self.prologue = []
-        self.vars = []                      # debug information (TL1): every parameter and local, with its scope
+        self.vars = []                      # debug information: every parameter and local, with its scope
         self.unreachable = []               # statements that emit no code, so get no line-table row
         self.scope_vars = [[]]              # the vars bound in each open scope
         for pn, mode, pt in params:
@@ -118,7 +118,7 @@ class FuncGen:
         self.argc = (off - 8) // 4
         self.cur = self.high = off              # the allocation point and its high-water mark (V-34)
 
-    # ---- debug information (TL1): ("debug", kind, data) items, of no size, whose code offsets assemble() records
+    # ---- debug information: ("debug", kind, data) items, of no size, whose code offsets assemble() records
     def mark(self, kind, data):
         if self.c.debug: self.code.append(("debug", kind, data))
 
@@ -454,7 +454,7 @@ class FuncGen:
         except CompileError: return None
 
     def stmt(self, s):
-        if getattr(s, "pos", None):                                                         # the line table (TL1)
+        if getattr(s, "pos", None):                                                         # the line table
             if self.depth is not None: self.mark("line", s.pos)
             else: self.unreachable.append(s.pos)              # emits no code (V-35), so it has no row
         mark = self.cur
@@ -619,7 +619,7 @@ class FuncGen:
         self.frame_size = self.high + 4 * self.max_depth
         return self
 
-    # VM7b (b): a comparison with PUSH.B k as its right operand, then JNZ or JZ, as one compare-and-branch.
+    # A comparison with PUSH.B k as its right operand, then JNZ or JZ, as one compare-and-branch.
     # JZ jumps when the comparison is false, so it takes the opposite form.
     CMP_BRANCH = {("EQ", "JNZ"): "JEQI8", ("EQ", "JZ"): "JNEI8", ("NE", "JNZ"): "JNEI8", ("NE", "JZ"): "JEQI8",
                   ("LT", "JNZ"): "JLTI8", ("LT", "JZ"): "JGEI8", ("LE", "JNZ"): "JLEI8", ("LE", "JZ"): "JGTI8",
@@ -646,7 +646,7 @@ class FuncGen:
                 if (ops == ["LDF", "LDF", "LDF", "LDF", "SLICE"] and all(x[0] == U32 for x in a[:4])
                         and a[1][1] == a[0][1] + 4 and a[3][1] == a[1][1] and a[0][1] < 256 and a[2][1] < 256):
                     out.append(("op", "SLICEF", [a[4][0], a[0][1], a[2][1]])); i += 5; continue
-                # VM7b (c) SLICEFK: the same, from a constant start below 256
+                # SLICEFK: the same, from a constant start below 256
                 if ("slicek" in S and ops == ["LDF", "LDF", "PUSH.B", "LDF", "SLICE"] and a[0][0] == U32 and a[1][0] == U32
                         and a[3][0] == U32 and a[1][1] == a[0][1] + 4 and a[3][1] == a[1][1] and a[0][1] < 256):
                     out.append(("op", "SLICEFK", [a[4][0], a[0][1], a[2][0]])); i += 5; continue
@@ -654,11 +654,11 @@ class FuncGen:
                 op, ar = item[1], item[2]
                 if "frame" in S and op in ("LDF", "STF") and ar[1] < 256:          # candidate 2
                     if ar[0] == U32: item = ("op", ("LDFW" if op == "LDF" else "STFW"), [ar[1]])
-                    elif "byte" in S and ar[0] == TYPES["u8"]: item = ("op", ("LDFB" if op == "LDF" else "STFB"), [ar[1]])   # VM7b (e)
+                    elif "byte" in S and ar[0] == TYPES["u8"]: item = ("op", ("LDFB" if op == "LDF" else "STFB"), [ar[1]])   # LDFB, STFB
                     else: item = ("op", op + "8", ar)
                 elif "addr" in S and op == "ADDR" and ar[0] == REGIONS["STACK"] and ar[1] < 256:   # candidate 3
                     item = ("op", "ADDRF", [ar[1]])
-                elif "addr16" in S and op == "ADDR" and ar[1] < 0x10000:            # VM7b (d)
+                elif "addr16" in S and op == "ADDR" and ar[1] < 0x10000:            # ADDRH
                     item = ("op", "ADDRH", ar)
                 elif "push" in S and op == "PUSH.B" and ar[0] in (0, 1):            # candidate 5
                     item = ("op", "PUSH0" if ar[0] == 0 else "PUSH1", [])
@@ -666,7 +666,7 @@ class FuncGen:
         self.code = out
 
     def share_exits(self):
-        """VM7b (a): repeated error exits within a function become one. Each `J… ok; [TXN.ABORT]; ERR c; ok:`
+        """Shared error exits: repeated error exits within a function become one. Each `J… ok; [TXN.ABORT]; ERR c; ok:`
         whose exit occurs more than once becomes `J(opposite) shared`, and one copy of the exit is placed after the
         function's last instruction, which is a terminator, so nothing falls into it."""
         code = self.code
@@ -714,7 +714,7 @@ class FuncGen:
         out = bytearray(); pc = 0; self.lines = []
         for k, item in enumerate(self.code):
             if item[0] == "label": continue
-            if item[0] == "debug":                          # TL1: the line table and the variables' scopes
+            if item[0] == "debug":                          # the line table and the variables' scopes
                 if item[1] == "line": self.lines.append((pc, item[2]))
                 elif item[1] == "bind": self.vars[item[2]]["start"] = pc
                 else: self.vars[item[2]]["end"] = pc
@@ -764,9 +764,9 @@ class Compiler:
         self.chk = self.typed.chk; self.layout = Layout(self.chk); self.binding = binding
         self.const_data = bytearray(); self.natives = set()
         self.reuse, self.reuse_mutant = True, False    # slot reuse (V-34); the mutant frees live locals
-        self.debug = True                               # debug information (TL1); it never changes the code
-        self.shorten = {"frame", "addr", "slice", "push", "jump",    # the short forms of VM6 (V-38)
-                        "byte", "addr16", "cmpjump", "slicek",       # and of VM7b (vm/bytecode.md §2.13),
+        self.debug = True                               # debug information; it never changes the code
+        self.shorten = {"frame", "addr", "slice", "push", "jump",    # the short forms of §2.12 (V-38)
+                        "byte", "addr16", "cmpjump", "slicek",       # and of §2.13 (vm/bytecode.md),
                         "errexit"}                                    # with its shared error exits
         self.app_codes = {k: v for k, v in pltcheck_error_codes(self.chk.toks).items()}
         names = list(self.typed.bodies)
@@ -835,7 +835,7 @@ def _str(s):
     b = s.encode("utf-8"); return struct.pack("<H", len(b)) + b
 
 def debug_section(self, offsets):
-    """IMG-10, the debug section: files, function names, the line table, then (TL1) types, variables and globals.
+    """IMG-10, the debug section: files, function names, the line table, then types, variables and globals.
     The device VM never reads it; cardlang/bytecode/debuginfo.py decodes it."""
     L = self.layout; types, index = [], {}
     def tid(t):
@@ -899,7 +899,7 @@ def pltcheck_error_codes(toks):
 
 def compile_files(files, binding=None, fragment=False):
     """Compile a program to an image. It is checked first by the full diagnostics, the same as `clc check`, and an
-    invalid program raises InvalidProgram: the code generator alone skips some rules (finding T1)."""
+    invalid program raises InvalidProgram: the code generator alone skips some rules."""
     from cardlang.front.lexcheck import lex
     from cardlang.front import hepcheck, diagnose
     files = [pathlib.Path(f) for f in files]

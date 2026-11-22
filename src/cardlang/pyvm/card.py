@@ -28,7 +28,7 @@ class VmCard:
 
     # ---- results as the harness reports them
     def outcome(self, r, response=None):
-        self.trap_pc = self.ctx.pc if r[0] == "trap" else None        # where it trapped (TL1: trap positions)
+        self.trap_pc = self.ctx.pc if r[0] == "trap" else None        # where it trapped (trap positions)
         if r[0] == "ok":
             if response is None: return ("ok", [])
             return ("ok", list(response[:r[1]]))

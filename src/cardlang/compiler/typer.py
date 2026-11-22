@@ -1,4 +1,4 @@
-"""The static typing pass of the prototype compiler (VM4 stage 1; vm/decisions.md V-29).
+"""The static typing pass of the prototype compiler (vm/decisions.md V-29).
 
 The program has already been accepted by the full reference checker (pltcheck). This pass parses every function
 body with the shared statement parser (checkers/stmtparse.py) and records the type of every expression node, by

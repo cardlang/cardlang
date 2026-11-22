@@ -1,4 +1,4 @@
-"""Consistency checks for the CardLang Base Profile (platform/), WP2.
+"""Consistency checks for the CardLang Base Profile (platform/).
 
   rules      every BP-n rule is defined once, numbered from 1 without gaps
   errors     the CardError table has unique nonzero u16 codes; BP-8's precedence names only table members

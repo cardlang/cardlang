@@ -1,4 +1,4 @@
-"""A scripted session with the CardLang debug adapter (TL1 step 5), run by tests/run_checks.py.
+"""A scripted session with the CardLang debug adapter, run by tests/run_checks.py.
 
 Starts the debug adapter, cardlang.dap.adapter, as VS Code would, and debugs two runtime tests:
 - run-012 (the wallet): a breakpoint in `credit` (line 57) is hit on the scenario's credit command (line 11); the

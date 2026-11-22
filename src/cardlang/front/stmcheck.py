@@ -83,7 +83,7 @@ class StmChecker(expcheck.Checker):
             t = self.synth(e, L)
             if t != ("outcome", "none"): raise CE("CE-EXP-1")
             p.expect(";"); return True
-        if v == "ignore":                                        # STM-24 (WP9 L5)
+        if v == "ignore":                                        # STM-24
             p.take(); e = p_postfix(p, False); p.expect(";")
             if e[0] != "call": raise CE("CE-OUT-4")
             t = self.synth(e, L)
@@ -164,7 +164,7 @@ class StmChecker(expcheck.Checker):
         e = p_expr(p)
         if p.peek() == "=" and e[0] == "slice":           # FUN-24, checked by funcheck
             p.take(); self.slice_assign(e, p, L, ro); return True
-        if p.peek() in ("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="):                                         # STM-25 (WP9 L6)
+        if p.peek() in ("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="):                                         # STM-25
             op = p.take()[:-1]
             if e[0] == "slice": raise CE("CE-STM-2")
             self.place(e, L, ro); dt = self.synth(e, L)

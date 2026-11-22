@@ -1,4 +1,4 @@
-"""Semantic tokens: each identifier coloured by what it is (TL1 step 3b).
+"""Semantic tokens: each identifier coloured by what it is.
 
 classify(target, texts) returns, for one file of a program, a list of (line, column, length, type, modifiers),
 0-based, in source order. It works from the tokens of every file of the program (texts: path -> text) and the Base
@@ -201,7 +201,7 @@ def classify(target, texts):
     return out
 
 def definition(target, texts, line, col):
-    """Go to definition (TL1): the declarations of the name at (line, col), 0-based, in file target, as a list of
+    """Go to definition: the declarations of the name at (line, col), 0-based, in file target, as a list of
     (file, line, column, length), 0-based. A field name may be declared in several structures; all are returned.
     Names with no source (primitive types, intrinsics, the card APIs) have none."""
     base = prelude_symbols(); syms = Symbols(); syms.merge(base)

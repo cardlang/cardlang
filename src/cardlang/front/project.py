@@ -1,4 +1,4 @@
-"""A CardLang program's source files (TL1): the `cardlang.json` project file.
+"""A CardLang program's source files: the `cardlang.json` project file.
 
 A program is one `.card` file, or a directory. A directory's `cardlang.json` lists its files in build order, and may
 give the program a name and a binding:

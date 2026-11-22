@@ -1,4 +1,4 @@
-"""Source positions for the front end (TL1 step 1).
+"""Source positions for the front end.
 
 A token is still a (kind, value) tuple, as every checker expects, but the lexer makes it a Tok, which also carries
 .pos = (file, line, column), both 1-based. The parsers note each token they look at; an error then takes the

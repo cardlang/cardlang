@@ -12,7 +12,7 @@ from cardlang import layout
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # (checker, test glob or None for the checker's default, what it verifies). A checker is a module of the package, run
-# with -m (PR5: a front-end module runs its chapter's conformance tests), or a script's path from the repository root.
+# with -m (a front-end module runs its chapter's conformance tests), or a script's path from the repository root.
 RUNS = [
     ("cardlang.front.lexcheck", None, "lexical results of every test, and every design-note code block"),
     ("cardlang.front.typecheck", None, "chapter 4 type rules on typ-* tests"),
@@ -35,39 +35,39 @@ RUNS = [
     ("cardlang.front.pltcheck", "invalid/out-*", "full checker on chapter 9 invalid tests"),
     ("cardlang.front.pltcheck", "invalid/sta-*", "full checker on chapter 10 invalid tests"),
     ("cardlang.front.pltcheck", "invalid/txn-*", "full checker on chapter 11 invalid tests"),
-    # Diagnostics with source positions (TL1): the front end the language server and `clc` use.
-    ("tests/poscheck.py", None, "diagnostics: valid programs clean; every error with its code at a position (TL1)"),
-    ("tests/clc_check.py", None, "clc: check, build, disasm and run on the applets and scenarios (TL1)"),
-    ("tests/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code (TL1)"),
-    ("tests/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type (TL1)"),
-    ("tests/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample (TL1)"),
-    ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps (TL1)"),
-    ("editors/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language (TL1)"),
-    # References stay correct (PR1): links, anchors and named files in every document; paths only through layout.
-    ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout (PR1)"),
-    # Consistency of the specification text itself (SP14).
+    # Diagnostics with source positions: the front end the language server and `clc` use.
+    ("tests/poscheck.py", None, "diagnostics: valid programs clean; every error with its code at a position"),
+    ("tests/clc_check.py", None, "clc: check, build, disasm and run on the applets and scenarios"),
+    ("tests/debug_check.py", None, "debug information: lines, variables, globals, traps; never changes the code"),
+    ("tests/lsp_check.py", None, "language server: a scripted editor session, diagnostics as you type"),
+    ("tests/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample"),
+    ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps"),
+    ("editors/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language"),
+    # References stay correct: links, anchors and named files in every document; paths only through layout.
+    ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout"),
+    # Consistency of the specification text itself.
     ("tests/speccheck.py", None, "rules, references, CE classes, traps, tables, fragments, B.12, D.2, D.3, index"),
-    # The CardLang Base Profile (platform/), WP2.
+    # The CardLang Base Profile (platform/).
     ("tests/profilecheck.py", None, "Base Profile rules, CardError table, types and catalog"),
-    # Annex A, checked mechanically (SP14): an Earley recognizer built from the EBNF in the annex.
+    # Annex A, checked mechanically: an Earley recognizer built from the EBNF in the annex.
     ("cardlang.front.grammar", None, "Annex A derives every test except CE-SYN-1 ones"),
     ("cardlang.front.grammar", "--notes", "Annex A derives every checker-accepted design-note block"),
     # The reference interpreter compiles each runtime test with pltcheck, then runs its scenario.
     ("cardlang.interp.interp", None, "runtime scenarios in language/conformance/runtime/"),
-    # The prototype compiler (VM4): its static typer types every expression of every program it must compile.
+    # The prototype compiler: its static typer types every expression of every program it must compile.
     ("cardlang.compiler.typer", None, "compiler typer: every valid, runtime and example program fully typed"),
     ("tests/compile_all.py", None, "compiler: every valid, runtime and example program compiles (V-12 item 3)"),
-    # The compiler and the Python VM as a backend of the harness (VM5): the same scenarios (V-12).
+    # The compiler and the Python VM as a backend of the harness: the same scenarios (V-12).
     ("cardlang.harness.scenario", "--backend pyvm", "pyvm: runtime scenarios on the Python VM (V-12 item 1)"),
     ("tests/check_state.py", None, "pyvm: all VM state in its context, within 1 KiB (V-31, V-2)"),
-    # The C VM (VM7), built by vm/c/build.py with both compilers, through cffi: the same scenarios.
-    ("tests/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3, K1)"),
-    ("tests/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3, K1)"),
+    # The C VM, built by vm/c/build.py with both compilers, through cffi: the same scenarios.
+    ("tests/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3)"),
+    ("tests/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3)"),
     ("cardlang.harness.scenario", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
     ("cardlang.harness.scenario", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
 ]
 
-# The example applets (PR4): each examples/<app>/check.py checks its applet independently of the applet's own logic,
+# The example applets: each examples/<app>/check.py checks its applet independently of the applet's own logic,
 # and every example scenario must pass, on every backend (V-12 item 2). They are found, not listed, so a new applet is
 # checked as soon as its folder exists.
 BACKENDS = ("interp", "pyvm", "cvm-msvc", "cvm-clang")

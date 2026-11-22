@@ -1,4 +1,4 @@
-"""Diagnostics for a CardLang program, with positions and messages (TL1 step 1).
+"""Diagnostics for a CardLang program, with positions and messages.
 
 check(files) runs the full reference front end (the lexer and every checker, as `pltcheck` composes them) and
 returns a list of diagnostics, each a dict: code, message, file, line, column. The front end stops at its first

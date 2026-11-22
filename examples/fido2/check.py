@@ -1,4 +1,4 @@
-"""Independent check of the FIDO2 example applet (WP8 F4).
+"""Independent check of the FIDO2 example applet.
 
 Builds examples/fido2 with the full checker and the ISO 7816 binding check (BP-50a, BP-52), runs a scripted CTAP
 session through the reference interpreter, and checks every response with code of its own: a CBOR codec, a DER

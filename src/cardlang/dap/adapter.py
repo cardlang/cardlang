@@ -1,4 +1,4 @@
-"""The CardLang debug adapter (TL1 step 5): the Debug Adapter Protocol over standard input and output.
+"""The CardLang debug adapter: the Debug Adapter Protocol over standard input and output.
 
 It runs a scenario file (src/cardlang/harness/README.md) against an applet on the Python VM (src/cardlang/pyvm/vm.py),
 which executes exactly what the C VM does, and stops where asked:

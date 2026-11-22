@@ -1,4 +1,4 @@
-# The FIDO2 applet over ISO 7816 (TL1 step 6): debug it with CardLang: Debug Scenario.
+# The FIDO2 applet over ISO 7816: debug it with CardLang: Debug Scenario.
 install
 power_on
 select   # SELECT returns FIDO_2_0

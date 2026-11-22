@@ -1,4 +1,4 @@
-"""The `cvm-msvc` and `cvm-clang` backends of the harness (VM7, J3): the C VM, driven through cffi.
+"""The `cvm-msvc` and `cvm-clang` backends of the harness: the C VM, driven through cffi.
 
 A program is compiled by the prototype compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
 built by vm/c/build.py loads through the shared library cvm.dll (vm/c/test/cvm.c). The card interface is that of
@@ -89,7 +89,7 @@ class CvmCard:
         return self.outcome(r, resp)
 
 def load_status(image, toolchain="msvc"):
-    """What cl_vm_load says of an image, by name: "OK" or the IMG-11 check that failed (VM7 step 6, K1)."""
+    """What cl_vm_load says of an image, by name: "OK" or the IMG-11 check that failed."""
     lib = library(toolchain); status = ffi.new("int *")
     binding = image[7] or 1                               # an image for any binding is loaded as ISO 7816
     c = lib.cvm_new(image, len(image), 1_000_000, binding, status)

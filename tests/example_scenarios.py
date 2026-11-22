@@ -1,4 +1,4 @@
-"""Every example applet's scenarios pass (PR4 E2), run by tests/run_checks.py.
+"""Every example applet's scenarios pass, run by tests/run_checks.py.
 
 Runs each `examples/*/*.scenario` through `clc run`, as the editor's Run Scenario does, on one backend, and prints
 PASS or FAIL for each. A scenario's program is its own folder, with its `cardlang.json`.

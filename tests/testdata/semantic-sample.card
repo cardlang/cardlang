@@ -1,4 +1,4 @@
-// A sample for tests/semantic_check.py (TL1 step 3b): every kind of identifier the language server colours.
+// A sample for tests/semantic_check.py: every kind of identifier the language server colours.
 // The check pins the kind of each name on the lines below, so keep the line numbers when editing.
 errors AppError {
     Busy = 1;

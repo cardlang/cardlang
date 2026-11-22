@@ -1,7 +1,7 @@
-"""Link this folder into VS Code's extensions folder, for development (TL1).
+"""Link this folder into VS Code's extensions folder, for development.
 
 VS Code then loads the extension from the repository itself: after an edit, run "Developer: Reload Window".
-A packaged .vsix (TL1 step 8) replaces this for normal use. Run `npm install` in this folder first.
+A packaged .vsix replaces this for normal use. Run `npm install` in this folder first.
 
     uv run python -I editors/vscode/install.py            # create the link
     uv run python -I editors/vscode/install.py --remove   # remove it

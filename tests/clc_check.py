@@ -1,4 +1,4 @@
-"""Checks of clc, cardlang.cli (TL1 step 2), run by tests/run_checks.py.
+"""Checks of clc, cardlang.cli, run by tests/run_checks.py.
 
 Each check runs clc as a subprocess, as the extension will, and looks at its exit status and output.
 Usage: uv run python -I tests/clc_check.py .

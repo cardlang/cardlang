@@ -1,5 +1,5 @@
 /*
- * cl_vm.h - the CardLang VM's interface to the platform (VM7; vm/execution-model.md VEX-45 to VEX-50).
+ * cl_vm.h - the CardLang VM's interface to the platform (vm/execution-model.md VEX-45 to VEX-50).
  *
  * The VM is a library (V-6): the platform's main loop owns the transport and calls these entry points. One
  * context runs one application (V-8). The VM allocates nothing and keeps no global state: everything it keeps is

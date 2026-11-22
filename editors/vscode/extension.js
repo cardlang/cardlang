@@ -1,4 +1,4 @@
-// The CardLang extension for VS Code (TL1). Plain JavaScript, no build step.
+// The CardLang extension for VS Code. Plain JavaScript, no build step.
 //
 // - Highlighting comes from the TextMate grammars in syntaxes/ (declared in package.json).
 // - Diagnostics as you type come from the CardLang language server, the command cardlang-lsp of the cardlang
@@ -127,7 +127,7 @@ async function activate(context) {
       if (client) await client.stop();
       await startClient(context, root);
     }),
-    // Debugging (TL1 step 6): cardlang-dap runs a scenario on the Python VM.
+    // Debugging: cardlang-dap runs a scenario on the Python VM.
     vscode.commands.registerCommand("cardlang.debugScenario", async () => {
       const doc = activeFile("cardlang-scenario");
       if (!doc) { vscode.window.showInformationMessage("CardLang: open a scenario file first."); return; }

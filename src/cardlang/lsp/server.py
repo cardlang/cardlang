@@ -1,4 +1,4 @@
-"""The CardLang language server (TL1 step 3): diagnostics as you type.
+"""The CardLang language server: diagnostics as you type.
 
 Speaks the Language Server Protocol over standard input and output (src/cardlang/jsonrpc.py), and checks with the
 reference front end (src/cardlang/front/diagnose.py), using the editor's unsaved text.
@@ -61,7 +61,7 @@ class Server:
 
     def exit(self, status):
         # os._exit, not sys.exit: the reader thread is blocked reading standard input, and finalising the
-        # interpreter under it crashes on Windows (0xC0000005, TL1).
+        # interpreter under it crashes on Windows (0xC0000005).
         sys.stdout.flush(); sys.stderr.flush(); os._exit(status)
 
     def log(self, text): self.notify("window/logMessage", {"type": 4, "message": text})
@@ -109,7 +109,7 @@ class Server:
         except OSError: return ""
 
     def completion(self, path, line, character):
-        """Completion (TL1): the runtime APIs after `card.`, and enum and error-set members after `Owner.`."""
+        """Completion: the runtime APIs after `card.`, and enum and error-set members after `Owner.`."""
         prog = program_of(path, self.docs.get(key(path)))
         texts = {str(f): self.text_of(f) for f in prog.files}
         target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))
@@ -119,7 +119,7 @@ class Server:
             self.log("cardlang-lsp: completion failed: " + traceback.format_exc()); return []
 
     def definition(self, path, line, character):
-        """Go to definition (TL1): the declaring locations of the name at the position, from the program's texts."""
+        """Go to definition: the declaring locations of the name at the position, from the program's texts."""
         prog = program_of(path, self.docs.get(key(path)))
         texts = {str(f): self.text_of(f) for f in prog.files}
         target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))
@@ -131,7 +131,7 @@ class Server:
                 for f, l, c, n in found]
 
     def semantic_tokens(self, path):
-        """Step 3b: the identifiers of one file, coloured by what they are, from the program's current texts."""
+        """Semantic tokens: the identifiers of one file, coloured by what they are, from the program's current texts."""
         prog = program_of(path, self.docs.get(key(path)))
         texts = {str(f): self.text_of(f) for f in prog.files}
         target = next((str(f) for f in prog.files if key(f) == key(path)), str(path))

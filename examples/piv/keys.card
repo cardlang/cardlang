@@ -1,6 +1,6 @@
 // The asymmetric keys (Part 1, Table 5): GENERATE ASYMMETRIC KEY PAIR (Part 2 §3.3.2) and GENERAL AUTHENTICATE with
 // them (§3.2.4, Appendix A.4.2 and A.5.2). ECC P-256 only (algorithm '11'). The signing keys 9A, 9C and 9E sign a
-// digest computed off-card (card.crypto.sign_digest, PIV step 0 Q1); 9D performs ECDH (card.crypto.agree).
+// digest computed off-card (card.crypto.sign_digest); 9D performs ECDH (card.crypto.agree).
 
 // Whether a key reference names an asymmetric key of this subset.
 function asymmetric(key: u32) -> bool {

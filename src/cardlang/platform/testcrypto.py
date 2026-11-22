@@ -1,4 +1,4 @@
-"""Test-only cryptography for the reference interpreter (WP4, base API plan B7): standard library only.
+"""Test-only cryptography for the reference interpreter: standard library only.
 
 AES-128/256 (FIPS 197) with CBC, HKDF-SHA-256 (RFC 5869), ECDSA P-256 with SHA-256 and RFC 6979 nonces, and ECDH P-256.
 Not constant-time and not hardened: it exists only to produce and check real values in conformance tests.

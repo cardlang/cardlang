@@ -1,6 +1,6 @@
 # The CardLang VM in C11
 
-VM7 of the VM plan (`devel/plans/vm/VM7-c-vm.md`): the product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The working model is the Python prototype in `src/cardlang/pyvm/`.
+The product VM in portable C11, a host HAL, and a shared library through which the test harness drives it. The specification is in `vm/` (execution model, HAL, bytecode version 1, image format 1). The working model is the Python prototype in `src/cardlang/pyvm/`.
 
 ## Building
 
@@ -34,5 +34,5 @@ The first configure downloads Mbed TLS 3.6.8 (the LTS release archive, 5.6 MB) f
 | 2. `cl_vm.h`, the loader and the interpreter; the storage part of the host HAL | Done: the 18 runtime tests without natives pass on `cvm-msvc` and `cvm-clang`; `sizeof(cl_vm)` is 272 bytes on 64-bit Windows |
 | 3. The native library; the keys and crypto of the host HAL (Mbed TLS) | Done: all 32 runtime tests pass on both backends |
 | 4. The applets: `check_fido2` and `check_piv` on the `cvm` backend | Done with step 3: both pass on both backends; `tests/run_checks.py` runs all of it |
-| 5. Measurement | Done: `devel/reports/VM7-measurements.md`, by `devel/measure/cvm_measure.py`. `cl_vm` is 252 bytes on 32-bit targets; the C stack is at most 856 bytes on Cortex-M4 (after F1); 16.3 KB of code there |
-| 6. Acceptance, and freezing version 1 | Done: V-12 is met on both compilers (`devel/reports/VM7-measurements.md` §7); version 1 is frozen (V-42) and tagged `bytecode-v1` |
+| 5. Measurement | Done: `cl_vm` is 252 bytes on 32-bit targets; the C stack is at most 856 bytes on Cortex-M4; 16.3 KB of code there |
+| 6. Acceptance | Done: V-12 is met on both compilers; tagged `bytecode-v1` |

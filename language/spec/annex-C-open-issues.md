@@ -12,67 +12,67 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## Summary
 
-| ID | Title | Kind | Owning SP | Status |
-|---|---|---|---|---|
-| OI-1 | Source file extension: fixed or not | Contradiction | SP1 | Resolved |
-| OI-2 | Platform notes still describe typed host commands | Contradiction | SP13 | Resolved |
-| OI-3 | Nested-transaction detection depends on the compiler | Contradiction | SP10 | Resolved |
-| OI-4 | Complete keyword and reserved-name list | Gap | SP1, SP2 | Resolved |
-| OI-5 | How the host entry point is identified | Gap | SP11 | Resolved |
-| OI-6 | Syntax for calling platform APIs | Gap | SP2, SP5 | Resolved |
-| OI-7 | Lifecycle-handler declaration and binding | Gap | SP9 | Resolved |
-| OI-8 | Positions where `attempt` may appear | Gap | SP5, SP8 | Resolved |
-| OI-9 | Evaluation order for compound assignment destinations | Gap | SP6 | Resolved |
-| OI-10 | Remaining slice details | Gap | SP7 | Resolved |
-| OI-11 | Constant-evaluation boundary and constant indices into mutable storage | Proposal-to-validate | SP4 | Resolved |
-| OI-12 | `byte` alias for `u8` | Proposal-to-validate | SP3 | Resolved |
-| OI-13 | Number of error sets, and forwarding intrinsic outcomes | Gap | SP8 | Resolved |
-| OI-14 | Lexical limits of integer literals | Gap | SP1 | Resolved |
-| OI-15 | Placeholder names for platform errors and traps | Gap (platform-deferred) | SP12, SP13 | Resolved |
-| OI-16 | Remaining semantics of explicit persistent state | Qualifier | SP9 | Resolved |
-| OI-17 | Object API for larger persistent data | Qualifier (platform-deferred) | SP13 | Resolved |
-| OI-18 | "Detailed typing open" for function results | Qualifier | SP8 | Resolved |
-| OI-19 | Size limits for atomic aggregate assignment | Qualifier | SP9 | Resolved |
-| OI-20 | Resource storage strategy | Qualifier (platform-deferred) | SP13 | Resolved |
-| OI-21 | Call-frame placement of by-value aggregates | Qualifier (proposal) | SP13 | Resolved |
-| OI-22 | Language rules for lifecycle handler functions | Gap | SP9 | Resolved |
-| OI-23 | Source text details: byte-order mark and line breaks | Gap | SP1 | Resolved |
-| OI-24 | Token formation and identifier length | Gap | SP1 | Resolved |
-| OI-25 | Primitive type names | Gap | SP2 | Resolved |
-| OI-26 | Build file-list constraints | Gap | SP2 | Resolved |
-| OI-27 | Boolean and enum storage representation | Contradiction | SP3 | Resolved |
-| OI-28 | Error-member code expressions | Gap | SP4, SP8 | Resolved |
-| OI-29 | Constant slice endpoints | Gap | SP4 | Resolved |
-| OI-30 | Structure constructor in conditions | Gap | SP5 | Resolved |
-| OI-31 | Overflow versus underflow | Proposal-to-validate | SP5 | Resolved |
-| OI-32 | Integer and byte conversion | Gap | SP5 | Resolved |
-| OI-33 | Expression statements | Gap | SP6 | Resolved |
-| OI-34 | Standalone blocks | Gap | SP6 | Resolved |
-| OI-35 | `ref` to read-only bindings | Gap | SP7 | Resolved |
-| OI-36 | Empty error set | Gap | SP8 | Resolved |
-| OI-37 | Application use of `CardError` members | Gap | SP8 | Resolved |
-| OI-38 | Placeholder lifecycle handler names | Gap | SP9 | Resolved |
-| OI-39 | Exceeding transaction capacity at runtime | Gap | SP10 | Resolved |
-| OI-40 | Platform services inside a transaction | Gap | SP10 | Resolved |
-| OI-41 | Initial contents of the response region | Gap | SP11 | Resolved |
-| OI-42 | Stack depth | Gap | SP12 | Resolved |
-| OI-43 | A catalog for testing platform-dependent rules | Gap | SP13 | Resolved |
-| OI-44 | EXP-6 and the written grammar | Contradiction | SP14 | Resolved |
-| OI-45 | attempt and require inside a transaction | Proposal-to-validate | Draft 0.2 | Resolved |
-| OI-46 | The line between intrinsics and platform APIs | Gap | WP1 | Resolved |
-| OI-47 | Moving array data | Gap | WP1 | Resolved |
-| OI-48 | Comparing arrays | Gap | WP1 | Resolved |
-| OI-49 | Wiping secrets | Gap | WP1 | Resolved |
-| OI-50 | Security expectations for platforms | Gap | WP1 | Resolved |
-| OI-51 | The capacity model (withdrawn) | Proposal-to-validate | WP1 | Resolved |
-| OI-52 | Derived secrets are application data | Gap | WP4 | Resolved |
-| OI-53 | Byte-string literals | Proposal-to-validate | WP9 | Resolved |
-| OI-54 | The code of an application error | Proposal-to-validate | WP9 | Resolved |
-| OI-55 | attempt with a replacement error | Proposal-to-validate | WP9 | Resolved |
-| OI-56 | Discarding an outcome | Proposal-to-validate | WP9 | Resolved |
-| OI-57 | Compound assignment | Proposal-to-validate | WP9 | Resolved |
-| OI-58 | Erasing a frame's locals on exit | Gap | Draft 0.2 | Resolved |
-| OI-59 | Session boundaries defined by the transport binding | Proposal-to-validate | WP11 | Resolved |
+| ID | Title | Kind | Status |
+|---|---|---|---|
+| OI-1 | Source file extension: fixed or not | Contradiction | Resolved |
+| OI-2 | Platform notes still describe typed host commands | Contradiction | Resolved |
+| OI-3 | Nested-transaction detection depends on the compiler | Contradiction | Resolved |
+| OI-4 | Complete keyword and reserved-name list | Gap | Resolved |
+| OI-5 | How the host entry point is identified | Gap | Resolved |
+| OI-6 | Syntax for calling platform APIs | Gap | Resolved |
+| OI-7 | Lifecycle-handler declaration and binding | Gap | Resolved |
+| OI-8 | Positions where `attempt` may appear | Gap | Resolved |
+| OI-9 | Evaluation order for compound assignment destinations | Gap | Resolved |
+| OI-10 | Remaining slice details | Gap | Resolved |
+| OI-11 | Constant-evaluation boundary and constant indices into mutable storage | Proposal-to-validate | Resolved |
+| OI-12 | `byte` alias for `u8` | Proposal-to-validate | Resolved |
+| OI-13 | Number of error sets, and forwarding intrinsic outcomes | Gap | Resolved |
+| OI-14 | Lexical limits of integer literals | Gap | Resolved |
+| OI-15 | Placeholder names for platform errors and traps | Gap (platform-deferred) | Resolved |
+| OI-16 | Remaining semantics of explicit persistent state | Qualifier | Resolved |
+| OI-17 | Object API for larger persistent data | Qualifier (platform-deferred) | Resolved |
+| OI-18 | "Detailed typing open" for function results | Qualifier | Resolved |
+| OI-19 | Size limits for atomic aggregate assignment | Qualifier | Resolved |
+| OI-20 | Resource storage strategy | Qualifier (platform-deferred) | Resolved |
+| OI-21 | Call-frame placement of by-value aggregates | Qualifier (proposal) | Resolved |
+| OI-22 | Language rules for lifecycle handler functions | Gap | Resolved |
+| OI-23 | Source text details: byte-order mark and line breaks | Gap | Resolved |
+| OI-24 | Token formation and identifier length | Gap | Resolved |
+| OI-25 | Primitive type names | Gap | Resolved |
+| OI-26 | Build file-list constraints | Gap | Resolved |
+| OI-27 | Boolean and enum storage representation | Contradiction | Resolved |
+| OI-28 | Error-member code expressions | Gap | Resolved |
+| OI-29 | Constant slice endpoints | Gap | Resolved |
+| OI-30 | Structure constructor in conditions | Gap | Resolved |
+| OI-31 | Overflow versus underflow | Proposal-to-validate | Resolved |
+| OI-32 | Integer and byte conversion | Gap | Resolved |
+| OI-33 | Expression statements | Gap | Resolved |
+| OI-34 | Standalone blocks | Gap | Resolved |
+| OI-35 | `ref` to read-only bindings | Gap | Resolved |
+| OI-36 | Empty error set | Gap | Resolved |
+| OI-37 | Application use of `CardError` members | Gap | Resolved |
+| OI-38 | Placeholder lifecycle handler names | Gap | Resolved |
+| OI-39 | Exceeding transaction capacity at runtime | Gap | Resolved |
+| OI-40 | Platform services inside a transaction | Gap | Resolved |
+| OI-41 | Initial contents of the response region | Gap | Resolved |
+| OI-42 | Stack depth | Gap | Resolved |
+| OI-43 | A catalog for testing platform-dependent rules | Gap | Resolved |
+| OI-44 | EXP-6 and the written grammar | Contradiction | Resolved |
+| OI-45 | attempt and require inside a transaction | Proposal-to-validate | Resolved |
+| OI-46 | The line between intrinsics and platform APIs | Gap | Resolved |
+| OI-47 | Moving array data | Gap | Resolved |
+| OI-48 | Comparing arrays | Gap | Resolved |
+| OI-49 | Wiping secrets | Gap | Resolved |
+| OI-50 | Security expectations for platforms | Gap | Resolved |
+| OI-51 | The capacity model (withdrawn) | Proposal-to-validate | Resolved |
+| OI-52 | Derived secrets are application data | Gap | Resolved |
+| OI-53 | Byte-string literals | Proposal-to-validate | Resolved |
+| OI-54 | The code of an application error | Proposal-to-validate | Resolved |
+| OI-55 | attempt with a replacement error | Proposal-to-validate | Resolved |
+| OI-56 | Discarding an outcome | Proposal-to-validate | Resolved |
+| OI-57 | Compound assignment | Proposal-to-validate | Resolved |
+| OI-58 | Erasing a frame's locals on exit | Gap | Resolved |
+| OI-59 | Session boundaries defined by the transport binding | Proposal-to-validate | Resolved |
 
 ---
 
@@ -744,7 +744,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-46 — The line between intrinsics and platform APIs
 
-- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
+- **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 never stated when an operation is an intrinsic and when it is a platform API.
 - **Affected rules:** EXP-52, PLT-30
 - **Decision basis:** the intrinsic/API boundary rule (base API plan §2)
@@ -755,7 +755,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-47 — Moving array data
 
-- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
+- **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 had no way to copy part of an array except an element loop, because FUN-18 forbade slice assignment.
 - **Affected rules:** FUN-24, FUN-18, STM-7
 - **Decision basis:** B1(a), B1(c); WP1 D1
@@ -766,7 +766,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-48 — Comparing arrays
 
-- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
+- **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** Draft 0.1 had no array comparison.
 - **Affected rules:** EXP-53, EXP-54, LEX-15, NAM-14
 - **Decision basis:** B1(b); WP1 D2
@@ -777,7 +777,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-49 — Wiping secrets
 
-- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
+- **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** EXP-22 lets an implementation remove a store that nothing reads, which includes a zeroizing fill of a secret about to go out of scope.
 - **Affected rules:** STM-23, EXP-22, LEX-13, PLT-34
 - **Decision basis:** WP1 D3
@@ -788,7 +788,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-50 — Security expectations for platforms
 
-- **Kind:** gap (raised by the base platform API plan, `devel/plans/spec/base-api-plan.md`)
+- **Kind:** gap (raised while the Base Profile was written)
 - **Sources:** The specification stated no constant-time, side-channel or key-material obligations.
 - **Affected rules:** PLT-31 to PLT-34
 - **Decision basis:** base API plan §3.3
@@ -814,7 +814,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-52 — Derived secrets are application data
 
-- **Kind:** gap (raised by WP4, `devel/plans/spec/WP4-crypto.md`, decision C1)
+- **Kind:** gap (raised while the Base Profile's cryptography was written)
 - **Sources:** PLT-33 as written in WP1; the FIDO2 PIN/UV protocol, which derives keys from an ECDH secret
 - **Affected rules:** PLT-33
 - **Question:** PLT-33 said that secret key material never appears in application memory. But key agreement and key derivation produce secrets that an application must handle. Do those results fall under PLT-33?
@@ -828,7 +828,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-53 — Byte-string literals
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** LEX-25, EXP-55
 - **Basis:** WP8 L1; WP9 G1. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-453)
@@ -838,7 +838,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-54 — The code of an application error
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** OUT-21
 - **Basis:** WP8 L2; WP9 G2. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-454)
@@ -848,7 +848,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-55 — attempt with a replacement error
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** OUT-22, TXN-18
 - **Basis:** WP8 L4; WP9 G3. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-455)
@@ -858,7 +858,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-56 — Discarding an outcome
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** STM-24, LEX-13
 - **Basis:** WP8 L5; WP9 G4. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-456)
@@ -868,7 +868,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 
 ## OI-57 — Compound assignment
 
-- **Kind:** proposal-to-validate (from the FIDO2 check, `devel/reports/WP8-fido2-findings.md`)
+- **Kind:** proposal-to-validate (from the FIDO2 example applet)
 - **Affected rules:** STM-25, STM-6, LEX-22
 - **Basis:** WP8 L6; WP9 G5. Compiler-only: the change is rewritten into existing constructs, and adds nothing to the VM
 - **Status:** resolved 2026-11-19 (D-457)
@@ -879,7 +879,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-58 — Erasing a frame's locals on exit
 
 - **Kind:** gap (from the FIDO2 check, finding L10)
-- **Sources:** STM-23, PLT-34; `devel/reports/WP8-fido2-findings.md` §4
+- **Sources:** STM-23, PLT-34; the FIDO2 example applet
 - **Affected rules:** PLT-35 (new), STM-23
 - **Question:** A secret held in a local must be erased on every way out of a function. `wipe` must run before each exit, so `attempt … else` cannot be used, and nothing erases a local when a trap discards its frame. How should secrets in locals be erased?
 - **Options:**
@@ -893,7 +893,7 @@ This annex records every contradiction, gap and proposal-to-validate found while
 ## OI-59 — Session boundaries defined by the transport binding
 
 - **Kind:** proposal-to-validate (Draft 0.2 candidate 1, from the review of the transport bindings)
-- **Sources:** STA-4, STA-6, RTF-9, PLT-18, PLT-19; profile BP-14, BP-55; `devel/plans/spec/WP11-sessions-and-raw-envelope.md`
+- **Sources:** STA-4, STA-6, RTF-9, PLT-18, PLT-19; profile BP-14, BP-55
 - **Affected rules:** STA-4, STA-6, RTF-9, PLT-18, PLT-19, PLT-23, the chapter 1 glossary, NAM-14, LEX-15
 - **Question:** Session state and volatile resources were tied to power-on, which is card-centric. In a TEE, power-on is device boot, while clients open and close sessions many times between boots. How should session boundaries be defined?
 - **Options:**

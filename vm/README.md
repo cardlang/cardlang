@@ -2,7 +2,6 @@
 
 This folder holds the design, and later the implementation, of the virtual machine that runs CardLang applications. It is separate from the language specification (`language/spec/`) and from the Base Profile (`platform/`). Where a VM document and the specification or profile disagree, the specification wins.
 
-The plan is in `devel/plans/vm-plan-of-plans.md`. Each work package (VM0 to VM8) has a sub-plan in `devel/plans/vm/`.
 
 ## Goals
 
@@ -32,16 +31,16 @@ The VM is a library (V-6): the platform calls it through `cl_vm.h` and it calls 
 
 ## Documents
 
-| Document | Content | Work package | Status |
-|---|---|---|---|
-| `decisions.md` | The decision register (V-n) | all | V-1 to V-41 |
-| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | VM1 | drafted: VEX-1 to VEX-50 |
-| `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | VM2 | drafted: HAL-1 to HAL-31; headers not yet compiled |
-| `bytecode.md` | The instruction set, its encoding, the calling convention and the native numbers (`BC-n`); compiled examples | VM3, VM6 | version 1: BC-1 to BC-39 (living through VM7) |
-| `image-format.md` | The application image and the load-time checks (`IMG-n`) | VM3, VM6 | format 1: IMG-1 to IMG-13 |
-| `c/` | The product VM in C11, and a host HAL | VM7 | not started |
+| Document | Content | Status |
+|---|---|---|
+| `decisions.md` | The decision register (V-n) | V-1 to V-41 |
+| `execution-model.md` | Values, memory regions, views, frames, calls, outcomes, traps, the VM context (`VEX-n`); what the HAL must provide | drafted: VEX-1 to VEX-50 |
+| `hal.md` | The HAL interface (`HAL-n`): storage, keys, all cryptography, randomness, test hooks; the catalog map. Declarations in `c/include/cl_hal.h` and `cl_hal_test.h` | drafted: HAL-1 to HAL-31; headers not yet compiled |
+| `bytecode.md` | The instruction set, its encoding, the calling convention and the native numbers (`BC-n`); compiled examples | version 1: BC-1 to BC-39 (living through VM7) |
+| `image-format.md` | The application image and the load-time checks (`IMG-n`) | format 1: IMG-1 to IMG-13 |
+| `c/` | The product VM in C11, and a host HAL | not started |
 
-The prototypes (a Python compiler and VM, VM4 and VM5) live in `src/cardlang/pyvm/` (V-11). They meet acceptance criteria 1 to 3 of V-12 as the harness backend `pyvm`: all runtime tests, the FIDO2 check, and every program compiles. The measurements (criterion 4) are in `devel/reports/VM5-measurements.md`: the VM context is 216 bytes.
+The compiler (`src/cardlang/compiler/`) and the Python VM (`src/cardlang/pyvm/`) meet the acceptance criteria of V-12 as the harness backend `pyvm`: all runtime tests, the FIDO2 check, and every program compiles. The Python VM's context is 216 bytes.
 
 ## Conventions
 

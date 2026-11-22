@@ -1,5 +1,5 @@
 # CMake toolchain file: clang from an llvm-mingw distribution, targeting 64-bit Windows (x86_64-w64-mingw32).
-# 64-bit because the harness loads the VM's shared library into the project's 64-bit Python (VM7 §2a).
+# 64-bit because the harness loads the VM's shared library into the project's 64-bit Python.
 # LLVM_MINGW_ROOT is the distribution's folder; vm/c/build.py passes it.
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)

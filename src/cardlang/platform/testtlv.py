@@ -1,4 +1,4 @@
-"""BER-TLV reader and DER writer for the reference interpreter (WP6): test-only, standard library only.
+"""BER-TLV reader and DER writer for the reference interpreter: test-only, standard library only.
 
 Errors are raised as TlvError("Malformed") or TlvError("Unsupported").
 """

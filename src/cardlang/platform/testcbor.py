@@ -1,4 +1,4 @@
-"""Canonical CBOR for the reference interpreter (WP5): test-only, standard library only.
+"""Canonical CBOR for the reference interpreter: test-only, standard library only.
 
 validate() is the strict check of profile §9 (BP-36). head() and skip() check each head they read, but not map key
 order, which needs per-level state (W5). Errors are raised as CborError("Malformed") or CborError("Unsupported").
@@ -59,7 +59,7 @@ def _validate(d, pos, depth):
         for _ in range(val):
             start = p; p = _validate(d, p, depth + 1); key = bytes(d[start:p])
             if prev is not None and not prev < key:
-                raise CborError("Malformed")                      # not in bytewise order (BP-36, R1), or a duplicate
+                raise CborError("Malformed")                      # not in bytewise order (BP-36), or a duplicate
             prev = key; p = _validate(d, p, depth + 1)
         return p
     if major == 6: return _validate(d, p, depth + 1)

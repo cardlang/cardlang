@@ -1,6 +1,6 @@
 """The Base Profile's CardError codes, read from the profile's table (platform/base-profile.md).
 
-The compiler, the Python VM and the harness all need them. They lived in the harness's scenario module until PR5b.
+The compiler, the Python VM and the harness all need them.
 """
 import re
 from cardlang import layout

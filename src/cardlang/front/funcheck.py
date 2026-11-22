@@ -22,7 +22,7 @@ class FunChecker(stmcheck.StmChecker):
             callees = set()
             for i, (k, v) in enumerate(body):
                 if v in self.funcs and i + 1 < len(body) and body[i+1][1] == "(" and (i == 0 or body[i-1][1] != "."):
-                    callees.add(v); sites.setdefault((name, v), body[i])          # where the call is (TL1)
+                    callees.add(v); sites.setdefault((name, v), body[i])          # where the call is
             edges[name] = callees
         state = {}
         def visit(n):

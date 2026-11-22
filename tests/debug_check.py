@@ -1,4 +1,4 @@
-"""Checks of the images' debug information (TL1 step 4; vm/image-format.md IMG-10), run by tests/run_checks.py.
+"""Checks of the images' debug information (vm/image-format.md IMG-10), run by tests/run_checks.py.
 
 1. Debug information never changes the code: with it on and off, every program's functions, imports, constants
    and code are byte-identical.

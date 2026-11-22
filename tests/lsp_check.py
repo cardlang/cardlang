@@ -1,4 +1,4 @@
-"""A scripted session with the CardLang language server (TL1 step 3), run by tests/run_checks.py.
+"""A scripted session with the CardLang language server, run by tests/run_checks.py.
 
 Starts the language server, cardlang.lsp.server, as the editor would, then:
 1. opens a file of the FIDO2 applet: every file of the program gets an empty diagnostics list;

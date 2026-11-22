@@ -2,7 +2,7 @@
 // Each comparison first spends a retry, in its own atomic update, and only then compares: a power loss during a
 // wrong attempt cannot leave the counter as it was. A correct value gives the retry back.
 
-// 63CX: the retries left, as a status word (PIV step 0, L1 and Q5).
+// 63CX: the retries left, as a status word.
 function retries_left(x: u8) -> u32 {
     if x == 0 {
         return Err(Sw.Retries0);

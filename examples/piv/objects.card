@@ -1,4 +1,4 @@
-// The PIV data objects (Part 1 §3): one persistent buffer and length per object (WP12 H1); GET DATA and PUT DATA
+// The PIV data objects (Part 1 §3): one persistent buffer and length per object; GET DATA and PUT DATA
 // (Part 2 §3.1.2, §3.3.1). Every object in this subset is readable over contact without a PIN (Part 1, Table 2).
 
 // The object a BER-TLV tag names, or OBJ_NONE.

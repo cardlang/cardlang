@@ -1,5 +1,5 @@
 /*
- * cl_hal.h - the CardLang VM's hardware abstraction layer (draft, VM2).
+ * cl_hal.h - the CardLang VM's hardware abstraction layer (draft).
  *
  * The HAL provides persistent storage with atomic updates and transactions, the key store, every cryptographic
  * operation of Base Profile 1, and randomness. The VM and its native library perform no cryptography (HAL-1).
@@ -119,9 +119,9 @@ cl_status cl_hal_sign(cl_hal *hal, uint32_t key, cl_sig_alg alg, const cl_in *me
 cl_status cl_hal_verify(cl_hal *hal, uint32_t key, cl_sig_alg alg, const cl_in *message, const cl_in *signature,
                         bool *valid);
 cl_status cl_hal_sign_digest(cl_hal *hal, uint32_t key, cl_sig_alg alg, const cl_in *digest, const cl_out *out,
-                             uint32_t *written);                              /* WP12 */
+                             uint32_t *written);                              /* BP-29 */
 cl_status cl_hal_verify_digest(cl_hal *hal, uint32_t key, cl_sig_alg alg, const cl_in *digest,
-                               const cl_in *signature, bool *valid);         /* WP12 */
+                               const cl_in *signature, bool *valid);         /* BP-29 */
 cl_status cl_hal_agree(cl_hal *hal, uint32_t key, const cl_in *peer, const cl_out *out, uint32_t *written);
 cl_status cl_hal_derive(cl_hal *hal, cl_kdf_alg alg, const cl_in *secret, const cl_in *salt, const cl_in *info,
                         uint32_t length, const cl_out *out, uint32_t *written);

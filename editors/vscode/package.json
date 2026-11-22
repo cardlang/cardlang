@@ -1,7 +1,7 @@
 {
   "name": "cardlang",
   "displayName": "CardLang",
-  "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets (TL1).",
+  "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets.",
   "version": "0.1.1",
   "publisher": "cardlang",
   "license": "UNLICENSED",

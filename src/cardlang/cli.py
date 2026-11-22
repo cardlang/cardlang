@@ -1,4 +1,4 @@
-"""clc — the CardLang command line (TL1 step 2): the one front end that the VS Code extension and a terminal share.
+"""clc — the CardLang command line: the one front end that the VS Code extension and a terminal share.
 
     clc check  <program> [--json] [--binding iso7816|raw] [--fragment]
     clc build  <program> [-o out.clvm] [--json] [--binding ...]
@@ -12,7 +12,7 @@ A <program> is any of:
 
 check runs the full front end (src/cardlang/front/diagnose.py) and prints each diagnostic as
 `file:line:column: CE-XXX-n: message`, or a JSON list with --json. Exit status 1 if there are diagnostics.
-build compiles to an image, which the compiler checks first with the full front end (finding T1), written to
+build compiles to an image, which the compiler checks first with the full front end, written to
 `-o`, or to `build/<name>.clvm` in the program's directory. It prints the image's figures.
 run runs a scenario file (src/cardlang/harness/README.md), printing every step and its outcome; its program is
 --program, or else the scenario's own directory.
@@ -124,7 +124,7 @@ def cmd_run(a):
     return 0 if problem is None else 1
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="clc", description="The CardLang command line (TL1)")
+    ap = argparse.ArgumentParser(prog="clc", description="The CardLang command line")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("check", help="check a program and report diagnostics"); program_arg(p)
     p.add_argument("--json", action="store_true")

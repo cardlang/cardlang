@@ -4,7 +4,7 @@
  *   injected at a commit (the interrupt hook) undoes the transaction, then the call returns CL_FATAL, which the VM
  *   reports as "no result" (VEX-43, HAL-6);
  * - the key store (HAL-21 to HAL-23);
- * - cryptography through Mbed TLS (J2): PSA Crypto for hashes, HMAC, deterministic ECDSA (RFC 6979, as the
+ * - cryptography through Mbed TLS: PSA Crypto for hashes, HMAC, deterministic ECDSA (RFC 6979, as the
  *   prototype), ECDH and AES-CBC; mbedtls_hkdf for HKDF; and the bignum module to reduce generated EC scalars;
  * - the deterministic generator of the test hook: SHA-256(seed || counter), as the prototype (HAL-31);
  * - the resources of the test-only catalog (V-33).

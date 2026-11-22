@@ -1,5 +1,5 @@
 /*
- * cl_hal_test.h - test hooks of a CardLang test HAL (draft, VM2; vm/hal.md HAL-31).
+ * cl_hal_test.h - test hooks of a CardLang test HAL (draft; vm/hal.md HAL-31).
  *
  * Every test backend provides these, so that the same scenarios run on every VM (vm/decisions.md V-10, V-12).
  * A production HAL does not provide them.

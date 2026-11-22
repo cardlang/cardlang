@@ -1,4 +1,4 @@
-"""Reference lexer written from spec chapter 2, used to verify SP1."""
+"""The reference lexer, written from chapter 2 of the specification."""
 import re, sys, pathlib
 from cardlang import layout
 
@@ -17,7 +17,7 @@ class Lines:
         return line, i - self.starts[line - 1] + 1
 
 
-PUNCT3 = ["<<=", ">>="]                                       # compound assignment (WP9 L6)
+PUNCT3 = ["<<=", ">>="]                                       # compound assignment
 PUNCT2 = ["..", "->", "=>", "==", "!=", "<=", ">=", "<<", ">>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^="]
 PUNCT1 = list("{}()[];:,.=<>+-*/%~&|^")
 KEYWORDS = set("""abort and attempt break command const continue else enum Err errors false for function
@@ -25,11 +25,11 @@ if in inout match not Ok or persistent ref require return session struct transac
 LIT = re.compile(r"(?:[0-9](?:_?[0-9])*|0x[0-9a-fA-F](?:_?[0-9a-fA-F])*|0b[01](?:_?[01])*)\Z")
 
 class LexError(Exception):
-    """A lexical error: cls is its code, pos its character offset; where is (file, line, column) (TL1)."""
+    """A lexical error: cls is its code, pos its character offset; where is (file, line, column)."""
     def __init__(self, cls, pos, where=None): super().__init__(cls); self.cls, self.pos, self.where = cls, pos, where
 
 def lex(data: bytes, file=None):
-    """The tokens of one source file, as Tok tuples carrying (file, line, column) (TL1)."""
+    """The tokens of one source file, as Tok tuples carrying (file, line, column)."""
     try:
         s = data.decode("utf-8")
     except UnicodeDecodeError as e:
@@ -62,7 +62,7 @@ def lex(data: bytes, file=None):
             if not LIT.match(run):
                 fail("CE-LEX-4", i)
             add(("int", run)); i = j
-        elif s.startswith('b"', i):                             # a byte-string literal (WP9 L1)
+        elif s.startswith('b"', i):                             # a byte-string literal
             j = i + 2; out = []
             while True:
                 if j >= n or s[j] in "\r\n": fail("CE-LEX-5", i)

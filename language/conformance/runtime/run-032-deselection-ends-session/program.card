@@ -1,5 +1,5 @@
 // rule: STA-4, STA-6
-// source: platform/base-profile.md BP-55, BP-56 (WP12, PIV step 0 Q2)
+// source: platform/base-profile.md BP-55, BP-56
 // status: agreed
 // kind: application
 // binding: iso7816

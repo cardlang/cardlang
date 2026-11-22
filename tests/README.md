@@ -44,3 +44,12 @@ It prints one line per run, with the number of tests that passed, and exits non-
 | `semantic_check.py` | Semantic colouring, against a pinned sample in `testdata/`, and completion |
 | `dap_check.py` | The debug adapter: breakpoints, stepping, the stack, variables and traps |
 | `editors/vscode/check_extension.py` | The extension's grammars, keywords and scenario steps match the language |
+
+## Generators
+
+Two scripts write the specification's generated parts. Run them after adding tests or rules; `speccheck.py` fails until they agree.
+
+| Script | What it writes |
+|---|---|
+| `coverage.py` | Annex D §D.3, the rule coverage matrix: for every rule, the tests that cite it, else tests that exercise it, else the reason no test can check it. It fails if a rule has none of them |
+| `rule_index.py` | The index of rules in `language/spec/00-index.md` |

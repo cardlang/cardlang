@@ -108,8 +108,3 @@ It is not normative and not optimized. Its execution budget is a fixed number of
 ## The example applets' checks
 
 Each example applet has its own checker, `examples/<app>/check.py`, beside its sources. It is described in the applet's README. `run_checks.py` finds every one and runs it on every backend, and `tests/example_scenarios.py` runs every example scenario on every backend. See [`examples/`](../../examples/README.md).
-
-## Development aids
-
-The conformance-test generators, the one-off history scripts and the measurement scripts are in [`devel/`](../../devel/README.md), with the plans and reports.
-

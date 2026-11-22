@@ -45,16 +45,16 @@ OPS = {
     # 2.9 calls and outcomes
     "CALL": (0x68, "h"), "RET": (0x69, ""), "RETV": (0x6A, ""), "ERR": (0x6B, "Ch"), "FWD": (0x6C, ""),
     "JERR": (0x6D, "r"), "JERRIS": (0x6E, "Chr"), "JERRCAT": (0x6F, "Cr"), "ERRCODE": (0x70, ""),
-    "ERRGET": (0x71, ""), "ERRRAISE": (0x72, ""),                    # added during VM4 stage 2 (bytecode.md §9)
+    "ERRGET": (0x71, ""), "ERRRAISE": (0x72, ""),                    # see bytecode.md §9
     # 2.10 transactions
     "TXN.BEGIN": (0x74, ""), "TXN.COMMIT": (0x75, ""), "TXN.ABORT": (0x76, ""),
     # 2.11 natives
     "NATIVE": (0x78, "h"),
-    # 2.12 short forms (version 1, VM6): shorter encodings of the instructions above, with the same semantics
+    # 2.12 short forms (version 1): shorter encodings of the instructions above, with the same semantics
     "LDF8": (0x80, "Tb"), "STF8": (0x81, "Tb"), "LDFW": (0x82, "b"), "STFW": (0x83, "b"),
     "ADDRF": (0x84, "b"), "SLICEF": (0x85, "hbb"), "PUSH0": (0x86, ""), "PUSH1": (0x87, ""),
     "JMP8": (0x88, "s"), "JZ8": (0x89, "s"), "JNZ8": (0x8A, "s"), "JERR8": (0x8B, "s"),
-    # 2.13 the second revision (VM7b): further short forms, from the PIV measurements
+    # 2.13 the second revision: further short forms, from the PIV measurements
     "LDFB": (0x8C, "b"), "STFB": (0x8D, "b"), "ADDRH": (0x8E, "Rh"),
     "JEQI8": (0x8F, "bs"), "JNEI8": (0x90, "bs"),
     "JLTI8": (0x91, "Tbs"), "JLEI8": (0x92, "Tbs"), "JGTI8": (0x93, "Tbs"), "JGEI8": (0x94, "Tbs"),
@@ -114,7 +114,7 @@ BASE_NATIVES = [
     "card.cbor.validate", "card.cbor.head", "card.cbor.skip", "card.cbor.write_head", "card.cbor.write_int",
     "card.tlv.head", "card.tlv.skip", "card.tlv.validate", "card.der.write_head", "card.der.write_integer",
     "card.der.integer_size", "card.cbor.write_string", "card.cbor.write_bool",
-    "card.crypto.sign_digest", "card.crypto.verify_digest",            # 35, 36 (WP12)
+    "card.crypto.sign_digest", "card.crypto.verify_digest",            # 35, 36
 ]
 TEST_NATIVES = ["card.test.resources.create", "card.test.resources.delete", "card.test.resources.read",
                 "card.test.resources.write", "card.test.sign"]

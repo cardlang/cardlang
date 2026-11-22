@@ -60,7 +60,3 @@ uv run python -I examples/piv/check.py . --backend interp
 ## The independent check
 
 `check.py` runs a host-side PIV session, 69 checks in all, and checks every response with code of its own, without reusing any of the applet's logic. It has a BER-TLV encoder and parser, and uses the interpreter's test-only AES and P-256 for the host's side of authentication, signature verification and ECDH. `tests/run_checks.py` runs it on all four backends, together with the scenario.
-
-## Background
-
-The applet was written in work package WP12. The subset was chosen in its step 0, from a reading of SP 800-73-5. What it showed about the language, the profile and the compiler is in [the findings report](../../devel/reports/WP12-piv-findings.md).

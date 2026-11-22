@@ -2,7 +2,7 @@
 image, and the image decodes cleanly (every function's code is a sequence of valid instructions).
 
 With --backend cvm-msvc or cvm-clang, each image must also load in that build of the C VM: cl_vm_load returns
-CL_LOAD_OK (VM7 step 6, K1). Build the C VM first with vm/c/build.py.
+CL_LOAD_OK. Build the C VM first with vm/c/build.py.
 
 Usage (from the repository root):
     uv run python -I tests/compile_all.py . [--backend cvm-msvc | cvm-clang]

@@ -14,8 +14,8 @@
 #   summary      one sentence
 #
 # Every field is required. Types are primitive types, array and view types, or types declared in
-# platform/base-types.card. The entries are added by WP3 (card.key), WP4 (card.crypto, card.random),
-# WP5 (card.cbor) and WP6 (card.der, card.tlv).
+# platform/base-types.card. The families are card.key, card.crypto, card.random, card.cbor, card.der and
+# card.tlv.
 
 api card.key.generate
     params      id: u32, spec: KeySpec
@@ -365,7 +365,7 @@ api card.crypto.sign_digest
     resources   uses Key(key)
     on-failure  nothing changes (BP-7)
     permission  -
-    summary     Write the 64-byte ECDSA signature r || s of a 32-byte digest, without hashing it (BP-29; WP12).
+    summary     Write the 64-byte ECDSA signature r || s of a 32-byte digest, without hashing it (BP-29).
 
 api card.crypto.verify_digest
     params      key: u32, alg: SignatureAlgorithm, digest: ref u8[], signature: ref u8[]
@@ -375,4 +375,4 @@ api card.crypto.verify_digest
     resources   uses Key(key)
     on-failure  nothing changes (BP-7)
     permission  -
-    summary     Whether signature is a valid signature of a 32-byte digest (BP-29; WP12).
+    summary     Whether signature is a valid signature of a 32-byte digest (BP-29).

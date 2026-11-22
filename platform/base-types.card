@@ -1,7 +1,7 @@
 // CardLang Base Profile 1: platform-supplied declarations (platform/base-profile.md §3).
 // This file is implicitly part of every build for the profile. Its names are predeclared (NAM-14 item 4):
 // an application that declares one of them is rejected (CE-NAM-5).
-// The families add their own declarations in WP4 (crypto), WP5 (CBOR) and WP6 (DER/TLV).
+// The crypto, CBOR and DER/TLV families add their own declarations below.
 
 // Keys (§7). Each value names one valid key type; later versions add values for new curves and sizes.
 enum KeyType {
@@ -23,7 +23,7 @@ struct KeySpec {
     storage: KeyStorage;
 }
 
-// Cryptographic operations (§8). One enum per family, so a wrong algorithm is a compile-time error (WP4 C2).
+// Cryptographic operations (§8). One enum per family, so a wrong algorithm is a compile-time error.
 enum DigestAlgorithm {
     Sha256;
 }

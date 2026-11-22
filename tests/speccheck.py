@@ -1,4 +1,4 @@
-"""Scripted consistency checks over the specification text (SP14).
+"""Scripted consistency checks over the specification text.
 
 Each check prints PASS or FAIL with a short reason:
 
@@ -179,7 +179,7 @@ def main(repo):
     problems = []
     d2 = texts["annex-D-traceability.md"].split("## D.2")[1].split("## D.3")[0]
     d2_rules = {m.group(1): set(re.findall(r"[A-Z]{3}-\d+", m.group(2)))
-                for m in re.finditer(r"^\| (D-\d{3}) \|(?:[^|]*\|){2}([^|]*)\|", d2, re.M)}
+                for m in re.finditer(r"^\| (D-\d{3}) \|(?:[^|]*\|){1}([^|]*)\|", d2, re.M)}   # ID, topic, rule IDs
     reg_rules = {m.group(1): set(re.findall(r"[A-Z]{3}-\d+", m.group(2)))
                  for m in re.finditer(r"^\| (D-\d{3}) \|.*\| ([^|]*) \|[ \t]*$", register, re.M)}
     for name, text in normative.items():

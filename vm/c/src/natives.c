@@ -257,7 +257,7 @@ static bool less(src *s, uint32_t a0, uint32_t a1, uint32_t b0, uint32_t b1) {
     return a0 == a1 && b0 < b1;
 }
 
-/* One open array, map or tag: 16 bytes, so 16 levels take 256 bytes of C stack (VM7-measurements.md, F1).
+/* One open array, map or tag: 16 bytes, so 16 levels take 256 bytes of C stack.
  * - remaining: items still to read (pairs, for a map), saturated at len + 1. Each item takes at least a byte, so
  *   a saturated count fails exactly where the true one would, as in cbor_skip. Views are below 2^29 bytes, which
  *   leaves the top two bits for LV_MAP (a map, not an array or tag) and LV_VALUE (the map's next item is a value).
@@ -502,7 +502,7 @@ static int begin(cl_vm *vm, uint32_t op, cl_op_purpose purpose, uint32_t key, ui
     } while (0)
 
 /* Each family of natives has its own function and frame, so only one family's locals are on the C stack at a
- * time (VM7-measurements.md, F1). */
+ * time. */
 /* card.key (BP-18 to BP-25) */
 static NOINLINE int keys(cl_vm *vm, uint16_t number, const uint32_t *c, uint32_t *res, uint32_t slot) {
     cl_hal *hal = vm->hal;

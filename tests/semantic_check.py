@@ -1,4 +1,4 @@
-"""Checks of semantic colouring (TL1 step 3b), run by tests/run_checks.py.
+"""Checks of semantic colouring, run by tests/run_checks.py.
 
 1. Every identifier of both applets and of every runtime test gets a kind.
 2. The sample tests/testdata/semantic-sample.card is classified exactly as pinned below, reviewed by hand

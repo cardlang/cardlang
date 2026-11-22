@@ -1,6 +1,6 @@
-# The CardLang VM in portable C11 (VM7, devel/plans/vm/VM7-c-vm.md).
+# The CardLang VM in portable C11.
 #
-# Built with two compilers, both warning-free (J1): MSVC, and clang from llvm-mingw (cmake/llvm-mingw-x86_64.cmake).
+# Built with two compilers, both warning-free: MSVC, and clang from llvm-mingw (cmake/llvm-mingw-x86_64.cmake).
 # Use vm/c/build.py, which sets up either toolchain, rather than calling CMake directly.
 cmake_minimum_required(VERSION 3.25)
 project(cardlang_vm VERSION 1.0 LANGUAGES C)
@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Warnings are errors on both compilers (VM7 §2, coding rules).
+# Warnings are errors on both compilers (coding rules).
 function(cardlang_warnings target)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W4 /WX)
@@ -19,7 +19,7 @@ function(cardlang_warnings target)
     endif()
 endfunction()
 
-# Mbed TLS, the host HAL's crypto backend (J2): the 3.6 LTS release archive, downloaded once into build/downloads
+# Mbed TLS, the host HAL's crypto backend: the 3.6 LTS release archive, downloaded once into build/downloads
 # (shared by both toolchains' build trees, git-ignored) and checked against the SHA-256 the release publishes.
 include(FetchContent)
 set(MBEDTLS_VERSION 3.6.8)
@@ -56,7 +56,7 @@ target_compile_definitions(cardlang_hal_host PUBLIC CL_HAL_OP_CTX_SIZE=${CARDLAN
 target_link_libraries(cardlang_hal_host PUBLIC mbedcrypto)
 cardlang_warnings(cardlang_hal_host)
 
-# The shared library the harness drives through cffi (J3): cvm.dll, or libcvm.so elsewhere.
+# The shared library the harness drives through cffi: cvm.dll, or libcvm.so elsewhere.
 add_library(cvm SHARED test/cvm.c)
 target_link_libraries(cvm PRIVATE cardlang_vm cardlang_hal_host)
 set_target_properties(cvm PROPERTIES PREFIX "")

@@ -1,4 +1,4 @@
-# The PIV applet (TL1 step 6): debug it with CardLang: Debug Scenario.
+# The PIV applet: debug it with CardLang: Debug Scenario.
 install
 power_on
 select   # SELECT returns the application property template
