@@ -56,7 +56,7 @@ devel/                    development aids
 
 **Two renames:**
 - **The prototype VM becomes `pyvm`,** both the package (`cardlang.pyvm`) and the backend name (`clc run --backend pyvm`, the extension's `cardlang.scenarioBackend`). It is renamed as it moves into the package (PR5c), since that move changes all of its imports anyway. Historical reports keep the name `vmproto`, which it had when they were written.
-- **The applet checkers move into their applets,** `examples/fido2/check_fido2.py` and `examples/piv/check_piv.py`, so each applet is a complete unit. <!-- linkcheck: ignore -->
+- **The applet checkers move into their applets,** `examples/fido2/check.py` and `examples/piv/check.py` (PR4 E1), so each applet is a complete unit. <!-- linkcheck: ignore -->
 
 ## 3. The work packages
 
