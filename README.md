@@ -29,31 +29,19 @@ const OP_INCREMENT: u8 = 0x02;
 
 persistent counter: u32;
 
-function encode_counter(output: inout u8[]) -> u32 {
-    require output.length >= 4 else CounterError.ResponseTooSmall;
-    var bytes: u8[4] = encode_be(counter);
-    for index: u32 in 0..4 {
-        output[index] = bytes[index];
-    }
-    return Ok(4);
-}
-
-function increment() {
-    transaction {
-        counter = counter + 1;
-    }
-    return Ok();
-}
-
 command process(request: ref u8[], response: inout u8[]) -> u32 {
     require request.length == 1 else CounterError.MalformedRequest;
+    require response.length >= 4 else CounterError.ResponseTooSmall;
     var operation: u8 = request[0];
-    if operation == OP_INCREMENT {
-        attempt increment();
-    } else if operation != OP_READ {
+    if operation == OP_READ {
+        response[0..4] = encode_be(counter);
+    } else if operation == OP_INCREMENT {
+        counter = counter + 1;
+        response[0..4] = encode_be(counter);
+    } else {
         return Err(CounterError.UnsupportedOperation);
     }
-    return encode_counter(inout response);
+    return Ok(4);
 }
 ```
 
