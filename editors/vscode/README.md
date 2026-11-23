@@ -99,7 +99,7 @@ power_on
 select
 expect sw 9000
 command 80 10 00 00 04        # a command's bytes, in hex; "capacity n" sets the response buffer
-expect sw 9000                # or: expect ok <bytes>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
+expect sw 9000                # or: expect ok <bytes>, expect ok length <n>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
 ```
 
 The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <hex>` (the test random generator) and `interrupt` (a power loss at the next commit). The format is described in `src/cardlang/harness/README.md`.

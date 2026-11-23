@@ -115,3 +115,22 @@ As before, each chapter is reviewed by the user before the next is written.
 - **The 63CX exercise** points to the PIV example (Q2).
 
 **Chapter 7, review (user):** CLA `00` is the *interindustry* class, and an applet's own commands must not be declared there. The text now explains interindustry and proprietary classes. `pincheck`'s status command was `00 CA`, the interindustry GET DATA instruction, so it moved to the proprietary `80 10`. `process` now dispatches on the class and the instruction together, and the scenario adds `80 20` → `6D00` and `A0 20` → `6E00`.
+
+**Chapter 7:** committed after the review fix.
+
+**`expect ok length N` (Q4), built 2026-11-23:**
+- **The runner:** `parse_expect` reads `ok length N`. The runner reduces a successful outcome to `("ok-length", len)` before comparing, so `clc run` and the debugger, which compare the same pair, work unchanged.
+- **The grammar:** the extension's scenario grammar gains `length`.
+- **Documentation:** the conformance README's table, the extension README and the harness README.
+- **Use and checks:** `run-031-digest-signatures` now checks a successful `sign_digest` with `expect ok length 64`, and passes on the interpreter, the Python VM and the C VM. By injection, length 63 fails, and an `err` outcome fails.
+
+**Chapter 8, drafted 2026-11-23, waiting for the user's review:**
+- **The platform's APIs:** families, outcomes, `inout` results, and algorithm enums. Keys are resources: identifiers, `KeySpec`, storage, PLT-33, and transactions.
+- **The vault (Q3):**
+  - `on_install` generates a persistent P-256 key in its transaction;
+  - `30` reads the public key;
+  - `2A` signs a 32-byte digest with `sign_digest`, once verified. It checks first, and stores the count only after the signature, which keeps `attempt … else CounterExhausted`;
+  - `increment` and command `02` are removed (`remove=increment`).
+- **Randomness:** a fragment, pointing to `seed` in chapter 9.
+- **`wipe`:** `check_pin` wipes the secret and its length, in a transaction, on the last wrong try. A scenario checks blocking, since the wipe itself cannot be observed.
+- **The prototype** passed on the interpreter and the Python VM before the chapter was written.
