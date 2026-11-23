@@ -66,7 +66,7 @@ The chapters build one application, a small store for a secret protected by a PI
 2. [Values and types](02-values-and-types.md)
 3. [Control flow and scope](03-control-flow-and-scope.md)
 4. [Functions, references and views](04-functions-references-views.md)
-5. [Outcomes instead of exceptions](05-outcomes.md)
+5. [Outcomes](05-outcomes.md)
 6. [State that survives](06-state.md)
 7. [Talking to the host](07-host.md)
 8. [Using the platform](08-platform.md)

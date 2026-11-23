@@ -7,7 +7,7 @@ A guide that teaches CardLang by example, for programmers who want to write appl
 2. [Values and types](docs/02-values-and-types.md)
 3. [Control flow and scope](docs/03-control-flow-and-scope.md)
 4. [Functions, references and views](docs/04-functions-references-views.md)
-5. [Outcomes instead of exceptions](docs/05-outcomes.md)
+5. [Outcomes](docs/05-outcomes.md)
 6. [State that survives](docs/06-state.md)
 7. [Talking to the host](docs/07-host.md)
 8. [Using the platform](docs/08-platform.md)

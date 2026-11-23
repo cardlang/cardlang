@@ -36,7 +36,7 @@ A tour of eleven chapters, which can grow into a book later:
 | 2 | Values and types | Integers, `bool`, arrays, structures and enums; literals; constants; no implicit conversion |
 | 3 | Control flow and scope | Blocks, `var` and assignment, `if`, `while`, `for`, `break` and `continue`, every path returning, scope without shadowing, an applet's files |
 | 4 | Functions, references and views | Parameters, `ref` and `inout`, views; why references cannot escape |
-| 5 | Outcomes instead of exceptions | `Ok` and `Err`, error sets, `match`, `attempt`, `require`; traps, and why they differ from errors |
+| 5 | Outcomes | `Ok` and `Err`, error sets, `match`, `attempt`, `require`; traps, and why they differ from errors |
 | 6 | State that survives | `persistent` and `session`, defaults, lifecycle handlers, atomic updates and transactions |
 | 7 | Talking to the host | The `command` entry point, request and response bytes, the ISO 7816 and raw bindings |
 | 8 | Using the platform | Keys and crypto, randomness, CBOR and TLV, through the Base Profile |

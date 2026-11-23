@@ -25,7 +25,7 @@ The counter counts successful signatures, so it means something.
 | 2 Values and types | Its commands as an enum, decoded from the first byte; a verify command with a fixed 4-byte PIN | integers, `bool`, arrays, byte strings, `equal`, `enum`, `match`, constants, `convert`. Structures are shown on their own |
 | 3 Control flow and scope | A PIN must be all digits, checked with a loop | `var`, assignment, `if`, `for`, `while`, scope, files |
 | 4 Functions, references and views | One function per command, with the same shape | functions, `ref`, `inout`, views, forwarding returns |
-| 5 Outcomes instead of exceptions | Counter overflow as an error the host sees, through `checked_add` | `errors`, `Ok`, `Err`, `require`, `attempt`, `match`, traps |
+| 5 Outcomes | Counter overflow as an error the host sees, through `checked_add` | `errors`, `Ok`, `Err`, `require`, `attempt`, `match`, traps |
 | 6 State that survives | A persistent PIN and retry counter; an "unlocked" session flag; changing the PIN in a transaction | `persistent`, `session`, defaults, `on_install`, `transaction` |
 | 7 Talking to the host | Status words over the ISO 7816 binding; the same applet over the raw binding | bindings, SELECT, status words, the error code mapping |
 | 8 Using the platform | The stored secret; a key generated at installation, signing a digest | `card.key`, `card.crypto`, `card.random`, `wipe` |

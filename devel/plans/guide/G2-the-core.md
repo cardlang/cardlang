@@ -125,3 +125,15 @@ Planned 2026-11-23, the third work package of the guide's plan of plans. It writ
   The vault's verify arm checks that the PIN is all digits, with a `for` loop. A malformed PIN is not counted as a guess.
 - **Chapter 4** keeps the digit check in `verify_pin`, and its scenario adds a non-digit PIN. It no longer compares with C. Its sentence about files now points to chapter 3.
 - **A gap found:** no checker implements the name rules NAM-11 and NAM-21. Duplicates and shadowing all compile, as do all 14 tests in `poscheck.py`'s `KNOWN_GAPS`, recorded 2026-11-21. The shadowing example is therefore `check: none`, and names its code in the text. When a name checker exists, it becomes `error CE-NAM-3`. That checker is proposed as a separate task.
+
+**Chapter 3, second review:** the comparisons with C were removed. The name checker, built in a separate session, landed with it: NAM-21 is enforced, and the shadowing example is checked as CE-NAM-3. Committed.
+
+**Chapter 5, outcomes, drafted 2026-11-23, waiting for the user's review:**
+- **Producing outcomes:** `require` as shorthand, and an outcome is not a value (CE-EXP-14).
+- **The four ways to handle an outcome,** in a table: `attempt`, `match`, forwarding `return`, `ignore`. An unhandled call is CE-OUT-1.
+- **The error set:** fixed, nonzero, unique `u16` codes, kept stable across versions (CE-OUT-7).
+- **`CardError`** and the two categories.
+- **Traps versus errors:** a table, and a rule of thumb. Whatever the host can cause is an `Err`; a bug may trap.
+- **`Err` undoes nothing:** check before changing.
+- **The vault (Q2):** `CounterExhausted = 5` through `checked_add` and a `match`, and `increment` checks the response before changing the counter. A scenario shows the counter is unchanged after a too-small response.
+  - **The overflow path** cannot be reached by a scenario, since it needs 2³² increments. It is shown working instead on a small `tally` applet with a `u8` total. Its scenario covers both a mapped error (`err app 2`) and a forwarded platform error (`err platform Overflow`).
