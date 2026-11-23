@@ -38,7 +38,7 @@ CardLang and scenario code is highlighted by the package's own Pygments lexers, 
 | `<!-- check: program NAME -->` | Top-level declarations of the program `NAME`. They carry over: a block continues the program from every earlier block of that name, in this chapter and earlier ones, and a declaration with the same name as an earlier one replaces it. So a chapter shows only what changed. The program must compile at the end of each chapter that shows it. Add `binding=iso7816` for the ISO 7816 binding (the default is raw) |
 | `<!-- check: program NAME remove=A,B -->` | As above, after first removing the earlier declarations `A` and `B`, for when the text tells the reader to delete them |
 | `<!-- check: fragment -->` | A fragment that must compile |
-| `<!-- check: error CE-XXX-n -->` | A fragment that must fail with exactly that error |
+| `<!-- check: error CE-XXX-n -->` | A fragment that must fail with exactly that error. With `binding=iso7816` or `binding=raw`, the block is a whole applet, built for that binding |
 | `<!-- check: scenario NAME -->` | A scenario for the program `NAME` as it stands at that point, run on the reference interpreter and the Python VM |
 | `<!-- check: none -->` | Shown, not checked. Use it rarely |
 

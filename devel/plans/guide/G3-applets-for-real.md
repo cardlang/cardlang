@@ -104,3 +104,14 @@ As before, each chapter is reviewed by the user before the next is written.
 - **Q2 (a):** `WrongPin` = `6300`, with the tries left as data. This now applies to the small ISO 7816 applet.
 - **Q3 (a):** the counter counts signatures, and the increment command goes.
 - **Q4 (b):** extend the scenario format, as `expect ok length N` (§2.4).
+
+## 5. Progress
+
+**Chapter 7, drafted 2026-11-23, waiting for the user's review:**
+- **The two encodings** side by side (PLT-9, BP-51, BP-53), and choosing a binding.
+- **ISO 7816:** the APDU in `request`, chaining and extended length handled by the platform, status words and the BP-52 code ranges, SELECT and `on_select`, and sessions.
+- **`pincheck`:** an ISO 7816 applet with VERIFY (tries before comparing, an empty VERIFY answering the tries left, `WrongPin` = `6300`), a status instruction, and `on_select`. Its scenario covers `select`, `deselect` ending the session, `expect sw`, and unknown INS and CLA. It passed on the interpreter and the Python VM as a prototype, before the chapter was written.
+- **`guidecheck`:** `error CODE binding=B` checks a whole applet built for a binding. It is used for the BP-52 example. Injection: with a valid code, the check fails.
+- **The 63CX exercise** points to the PIV example (Q2).
+
+**Chapter 7, review (user):** CLA `00` is the *interindustry* class, and an applet's own commands must not be declared there. The text now explains interindustry and proprietary classes. `pincheck`'s status command was `00 CA`, the interindustry GET DATA instruction, so it moved to the proprietary `80 10`. `process` now dispatches on the class and the instruction together, and the scenario adds `80 20` → `6D00` and `A0 20` → `6E00`.

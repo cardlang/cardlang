@@ -13,6 +13,7 @@ comment saying what it is:
                                             tells the reader to delete them
   <!-- check: fragment -->                  a fragment, completed by the HEP-16 scaffold; it must compile
   <!-- check: error CE-XXX-n -->            a fragment that must fail with exactly that compile error
+  <!-- check: error CODE binding=B -->      a whole application, built for binding B, that must fail with CODE
   <!-- check: scenario NAME -->             a scenario run against the program NAME as it stands at that point, on
                                             the reference interpreter and the Python VM; every expect must hold
   <!-- check: none -->                      shown but not checked
@@ -136,7 +137,12 @@ def main(repo):
                 shown[words[1]] = where
             elif kind in ("fragment", "error"):
                 f = tmp / f"{md.stem}-{line}.card"; f.write_text(text, encoding="utf-8")
-                ds = diagnose.check([f], None, "fragment")
+                opts = dict(w.split("=", 1) for w in words[1:] if "=" in w)
+                words = [w for w in words if "=" not in w]
+                if "binding" in opts:                  # a whole application, built for that binding
+                    ds = diagnose.check([f], opts["binding"], "application")
+                else:
+                    ds = diagnose.check([f], None, "fragment")
                 if kind == "fragment":
                     report(not ds, where, "a fragment compiles" if not ds else diagnose.format_diagnostic(ds[0]))
                 else:
