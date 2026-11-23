@@ -64,13 +64,14 @@ The chapters build one application, a small store for a secret protected by a PI
 
 1. [Getting started](01-getting-started.md): install the tools, then build, run and debug your first applet.
 2. [Values and types](02-values-and-types.md)
-3. [Functions, references and slices](03-functions-references-slices.md)
-4. [Outcomes instead of exceptions](04-outcomes.md)
-5. [State that survives](05-state.md)
-6. [Talking to the host](06-host.md)
-7. [Using the platform](07-platform.md)
-8. [Testing and debugging](08-testing-and-debugging.md)
-9. [A real applet](09-a-real-applet.md)
-10. [Coming from C or Java Card](10-coming-from-c.md)
+3. [Control flow and scope](03-control-flow-and-scope.md)
+4. [Functions, references and views](04-functions-references-views.md)
+5. [Outcomes instead of exceptions](05-outcomes.md)
+6. [State that survives](06-state.md)
+7. [Talking to the host](07-host.md)
+8. [Using the platform](08-platform.md)
+9. [Testing and debugging](09-testing-and-debugging.md)
+10. [A real applet](10-a-real-applet.md)
+11. [Coming from C or Java Card](11-coming-from-c.md)
 
 The guide explains; the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md) decides. When the guide relies on a rule, it names it, as in *EXP-14*, so you can look up the exact wording. Where the two seem to disagree, the specification is right, and the guide has a bug.

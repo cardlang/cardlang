@@ -42,7 +42,7 @@ The folder needs a `cardlang.json`, which names the applet and lists its source 
 { "name": "vault", "files": ["vault.card"], "binding": "raw" }
 ```
 
-The *binding* says how the applet meets the outside world. `raw` hands the applet the host's bytes exactly as they arrive. The other binding, ISO 7816, is the one smart cards use; [chapter 6](06-host.md) introduces it.
+The *binding* says how the applet meets the outside world. `raw` hands the applet the host's bytes exactly as they arrive. The other binding, ISO 7816, is the one smart cards use; [chapter 7](07-host.md) introduces it.
 
 Now `vault.card`. For a start, the vault keeps a counter, and answers one command: read it.
 
@@ -72,9 +72,9 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 Read it from the bottom up:
 
 - **`command process`** is the applet's entry point. Every applet has exactly one (*HEP-1*). The host sends a request, a few bytes, and the command writes its answer into `response`. `ref` means the command can read the request but not change it; `inout` means it can write the response.
-- **It returns an outcome.** `Ok(4)` says the answer is the first 4 bytes of `response`. `Err(…)` reports an error instead, from the applet's own list of errors, `VaultError`. CardLang has no exceptions; [chapter 4](04-outcomes.md) shows how errors work instead.
+- **It returns an outcome.** `Ok(4)` says the answer is the first 4 bytes of `response`. `Err(…)` reports an error instead, from the applet's own list of errors, `VaultError`. CardLang has no exceptions; [chapter 5](05-outcomes.md) shows how errors work instead.
 - **`require`** checks a condition, and returns the error after `else` if it does not hold (*STM-19*). Here it makes sure the request is one byte long and there is room for the answer.
-- **`persistent counter: u32`** is a 32-bit unsigned integer that keeps its value when the device loses power. It starts at zero, and [chapter 5](05-state.md) covers the other kinds of state an applet can keep.
+- **`persistent counter: u32`** is a 32-bit unsigned integer that keeps its value when the device loses power. It starts at zero, and [chapter 6](06-state.md) covers the other kinds of state an applet can keep.
 - **`encode_be(counter)`** turns the counter into 4 bytes, most significant first, and `response[0..4] = …` copies them into the first 4 bytes of the response.
 
 **Build it.** With `vault.card` open, run **CardLang: Build Applet** from the command palette (Ctrl+Shift+P), or click the package icon in the editor's title bar. The output panel shows something like:

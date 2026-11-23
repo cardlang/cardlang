@@ -5,14 +5,15 @@ A guide that teaches CardLang by example, for programmers who want to write appl
 - [Introduction](docs/index.md)
 1. [Getting started](docs/01-getting-started.md)
 2. [Values and types](docs/02-values-and-types.md)
-3. [Functions, references and slices](docs/03-functions-references-slices.md)
-4. [Outcomes instead of exceptions](docs/04-outcomes.md)
-5. [State that survives](docs/05-state.md)
-6. [Talking to the host](docs/06-host.md)
-7. [Using the platform](docs/07-platform.md)
-8. [Testing and debugging](docs/08-testing-and-debugging.md)
-9. [A real applet](docs/09-a-real-applet.md)
-10. [Coming from C or Java Card](docs/10-coming-from-c.md)
+3. [Control flow and scope](docs/03-control-flow-and-scope.md)
+4. [Functions, references and views](docs/04-functions-references-views.md)
+5. [Outcomes instead of exceptions](docs/05-outcomes.md)
+6. [State that survives](docs/06-state.md)
+7. [Talking to the host](docs/07-host.md)
+8. [Using the platform](docs/08-platform.md)
+9. [Testing and debugging](docs/09-testing-and-debugging.md)
+10. [A real applet](docs/10-a-real-applet.md)
+11. [Coming from C or Java Card](docs/11-coming-from-c.md)
 
 The guide is not normative: the [specification](../language/spec/00-index.md) is.
 

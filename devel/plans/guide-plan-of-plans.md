@@ -28,20 +28,21 @@ Planned 2026-11-22, at the user's request. The specification says exactly what C
 
 ## 3. The outline
 
-A tour of about ten chapters, which can grow into a book later:
+A tour of eleven chapters, which can grow into a book later:
 
 | # | Chapter | What the reader learns |
 |---|---|---|
 | 1 | Getting started | Install the extension; open, build, run and debug an example; the first applet of their own |
 | 2 | Values and types | Integers, `bool`, arrays, structures and enums; literals; constants; no implicit conversion |
-| 3 | Functions, references and slices | Parameters, `ref` and `inout`, views and slices; why references cannot escape |
-| 4 | Outcomes instead of exceptions | `Ok` and `Err`, error sets, `match`, `attempt`, `require`; traps, and why they differ from errors |
-| 5 | State that survives | `persistent` and `session`, defaults, lifecycle handlers, atomic updates and transactions |
-| 6 | Talking to the host | The `command` entry point, request and response bytes, the ISO 7816 and raw bindings |
-| 7 | Using the platform | Keys and crypto, randomness, CBOR and TLV, through the Base Profile |
-| 8 | Testing and debugging | Scenarios, `clc`, the debugger, traps and failed expectations |
-| 9 | A real applet | A walk through part of the FIDO2 example, applying everything so far |
-| 10 | Coming from C or Java Card | What is different, and why: no heap, no exceptions, no recursion, atomic state |
+| 3 | Control flow and scope | Blocks, `var` and assignment, `if`, `while`, `for`, `break` and `continue`, every path returning, scope without shadowing, an applet's files |
+| 4 | Functions, references and views | Parameters, `ref` and `inout`, views; why references cannot escape |
+| 5 | Outcomes instead of exceptions | `Ok` and `Err`, error sets, `match`, `attempt`, `require`; traps, and why they differ from errors |
+| 6 | State that survives | `persistent` and `session`, defaults, lifecycle handlers, atomic updates and transactions |
+| 7 | Talking to the host | The `command` entry point, request and response bytes, the ISO 7816 and raw bindings |
+| 8 | Using the platform | Keys and crypto, randomness, CBOR and TLV, through the Base Profile |
+| 9 | Testing and debugging | Scenarios, `clc`, the debugger, traps and failed expectations |
+| 10 | A real applet | A walk through part of the FIDO2 example, applying everything so far |
+| 11 | Coming from C or Java Card | What is different, and why: no heap, no exceptions, no recursion, atomic state |
 
 ## 4. The work packages
 
@@ -49,9 +50,9 @@ A tour of about ten chapters, which can grow into a book later:
 |---|---|---|
 | **G0 Foundations** | The guide's folder and skeleton (Q1); the site tool and its configuration (Q2); `tests/guidecheck.py`, the example check (Q3), in `run_checks`; a GitHub workflow that builds the site and publishes it to GitHub Pages; the running example's design (Q4); a short style guide for the guide's voice | — |
 | **G1 First steps** | Chapters 1 and 2. They set the tone the rest follows | G0 |
-| **G2 The core** | Chapters 3, 4 and 5 | G1 |
-| **G3 Applets for real** | Chapters 6, 7 and 8 | G2 |
-| **G4 Putting it together** | Chapters 9 and 10 | G3 |
+| **G2 The core** | Chapters 3, 4, 5 and 6 | G1 |
+| **G3 Applets for real** | Chapters 7, 8 and 9 | G2 |
+| **G4 Putting it together** | Chapters 10 and 11 | G3 |
 | **G5 Polish and links** | A consistency pass; screenshots and a GIF of the extension; links from the README, the specification's index and the extension's README into the guide; the site's front page | G4 |
 
 **With the launch:** G0 and G1 before the launch posts give readers somewhere to go after the README. The rest can follow, chapter by chapter.
@@ -79,3 +80,5 @@ A tour of about ten chapters, which can grow into a book later:
 - Q2 (a): MkDocs with the Material theme. Adding it as a development dependency is asked before it is done.
 - Q3 (a): the fenced code blocks are checked where they are.
 - Q4 (a): the running example is a PIN-protected secret store.
+
+**Changed (user, 2026-11-23, reviewing chapter 3):** the outline had no place for control flow, or for how an applet's files share one scope. A new chapter 3, *Control flow and scope*, teaches both, and the later chapters move up by one. *Functions, references and slices* became *Functions, references and views*, since slices are taught with arrays in chapter 2. G2 now covers chapters 3 to 6.

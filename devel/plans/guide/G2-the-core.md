@@ -35,7 +35,7 @@ Planned 2026-11-23, the third work package of the guide's plan of plans. It writ
 4. **Views.** A `u8[]` parameter accepts an array of any length, or a slice. `.length` gives the actual length.
 5. **What references cannot do.**
    - They cannot be stored or returned, so they cannot outlive the call.
-   - The same place cannot be passed twice where one of the two could change it (the aliasing rules).
+   - Overlap, by contrast, is allowed: the same place may be passed twice, and a `ref` sees writes made through an `inout` (FUN-12, FUN-13). The chapter teaches that, rather than an aliasing restriction, which an earlier draft of this plan wrongly assumed.
    - A call cannot be an argument of another call (*EXP-49*).
 6. **The vault, version 3 (Q1):** each command becomes a function of its own, called from `process`.
 
@@ -94,3 +94,34 @@ Planned 2026-11-23, the third work package of the guide's plan of plans. It writ
 - Q2 (a): `checked_add`, with a `match` that maps its overflow to `VaultError.CounterExhausted`.
 - Q3 (a): a verify request with no PIN answers the tries left. A wrong PIN is `Err(WrongPin)`, or `Err(Blocked)` at zero.
 - Q4 (a): `on_install` sets the default PIN `b"1234"` and 3 tries.
+
+## 5. Progress
+
+**Chapter 3, drafted 2026-11-23, waiting for the user's review:**
+- **The vault (Q1):** `read_counter`, `increment` and `verify_pin` all have the shape `(data: ref u8[], response: inout u8[]) -> u32`. `process` decodes, and dispatches with forwarding returns. A scenario repeats chapter 2's behaviour, plus data on a read.
+- **Every error code** is from the check:
+  - CE-FUN-1, recursion;
+  - CE-EXP-7, a call in an argument. My first guess was wrong; the check caught it;
+  - CE-FUN-2, a missing mode;
+  - CE-STM-2, writing through `ref`;
+  - CE-TYP-5, a view result.
+- **Confirmed by hand:**
+  - `encode_be(wrapping_add(a, b))` is CE-EXP-7, since EXP-49 covers intrinsics;
+  - the overlapping `double_into(ref value, inout value)` gives 6 on the Python VM.
+- **No front-end problems found.**
+
+**Chapter 3, first review (user):**
+- **A new chapter 3, *Control flow and scope*,** was added; nothing taught statements, loops, scope or an applet's files. The chapters planned above as 3, 4 and 5 are now 4, 5 and 6, and G2 covers chapters 3 to 6.
+  - **The files:** `git mv`, with every link and "chapter N" in the guide renumbered by a script. Each change was read in the diff.
+  - **The titles:** *Functions, references and slices* became *Functions, references and views*. Slices are in chapter 2.
+- **New chapter 3** covers:
+  - blocks, and no expression statements (CE-STM-1);
+  - `var`, assignment as a statement, compound assignment, and no `++`;
+  - `if`, `while`, `for`, `break` and `continue`, with no `goto` or `switch`;
+  - every path returning (CE-STM-5);
+  - scope without shadowing (NAM-21);
+  - an applet's files: one scope, order-free, unique names, no imports.
+
+  The vault's verify arm checks that the PIN is all digits, with a `for` loop. A malformed PIN is not counted as a guess.
+- **Chapter 4** keeps the digit check in `verify_pin`, and its scenario adds a non-digit PIN. It no longer compares with C. Its sentence about files now points to chapter 3.
+- **A gap found:** no checker implements the name rules NAM-11 and NAM-21. Duplicates and shadowing all compile, as do all 14 tests in `poscheck.py`'s `KNOWN_GAPS`, recorded 2026-11-21. The shadowing example is therefore `check: none`, and names its code in the text. When a name checker exists, it becomes `error CE-NAM-3`. That checker is proposed as a separate task.

@@ -4,7 +4,7 @@ CardLang has few kinds of values, and all of them have a fixed size: integers, B
 
 This chapter goes through each kind, and then uses them to give the vault a PIN.
 
-Most short examples here sit inside a small function, because statements can only appear in one. [Chapter 3](03-functions-references-slices.md) explains functions properly. For now, read `function name() { … }` as "some code", and `return Ok(…)` as "the result".
+Most short examples here sit inside a small function, because statements can only appear in one. [Chapter 4](04-functions-references-views.md) explains functions properly. For now, read `function name() { … }` as "some code", and `return Ok(…)` as "the result".
 
 ## Integers
 
@@ -59,7 +59,7 @@ function conversions(small: u8, large: u32) -> u32 {
     ```
 
 - **`truncate<T>(x)`** keeps the low bits, and drops the rest. You use it when that is what you mean, as when splitting a number into bytes.
-- **`checked_convert<T>(x)`** converts when the value fits and returns an error when it does not. It is an *outcome*, like the result of a function, which [chapter 4](04-outcomes.md) explains.
+- **`checked_convert<T>(x)`** converts when the value fits and returns an error when it does not. It is an *outcome*, like the result of a function, which [chapter 5](05-outcomes.md) explains.
 
 ### Overflow
 
@@ -73,7 +73,7 @@ function arithmetic(a: u8, b: u8) -> u8 {
 }
 ```
 
-`wrapping_add`, `wrapping_sub` and `wrapping_mul` wrap around, as unsigned arithmetic does in C. `checked_add` and its relatives return an error instead of trapping, so the applet can handle an overflow: they come back in [chapter 4](04-outcomes.md).
+`wrapping_add`, `wrapping_sub` and `wrapping_mul` wrap around, as unsigned arithmetic does in C. `checked_add` and its relatives return an error instead of trapping, so the applet can handle an overflow: they come back in [chapter 5](05-outcomes.md).
 
 ## Booleans
 
@@ -155,7 +155,7 @@ function arrays() -> u8 {
 - **`a.length`** is the number of elements.
 - **An index** is checked. An index past the end is a compile error when the compiler can see it, and otherwise the trap `BOUNDS`.
 
-Arrays are values. Assigning one array to another copies its elements, so the two stay separate afterwards. To compare two arrays, use `equal`, which takes both by reference (the `ref` is explained in [chapter 3](03-functions-references-slices.md)):
+Arrays are values. Assigning one array to another copies its elements, so the two stay separate afterwards. To compare two arrays, use `equal`, which takes both by reference (the `ref` is explained in [chapter 4](04-functions-references-views.md)):
 
 <!-- check: fragment -->
 ```cardlang
@@ -196,7 +196,7 @@ function frame() -> bool {
 
     To keep the bytes, declare an array and copy into it: `first = …` becomes `var first: u8[2];` followed by `first[0..2] = frame[0..2];`.
 
-[Chapter 3](03-functions-references-slices.md) shows how functions take slices and other views as parameters.
+[Chapter 4](04-functions-references-views.md) shows how functions take slices and other views as parameters.
 
 ## Structures
 
@@ -329,11 +329,11 @@ There is no uninitialized memory in CardLang: every value starts as something yo
 - **`persistent` state** holds its defaults when the applet's state is first created, at installation. It never gets them again: from then on, it keeps whatever the applet stored. That is why chapter 1's counter started at zero.
 - **`session` state** gets its defaults at the start of every session, such as each time the device powers on.
 
-[Chapter 5](05-state.md) covers the last two, and how to set up state that should start with another value. The order of an enum's variants matters only here: moving a variant to the top makes it the default.
+[Chapter 6](06-state.md) covers the last two, and how to set up state that should start with another value. The order of an enum's variants matters only here: moving a variant to the top makes it the default.
 
 ## The vault gets a PIN
 
-The vault now learns a third command, `20`, which verifies a PIN: a request of `20` followed by four PIN bytes. The PIN is fixed for now. [Chapter 5](05-state.md) makes it one the user can change.
+The vault now learns a third command, `20`, which verifies a PIN: a request of `20` followed by four PIN bytes. The PIN is fixed for now. [Chapter 6](06-state.md) makes it one the user can change.
 
 First, the commands become an enum, with a function that decodes a command byte into one. Add these to `vault.card`, and replace the two command constants from chapter 1 with them:
 
@@ -400,7 +400,7 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-- **`attempt decode(request[0])`** calls `decode`. If it returns an error, `process` returns that same error at once; otherwise `operation` gets the decoded command. [Chapter 4](04-outcomes.md) is about `attempt` and its relatives.
+- **`attempt decode(request[0])`** calls `decode`. If it returns an error, `process` returns that same error at once; otherwise `operation` gets the decoded command. [Chapter 5](05-outcomes.md) is about `attempt` and its relatives.
 - **Each arm checks its own request length.** A verify request is 1 byte of command and `PIN.length` bytes of PIN. The parentheses in `request.length == (1 + PIN.length)` are needed: `==` and `+` are two different operators too.
 - **`request[1..request.length]`** is the slice of the request after its command byte. `equal` compares it with `PIN`.
 - **`return Ok(0)`** answers with no bytes: success is the whole answer.
@@ -429,4 +429,4 @@ The PIN bytes are the ASCII codes of the digits: `31` is "1". Run it, and every 
 
 - Add a command `03` that answers the vault's version, as a constant `u8[2]`. You need a variant, a line in `decode`, and an arm in the `match`. Try leaving out the arm first, and read the error.
 - Make the wrong-PIN error happen for a PIN of the wrong length too, instead of `MalformedRequest`. Which is better for the host to see?
-- In `decode`, a `match` is not possible, because `code` is an integer. Why does CardLang allow `match` only on enums and outcomes? [Chapter 4](04-outcomes.md) gives part of the answer.
+- In `decode`, a `match` is not possible, because `code` is an integer. Why does CardLang allow `match` only on enums and outcomes? [Chapter 5](05-outcomes.md) gives part of the answer.
