@@ -1,0 +1,66 @@
+# Checks the guide's examples and builds its site; on main, publishes the site to GitHub Pages.
+#
+# - A push to any branch, or a pull request, that touches the guide, the language it is checked against, or this
+#   workflow: guidecheck.py, then mkdocs build --strict.
+# - On main, the built site is published to https://cardlang.github.io/cardlang/ (Pages, source: GitHub Actions).
+name: Guide
+
+on:
+  push:
+    paths:
+      - "guide/**"
+      - "src/cardlang/**"
+      - "tests/guidecheck.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "editors/vscode/syntaxes/**"
+      - ".github/workflows/guide.yml"
+  pull_request:
+    paths:
+      - "guide/**"
+      - "src/cardlang/**"
+      - "tests/guidecheck.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "editors/vscode/syntaxes/**"
+      - ".github/workflows/guide.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guide-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Install the cardlang package and the site's tools
+        run: uv sync --locked
+      - name: Check the guide's examples
+        run: uv run python -I tests/guidecheck.py .
+      - name: Build the site
+        env:
+          NO_MKDOCS_2_WARNING: "1"
+        run: uv run mkdocs build --strict -f guide/mkdocs.yml
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: guide/site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -124,3 +124,34 @@ A short style section in `guide/README.md`, for whoever writes:
 - Q6 (a): our own Pygments lexer.
 - Q7 (a): Pages is enabled with `gh api`, with the user's go-ahead at that step.
 - Q8 (a): the site holds the guide only.
+
+## 5. Done (2026-11-23, on `guide`)
+
+- **MkDocs Material** is a development dependency (`uv add --dev mkdocs-material`, approved), with MkDocs 1.6.1 and Material 9.8.2.
+  - Material now prints that it reaches end of life on 2027-05-05, and that its makers' successor, Zensical, reads the same `mkdocs.yml`. The workflow silences the notice. Moving to Zensical later is a small change, recorded here as a follow-up.
+- **`guide/`:**
+  - **`mkdocs.yml`:** the Material theme, light and dark modes following the reader, search, copy buttons, admonitions, the navigation of all ten chapters, and the icon as logo and favicon (a copy in `docs/assets/`, since MkDocs only serves its `docs_dir`);
+  - **`docs/index.md`:** the front page. It shows the counter, its scenario, and a mistake the compiler catches, all checked, and lists the chapters;
+  - **ten stub chapters,** each saying "Coming soon";
+  - **`README.md`:** the chapters as links, building the site, the check's comments, and the voice;
+  - **`site/`,** the built site, is ignored by git.
+- **`src/cardlang/highlight.py`:** the Pygments lexers `cardlang` and `scenario`, registered as plugins in `pyproject.toml`. The keywords come from `lexcheck` and the intrinsics from `expcheck`, as the VS Code grammar's do.
+- **`tests/guidecheck.py`,** in `run_checks`. It checks the program, fragment, error, scenario and none comments, a block without a comment, and a comment with no block. It also checks the scenario lexer's steps against the extension's scenario grammar.
+  - **By injection on a copy,** it failed each of these: a program that does not compile, a wrong error code, a block with no comment, a failing `expect`, and a scenario for an unknown program. A correct fragment passed.
+- **`layout`** gains `guide`, and `TOP_LEVEL` lists it.
+- **`.github/workflows/guide.yml`:**
+  - on a push or pull request that touches the guide, the package, the check, the lock or the extension's grammars, it runs `guidecheck` and `mkdocs build --strict`, and uploads the site;
+  - on `main`, it deploys the site with `actions/deploy-pages`.
+
+  The actions are `checkout@v7`, `setup-uv@v10.3.3`, `upload-pages-artifact@v5` and `deploy-pages@v5`.
+- **The running example's design** is in `vault.md`, beside this plan.
+- **The README** links the guide after the getting-started chapter, and in the layout table.
+- **Checked:**
+  - `run_checks` passes, 52 runs;
+  - the link check passes;
+  - `mkdocs build --strict` passes;
+  - served locally and viewed, the front page, the CardLang and scenario highlighting, the light and dark modes and the table of contents all render as intended.
+- **Not yet done:**
+  - the workflow's first run on GitHub;
+  - enabling Pages, which needs the user's go-ahead;
+  - after the merge, the site going live.

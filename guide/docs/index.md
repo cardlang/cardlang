@@ -1,0 +1,88 @@
+# The CardLang Guide
+
+CardLang is a small, statically typed language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and smart-card applets. This guide teaches you to write them.
+
+It assumes you have programmed before, in C, Python, Java or something similar. You don't need to know embedded or security programming: the guide explains what matters as it comes up.
+
+## A first look
+
+Here is a whole application: a counter that a host can read and increment, and that keeps its value when the device loses power.
+
+<!-- check: program counter -->
+```cardlang
+errors CounterError {
+    MalformedRequest = 1;
+    UnsupportedOperation = 2;
+    ResponseTooSmall = 3;
+}
+
+const OP_READ: u8 = 0x01;
+const OP_INCREMENT: u8 = 0x02;
+
+persistent counter: u32;
+
+function encode_counter(output: inout u8[]) -> u32 {
+    require output.length >= 4 else CounterError.ResponseTooSmall;
+    var bytes: u8[4] = encode_be(counter);
+    for index: u32 in 0..4 {
+        output[index] = bytes[index];
+    }
+    return Ok(4);
+}
+
+function increment() {
+    transaction {
+        counter = counter + 1;
+    }
+    return Ok();
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length == 1 else CounterError.MalformedRequest;
+    var operation: u8 = request[0];
+    if operation == OP_INCREMENT {
+        attempt increment();
+    } else if operation != OP_READ {
+        return Err(CounterError.UnsupportedOperation);
+    }
+    return encode_counter(inout response);
+}
+```
+
+A host talks to it one request at a time. This *scenario* plays the host: it installs the application, sends requests, and states the responses it expects.
+
+<!-- check: scenario counter -->
+```scenario
+install
+power_on
+command 01              # read: the counter starts at zero
+expect ok 00 00 00 00
+command 02              # increment
+expect ok 00 00 00 01
+command 07              # an operation the counter does not know
+expect err app 2
+```
+
+Every example in this guide is checked like this one, so you can trust that it compiles and does what the text says. The compiler also catches mistakes before a program ever runs. Mixing two different operators without parentheses, for example, is an error:
+
+<!-- check: error CE-EXP-4 -->
+```cardlang
+const MIXED: u32 = 1 + 2 * 3;
+```
+
+## How the guide is organised
+
+The chapters build one application, a small store for a secret protected by a PIN, from a few lines to a complete program:
+
+1. [Getting started](01-getting-started.md): install the tools, then build, run and debug your first applet.
+2. [Values and types](02-values-and-types.md)
+3. [Functions, references and slices](03-functions-references-slices.md)
+4. [Outcomes instead of exceptions](04-outcomes.md)
+5. [State that survives](05-state.md)
+6. [Talking to the host](06-host.md)
+7. [Using the platform](07-platform.md)
+8. [Testing and debugging](08-testing-and-debugging.md)
+9. [A real applet](09-a-real-applet.md)
+10. [Coming from C or Java Card](10-coming-from-c.md)
+
+The guide explains; the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md) decides. When the guide relies on a rule, it names it, as in *EXP-14*, so you can look up the exact wording. Where the two seem to disagree, the specification is right, and the guide has a bug.

@@ -1,0 +1,63 @@
+# The CardLang guide's site. Build it from the repository root:
+#   uv run mkdocs build --strict -f guide/mkdocs.yml      (into guide/site/, which git ignores)
+#   uv run mkdocs serve -f guide/mkdocs.yml               (a live preview)
+site_name: The CardLang Guide
+site_description: Learn to write secure applications in CardLang, a small language for microcontrollers and smart cards.
+site_url: https://cardlang.github.io/cardlang/
+repo_url: https://github.com/cardlang/cardlang
+repo_name: cardlang/cardlang
+edit_uri: edit/main/guide/docs/
+copyright: Licensed under the Apache License, Version 2.0
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  logo: assets/cardlang-icon.svg
+  favicon: assets/cardlang-icon.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.instant
+    - search.highlight
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+nav:
+  - Introduction: index.md
+  - 1. Getting started: 01-getting-started.md
+  - 2. Values and types: 02-values-and-types.md
+  - 3. Functions, references and slices: 03-functions-references-slices.md
+  - 4. Outcomes instead of exceptions: 04-outcomes.md
+  - 5. State that survives: 05-state.md
+  - 6. Talking to the host: 06-host.md
+  - 7. Using the platform: 07-platform.md
+  - 8. Testing and debugging: 08-testing-and-debugging.md
+  - 9. A real applet: 09-a-real-applet.md
+  - 10. Coming from C or Java Card: 10-coming-from-c.md

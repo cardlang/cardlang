@@ -42,6 +42,7 @@ class Layout:
         self.examples = r / "examples"
         self.vm = r / "vm"
         self.vm_c = self.vm / "c"
+        self.guide = r / "guide"                      # the language guide, and its site
         self.editors = r / "editors"
         self.vscode = self.editors / "vscode"         # the VS Code extension
         self.src = r / "src"
@@ -71,4 +72,4 @@ def at(root=None):
     return Layout(root)
 
 # The top-level parts, for linkcheck's check that only this module builds paths into them.
-TOP_LEVEL = ("language", "platform", "examples", "vm", "src", "tests", "editors", "devel")
+TOP_LEVEL = ("language", "platform", "guide", "examples", "vm", "src", "tests", "editors", "devel")

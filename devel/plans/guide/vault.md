@@ -1,0 +1,39 @@
+# The guide's running example: the vault
+
+The chapters grow one applet, the *vault*: a small store for a secret, protected by a PIN. This note is the authors' design for it, so that each chapter's version fits the next. Each version is a complete, checked program with its scenario, in its chapter.
+
+## What it does, in the end
+
+A host talks to it with one-byte commands, followed by their data:
+
+| Command | Byte | Data | Response |
+|---|---|---|---|
+| Read the counter | `01` | — | the counter, 4 bytes, big-endian |
+| Verify the PIN | `20` | the PIN, 4 to 8 bytes | nothing; a wrong PIN answers the retries left |
+| Change the PIN | `24` | old PIN length, old PIN, new PIN | nothing |
+| Store the secret | `D0` | up to 32 bytes | nothing; needs the PIN verified in this session |
+| Read the secret | `CA` | — | the secret; needs the PIN verified in this session |
+| Sign | `2A` | a 32-byte digest | an ECDSA P-256 signature, 64 bytes; needs the PIN verified |
+
+The counter counts successful signatures, so it means something.
+
+## How it grows
+
+| Chapter | The vault gains | Language features |
+|---|---|---|
+| 1 Getting started | A counter that can be read and incremented. Built, run and debugged in VS Code | `command`, `persistent`, a scenario |
+| 2 Values and types | Its commands as an enum; the request's fields as typed values | integers, `bool`, arrays, `struct`, `enum`, constants, `convert` |
+| 3 Functions, references and slices | Helpers that read the request and write the response | functions, `ref`, `inout`, slices, views |
+| 4 Outcomes instead of exceptions | An error set for malformed requests; an overflowing counter as a trap | `errors`, `Ok`, `Err`, `require`, `attempt`, `match`, traps |
+| 5 State that survives | A persistent PIN and retry counter; an "unlocked" session flag; changing the PIN in a transaction | `persistent`, `session`, defaults, `on_install`, `transaction` |
+| 6 Talking to the host | Status words over the ISO 7816 binding; the same applet over the raw binding | bindings, SELECT, status words, the error code mapping |
+| 7 Using the platform | The stored secret; a key generated at installation, signing a digest | `card.key`, `card.crypto`, `card.random`, `wipe` |
+| 8 Testing and debugging | A full set of scenarios; finding a bug with the debugger | scenarios, `clc`, breakpoints, traps |
+
+Chapter 9 then reads part of the FIDO2 example, the real-world version of the same ideas. Chapter 10 needs no new code.
+
+## Limits
+
+- The PIN is 4 to 8 bytes, with 3 tries. The secret is at most 32 bytes.
+- Its errors are application errors with small codes. The ISO 7816 version maps them to status words in chapter 6.
+- It stays small enough that each chapter shows only what changed, as `program vault` parts with prose between them.

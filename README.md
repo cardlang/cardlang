@@ -106,10 +106,13 @@ To build the extension yourself instead, with Node.js and npm, see its [README](
 
 The extension's [README](editors/vscode/README.md) covers the scenario format, debugging configurations and settings. The same tools work from a terminal, as `uv run clc check`, `build`, `disasm` and `run`.
 
+To learn the language itself, continue with **[the CardLang Guide](https://cardlang.github.io/cardlang/)**, which teaches it by building one applet, chapter by chapter.
+
 ## Repository layout
 
 | Path | Contents |
 |---|---|
+| [`guide/`](guide/README.md) | The CardLang Guide, which teaches the language by example; published at [cardlang.github.io/cardlang](https://cardlang.github.io/cardlang/) |
 | [`language/`](language/README.md) | The language definition |
 | [`language/spec/`](language/spec/00-index.md) | the specification: chapters 1–13, plus Annex A (grammar), B (platform contract), C (open issues) and D (traceability). Start at [`language/spec/00-index.md`](language/spec/00-index.md) |
 | [`language/conformance/`](language/conformance/README.md) | 412 tests: `valid/`, `invalid/` (each naming the expected compile error) and `runtime/` scenarios, plus a fictional test-only platform API catalog |
