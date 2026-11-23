@@ -100,3 +100,27 @@ The README's getting-started section stays as the quick version, and ends by poi
 - Q2 (a): chapter 1 starts with a counter that can only be read, and adds increment.
 - Q3 (a): chapter 2 decodes the command byte with a small `decode` function.
 - Q4 (a): declarations carry over. A `program NAME` block continues the program, a declaration of the same name replaces the earlier one, and a scenario runs against the program as it stands at that point.
+
+## 5. Progress
+
+**`guidecheck` carries declarations over (Q4), 2026-11-23:**
+- A `program` block is split into its top-level declarations with the reference lexer, and each declaration replaces one of the same name or is added.
+- The program as it stands is compiled at each scenario that uses it and at the end of each chapter that shows it.
+- Checked by injection with temporary chapters:
+  - a replacement carried into a second chapter, and a scenario there seeing the new version, passed;
+  - a scenario expecting the old version failed;
+  - a block starting with a statement failed;
+  - an unterminated declaration failed;
+  - a program with an unresolved name failed.
+
+**Chapter 1, drafted 2026-11-23, waiting for the user's review:**
+- **Done by hand from a fresh folder outside the clone** (the scratchpad), with `uv run --project <clone> clc`:
+  - the `cardlang.json`, check, build and its output line;
+  - both scenarios, including `capacity`;
+  - the failing `expect`;
+  - the trap and its line, `vault.card:14` after the increment step;
+  - the `CE-EXP-1` message.
+- **The VS Code steps** (the settings, Build, Run, F5, Traps) are written from the extension's README. They are not yet done by hand: the user's review covers them.
+- **Two changes from §2.1:**
+  - **The trap** is reading past an empty request, with the first `require` deleted, not an overflowing counter, which would take 2³² increments.
+  - **The compile error** is shown as the output it prints, checked by hand, not as an `error` block. The mistake sits inside the command, and a checked fragment cannot contain a `command` (HEP-16).

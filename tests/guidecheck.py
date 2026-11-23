@@ -3,12 +3,16 @@
 Every fenced `cardlang` or `scenario` block in guide/docs/ must be preceded, on the line before its fence, by a
 comment saying what it is:
 
-  <!-- check: program NAME -->              a part of the program NAME; a chapter's parts of one name are joined in
-  <!-- check: program NAME binding=B -->    order into one file, which must compile. B is raw (the default) or iso7816
+  <!-- check: program NAME -->              top-level declarations of the program NAME. They carry over: a block
+  <!-- check: program NAME binding=B -->    continues the program from every earlier block of that name, in this
+                                            chapter and earlier ones (in file-name order), and a declaration with the
+                                            same name as an earlier one replaces it in place. The program as it
+                                            stands at the end of each chapter that shows it must compile. B is raw
+                                            (the default) or iso7816, and stays once given
   <!-- check: fragment -->                  a fragment, completed by the HEP-16 scaffold; it must compile
   <!-- check: error CE-XXX-n -->            a fragment that must fail with exactly that compile error
-  <!-- check: scenario NAME -->             a scenario run against the program NAME of the same chapter, on the
-                                            reference interpreter and the Python VM; every expect must hold
+  <!-- check: scenario NAME -->             a scenario run against the program NAME as it stands at that point, on
+                                            the reference interpreter and the Python VM; every expect must hold
   <!-- check: none -->                      shown but not checked
 
 Blocks in other languages are not checked. Also checked: the site's scenario lexer knows exactly the steps of the VS
@@ -18,11 +22,14 @@ Usage: uv run python -I tests/guidecheck.py .
 import re, sys, json, shutil, pathlib, tempfile
 from cardlang import layout
 from cardlang.front import diagnose
+from cardlang.front.lexcheck import lex, LexError
 from cardlang.harness import backends, scenario
 
 CHECK = re.compile(r"^<!--\s*check:\s*(.*?)\s*-->\s*$")
 FENCE = re.compile(r"^(`{3,})\s*([\w-]*)\s*$")
 BACKENDS = ("interp", "pyvm")
+OPENS = {"function", "command", "struct", "enum", "errors"}      # declarations that end with their closing brace
+ENDS = {"const", "persistent", "session"}                        # declarations that end with a semicolon
 
 def blocks(path):
     """(line, language, annotation or None, text) of every fenced block of a Markdown file."""
@@ -42,6 +49,33 @@ def blocks(path):
             i += 1
     return out
 
+def declarations(text):
+    """[(name, text)] of the top-level declarations in a block. Each takes the lines from the end of the one before,
+    so the comments above a declaration go with it, and the block's last lines go with its last declaration.
+    Raises ValueError for a block that is not a sequence of whole declarations."""
+    try:
+        toks = lex(text.encode("utf-8"))
+    except LexError as e:
+        raise ValueError(f"a lexical error, {e.cls}")
+    lines = text.split("\n"); out = []; depth = 0; cur = None; last = 0
+    for i, tok in enumerate(toks):
+        v = tok[1]
+        if depth == 0 and cur is None:
+            if v not in OPENS | ENDS or i + 1 >= len(toks):
+                raise ValueError(f"line {tok.pos[1]}: {v!r} does not start a declaration")
+            cur = (toks[i + 1][1], v)
+        if v == "{": depth += 1
+        elif v == "}": depth -= 1
+        if depth == 0 and ((cur[1] in OPENS and v == "}") or (cur[1] in ENDS and v == ";")):
+            end = tok.pos[1]
+            out.append([cur[0], "\n".join(lines[last:end])]); last = end; cur = None
+    if cur is not None or depth:
+        raise ValueError("the block ends inside a declaration")
+    if not out:
+        raise ValueError("no declarations")
+    out[-1][1] += "\n" + "\n".join(lines[last:])
+    return [tuple(d) for d in out]
+
 def main(repo):
     L = layout.at(repo); docs = L.guide / "docs"
     ok = True; counts = {"program": 0, "fragment": 0, "error": 0, "scenario": 0, "none": 0}
@@ -49,10 +83,23 @@ def main(repo):
         nonlocal ok
         ok &= bool(passed); print("PASS" if passed else "FAIL", where, "|", detail)
     tmp = pathlib.Path(tempfile.mkdtemp(prefix="guidecheck-"))
+    programs = {}                       # name -> {"decls": {declaration name: text}, "binding": B}, across chapters
+    versions = {}                       # (name, text, binding) -> its file, or None if it does not compile
+    def build(name, where):
+        """The program as it stands now: its file, or None, after reporting (once per version) whether it compiles."""
+        prog = programs[name]
+        text = "\n\n".join(d.strip("\n") for d in prog["decls"].values()) + "\n"
+        key = (name, text, prog["binding"])
+        if key not in versions:
+            f = tmp / f"{name}-{len(versions)}.card"; f.write_text(text, encoding="utf-8")
+            ds = diagnose.check([f], prog["binding"], "application")
+            report(not ds, where, f"program {name} ({len(prog['decls'])} declarations) compiles"
+                   if not ds else f"program {name}: " + diagnose.format_diagnostic(ds[0]))
+            versions[key] = None if ds else f
+        return versions[key]
     for md in sorted(docs.rglob("*.md")):
         rel = md.relative_to(L.root).as_posix()
-        programs = {}                                  # name -> {"parts": [...], "binding": ...}
-        scenarios = []
+        shown = {}                                     # program name -> where its last block in this chapter is
         for line, lang, note, text in blocks(md):
             where = f"{rel}:{line}"
             if lang is None:
@@ -71,9 +118,14 @@ def main(repo):
             if kind == "program":
                 if len(words) < 2: report(False, where, "a program needs a name"); continue
                 opts = dict(w.split("=", 1) for w in words[2:] if "=" in w)
-                prog = programs.setdefault(words[1], {"parts": [], "binding": None, "line": line})
-                prog["parts"].append(text)
+                try:
+                    decls = declarations(text)
+                except ValueError as e:
+                    report(False, where, f"program {words[1]}: {e}"); continue
+                prog = programs.setdefault(words[1], {"decls": {}, "binding": None})
+                prog["decls"].update(decls)
                 if "binding" in opts: prog["binding"] = opts["binding"]
+                shown[words[1]] = where
             elif kind in ("fragment", "error"):
                 f = tmp / f"{md.stem}-{line}.card"; f.write_text(text, encoding="utf-8")
                 ds = diagnose.check([f], None, "fragment")
@@ -84,24 +136,18 @@ def main(repo):
                     got = ds[0]["code"] if ds else None
                     report(got == want, where, f"fails with {want}" if got == want else f"expected {want}, got {got or 'no error'}")
             elif kind == "scenario":
-                scenarios.append((where, words[1] if len(words) > 1 else None, text))
-        built = {}
-        for name, prog in programs.items():
-            f = tmp / f"{md.stem}-{name}.card"; f.write_text("\n".join(prog["parts"]), encoding="utf-8")
-            ds = diagnose.check([f], prog["binding"], "application")
-            report(not ds, f"{rel}:{prog['line']}", f"program {name} ({len(prog['parts'])} parts) compiles"
-                   if not ds else f"program {name}: " + diagnose.format_diagnostic(ds[0]))
-            if not ds: built[name] = (f, prog["binding"])
-        for where, name, text in scenarios:
-            if name not in built:
-                report(False, where, f"a scenario for {name!r}, which is not a compiling program of this chapter"); continue
-            f, binding = built[name]
-            for b in BACKENDS:
-                try:
-                    problem = scenario.run_scenario(backends.build(b, [f], binding), text)
-                except backends.BuildError as e:
-                    problem = "does not build: " + str(e)
-                report(problem is None, where, f"scenario for {name} passes on {b}" if problem is None else f"{b}: {problem}")
+                name = words[1] if len(words) > 1 else None
+                f = build(name, where) if name in programs else None
+                if f is None:
+                    report(False, where, f"a scenario for {name!r}, which is not a compiling program at this point"); continue
+                for b in BACKENDS:
+                    try:
+                        problem = scenario.run_scenario(backends.build(b, [f], programs[name]["binding"]), text)
+                    except backends.BuildError as e:
+                        problem = "does not build: " + str(e)
+                    report(problem is None, where, f"scenario for {name} passes on {b}" if problem is None else f"{b}: {problem}")
+        for name, where in shown.items():
+            build(name, where)
     # the site's scenario lexer, against the extension's scenario grammar
     from cardlang.highlight import STEPS
     g = json.loads((L.vscode / "syntaxes" / "cardlang-scenario.tmLanguage.json").read_text(encoding="utf-8"))
