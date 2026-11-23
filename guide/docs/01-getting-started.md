@@ -32,6 +32,21 @@ Before writing your own, see what the tools do. Open the repository's folder in 
 - **Go to definition** works with F12 or Ctrl+click, across the applet's files.
 - **Completion:** type `card.` inside a function to see the platform's APIs, with their documentation.
 
+## Applets, platforms and hosts
+
+Three parties are involved whenever an applet runs:
+
+- **The applet** is the program you write in CardLang.
+- **The platform** is the software on the device that runs it. It loads the compiled applet and runs it on the CardLang virtual machine. It keeps the applet's persistent state safe across power loss, and offers it services such as keys, cryptography and randomness, through APIs named `card.…`. And it passes messages between the applet and the host.
+- **The host** is whatever talks to the applet from outside: the main firmware beside a TrustZone secure partition, an app on a phone, or a computer with a card reader.
+
+The language deliberately leaves the platform's details open, so that the same applets can run on very different devices. What a platform provides is written down in a *platform profile*. This guide uses the [Base Profile](https://github.com/cardlang/cardlang/blob/main/platform/base-profile.md), which defines the `card.…` APIs, the platform's errors, and two ways for messages to travel between host and applet, called *bindings*:
+
+- **The raw binding** passes the host's bytes to the applet exactly as they arrive, and wraps each answer in a small envelope, shown [below](#what-the-host-receives). It suits microcontrollers and TrustZone, where the host is firmware on the same chip.
+- **The ISO 7816 binding** speaks the protocol of smart cards: commands as APDUs, answers ending in a two-byte *status word*. [Chapter 7](07-host.md) covers it.
+
+An applet is built for one binding. The vault uses the raw binding until chapter 7.
+
 ## Your first applet
 
 An applet is a folder of your own, anywhere you like. Make one called `vault`, and open it in VS Code. Since it is outside the CardLang repository, tell the extension where the toolchain is, once: open the settings (Ctrl+, or Cmd+,), search for **cardlang.repository**, and enter the path of your clone.
@@ -42,7 +57,7 @@ The folder needs a `cardlang.json`, which names the applet and lists its source 
 { "name": "vault", "files": ["vault.card"], "binding": "raw" }
 ```
 
-The *binding* says how the applet meets the outside world. `raw` hands the applet the host's bytes exactly as they arrive. The other binding, ISO 7816, is the one smart cards use; [chapter 7](07-host.md) introduces it.
+`"binding": "raw"` chooses the raw binding.
 
 Now `vault.card`. For a start, the vault keeps a counter, and answers one command: read it.
 
@@ -116,6 +131,31 @@ vault.scenario: passed (pyvm)
 
 Now see a failure: change the first `expect` to `expect ok 00 00 00 05`, and run it again. The scenario stops at that line, and says what it expected and what it got. Change it back.
 
+### What the host receives
+
+A command ends in one of four ways, and the host can always tell which. In the raw binding, every answer is an *envelope*: one byte of *category*, two bytes of *code*, most significant first, and then the data (*BP-53*):
+
+| The command ends with | Category | Code | Data |
+|---|---|---|---|
+| `Ok(count)` | `00` | `00 00` | The first `count` bytes of the response |
+| `Err` with one of the applet's errors | `01` | The error's code | None |
+| `Err` with one of the platform's errors | `02` | The platform error's code | None |
+| A trap | `03` | `00 00` | None |
+
+`expect ok …` and `expect err app …` check what the outcome means. `expect raw` checks the exact bytes the host receives:
+
+<!-- check: scenario vault -->
+```scenario
+install
+power_on
+command 01
+expect raw 00 00 00 00 00 00 00   # category 00, code 0000, then the counter
+command 01 capacity 2
+expect raw 01 00 03               # category 01: the applet's error 3
+```
+
+Applet errors and platform errors have separate categories, so the host never confuses the two, even when their codes are equal. The platform's errors appear in [chapter 5](05-outcomes.md#platform-errors), and traps later in this chapter. In the ISO 7816 binding, the same four outcomes become status words instead.
+
 ## Adding a command
 
 A counter that is always zero is not much use. Give the vault a second command, which increments it. Add a constant below `READ_COUNTER`, and replace `process` with this version:
@@ -184,7 +224,7 @@ expect trap BOUNDS
 
 Run the scenario: the empty request now ends in `trap BOUNDS at vault.card:14`, the line that reads `request[0]`. In the debugger, turn on **Traps** in the Breakpoints panel, and press F5: it stops on that line, with the request in view. Put the `require` back, and remove the two steps.
 
-A trap is not an error the applet reports; it is a bug. The `require` turns an empty request into an `Err` the host can understand.
+A trap is not an error the applet reports; it is a bug. The host receives an envelope of category `03`, with no data: it learns that the command failed, but not why. The `require` turns an empty request into an `Err` the host can understand.
 
 ## From a terminal
 

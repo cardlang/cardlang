@@ -137,3 +137,22 @@ Planned 2026-11-23, the third work package of the guide's plan of plans. It writ
 - **`Err` undoes nothing:** check before changing.
 - **The vault (Q2):** `CounterExhausted = 5` through `checked_add` and a `match`, and `increment` checks the response before changing the counter. A scenario shows the counter is unchanged after a too-small response.
   - **The overflow path** cannot be reached by a scenario, since it needs 2³² increments. It is shown working instead on a small `tally` applet with a `u8` total. Its scenario covers both a mapped error (`err app 2`) and a forwarded platform error (`err platform Overflow`).
+
+**Chapter 5:** renamed *Outcomes* (user). Committed. Then, while chapter 6 was being planned, a short `attempt … else` subsection was added (OUT-22), which chapter 5 had missed. `Err(Set(code))` (OUT-21) is left to the specification.
+
+**Chapter 6, state, drafted 2026-11-23, waiting for the user's review:**
+- **The language:** the four storage classes; no initializers (CE-STA-1); `on_install` and `on_session_start`; atomic single writes against non-atomic pairs; transactions, with commit, pending reads, `abort`, `require` aborting, no `return` inside (CE-TXN-1), and no nesting.
+- **The vault (Q3, Q4):**
+  - **The PIN:** persistent, 4 to 8 digits, with 3 tries. `on_install` sets `1234`, in a transaction.
+  - **`check_pin_format` and `check_pin`:** the format first, then blocked, then the decrement *before* comparing, then the restore.
+  - **`verify_pin`:** with no data, it answers the tries left.
+  - **`change_pin` (`24`):** the new format first, the old PIN as a guess, then the PIN and its length in one transaction.
+  - **The `verified` session flag** guards `store_secret` (`D0`) and `read_secret` (`CA`).
+- **A change from the plan:** storing and reading the secret moved here from chapter 8, so that the session flag has something to guard. Chapter 8 keeps the key, signing and `wipe`. `vault.md` is updated.
+- **A limit of the test harness:** `interrupt` fails only a transaction's commit, not a single persistent assignment. So the power-loss case for the retry counter is argued in the text, and the `interrupt` scenario shows the PIN change instead. Both prototype scenarios passed on the interpreter and the Python VM before the chapter was written. The "remove the transaction" exercise was confirmed: the scenario then fails at `expect none`.
+
+**Chapter 6, review (user):** it reads well, but the guide never said what the platform is, never explained raw against ISO 7816, and never showed how outcomes reach the host. Fixed in place:
+- **Chapter 1** gains *Applets, platforms and hosts*: the applet, the platform (VM, persistent state, the `card.…` APIs, messages), the host, platform profiles and the Base Profile, and the two bindings.
+- **Chapter 1** also gains *What the host receives*: the raw envelope's four categories (BP-53), checked with `expect raw`, and the trap paragraph says what the host sees.
+- **Chapter 5** says that the envelope's category tells the two kinds of error apart. The tally scenario checks `expect raw 02 00 01`, and the trap table says category `03`.
+- **ISO 7816 status words** (BP-51, BP-52) stay in chapter 7.

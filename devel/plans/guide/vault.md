@@ -26,9 +26,9 @@ The counter counts successful signatures, so it means something.
 | 3 Control flow and scope | A PIN must be all digits, checked with a loop | `var`, assignment, `if`, `for`, `while`, scope, files |
 | 4 Functions, references and views | One function per command, with the same shape | functions, `ref`, `inout`, views, forwarding returns |
 | 5 Outcomes | Counter overflow as an error the host sees, through `checked_add` | `errors`, `Ok`, `Err`, `require`, `attempt`, `match`, traps |
-| 6 State that survives | A persistent PIN and retry counter; an "unlocked" session flag; changing the PIN in a transaction | `persistent`, `session`, defaults, `on_install`, `transaction` |
+| 6 State that survives | A persistent PIN of 4 to 8 digits and 3 tries, counted before comparing; a `verified` session flag; changing the PIN in a transaction; storing and reading the secret behind the flag | `persistent`, `session`, defaults, `on_install`, atomic writes, `transaction`, `interrupt` |
 | 7 Talking to the host | Status words over the ISO 7816 binding; the same applet over the raw binding | bindings, SELECT, status words, the error code mapping |
-| 8 Using the platform | The stored secret; a key generated at installation, signing a digest | `card.key`, `card.crypto`, `card.random`, `wipe` |
+| 8 Using the platform | A key generated at installation, signing a digest; wiping the secret | `card.key`, `card.crypto`, `card.random`, `wipe` |
 | 9 Testing and debugging | A full set of scenarios; finding a bug with the debugger | scenarios, `clc`, breakpoints, traps |
 
 Chapter 10 then reads part of the FIDO2 example, the real-world version of the same ideas. Chapter 11 needs no new code.

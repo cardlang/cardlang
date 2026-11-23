@@ -77,6 +77,26 @@ function example() {
 
 For a function without a result, `attempt f();` is a statement on its own. For a function with one, `attempt` must use the result: discarding a result silently is an error (*OUT-9*).
 
+### `attempt … else`
+
+`attempt f(…) else Set.Member` works like `attempt`, except that any error becomes `Set.Member`, one of the applet's own errors (*OUT-22*). It is the short form for "whatever went wrong in there, the host should see this":
+
+<!-- check: fragment -->
+```cardlang
+errors TallyError {
+    TooLarge = 1;
+}
+
+session total: u8;
+
+function add(amount: u8) {
+    total = attempt checked_add(total, amount) else TallyError.TooLarge;
+    return Ok();
+}
+```
+
+Use it when every error of the call means the same thing to the caller. When different errors need different answers, use `match`.
+
 ### `match`
 
 `match` handles success and failure in place. It has exactly one `Ok` arm, any number of arms for particular errors, and a final arm that catches every other error (*OUT-11*, *OUT-12*):
@@ -157,7 +177,7 @@ The platform has its own error set, `CardError`. Its errors come from the platfo
 | `CardError.DivisionByZero` | `checked_div`, `checked_rem` |
 | `CardError.ConversionRange` | `checked_convert`, when the value does not fit |
 
-There are more, for the platform's APIs, in [chapter 8](08-platform.md). An error is either an *application* error or a *platform* error, and the host can always tell which, even when two codes are equal (*OUT-18*). An applet can catch a platform error by name, and pass it on, but never create one: `return Err(CardError.Overflow)` is an error (*OUT-19*).
+There are more, for the platform's APIs, in [chapter 8](08-platform.md). An error is either an *application* error or a *platform* error, and the host can always tell which, even when two codes are equal (*OUT-18*). In the raw binding, the envelope's first byte says which: `01` for the applet's errors, `02` for the platform's ([chapter 1](01-getting-started.md#what-the-host-receives)). An applet can catch a platform error by name, and pass it on, but never create one: `return Err(CardError.Overflow)` is an error (*OUT-19*).
 
 Here is a small applet that keeps a running total of one-byte amounts, and handles overflow both ways. Command `01` turns it into an error of its own; command `02` passes the platform's error on with `attempt`:
 
@@ -204,6 +224,8 @@ command 01 20           # 240 + 32 does not fit a u8
 expect err app 2
 command 02 20           # the same, passed on as the platform's error
 expect err platform Overflow
+command 02 20           # as the host receives it: category 02, Overflow's code 0001
+expect raw 02 00 01
 command 01 0F           # the total is unchanged: 240 + 15
 expect ok FF
 ```
@@ -216,7 +238,7 @@ A trap, which you met in chapter 1, is something else entirely. An `Err` is a re
 |---|---|---|
 | Caused by | The applet returning it | A fault: `BOUNDS`, `OVERFLOW`, `DIV-ZERO`, … |
 | Can be handled | Yes, by the caller | No |
-| The host sees | The error's category and code | The trap, and no response |
+| The host sees | The error's category and code | Only that a trap happened: category `03`, and no data |
 
 So the question for every operation that can fail is: should it be an error or a trap?
 
