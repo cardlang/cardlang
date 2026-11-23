@@ -124,3 +124,38 @@ The README's getting-started section stays as the quick version, and ends by poi
 - **Two changes from §2.1:**
   - **The trap** is reading past an empty request, with the first `require` deleted, not an overflowing counter, which would take 2³² increments.
   - **The compile error** is shown as the output it prints, checked by hand, not as an `error` block. The mistake sits inside the command, and a checked fragment cannot contain a `command` (HEP-16).
+
+**Chapter 1** was reviewed and revised, and then committed.
+
+**Chapter 2, drafted 2026-11-23, waiting for the user's review:**
+- **The vault** decodes its command byte into an enum with a `decode` function (Q3), and dispatches with `match`. A verify command `20` compares a fixed 4-byte PIN, `b"1234"`, using `equal` on a slice of the request.
+- **Structures** are shown with their own example, not in the vault: the vault has no natural use for one yet.
+- **Every error code** the chapter states was confirmed by the check, or by `clc check --fragment`. Two of them were added as checked examples once confirmed: a narrowing `convert`, and a constant that overflows.
+- **`guidecheck` gained two things:**
+  - **`remove=A,B`** on a `program` comment, for when the text tells the reader to delete declarations. A name that does not exist fails.
+  - **Indented blocks** inside list items. Before this, they escaped the check unnoticed.
+
+  Both were checked by injection: a wrong indented error example failed, and a removal of an unknown name failed.
+
+**Chapter 2, first review (user):**
+- **No implicit conversion (EXP-38) and no mixing of operators (EXP-2)** are both still in force. The chapter now also says what is allowed:
+  - a literal takes the other operand's type (EXP-7);
+  - a chain of one operator, and unary operators, need no parentheses;
+  - comparisons never chain (EXP-4).
+- **Default values** have their own section: the TYP-22 table, a checked example, and where defaults apply (`var`, `persistent` at installation, `session` at each session start).
+- **Slices** moved into Arrays, with a checked example and a CE-FUN-5 example.
+- **A front-end bug found by the chapter:** a constant initializer containing `<`, such as `(C < 10)`, crashed the constant evaluator. It read any name followed by `<` as `convert<T>(…)`, and the crash was reported as CE-SYN-1.
+  - **The fix:** `consteval.py` reads a type argument only after the five intrinsics that take one.
+  - **The regression line** goes in `valid/cex-001-basic-constants.card`. It fails without the fix.
+
+## 6. Done (2026-11-23)
+
+The user reviewed chapter 2 a second time, for one sentence's tone, and then approved it. G1 is complete on `guide`:
+- chapters 1 and 2;
+- `guidecheck`'s carry-over, `remove=` and indented blocks;
+- the constant evaluator's fix.
+
+**Still open, outside G1:**
+- pushing the branch;
+- enabling Pages, which needs the user's go-ahead;
+- merging into `main`, which publishes the site.

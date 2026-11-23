@@ -22,7 +22,7 @@ The counter counts successful signatures, so it means something.
 | Chapter | The vault gains | Language features |
 |---|---|---|
 | 1 Getting started | A counter that can be read and incremented. Built, run and debugged in VS Code | `command`, `persistent`, a scenario |
-| 2 Values and types | Its commands as an enum; the request's fields as typed values | integers, `bool`, arrays, `struct`, `enum`, constants, `convert` |
+| 2 Values and types | Its commands as an enum, decoded from the first byte; a verify command with a fixed 4-byte PIN | integers, `bool`, arrays, byte strings, `equal`, `enum`, `match`, constants, `convert`. Structures are shown on their own |
 | 3 Functions, references and slices | Helpers that read the request and write the response | functions, `ref`, `inout`, slices, views |
 | 4 Outcomes instead of exceptions | An error set for malformed requests; an overflowing counter as a trap | `errors`, `Ok`, `Err`, `require`, `attempt`, `match`, traps |
 | 5 State that survives | A persistent PIN and retry counter; an "unlocked" session flag; changing the PIN in a transaction | `persistent`, `session`, defaults, `on_install`, `transaction` |

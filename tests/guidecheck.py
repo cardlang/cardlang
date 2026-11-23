@@ -9,6 +9,8 @@ comment saying what it is:
                                             same name as an earlier one replaces it in place. The program as it
                                             stands at the end of each chapter that shows it must compile. B is raw
                                             (the default) or iso7816, and stays once given
+  <!-- check: program NAME remove=A,B -->   also removes the earlier declarations A and B first, as when the text
+                                            tells the reader to delete them
   <!-- check: fragment -->                  a fragment, completed by the HEP-16 scaffold; it must compile
   <!-- check: error CE-XXX-n -->            a fragment that must fail with exactly that compile error
   <!-- check: scenario NAME -->             a scenario run against the program NAME as it stands at that point, on
@@ -25,8 +27,8 @@ from cardlang.front import diagnose
 from cardlang.front.lexcheck import lex, LexError
 from cardlang.harness import backends, scenario
 
-CHECK = re.compile(r"^<!--\s*check:\s*(.*?)\s*-->\s*$")
-FENCE = re.compile(r"^(`{3,})\s*([\w-]*)\s*$")
+CHECK = re.compile(r"^\s*<!--\s*check:\s*(.*?)\s*-->\s*$")
+FENCE = re.compile(r"^(\s*)(`{3,})\s*([\w-]*)\s*$")       # indented too, as inside a list item
 BACKENDS = ("interp", "pyvm")
 OPENS = {"function", "command", "struct", "enum", "errors"}      # declarations that end with their closing brace
 ENDS = {"const", "persistent", "session"}                        # declarations that end with a semicolon
@@ -37,11 +39,12 @@ def blocks(path):
     while i < len(lines):
         m = FENCE.match(lines[i])
         if m:
-            fence, lang, start = m.group(1), m.group(2), i
+            indent, fence, lang, start = len(m.group(1)), m.group(2), m.group(3), i
             prev = CHECK.match(lines[i - 1]) if i > 0 else None
             j = i + 1
             while j < len(lines) and lines[j].strip() != fence: j += 1
-            out.append((start + 1, lang, prev.group(1) if prev else None, "\n".join(lines[i + 1:j]) + "\n"))
+            body = [l[indent:] if l[:indent].strip() == "" else l for l in lines[i + 1:j]]
+            out.append((start + 1, lang, prev.group(1) if prev else None, "\n".join(body) + "\n"))
             i = j + 1
         else:
             if CHECK.match(lines[i]) and not (i + 1 < len(lines) and FENCE.match(lines[i + 1])):
@@ -123,6 +126,11 @@ def main(repo):
                 except ValueError as e:
                     report(False, where, f"program {words[1]}: {e}"); continue
                 prog = programs.setdefault(words[1], {"decls": {}, "binding": None})
+                gone = [n for n in opts.get("remove", "").split(",") if n]
+                missing = [n for n in gone if n not in prog["decls"]]
+                if missing:
+                    report(False, where, f"program {words[1]}: nothing to remove called {', '.join(missing)}"); continue
+                for n in gone: del prog["decls"][n]
                 prog["decls"].update(decls)
                 if "binding" in opts: prog["binding"] = opts["binding"]
                 shown[words[1]] = where

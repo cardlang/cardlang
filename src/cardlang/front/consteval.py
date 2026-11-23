@@ -11,6 +11,7 @@ RANGES = {"u8": (0, 255), "u16": (0, 65535), "u32": (0, 2**32 - 1),
 WIDTH = {"u8": 8, "u16": 16, "u32": 32, "i8": 8, "i16": 16, "i32": 32}
 EXCLUDED = {"checked_convert", "checked_add", "checked_sub", "checked_mul", "checked_div",
             "checked_rem", "checked_neg", "wrapping_add", "wrapping_sub", "wrapping_mul"}
+TYPE_ARGUMENT = {"convert", "checked_convert", "truncate", "decode_be", "decode_le"}    # intrinsics written f<T>(…)
 
 class CE(Exception):
     pass
@@ -80,7 +81,7 @@ def primary(p):
             if p.peek() == ",": p.take()
         p.expect("]"); return ("list", items)
     if k == "id":
-        if p.peek() == "<":
+        if p.peek() == "<" and v in TYPE_ARGUMENT:       # convert<u8>(x); otherwise `<` is a comparison
             p.take(); ty = p.take()[1]; p.expect(">"); return ("call", v, ty, args(p))
         if p.peek() == "(":
             return ("call", v, None, args(p))
