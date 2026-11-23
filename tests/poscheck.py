@@ -1,8 +1,7 @@
 """Diagnostics with positions over the whole conformance corpus (src/cardlang/front/diagnose.py).
 
 - Every valid test, runtime program and example applet gets no diagnostic.
-- Every invalid test gets its expected code, placed in one of its own files at a line and column. The exceptions
-  are the known gaps below: name rules of chapter 3 that no reference checker implements yet.
+- Every invalid test gets its expected code, placed in one of its own files at a line and column.
 - A sample of tests is pinned to the exact line the error is reported on.
 
 Usage: uv run python -I tests/poscheck.py .
@@ -12,15 +11,6 @@ HERE = pathlib.Path(__file__).resolve().parent
 from cardlang.front import diagnose
 from cardlang import layout
 from cardlang.front.lexcheck import header
-
-# Chapter 3 name rules with no reference checker (found 2026-11-21): missed, or reported with another code.
-KNOWN_GAPS = {
-    "nam-101-duplicate-across-kinds.card", "nam-102-duplicate-across-files", "nam-103-overloading.card",
-    "nam-104-global-var.card", "nam-105-combined-qualifiers.card", "nam-109-parameter-shadows-global.card",
-    "nam-110-local-shadows-local.card", "nam-113-duplicate-field.card", "nam-115-unknown-member.card",
-    "nam-116-redeclare-intrinsic.card", "nam-117-redeclare-card.card", "nam-118-redeclare-primitive.card",
-    "nam-119-same-scope-duplicate.card", "nam-121-parameter-shadows-primitive.card",
-}
 
 # The line each of these is reported on, checked by hand against the source (2026-11-21; one line earlier since the
 # tests' status line was removed, 2026-11-22).
@@ -38,7 +28,7 @@ def files_of(t):
     return project.program_files(t)
 
 def main(repo):
-    ok = True; gaps = 0
+    ok = True
     def report(passed, name, detail):
         nonlocal ok
         ok &= passed; print("PASS" if passed else "FAIL", name, "|", detail)
@@ -52,8 +42,6 @@ def main(repo):
         if exp in ("ok", "runtime"):
             report(not ds, t.name, "no diagnostic" if not ds else diagnose.format_diagnostic(ds[0])); continue
         want = exp.split()[-1]
-        if t.name in KNOWN_GAPS:
-            gaps += 1; print("GAP ", t.name, "| expect", want, "| got", ds[0]["code"] if ds else "nothing"); continue
         if not ds: report(False, t.name, f"expect {want}, got no diagnostic"); continue
         d = ds[0]; placed = d["file"] in [str(f) for f in files] and d["line"]
         good = d["code"] == want and placed and PINNED.get(t.name, d["line"]) == d["line"]
@@ -61,7 +49,6 @@ def main(repo):
     for ex in ("examples/fido2", "examples/piv"):
         ds = diagnose.check(files_of(repo / ex))
         report(not ds, ex, "no diagnostic" if not ds else diagnose.format_diagnostic(ds[0]))
-    print(f"{gaps} known gaps (chapter 3 name rules)")
     print("ALL PASS" if ok else "FAILURES")
     return ok
 

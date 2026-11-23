@@ -174,7 +174,7 @@ function matches(given: u8[4]) -> bool {
 ```cardlang
 const MAGIC: u8[2] = [0xCA, 0xFE];
 
-function frame() -> bool {
+function build_frame() -> bool {
     var frame: u8[8];
     frame[0..2] = MAGIC;                        // copy into bytes 0 and 1
     frame[2..8] = fill(0x55);                   // set bytes 2 to 7

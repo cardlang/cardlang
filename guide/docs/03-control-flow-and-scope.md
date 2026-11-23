@@ -2,13 +2,13 @@
 
 This chapter covers the statements that make up a function's body: variables and assignment, `if`, loops, and how long a name is visible. It ends with how an applet's files fit together, and the vault learns to reject a PIN that is not all digits.
 
-CardLang's statements will look familiar from C or Java. The differences are mostly things left out, and each one closes off a common mistake.
+The statements are few, and each has one form. Several common constructs are left out on purpose, and the chapter says why as they come up.
 
 ## Blocks
 
 A body is a *block*: statements between braces. Braces are always required, even around a single statement (*STM-1*), so there is no doubt about which statements an `if` or a loop controls. Every statement ends with `;`, except those that end with a block.
 
-An expression on its own is not a statement (*STM-2*). In C, `total + 1;` compiles and does nothing; in CardLang it is an error:
+An expression on its own is not a statement (*STM-2*). `total + 1;` would compute a value and throw it away, which is almost always a mistake, so it is an error:
 
 <!-- check: error CE-STM-1 -->
 ```cardlang
@@ -136,7 +136,7 @@ Here the case `value == 0` falls off the end. Even if every case were covered by
 
 A local variable exists from its declaration to the end of the block that contains it. A name declared in a block cannot be the same as any name already visible there: a global, a parameter, or a local of an enclosing block (*NAM-21*). There is no shadowing, so a name always means one thing in a function:
 
-<!-- check: none -->
+<!-- check: error CE-NAM-3 -->
 ```cardlang
 persistent count: u32;
 

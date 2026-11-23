@@ -15,6 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # with -m (a front-end module runs its chapter's conformance tests), or a script's path from the repository root.
 RUNS = [
     ("cardlang.front.lexcheck", None, "lexical results of every test, and every design-note code block"),
+    ("cardlang.front.namcheck", None, "chapter 3 name rules on nam-* tests"),
     ("cardlang.front.typecheck", None, "chapter 4 type rules on typ-* tests"),
     ("cardlang.front.consteval", None, "chapter 5 constant evaluation on cex-* tests"),
     ("cardlang.front.expcheck", None, "chapter 6 expression typing on exp-* tests"),
