@@ -214,7 +214,7 @@ Open `vault.card`, and click left of the line `if request[0] == READ_COUNTER {` 
 - **The Variables panel** shows the request and response bytes, the command's locals, and the `persistent` globals: watch `counter` change as you step over the increment.
 - **Continue** with F5 to the next command.
 
-**Catch a trap.** Some mistakes can only show up while the applet runs, like reading past the end of the request. CardLang turns these into *traps*: the command stops at once, and nothing it did is half-finished (*RTF-1*). To see one, delete the first `require` line from `process`, so that nothing checks the request's length, and add this to the end of the scenario:
+**Catch a trap.** Some mistakes can only show up while the applet runs, like reading past the end of the request. CardLang turns these into *traps*: the command stops at once, with no answer but the fact that it trapped (*RTF-1*). Persistent changes it made before the trap stay, unless they were in a transaction, which [chapter 6](06-state.md#transactions) covers (*RTF-2*). To see one, delete the first `require` line from `process`, so that nothing checks the request's length, and add this to the end of the scenario:
 
 <!-- check: none -->
 ```scenario

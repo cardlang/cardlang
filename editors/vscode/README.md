@@ -3,6 +3,8 @@
 Write, build, run and debug CardLang smart-card applets in VS Code. The extension is a thin client: the language
 server, the build tools and the debug adapter are commands of the `cardlang` package in the CardLang repository, run through `uv`.
 
+New to CardLang? The first chapter of **[the CardLang Guide](https://cardlang.github.io/cardlang/01-getting-started/)** installs the tools, and builds, runs and debugs a first applet with this extension.
+
 ## Features
 
 | | |

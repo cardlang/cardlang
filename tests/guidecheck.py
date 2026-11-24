@@ -20,7 +20,8 @@ comment saying what it is:
                                             the file exactly, in order. A line `// ...` alone stands for lines left out
   <!-- check: none -->                      shown but not checked
 
-Blocks in other languages are not checked. Also checked: the site's scenario lexer knows exactly the steps of the VS
+Blocks in other languages are not checked. Also checked: every rule the text cites, written *EXP-2* or *BP-21*, is
+defined in the specification or the Base Profile; and the site's scenario lexer knows exactly the steps of the VS
 Code extension's scenario grammar, which the extension's own check compares with the scenario runner.
 Usage: uv run python -I tests/guidecheck.py .
 """
@@ -190,6 +191,18 @@ def main(repo):
                     report(problem is None, where, f"scenario for {name} passes on {b}" if problem is None else f"{b}: {problem}")
         for name, where in shown.items():
             build(name, where)
+    # every rule the guide cites, as *EXP-2* or *BP-21*, exists in the specification or the Base Profile
+    defined = set()
+    for f in list(L.spec.glob("*.md")) + [L.base_profile]:
+        defined |= set(re.findall(r"^\*\*([A-Z]{2,4}-\d+[a-z]?)\b", f.read_text(encoding="utf-8"), re.M))
+    cited = 0
+    for md in sorted(docs.rglob("*.md")):
+        for lineno, line in enumerate(md.read_text(encoding="utf-8").split("\n"), 1):
+            for rule in re.findall(r"(?<!\*)\*([A-Z]{2,4}-\d+[a-z]?)\*(?!\*)", line):
+                cited += 1
+                if rule not in defined:
+                    report(False, f"{md.relative_to(L.root).as_posix()}:{lineno}", f"cites {rule}, which no rule defines")
+    report(cited > 0, "guide/docs", f"{cited} rule citations, each defined in the specification or the Base Profile")
     # the site's scenario lexer, against the extension's scenario grammar
     from cardlang.highlight import STEPS
     g = json.loads((L.vscode / "syntaxes" / "cardlang-scenario.tmLanguage.json").read_text(encoding="utf-8"))

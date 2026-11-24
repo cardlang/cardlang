@@ -73,3 +73,23 @@ None for now (Q1 b). The text describes the extension, and images can be added l
 - Q1 (b): no images for now.
 - Q2 (b): the README stays as it is.
 - Q3 (a): a pull request from `guide` to `main`, merged with a merge commit.
+
+## 5. Progress (2026-11-24; going live held back by the user)
+
+- **Rule citations:**
+  - **The check:** `guidecheck` now checks every *XXX-n* or *BP-n* in `guide/docs` against the `**ID**` rule headings of `language/spec/*.md` and `platform/base-profile.md`. That is 96 citations. Injection: *EXP-999* failed.
+  - **Read side by side:** every citation, with the start of its rule. Two were wrong:
+    - chapter 1 said a trap leaves "nothing … half-finished", citing RTF-1, but persistent writes outside a transaction remain (RTF-2). The sentence now says so;
+    - chapter 2 cited EXP-10 for a literal fitting its type, where EXP-7 says it. It now cites both.
+- **Terms:** the front page said "application" for the reader's program. It now says "applet", and defines it once. The other uses of "application" are correct: the error category, and applications on an ISO 7816 card.
+- **Cross-references:** all were listed with their context and read. One was untrue: chapter 2's last exercise pointed to chapter 5 for why `match` works only on enums and outcomes. It became a self-contained hint. The vault's continuity is checked by `guidecheck`, which compiles each version and runs every scenario.
+- **The front page:**
+  - "applet" throughout;
+  - a line for every chapter;
+  - *Where to start*: chapter 1 for everyone, chapter 11 first for readers from C or Java Card, and the specification for exact rules.
+- **`guide/README.md`:** the house rules the reviews produced:
+  - comparisons only in chapter 11;
+  - invalid code says so;
+  - independent of the host system, with no toolchain compilers named;
+  - read the rule before citing it.
+- **Links:** the specification's index and the extension's README point to the guide, and the extension's to chapter 1.

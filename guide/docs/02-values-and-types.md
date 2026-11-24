@@ -18,7 +18,7 @@ const MASK: u8 = 0b1111_0000;
 const OFFSET: i16 = -200;
 ```
 
-A literal has no type of its own. It takes the type it is used as, and must fit it (*EXP-10*):
+A literal has no type of its own. It takes the type it is used as, and must fit it (*EXP-7*, *EXP-10*):
 
 <!-- check: error CE-EXP-2 -->
 ```cardlang
@@ -429,4 +429,4 @@ The PIN bytes are the ASCII codes of the digits: `31` is "1". Run it, and every 
 
 - Add a command `03` that answers the vault's version, as a constant `u8[2]`. You need a variant, a line in `decode`, and an arm in the `match`. Try leaving out the arm first, and read the error.
 - Make the wrong-PIN error happen for a PIN of the wrong length too, instead of `MalformedRequest`. Which is better for the host to see?
-- In `decode`, a `match` is not possible, because `code` is an integer. Why does CardLang allow `match` only on enums and outcomes? [Chapter 5](05-outcomes.md) gives part of the answer.
+- In `decode`, a `match` is not possible, because `code` is an integer. Why does CardLang allow `match` only on enums and outcomes? (Hint: a `match` must list every case, and the compiler checks that it does. How many cases does a `u8` have?)

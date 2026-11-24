@@ -53,3 +53,7 @@ A block without a comment fails the check. A block indented inside a list item i
 - **Name the rule** the first time it matters, as in *EXP-14*, and leave the exact wording to the specification.
 - **Grow the running example,** the vault, rather than inventing a new program for each feature, unless a small fragment shows the point better.
 - **Describe the language as it is.** Plain words, current state, no history of how it came to be.
+- **Compare with other languages only in chapter 11.** The other chapters explain CardLang on its own terms.
+- **Say when code is wrong.** An example that does not compile carries a `// does not compile: …` comment, or a sentence just before it, and is followed by the correct version when there is one.
+- **Stay independent of the host system.** Commands are the toolchain's own (`uv run …`, `clc …`), not shell scripts, and no compiler or build setup of the toolchain is named.
+- **Cite the rule that says it.** Every *XXX-n* is checked to exist; read the rule before citing it, to be sure it is the right one.
