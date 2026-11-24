@@ -123,3 +123,8 @@ The two existing workflows stay as they are.
 - **Documents:**
   - V-53 in `vm/decisions.md` supersedes V-43, and V-45 is annotated;
   - the C VM, harness, tests, package, example and extension READMEs are updated.
+
+**Committed and pushed (`81d4674`, user). CI's first run:**
+- **The whole suite ran off the laptop for the first time.** It passed on all three runners, apart from one failure: `guide/README.md` named `guide/site/`, which exists only after a local build of the site.
+- **The C VM built warning-free** under `-Werror` with gcc and clang on Linux. On both, all 157 images loaded, the 33 runtime scenarios passed, and so did FIDO2's 59 and PIV's 69 checks.
+- **Fixed in `9915a32`:** reproduced locally by moving the built site aside, and marked `linkcheck: ignore`, as in the extension's README. The second run passed on all three runners.
