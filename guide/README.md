@@ -26,7 +26,7 @@ The site is built with MkDocs and the Material theme, from the repository's uv e
 uv run mkdocs serve -f guide/mkdocs.yml
 ```
 
-serves a live preview, and `uv run mkdocs build --strict -f guide/mkdocs.yml` builds it into `guide/site/`. GitHub builds it on every change to the guide, and publishes it from `main` (`.github/workflows/guide.yml`).
+serves a live preview, and `uv run mkdocs build --strict -f guide/mkdocs.yml` builds it into `guide/site/`. GitHub builds it on every change to the guide, and publishes it from `main` (`.github/workflows/guide.yml`). <!-- linkcheck: ignore -->
 
 CardLang and scenario code is highlighted by the package's own Pygments lexers, in `src/cardlang/highlight.py`. Use `cardlang` and `scenario` as the language of a fenced block.
 
