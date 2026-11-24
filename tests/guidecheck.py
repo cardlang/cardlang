@@ -16,6 +16,8 @@ comment saying what it is:
   <!-- check: error CODE binding=B -->      a whole application, built for binding B, that must fail with CODE
   <!-- check: scenario NAME -->             a scenario run against the program NAME as it stands at that point, on
                                             the reference interpreter and the Python VM; every expect must hold
+  <!-- check: excerpt PATH -->              lines quoted from the repository file PATH: each run of lines must appear in
+                                            the file exactly, in order. A line `// ...` alone stands for lines left out
   <!-- check: none -->                      shown but not checked
 
 Blocks in other languages are not checked. Also checked: the site's scenario lexer knows exactly the steps of the VS
@@ -80,9 +82,29 @@ def declarations(text):
     out[-1][1] += "\n" + "\n".join(lines[last:])
     return [tuple(d) for d in out]
 
+ELISION = "// ..."
+
+def excerpt_problem(block, source):
+    """None if the block's runs of lines (split at `// ...` lines) appear in source in order, else what is wrong."""
+    have = [l.rstrip() for l in source.split("\n")]
+    runs, run = [], []
+    for line in block.rstrip("\n").split("\n"):
+        if line.strip() == ELISION:
+            if run: runs.append(run); run = []
+        else:
+            run.append(line.rstrip())
+    if run: runs.append(run)
+    at = 0
+    for run in runs:
+        found = next((i for i in range(at, len(have) - len(run) + 1) if have[i:i + len(run)] == run), None)
+        if found is None:
+            return f"not in the file, in order: {run[0].strip()!r}"
+        at = found + len(run)
+    return None if runs else "an empty excerpt"
+
 def main(repo):
     L = layout.at(repo); docs = L.guide / "docs"
-    ok = True; counts = {"program": 0, "fragment": 0, "error": 0, "scenario": 0, "none": 0}
+    ok = True; counts = {"program": 0, "fragment": 0, "error": 0, "scenario": 0, "excerpt": 0, "none": 0}
     def report(passed, where, detail):
         nonlocal ok
         ok &= bool(passed); print("PASS" if passed else "FAIL", where, "|", detail)
@@ -135,6 +157,12 @@ def main(repo):
                 prog["decls"].update(decls)
                 if "binding" in opts: prog["binding"] = opts["binding"]
                 shown[words[1]] = where
+            elif kind == "excerpt":
+                source = (L.root / words[1]) if len(words) > 1 else None
+                if source is None or not source.is_file():
+                    report(False, where, f"an excerpt of a file that does not exist: {note}"); continue
+                problem = excerpt_problem(text, source.read_text(encoding="utf-8"))
+                report(problem is None, where, f"an excerpt of {words[1]}" if problem is None else f"{words[1]}: {problem}")
             elif kind in ("fragment", "error"):
                 f = tmp / f"{md.stem}-{line}.card"; f.write_text(text, encoding="utf-8")
                 opts = dict(w.split("=", 1) for w in words[1:] if "=" in w)

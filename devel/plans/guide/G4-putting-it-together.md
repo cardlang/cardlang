@@ -76,3 +76,32 @@ For readers who know C, embedded C or Java Card. It says what is different, and 
 - Q1 (a): checked excerpts, `<!-- check: excerpt examples/fido2/<file> -->`.
 - Q2 (a): four stops: the entry file, `getAssertion`, non-resident credentials, and the PIN retries.
 - Q3 (a): chapter 11 is organised by topic, after a summary table.
+
+## 5. Progress
+
+**`excerpt` in `guidecheck` (Q1), 2026-11-24:**
+- `<!-- check: excerpt PATH -->`: the block's runs of lines, split at lines `// ...`, must appear in `PATH`, exactly and in order.
+- **Injection:** a changed line, two runs out of order, and a missing file each failed.
+
+**A fix to the example:** `get_assertion` wrapped the single write `sign_count += 1;` in a transaction of its own. A single persistent write is already atomic (STA-11), so the transaction was removed. Behaviour is unchanged: `check.py` passes on the interpreter and the Python VM. It would otherwise have contradicted chapter 6 in a quoted excerpt.
+
+**Chapter 10, drafted 2026-11-24, waiting for the user's review (Q2):**
+- **The map:** FIDO2 in a paragraph, the six files, and how to read an applet.
+- **Stop 1:** the entry, with `Err(IsoError(code))` (OUT-21), `0x91`-prefixed codes, and CTAP status as data with `9000`.
+- **Stop 2:** `get_assertion`, with elisions: spans, an `attempt` and `require` spine, and the counter going up before signing, with why it differs from the vault.
+- **Stop 3:** non-resident credentials, `Command` keys, and `attempt … else`.
+- **Stop 4:** `pin_retries` (persistent) and `pin_failures` (session); `check_pin_hash` decrementing first, and its callers' guard.
+- **Testing:** `getinfo.scenario` and `check.py`.
+- **Confirmed:** the callers' guards (`require pin_retries != 0`, `pin.card:210, 235`), the codes (`CtapPinInvalid = 0x9131`), and the 59 checks (the example's README).
+
+**Chapter 10, review (user): "What guarantees that a result of an hmac is a valid p256 private key?"** Nothing did.
+- **The problem:** an HMAC is `n` or more about once in 2³², and `card.key.import` refuses it with `Malformed` (BP-21). `make_credential` then failed that registration with `CtapOther`. `get_assertion` was safe, because it only sees IDs that `make_credential` issued.
+- **The fix in the example (user: retry and explain):**
+  - `load_credential_key` returns `bool`: `false` on `CardError.Malformed`, and `CtapOther` for anything else;
+  - `make_credential` draws nonces in a loop bounded by `MAX_NONCE_DRAWS` = 4, then `require loaded`;
+  - `get_assertion` does `require loaded`.
+
+  `check.py` passes on the interpreter and the Python VM.
+- **A front-end bug the fix exposed:** `outcheck.CARD_ERROR` was a stale hand-written list, without `InvalidState`, `Unsupported` and `Malformed`. The new name checker, NAM-16, rejected `Err(CardError.Malformed)` as CE-NAM-9. The list is now `set(CARD_ERROR_CODES)` from `cardlang.platform.errors`, the profile's one table. A made-up member is still CE-NAM-9. The FIDO2 example, compiled in `run_checks`, now guards it.
+- **A test of the platform's rejection:** `run-019-keys` imports a private scalar equal to `n`, and one of zero, and both give `err platform Malformed`, on the interpreter, the Python VM and the C VM. The retry's own invalid branch cannot be triggered in a test, since that needs about 2³² draws. The chapter says so.
+- **The chapter:** stop 3 has a new part, *Not every HMAC is a key*, with the new `load_credential_key` and the bounded loop as excerpts. Stop 2's excerpt shows `require loaded`.

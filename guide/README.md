@@ -40,6 +40,7 @@ CardLang and scenario code is highlighted by the package's own Pygments lexers, 
 | `<!-- check: fragment -->` | A fragment that must compile |
 | `<!-- check: error CE-XXX-n -->` | A fragment that must fail with exactly that error. With `binding=iso7816` or `binding=raw`, the block is a whole applet, built for that binding |
 | `<!-- check: scenario NAME -->` | A scenario for the program `NAME` as it stands at that point, run on the reference interpreter and the Python VM |
+| `<!-- check: excerpt PATH -->` | Lines quoted from the repository file `PATH`, such as `examples/fido2/ctap.card`. Each run of lines must appear in the file exactly, in order; a line `// ...` on its own stands for lines left out |
 | `<!-- check: none -->` | Shown, not checked. Use it rarely |
 
 A block without a comment fails the check. A block indented inside a list item is checked too, with its comment indented the same way.

@@ -81,11 +81,19 @@ function make_credential(params: ref u8[], response: inout u8[]) -> u32 {
         require excluded == 0 else IsoError.CtapCredentialExcluded;
     }
 
-    // The credential: a random nonce, its tag, and the derived key's public point.
+    // The credential: a random nonce whose derived key is valid, its tag, and the key's public point. A nonce is drawn
+    // again when its derived bytes are not a valid key (load_credential_key); MAX_NONCE_DRAWS invalid draws in a row
+    // would mean a broken random generator, not bad luck.
     var credential_id: u8[48];
-    n = attempt card.random.fill(inout credential_id[0..32]);
+    var loaded: bool = false;
+    var draws: u32 = 0;
+    while (not loaded) and (draws < MAX_NONCE_DRAWS) {
+        n = attempt card.random.fill(inout credential_id[0..32]);
+        loaded = attempt load_credential_key(ref rp_hash, ref credential_id[0..32]);
+        draws += 1;
+    }
+    require loaded else IsoError.CtapOther;
     attempt credential_tag(ref rp_hash, ref credential_id[0..32], inout credential_id[32..48]);
-    attempt load_credential_key(ref rp_hash, ref credential_id[0..32]);
     var point: u8[65];
     n = attempt card.key.export_public(TEMP_KEY, inout point);
 
@@ -134,9 +142,7 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     var id_start: u32 = attempt first_valid(ref params, p[3], ref rp_hash);
     require id_start != 0 else IsoError.CtapNoCredentials;
 
-    transaction {
-        sign_count += 1;
-    }
+    sign_count += 1;
     var flags: u8 = 0;
     if options.up {
         flags = 0x01;
@@ -150,7 +156,8 @@ function get_assertion(params: ref u8[], response: inout u8[]) -> u32 {
     signed[32] = flags;
     signed[33..37] = encode_be(sign_count);
     signed[37..69] = params[client_hash.start..client_hash.start + 32];
-    attempt load_credential_key(ref rp_hash, ref params[id_start..id_start + 32]);
+    var loaded: bool = attempt load_credential_key(ref rp_hash, ref params[id_start..id_start + 32]);
+    require loaded else IsoError.CtapOther;
     var raw: u8[64];
     n = attempt card.crypto.sign(TEMP_KEY, SignatureAlgorithm.EcdsaP256Sha256, ref signed, inout raw);
     var der: u8[72];
