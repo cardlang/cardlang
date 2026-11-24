@@ -37,7 +37,10 @@ def main(repo):
         r = subprocess.run([sys.executable, "-I", "-c", probe, cex], capture_output=True, text=True, encoding="utf-8")
         check("compile_files refuses an invalid program itself", r.stdout.strip() == "refused CE-CEX-3", r.stdout + r.stderr)
         sc = layout.at(repo).runtime / "run-020-crypto" / "scenario.txt"
-        for backend in ("interp", "pyvm", "cvm-clang"):
+        from cardlang.harness import cvm_backend
+        backends_here = ("interp", "pyvm", "cvm") if cvm_backend.library_path() else ("interp", "pyvm")
+        if "cvm" not in backends_here: print("SKIP run run-020 on cvm | the C VM is not built")
+        for backend in backends_here:
             rc, out = clc(repo, "run", str(sc), "--backend", backend); check(f"run run-020 on {backend}", rc == 0 and "passed" in out, out)
         wrong = tmp / "wrong"; shutil.copytree(sc.parent, wrong)
         text = (wrong / "scenario.txt").read_text(encoding="utf-8").replace("expect ok ba 78 16 bf", "expect ok ba 78 16 be", 1)

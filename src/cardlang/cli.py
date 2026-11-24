@@ -3,7 +3,7 @@
     clc check  <program> [--json] [--binding iso7816|raw] [--fragment]
     clc build  <program> [-o out.clvm] [--json] [--binding ...]
     clc disasm <program | image.clvm>
-    clc run    <scenario.txt> [--program <program>] [--backend interp|pyvm|cvm-msvc|cvm-clang]
+    clc run    <scenario.txt> [--program <program>] [--backend interp|pyvm|cvm]
 
 A <program> is any of:
 - a directory with a `cardlang.json` project file: {"name": ..., "files": [...], "binding": "iso7816" | "raw"};
@@ -133,7 +133,7 @@ def main(argv=None):
     p = sub.add_parser("disasm", help="list an image's code"); program_arg(p)
     p = sub.add_parser("run", help="run a scenario against a program")
     p.add_argument("scenario"); p.add_argument("--program", nargs="+"); p.add_argument("--binding", choices=["iso7816", "raw"])
-    p.add_argument("--backend", default="pyvm", choices=["interp", "pyvm", "cvm-msvc", "cvm-clang"])
+    p.add_argument("--backend", default="pyvm", choices=["interp", "pyvm", "cvm"])
     a = ap.parse_args(argv)
     return {"check": cmd_check, "build": cmd_build, "disasm": cmd_disasm, "run": cmd_run}[a.cmd](a)
 

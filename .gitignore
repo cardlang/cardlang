@@ -50,3 +50,6 @@ reference/
 
 # The guide's built site (mkdocs build)
 guide/site/
+
+# Other build trees of the C VM, such as one with a second compiler (vm/c/README.md)
+vm/c/build-*/

@@ -1,0 +1,54 @@
+# Runs the whole test suite, tests/run_checks.py, with the C VM built by plain CMake, on three compilers: gcc and clang
+# on Linux, and MSVC on Windows. A push to any branch, or a pull request.
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux, gcc
+            os: ubuntu-latest
+            cc: gcc
+          - name: Linux, clang
+            os: ubuntu-latest
+            cc: clang
+          - name: Windows, MSVC
+            os: windows-latest
+            cc: ""
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CARDLANG_DOWNLOADS: ${{ github.workspace }}/.downloads
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Install the cardlang package
+        run: uv sync --locked
+      - name: Cache the Mbed TLS archive
+        uses: actions/cache@v4
+        with:
+          path: .downloads
+          key: mbedtls-3.6.8-bc54b818e87f49c0b3281dd85d24adaede0e63b4e822e3fbd49c005a38b9595b
+      - name: Configure the C VM
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.cc }}" ]; then export CC="${{ matrix.cc }}"; fi
+          cmake -S vm/c -B vm/c/build -DCARDLANG_DOWNLOADS="$CARDLANG_DOWNLOADS"
+      - name: Build the C VM
+        run: cmake --build vm/c/build --config Release
+      - name: Run every check
+        run: uv run python -I tests/run_checks.py --require-cvm

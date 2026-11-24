@@ -1,11 +1,12 @@
 # Checks
 
-`run_checks.py` runs every check in the repository. From the repository root, after building the C VM:
+`run_checks.py` runs every check in the repository. From the repository root:
 
 ```bash
-uv run python -I vm/c/build.py all
 uv run python -I tests/run_checks.py
 ```
+
+The runs on the C VM need it built first, with `cmake -S vm/c -B vm/c/build` and `cmake --build vm/c/build` (`vm/c/README.md`). Without it, they are skipped and counted as skipped; `--require-cvm` makes them required, as CI does on every push.
 
 It prints one line per run, with the number of tests that passed, and exits non-zero on any failure. Run it after every change. A single check runs on its own with `uv run python -I tests/<check>.py .`, or, for a module of the package, `uv run python -I -m cardlang.<module> .`.
 
