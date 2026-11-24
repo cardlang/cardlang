@@ -1,6 +1,6 @@
 # The execution harness
 
-One scenario runner for every CardLang execution backend (`vm/decisions.md` V-10). There are four backends, which run the same tests: `interp`, the reference interpreter; `pyvm`, the compiler and the Python VM; and `cvm-msvc` and `cvm-clang`, the C VM built with each compiler (`cvm_backend.py`, through cffi).
+One scenario runner for every CardLang execution backend (`vm/decisions.md` V-10). There are three backends, which run the same tests: `interp`, the reference interpreter; `pyvm`, the compiler and the Python VM; and `cvm`, the C VM as built by CMake, in `vm/c/build` or the tree `CARDLANG_CVM_BUILD` names (`cvm_backend.py`, through cffi).
 
 - `scenario.py`: the scenario runner, the binding encoders (`status_word`, `raw_envelope`), and the command line.
 - `backends.py`: the backend table and `build(name, files, binding=None)`.

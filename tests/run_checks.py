@@ -1,8 +1,12 @@
 """Run every reference checker over the conformance tests it covers.
 
-Usage (from the repository root), after building the C VM:
-    uv run python -I vm/c/build.py all
-    uv run python -I tests/run_checks.py
+Usage (from the repository root):
+    uv run python -I tests/run_checks.py [--require-cvm]
+
+The runs on the C VM need it built first (vm/c/README.md):
+    cmake -S vm/c -B vm/c/build
+    cmake --build vm/c/build
+Without it, they are skipped and counted as skipped, not passed; --require-cvm (as in CI) makes them required.
 
 Exit status 0 means every test produced its expected result.
 """
@@ -63,17 +67,15 @@ RUNS = [
     # The compiler and the Python VM as a backend of the harness: the same scenarios (V-12).
     ("cardlang.harness.scenario", "--backend pyvm", "pyvm: runtime scenarios on the Python VM (V-12 item 1)"),
     ("tests/check_state.py", None, "pyvm: all VM state in its context, within 1 KiB (V-31, V-2)"),
-    # The C VM, built by vm/c/build.py with both compilers, through cffi: the same scenarios.
-    ("tests/compile_all.py", "--backend cvm-msvc", "cvm-msvc: every compiled image loads in the C VM (V-12 item 3)"),
-    ("tests/compile_all.py", "--backend cvm-clang", "cvm-clang: every compiled image loads in the C VM (V-12 item 3)"),
-    ("cardlang.harness.scenario", "--backend cvm-msvc", "cvm-msvc: runtime scenarios on the C VM, MSVC build"),
-    ("cardlang.harness.scenario", "--backend cvm-clang", "cvm-clang: runtime scenarios on the C VM, clang build"),
+    # The C VM, as built by CMake with any C11 toolchain, through cffi: the same scenarios.
+    ("tests/compile_all.py", "--backend cvm", "cvm: every compiled image loads in the C VM (V-12 item 3)"),
+    ("cardlang.harness.scenario", "--backend cvm", "cvm: runtime scenarios on the C VM"),
 ]
 
 # The example applets: each examples/<app>/check.py checks its applet independently of the applet's own logic,
 # and every example scenario must pass, on every backend (V-12 item 2). They are found, not listed, so a new applet is
 # checked as soon as its folder exists.
-BACKENDS = ("interp", "pyvm", "cvm-msvc", "cvm-clang")
+BACKENDS = ("interp", "pyvm", "cvm")
 
 def example_runs():
     L = layout.at(ROOT)
@@ -91,10 +93,23 @@ def label(script):
     if s.name == "check.py": return f"{s.parent.name}/check.py"
     return s.name
 
+def cvm_built():
+    from cardlang.harness import cvm_backend
+    return cvm_backend.library_path() is not None
+
 def main():
-    failures = 0
+    require_cvm = "--require-cvm" in sys.argv
+    failures = skipped = 0
+    have_cvm = cvm_built()
     for script, glob, what in RUNS + list(example_runs()):
         extra = glob.split() if glob else []                 # e.g. "--backend pyvm"
+        if extra[-2:] == ["--backend", "cvm"] and not have_cvm:
+            if require_cvm:
+                print(f"[FAILED] {label(script):13} {glob:18}    0 passed  - {what}")
+                print("         the C VM is not built, and --require-cvm requires it"); failures += 1
+            else:
+                print(f"[skip  ] {label(script):13} {glob:18}    -          - {what}"); skipped += 1
+            continue
         run = ["-m", script] if isinstance(script, str) and not script.endswith(".py") else [str(ROOT / script)]
         cmd = [sys.executable, "-I", *run, str(ROOT)] + extra
         out = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -109,7 +124,10 @@ def main():
         if crashed:
             print("         checker crashed:\n" + out.stderr)
         failures += len(failed) + (1 if crashed else 0)
-    print("ALL CHECKS PASSED" if failures == 0 else f"{failures} FAILURE(S)")
+    if skipped:
+        from cardlang.harness import cvm_backend
+        print(f"{skipped} run(s) on the C VM skipped: it is not built. Build it with {cvm_backend.BUILD_HINT}.")
+    print(("ALL CHECKS PASSED" + (f" ({skipped} skipped)" if skipped else "")) if failures == 0 else f"{failures} FAILURE(S)")
     return 0 if failures == 0 else 1
 
 if __name__ == "__main__":

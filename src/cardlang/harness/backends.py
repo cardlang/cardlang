@@ -26,18 +26,15 @@ def _pyvm(files, binding):
     pltcheck.check_binding(tokens(files), binding)                              # profile BP-50a, BP-52
     return card.VmCard(files, binding)
 
-def _cvm(toolchain):
-    def build(files, binding):
-        from cardlang.harness import cvm_backend
-        pltcheck.check_binding(tokens(files), binding)                          # profile BP-50a, BP-52
-        return cvm_backend.CvmCard(files, binding, toolchain)
-    return build
+def _cvm(files, binding):
+    from cardlang.harness import cvm_backend
+    pltcheck.check_binding(tokens(files), binding)                              # profile BP-50a, BP-52
+    return cvm_backend.CvmCard(files, binding)
 
 BACKENDS = {
     "interp": _interp,          # the reference interpreter (src/cardlang/interp/interp.py)
     "pyvm": _pyvm,        # the compiler and the Python VM (cardlang.pyvm)
-    "cvm-msvc": _cvm("msvc"),   # the C VM built with MSVC (vm/c/), through cffi
-    "cvm-clang": _cvm("clang"), # the C VM built with a MinGW-w64 clang
+    "cvm": _cvm,                # the C VM (vm/c/), as built by CMake, through cffi
 }
 
 def build(name, files, binding=None):

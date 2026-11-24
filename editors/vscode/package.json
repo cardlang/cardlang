@@ -188,14 +188,12 @@
           "enum": [
             "pyvm",
             "interp",
-            "cvm-msvc",
-            "cvm-clang"
+            "cvm"
           ],
           "enumDescriptions": [
             "The Python VM",
             "The reference interpreter",
-            "The C VM, MSVC build (build it first with vm/c/build.py)",
-            "The C VM, clang build (build it first with vm/c/build.py)"
+            "The C VM (build it first: vm/c/README.md)"
           ],
           "description": "Where Run Scenario runs the applet."
         }

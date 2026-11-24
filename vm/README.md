@@ -67,4 +67,4 @@ and the FIDO2 check with:
 uv run python -I examples/fido2/check.py . --backend interp
 ```
 
-The backends are `interp` (the reference interpreter), `pyvm` (the Python VM), and `cvm-msvc` and `cvm-clang` (the C VM, built with each compiler). `tests/run_checks.py` runs every check on all four.
+The backends are `interp` (the reference interpreter), `pyvm` (the Python VM), and `cvm` (the C VM, built with any C11 compiler). `tests/run_checks.py` runs every check on all four.

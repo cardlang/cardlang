@@ -109,7 +109,7 @@ The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <
 Scenario files are named `scenario.txt` or `*.scenario`. **CardLang: Run Scenario** (the play icon) runs one and prints every step, its outcome, and each `expect`. On `pyvm`, a trap is shown with the statement where it happened. The `cardlang.scenarioBackend` setting chooses what runs it:
 - `pyvm`, the Python VM;
 - `interp`, the reference interpreter;
-- `cvm-msvc` or `cvm-clang`, the C VM, which `vm/c/build.py` builds first.
+- `cvm`, the C VM, which must be built first (`vm/c/README.md` in the repository).
 
 ## Debugging
 

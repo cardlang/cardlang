@@ -1,9 +1,15 @@
-# The CardLang VM in portable C11.
-#
-# Built with two compilers, both warning-free: MSVC, and a MinGW-w64 clang such as llvm-mingw's.
-# Use vm/c/build.py, which sets up either toolchain, rather than calling CMake directly.
+# The CardLang VM in portable C11, built with any C11 compiler CMake finds, warning-free. From the repository root:
+#   cmake -S vm/c -B vm/c/build
+#   cmake --build vm/c/build
+# The harness loads build/lib/cvm.dll, cvm.so or cvm.dylib; CARDLANG_CVM_BUILD names another build tree.
 cmake_minimum_required(VERSION 3.25)
 project(cardlang_vm VERSION 1.0 LANGUAGES C)
+
+# An optimised build by default, where the generator builds one configuration (a multi-config generator, such as
+# Visual Studio's, takes --config at build time).
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "The build type" FORCE)
+endif()
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -19,12 +25,14 @@ function(cardlang_warnings target)
     endif()
 endfunction()
 
-# Mbed TLS, the host HAL's crypto backend: the 3.6 LTS release archive, downloaded once into build/downloads
-# (shared by both toolchains' build trees, git-ignored) and checked against the SHA-256 the release publishes.
+# Mbed TLS, the host HAL's crypto backend: the 3.6 LTS release archive, downloaded once into CARDLANG_DOWNLOADS (the
+# build tree's downloads/ folder by default; build trees and CI caches can share one) and checked against the SHA-256
+# the release publishes.
+set(CARDLANG_DOWNLOADS "${CMAKE_BINARY_DIR}/downloads" CACHE PATH "Where the Mbed TLS archive is downloaded")
 include(FetchContent)
 set(MBEDTLS_VERSION 3.6.8)
 set(MBEDTLS_SHA256 bc54b818e87f49c0b3281dd85d24adaede0e63b4e822e3fbd49c005a38b9595b)
-set(MBEDTLS_ARCHIVE ${CMAKE_CURRENT_SOURCE_DIR}/build/downloads/mbedtls-${MBEDTLS_VERSION}.tar.bz2)
+set(MBEDTLS_ARCHIVE ${CARDLANG_DOWNLOADS}/mbedtls-${MBEDTLS_VERSION}.tar.bz2)
 file(DOWNLOAD
     https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION}/mbedtls-${MBEDTLS_VERSION}.tar.bz2
     ${MBEDTLS_ARCHIVE} EXPECTED_HASH SHA256=${MBEDTLS_SHA256} TLS_VERIFY ON)
@@ -56,8 +64,11 @@ target_compile_definitions(cardlang_hal_host PUBLIC CL_HAL_OP_CTX_SIZE=${CARDLAN
 target_link_libraries(cardlang_hal_host PUBLIC mbedcrypto)
 cardlang_warnings(cardlang_hal_host)
 
-# The shared library the harness drives through cffi: cvm.dll, or libcvm.so elsewhere.
+# The shared library the harness drives through cffi: cvm.dll, cvm.so or cvm.dylib, always in the build tree's lib/
+# folder. The generator expression keeps multi-config generators from adding a Debug/ or Release/ folder.
 add_library(cvm SHARED test/cvm.c)
 target_link_libraries(cvm PRIVATE cardlang_vm cardlang_hal_host)
-set_target_properties(cvm PROPERTIES PREFIX "")
+set_target_properties(cvm PROPERTIES PREFIX ""
+    RUNTIME_OUTPUT_DIRECTORY "$<1:${CMAKE_BINARY_DIR}/lib>"
+    LIBRARY_OUTPUT_DIRECTORY "$<1:${CMAKE_BINARY_DIR}/lib>")
 cardlang_warnings(cvm)

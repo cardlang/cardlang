@@ -1,11 +1,14 @@
-"""The `cvm-msvc` and `cvm-clang` backends of the harness: the C VM, driven through cffi.
+"""The `cvm` backend of the harness: the C VM, driven through cffi.
 
-A program is compiled by the compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM
-built by vm/c/build.py loads through the shared library cvm.dll (vm/c/test/cvm.c). The card interface is that of
-src/cardlang/harness/README.md, so scenarios and the applet checks run unchanged. Build the library first:
-    uv run python -I vm/c/build.py all
+A program is compiled by the compiler (src/cardlang/compiler/compiler.py) into a version-1 image, which the C VM loads
+through its shared library (vm/c/test/cvm.c): cvm.dll, cvm.so or cvm.dylib, in the lib/ folder of a CMake build tree.
+The tree is vm/c/build, or the one CARDLANG_CVM_BUILD names (a relative path is taken from the repository root).
+The card interface is that of src/cardlang/harness/README.md, so scenarios and the applet checks run unchanged.
+Build the library first, with any C11 toolchain:
+    cmake -S vm/c -B vm/c/build
+    cmake --build vm/c/build
 """
-import sys, pathlib
+import os, sys, pathlib
 from cffi import FFI
 
 from cardlang.compiler import compiler
@@ -33,14 +36,36 @@ uint32_t cvm_budget_used(cvm *c);
 void cvm_interrupt_next_commit(cvm *c);
 """
 ffi = FFI(); ffi.cdef(CDEF)
-_LIBS = {}
+_LIB = []
+LIBRARY_NAMES = ("cvm.dll", "cvm.so", "cvm.dylib")
+BUILD_HINT = "cmake -S vm/c -B vm/c/build, then cmake --build vm/c/build"
 
-def library(toolchain):
-    if toolchain not in _LIBS:
-        path = layout.at().vm_c / "build" / toolchain / "cvm.dll"
-        if not path.exists(): raise SystemExit(f"{path} not found: run `uv run python -I vm/c/build.py {toolchain}` first")
-        _LIBS[toolchain] = ffi.dlopen(str(path))
-    return _LIBS[toolchain]
+class NotBuilt(SystemExit):
+    """The C VM's shared library is not in the build tree."""
+
+def build_tree():
+    """The CMake build tree of the C VM: CARDLANG_CVM_BUILD, or vm/c/build."""
+    L = layout.at(); named = os.environ.get("CARDLANG_CVM_BUILD")
+    if not named: return L.vm_c / "build"
+    tree = pathlib.Path(named)
+    return tree if tree.is_absolute() else L.root / tree
+
+def library_path():
+    """The C VM's shared library in the build tree, or None if it is not built."""
+    return next((f for f in (build_tree() / "lib" / n for n in LIBRARY_NAMES) if f.exists()), None)
+
+def library():
+    if not _LIB:
+        path = library_path()
+        if path is None:
+            raise NotBuilt(f"the C VM is not built in {build_tree()}: run {BUILD_HINT}")
+        try:
+            _LIB.append(ffi.dlopen(str(path)))
+        except OSError as e:
+            bits = 64 if sys.maxsize > 2**32 else 32
+            raise NotBuilt(f"{path} does not load: {e}. It must be built for this Python, a {bits}-bit process, "
+                           f"with a C compiler that targets the same architecture") from e
+    return _LIB[0]
 
 RESULT_OK, RESULT_ERR, RESULT_TRAP, RESULT_NONE, RESULT_MISUSE = range(5)
 TRAPS = {1: "OVERFLOW", 2: "UNDERFLOW", 3: "DIV-ZERO", 4: "NEGATION", 5: "SHIFT", 6: "BOUNDS", 7: "RESPONSE-COUNT",
@@ -49,8 +74,8 @@ LOAD = ["OK", "FORMAT", "PROFILE", "LAYOUT", "AREAS", "STORAGE", "ATOMIC", "NATI
 CARD_ERROR_NAMES = {v: k for k, v in CARD_ERROR_CODES.items()}
 
 class CvmCard:
-    def __init__(self, files, binding=None, toolchain="msvc", budget=1_000_000, fragment=False):
-        self.lib = library(toolchain)
+    def __init__(self, files, binding=None, budget=1_000_000, fragment=False):
+        self.lib = library()
         self.image = compiler.compile_files(files, binding, fragment).image
         status = ffi.new("int *")
         c = self.lib.cvm_new(self.image, len(self.image), budget, isa.BINDINGS[binding], status)
@@ -88,16 +113,16 @@ class CvmCard:
         r = self._call(self.lib.cvm_command, req, len(req), resp, capacity)
         return self.outcome(r, resp)
 
-def load_status(image, toolchain="msvc"):
+def load_status(image):
     """What cl_vm_load says of an image, by name: "OK" or the IMG-11 check that failed."""
-    lib = library(toolchain); status = ffi.new("int *")
+    lib = library(); status = ffi.new("int *")
     binding = image[7] or 1                               # an image for any binding is loaded as ISO 7816
     c = lib.cvm_new(image, len(image), 1_000_000, binding, status)
     if c != ffi.NULL: lib.cvm_free(c)
     return LOAD[status[0]] if status[0] < len(LOAD) else str(status[0])
 
-def context_size(toolchain="msvc"):
-    return library(toolchain).cvm_context_size()
+def context_size():
+    return library().cvm_context_size()
 
-def op_context_size(toolchain="msvc"):
-    return library(toolchain).cvm_op_context_size()
+def op_context_size():
+    return library().cvm_op_context_size()

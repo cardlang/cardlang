@@ -100,3 +100,26 @@ The two existing workflows stay as they are.
 - Q3 (a): skipped locally when the C VM is not built, and required in CI with `--require-cvm`.
 - Q4 (a): `build.py` is deleted.
 - Q5 (a): the measuring script is adapted, with `CARDLANG_CROSS_CC`.
+
+## 5. Progress (2026-11-24, on `portable-cvm`, uncommitted)
+
+- **`CMakeLists.txt`:**
+  - `cvm` is written to `<build>/lib` for every configuration, through a generator expression;
+  - single-config generators default to `Release`;
+  - the Mbed TLS archive goes to `CARDLANG_DOWNLOADS`, the build tree's `downloads/` by default, so trees and CI caches can share it.
+- **Built on the laptop with the plain commands, from a cleared `vm/c/build`:**
+  - CMake chose Visual Studio 2026 and MSVC, with Debug as the default config;
+  - warning-free, with `cvm.dll` in `vm/c/build/lib`;
+  - `run_checks --require-cvm`: all pass, including 157 images loading, 33 runtime scenarios, and FIDO2's 59 and PIV's 69 independent checks.
+- **A second tree with `x86_64-w64-mingw32-clang` and Ninja,** sharing the archive through `-DCARDLANG_DOWNLOADS`, passed every C VM check through `CARDLANG_CVM_BUILD`.
+- **Found:** the `clang` on the laptop's PATH targets i686. A 32-bit library cannot load in 64-bit Python. The harness now explains that, instead of passing on cffi's bare error, and the README says the library must match Python's architecture. Checked by building an i686 tree, which was then removed.
+- **Injections:**
+  - an unused variable in `vm.c` failed the build: C4189 as an error;
+  - with `CARDLANG_CVM_BUILD` pointing at no build, the C VM runs were skipped (5, counted as skipped), failed under `--require-cvm`, and `clc run --backend cvm` gave a clear message.
+- **One backend, `cvm`,** in the backends, `clc`, `compile_all`, `clc_check` (which skips `cvm` when the C VM is not built), `run_checks` and the extension's `scenarioBackend` setting.
+- **Removed:** `build.py`. `.gitignore` adds `vm/c/build-*/`.
+- **`.github/workflows/checks.yml`:** Linux with gcc, Linux with clang, and Windows with MSVC, with the archive cached. It has not run yet: the branch is not pushed.
+- **`devel/measure/cvm_measure.py`** uses the plain build and `CARDLANG_CROSS_CC`. With llvm-mingw's clang as the cross compiler, it reproduces the published figures exactly: Cortex-M4 code 16,718 bytes, `cl_vm` 252 bytes, stack 856 bytes; Cortex-M0+ 20,426 bytes and 904 bytes; zero data and bss.
+- **Documents:**
+  - V-53 in `vm/decisions.md` supersedes V-43, and V-45 is annotated;
+  - the C VM, harness, tests, package, example and extension READMEs are updated.

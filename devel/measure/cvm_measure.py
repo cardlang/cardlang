@@ -1,12 +1,15 @@
 """Measurements of the C VM (VM7 step 5; plans_and_notes/VM7-measurements.md). Prints a JSON document.
 
-Run with the project's uv environment, from the repository root, after `vm/c/build.py all`:
-    uv run python -I devel/measure/cvm_measure.py > measurements.json
+Run with the project's uv environment, from the repository root, after building the C VM (vm/c/README.md):
+    CARDLANG_CROSS_CC=<a clang that accepts --target> uv run python -I devel/measure/cvm_measure.py > measurements.json
 
-1. The VM's context, sizeof(cl_vm): on the host, from the built DLLs, and for 32-bit targets, from a probe compiled
-   with llvm-mingw's clang.
-2. Code size of vm.c and natives.c, by section kind: the host builds as built (MSVC /O2, clang -O2, with the
-   test-only catalog), and cross-compiled at -Os for Cortex-M4 and Cortex-M0+, without it. The cross builds are
+CARDLANG_CROSS_CC names the cross compiler; its folder must also hold llvm-size, llvm-nm and llvm-objdump (any LLVM
+release, or llvm-mingw, has them). Without it, only the host's context sizes and the speed are measured.
+
+1. The VM's context, sizeof(cl_vm): on the host, from the built library, and for 32-bit targets, from a probe
+   cross-compiled for the Cortex-M targets.
+2. Code size of vm.c and natives.c, by section kind: the host build as built (with the test-only catalog), and
+   cross-compiled at -Os for Cortex-M4 and Cortex-M0+, without it. The cross builds are
    freestanding; a shim declares the five <string.h> functions the VM uses. Mutable data and bss must be zero (V-8).
 3. The C stack: clang's -fstack-usage frames for Cortex-M4, and the longest call path from each entry point through
    the VM's own functions, read from the relocations of the call instructions. HAL functions count as leaves: their
@@ -14,13 +17,12 @@ Run with the project's uv environment, from the repository root, after `vm/c/bui
 4. Speed, for scale only: vm/c/test/bench.card, a loop without natives, so the budget used is the number of
    instructions executed. The same program on the prototype VM gives the ratio.
 """
-import sys, re, json, time, shutil, pathlib, subprocess, collections
+import os, sys, re, json, time, shutil, pathlib, subprocess, collections
 
 from cardlang import layout
-HERE = layout.at().vm_c            # the C VM, which this script measures (the script moved to devel/measure in PR2)
+from cardlang.harness import cvm_backend
+HERE = layout.at().vm_c            # the C VM, which this script measures
 REPO = layout.at().root
-sys.path[:0] = [str(HERE)]
-import build
 
 SOURCES = ["src/vm.c", "src/natives.c"]
 TARGETS = {
@@ -46,7 +48,11 @@ ENTRIES = ["cl_vm_load", "cl_vm_install", "cl_vm_session_start", "cl_vm_session_
 BENCH = HERE / "test" / "bench.card"
 ROUNDS = 20000
 
-def tool(root, name): return str(root / "bin" / (name + ".exe"))
+def tool(bindir, name):
+    """An LLVM tool beside the cross compiler, with or without .exe."""
+    for candidate in (bindir / name, bindir / (name + ".exe")):
+        if candidate.exists(): return str(candidate)
+    raise SystemExit(f"cvm_measure: {name} not found in {bindir}, beside CARDLANG_CROSS_CC")
 
 def sections(root, obj):
     """Bytes of code, read-only data, mutable data and bss in an object file (llvm-size, System V format)."""
@@ -101,7 +107,7 @@ def cross(root):
     result = {}
     inc = HERE / "include"
     for name, flags in TARGETS.items():
-        d = HERE / "build" / "measure" / name
+        d = cvm_backend.build_tree() / "measure" / name
         (d / "shim").mkdir(parents=True, exist_ok=True)
         (d / "shim" / "string.h").write_text(SHIM, encoding="utf-8")
         (d / "probe.c").write_text(PROBE, encoding="utf-8")
@@ -111,7 +117,7 @@ def cross(root):
         for src in SOURCES + [str(d / "probe.c")]:
             path = pathlib.Path(src) if pathlib.Path(src).is_absolute() else HERE / src
             obj = d / (path.stem + ".o")
-            subprocess.run([tool(root, "clang")] + common + [str(path), "-o", str(obj)], check=True)
+            subprocess.run([str(CROSS_CC)] + common + [str(path), "-o", str(obj)], check=True)
             if path.stem == "probe":
                 nm = subprocess.run([tool(root, "llvm-nm"), "-S", str(obj)], capture_output=True, text=True, check=True).stdout
                 sizes = {l.split()[3].removesuffix("_probe"): int(l.split()[1], 16) for l in nm.splitlines() if len(l.split()) == 4}
@@ -131,13 +137,18 @@ def cross(root):
     return result
 
 def host(root):
-    from cardlang.harness import cvm_backend
-    out = {}
-    for tc in ("msvc", "clang"):
-        objdir = HERE / "build" / tc / "CMakeFiles" / "cardlang_vm.dir" / "src"
-        files = {s: sections(root, objdir / (pathlib.Path(s).name + ".obj")) for s in SOURCES}
-        out[tc] = {"sizeof_cl_vm": cvm_backend.context_size(tc), "op_context": cvm_backend.op_context_size(tc),
-                   "files": files, "total": {k: sum(f[k] for f in files.values()) for k in ("code", "rodata", "data", "bss")}}
+    """The host build, as built: its context sizes and, with the LLVM tools, the code of its object files."""
+    out = {"sizeof_cl_vm": cvm_backend.context_size(), "op_context": cvm_backend.op_context_size()}
+    if root is None: return out
+    objects = {}
+    for s in SOURCES:                    # wherever the generator put them: vm.obj, vm.c.obj or vm.c.o
+        name = pathlib.Path(s).name
+        found = [f for f in cvm_backend.build_tree().rglob("*") if f.name in (name + ".obj", name + ".o",
+                 pathlib.Path(s).stem + ".obj") and "cardlang_vm" in str(f)]
+        if not found: raise SystemExit(f"cvm_measure: the object file of {s} is not in {cvm_backend.build_tree()}")
+        objects[s] = sections(root, found[0])
+    out["files"] = objects
+    out["total"] = {k: sum(f[k] for f in objects.values()) for k in ("code", "rodata", "data", "bss")}
     return out
 
 def speed():
@@ -148,19 +159,26 @@ def speed():
     t = time.perf_counter(); ref = card.command(request, 8); dt = time.perf_counter() - t
     n = card.ctx.budget_cfg - card.ctx.budget
     out["vmproto"] = {"instructions": n, "seconds": dt, "per_second": n / dt}
-    for tc in ("msvc", "clang"):
-        c = cvm_backend.CvmCard([BENCH], toolchain=tc, budget=10_000_000); c.install(); c.session_start()
-        assert c.command(request, 8) == ref, "the C VM computes a different result"
-        assert c.budget_used() == n, "the C VM executes a different number of instructions"
-        runs = 50; t = time.perf_counter()
-        for _ in range(runs): c.command(request, 8)
-        dt = time.perf_counter() - t
-        out["cvm-" + tc] = {"instructions": n, "seconds": dt / runs, "per_second": n * runs / dt}
+    c = cvm_backend.CvmCard([BENCH], budget=10_000_000); c.install(); c.session_start()
+    assert c.command(request, 8) == ref, "the C VM computes a different result"
+    assert c.budget_used() == n, "the C VM executes a different number of instructions"
+    runs = 50; t = time.perf_counter()
+    for _ in range(runs): c.command(request, 8)
+    dt = time.perf_counter() - t
+    out["cvm"] = {"instructions": n, "seconds": dt / runs, "per_second": n * runs / dt}
     return out
 
+CROSS_CC = None
+
 if __name__ == "__main__":
-    env = build.system_environment()                     # the toolchain is the one the clang build uses, from the PATH
-    cc = shutil.which(env.get("CC") or "x86_64-w64-mingw32-clang", path=env["PATH"])
-    if not cc: sys.exit("cvm_measure: put llvm-mingw's bin folder on the PATH")
-    root = pathlib.Path(cc).parent.parent
-    print(json.dumps({"host": host(root), "cross": cross(root), "speed": speed()}, indent=1))
+    named = os.environ.get("CARDLANG_CROSS_CC")
+    if named:
+        CROSS_CC = pathlib.Path(shutil.which(named) or named)
+        if not CROSS_CC.exists(): sys.exit(f"cvm_measure: CARDLANG_CROSS_CC names {named}, which is not found")
+    bindir = CROSS_CC.parent if CROSS_CC else None
+    if bindir is None:
+        print("cvm_measure: CARDLANG_CROSS_CC is not set; measuring the host's context sizes and the speed only",
+              file=sys.stderr)
+    report = {"host": host(bindir), "speed": speed()}
+    if bindir is not None: report["cross"] = cross(bindir)
+    print(json.dumps(report, indent=1))

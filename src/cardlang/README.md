@@ -13,7 +13,7 @@ It is installed, editable, into the repository's uv environment by `uv sync`, an
 | `compiler/` | The typer and the code generator. `compile_files` refuses a program that `diagnose` rejects |
 | `interp/` | The reference interpreter |
 | `pyvm/` | The Python VM, its test HAL and natives, and the card that the harness drives |
-| `harness/` | The scenario runner and the backends: `interp`, `pyvm`, `cvm-msvc` and `cvm-clang` (see its [README](harness/README.md)) |
+| `harness/` | The scenario runner and the backends: `interp`, `pyvm` and `cvm` (see its [README](harness/README.md)) |
 | `cli` | `clc`: check, build, disassemble, and run a scenario |
 | `lsp/`, `dap/`, `jsonrpc` | The language server and the debug adapter, and the protocol framing they share |
 

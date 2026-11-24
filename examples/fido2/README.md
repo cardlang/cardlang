@@ -52,7 +52,7 @@ uv run python -I examples/fido2/check.py . --backend interp
 ```
 
 - `build` writes the image to `examples/fido2/build/fido2.clvm`.
-- `run` accepts `--backend interp`, `pyvm`, `cvm-msvc` or `cvm-clang`.
+- `run` accepts `--backend interp`, `pyvm` or `cvm`, the C VM, once it is built (`vm/c/README.md`).
 - In VS Code, with the CardLang extension, open `getinfo.scenario` and use **CardLang: Run Scenario**, or **CardLang: Debug Scenario** to step through the applet.
 
 ## The independent check
