@@ -18,15 +18,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: teal
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: teal
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
@@ -36,6 +36,9 @@ theme:
     - navigation.instant
     - search.highlight
     - toc.follow
+
+extra_css:
+  - stylesheets/cardlang.css
 
 markdown_extensions:
   - admonition

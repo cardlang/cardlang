@@ -98,3 +98,13 @@ None for now (Q1 b). The text describes the extension, and images can be added l
 - **Chapter 8** gains *The platform's errors*: the 11 members with their codes and causes (BP-12), each API's own list in the catalog and in completion, the precedence (BP-8), failure changing nothing (BP-7), no traps for argument values (BP-9), and what the host sees.
 - **Chapter 5's pointer** now leads to that table.
 - **Chapter 9** gains *Trap kinds*: the RTF-4 kinds, with the slice-assignment case of `BOUNDS` from FUN-24. It notes that the host usually learns only that a trap happened (PLT-10, and `03 00 00` or `6F00` in the Base Profile).
+
+**Colours (user): the site's indigo did not match the logo.**
+- `guide/docs/stylesheets/cardlang.css` sets Material's custom palette from the logo's colours (`assets/`):
+  - the navy `#102031` for the header, with `#E8F1F7` text;
+  - links in the light theme in `#127A62`, a deeper shade of the logo's teal, with contrast 5.3 on white, where `#27CBA5` is only 2.1;
+  - links in the dark theme in the logo's `#27CBA5`;
+  - the dark theme's greys on the navy's hue, 211.
+
+  `mkdocs.yml` uses `primary: custom` and `accent: custom`.
+- **Checked by computed styles** in both themes. Transitions were switched off for the measurement, because the hidden preview pane does not advance them.
