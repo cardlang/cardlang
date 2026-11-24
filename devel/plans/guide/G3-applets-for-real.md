@@ -134,3 +134,17 @@ As before, each chapter is reviewed by the user before the next is written.
 - **Randomness:** a fragment, pointing to `seed` in chapter 9.
 - **`wipe`:** `check_pin` wipes the secret and its length, in a transaction, on the last wrong try. A scenario checks blocking, since the wipe itself cannot be observed.
 - **The prototype** passed on the interpreter and the Python VM before the chapter was written.
+
+**Chapter 8:** committed.
+
+**Chapter 9, drafted 2026-11-23, waiting for the user's review:**
+- **The suite:** tables of every step and every expectation (from the harness and conformance READMEs), and one file per feature.
+- **`seed`:** a `dice` applet whose seeded bytes `62 1F 46 6F` were confirmed to be the same on the interpreter, the Python VM and the C VM (clang). The conformance README defines `seed` for the reference platform.
+- **Running:** VS Code, a shell loop for CI, and the backends. The vault's chapter 8 scenario passed on all four: `interp`, `pyvm`, `cvm-clang` and `cvm-msvc`.
+- **A planted bug:** the digit loop starting at 1. Run against a copy of the vault, it fails as the chapter shows: `err app 4` for `err app 1`. The `pin-format` scenario is checked against the real vault. The debugger steps are written from the extension's README, and left to the user's review.
+- **The image:** the `clc build` summary and a `clc disasm` excerpt, taken from the prototype vault.
+
+**Chapter 9, first review (user):**
+- The shell loop for CI is gone: the guide must not assume a host shell or system. The text now says that `clc run`'s exit code lets any script or CI job run the suite.
+- No compiler names, and no C VM build pointer, in the guide. The C VM can be built with any modern toolchain, and its build process is being reworked separately.
+- The advice to run on every backend is gone. The backends are tested to agree, so one is enough for an applet's tests, and the default Python VM is the natural choice. The exercise to run on all backends was removed.
