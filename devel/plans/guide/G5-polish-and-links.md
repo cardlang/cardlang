@@ -93,3 +93,8 @@ None for now (Q1 b). The text describes the extension, and images can be added l
   - independent of the host system, with no toolchain compilers named;
   - read the rule before citing it.
 - **Links:** the specification's index and the extension's README point to the guide, and the extension's to chapter 1.
+
+**Question (user): where would an applet author learn the `CardError` and trap members?** The Base Profile (BP-12), the catalog, editor completion, and spec RTF-4 have them, but the guide listed neither in full. Chapter 5 also promised a list in chapter 8 that was not there.
+- **Chapter 8** gains *The platform's errors*: the 11 members with their codes and causes (BP-12), each API's own list in the catalog and in completion, the precedence (BP-8), failure changing nothing (BP-7), no traps for argument values (BP-9), and what the host sees.
+- **Chapter 5's pointer** now leads to that table.
+- **Chapter 9** gains *Trap kinds*: the RTF-4 kinds, with the slice-assignment case of `BOUNDS` from FUN-24. It notes that the host usually learns only that a trap happened (PLT-10, and `03 00 00` or `6F00` in the Base Profile).

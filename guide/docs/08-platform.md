@@ -19,6 +19,30 @@ A platform API is called like any function, and follows the same rules:
 - **Results go into `inout` views.** An API that produces bytes writes them into a view you pass, and returns how many it wrote. A view that is too small is `CardError.Capacity`, and nothing is written.
 - **Choices are enums.** Each family of algorithms has its own enum, such as `SignatureAlgorithm.EcdsaP256Sha256`, so passing a digest algorithm where a signature algorithm belongs is a compile error.
 
+## The platform's errors
+
+The platform's errors are the members of `CardError`, each with a code fixed by the Base Profile (*BP-12*):
+
+| Member | Code | Returned when |
+|---|---|---|
+| `CardError.Overflow` | `0001` | A checked addition or multiplication is too large |
+| `CardError.Underflow` | `0002` | A checked subtraction is too small |
+| `CardError.DivisionByZero` | `0003` | A checked division or remainder by zero |
+| `CardError.ConversionRange` | `0004` | `checked_convert`: the value does not fit |
+| `CardError.NotFound` | `0010` | No key or operation has that identifier |
+| `CardError.AlreadyExists` | `0011` | Creating a key or operation whose identifier is in use |
+| `CardError.WrongResourceType` | `0012` | The identifier names the wrong kind of resource, or a key of a type the API does not accept |
+| `CardError.InvalidState` | `0013` | A multi-part operation used out of order |
+| `CardError.Capacity` | `0014` | No room: for another key, or in the output view |
+| `CardError.Unsupported` | `0020` | An algorithm, size or value the platform does not provide |
+| `CardError.Malformed` | `0021` | Input that is not well-formed, such as a key of the wrong length or out of range |
+
+- **Each API returns only some of them.** The Base Profile's [catalog](https://github.com/cardlang/cardlang/blob/main/platform/base-catalog.txt) lists the errors of every API, and VS Code shows them when it completes a `card.…` call.
+- **When several apply,** an API returns the first in a fixed order: `NotFound`, `AlreadyExists`, `WrongResourceType`, `InvalidState`, `Unsupported`, `Malformed`, `Capacity` (*BP-8*).
+- **A failed call changes nothing:** no output is written, and no resource is created or deleted (*BP-7*).
+- **An API never traps because of its arguments' values** (*BP-9*). Whatever it can detect, it reports as an error, which the applet can handle.
+- **The host sees** category `02` and the code in the raw binding, or status word `6F00` plus the code in the ISO 7816 binding, as [chapter 7](07-host.md#one-outcome-two-encodings) showed.
+
 ## Keys are resources
 
 A key lives inside the platform, not in a variable. The applet names it by a number of its own choosing, a `u32` other than 0, and the platform keeps the key material. The *private* or secret part of a key can never be read out by the applet or the host: the applet can only ask the platform to use it (*PLT-33*).

@@ -177,7 +177,7 @@ The platform has its own error set, `CardError`. Its errors come from the platfo
 | `CardError.DivisionByZero` | `checked_div`, `checked_rem` |
 | `CardError.ConversionRange` | `checked_convert`, when the value does not fit |
 
-There are more, for the platform's APIs, in [chapter 8](08-platform.md). An error is either an *application* error or a *platform* error, and the host can always tell which, even when two codes are equal (*OUT-18*). In the raw binding, the envelope's first byte says which: `01` for the applet's errors, `02` for the platform's ([chapter 1](01-getting-started.md#what-the-host-receives)). An applet can catch a platform error by name, and pass it on, but never create one: `return Err(CardError.Overflow)` is an error (*OUT-19*).
+The platform's APIs add more; [chapter 8](08-platform.md#the-platforms-errors) has the full table. An error is either an *application* error or a *platform* error, and the host can always tell which, even when two codes are equal (*OUT-18*). In the raw binding, the envelope's first byte says which: `01` for the applet's errors, `02` for the platform's ([chapter 1](01-getting-started.md#what-the-host-receives)). An applet can catch a platform error by name, and pass it on, but never create one: `return Err(CardError.Overflow)` is an error (*OUT-19*).
 
 Here is a small applet that keeps a running total of one-byte amounts, and handles overflow both ways. Command `01` turns it into an error of its own; command `02` passes the platform's error on with `attempt`:
 
