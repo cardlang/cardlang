@@ -105,3 +105,25 @@ For readers who know C, embedded C or Java Card. It says what is different, and 
 - **A front-end bug the fix exposed:** `outcheck.CARD_ERROR` was a stale hand-written list, without `InvalidState`, `Unsupported` and `Malformed`. The new name checker, NAM-16, rejected `Err(CardError.Malformed)` as CE-NAM-9. The list is now `set(CARD_ERROR_CODES)` from `cardlang.platform.errors`, the profile's one table. A made-up member is still CE-NAM-9. The FIDO2 example, compiled in `run_checks`, now guards it.
 - **A test of the platform's rejection:** `run-019-keys` imports a private scalar equal to `n`, and one of zero, and both give `err platform Malformed`, on the interpreter, the Python VM and the C VM. The retry's own invalid branch cannot be triggered in a test, since that needs about 2³² draws. The chapter says so.
 - **The chapter:** stop 3 has a new part, *Not every HMAC is a key*, with the new `load_credential_key` and the bounded loop as excerpts. Stop 2's excerpt shows `require loaded`.
+
+**Chapter 10:** committed, with the FIDO2 retry.
+
+**Chapter 11, drafted 2026-11-24, waiting for the user's review (Q3):**
+- **A summary table,** then topics:
+  - memory, errors, integers and conversions, and precedence;
+  - pointers, and recursion;
+  - persistence and atomicity, and session state;
+  - the entry point, and what is left out.
+- **Each topic:** the C or Java Card way (`c` and `java` blocks, not checked), CardLang's way (checked), and the reason.
+- **The CardLang examples** are 4 fragments and 4 errors: CE-OUT-1, CE-EXP-4 (`flags & MASK == 0`), CE-TYP-5 (a view field) and CE-FUN-1. All are confirmed by the check.
+- **The Java Card facts,** checked against what Java Card guarantees:
+  - a single persistent field update is atomic, and `Util.arrayCopy` is atomic;
+  - an open transaction is aborted by the runtime;
+  - `byte` is signed, and `short` arithmetic gives `int`;
+  - transient arrays use `CLEAR_ON_DESELECT`.
+
+  These are illustrations, not compiled.
+
+**Chapter 11, review (user):**
+- **Java Card memory:** the text said "the heap is not reclaimed reliably" and "a card may never reclaim memory", which is too harsh, since modern Java Card implementations have garbage collection. It now says objects live in persistent memory, which is slow to write, and that collection is heavy, so applets usually allocate at installation.
+- **The invalid examples** were not obviously invalid. Each now has a `// does not compile: …` comment. The outcome example mirrors the C mistake (`verify_pin` ignored, then `verified = true`), and is followed by the correct version with `attempt`. The precedence example is followed by the correct `(flags & MASK) == 0`.
