@@ -77,7 +77,7 @@ add("valid/exp-007-equality-bool-enum.card", "EXP-15", "DN §3.5, §3.11", "ok",
 session mode: Mode;
 session ready: bool;
 
-function compare() -> bool {
+function check_mode() -> bool {
     var same: bool = ready == true;
     return Ok(mode != Mode.Off);
 }

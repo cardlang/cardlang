@@ -88,6 +88,7 @@ Every `command` step is followed by exactly one `expect` line:
 |---|---|
 | `expect ok` | Succeed with an empty response |
 | `expect ok <hex bytes>` | Succeed with exactly these response bytes |
+| `expect ok length <n>` | Succeed with a response of exactly `n` bytes (decimal), whatever they are. For results that are not fixed, such as signatures (profile BP-30) |
 | `expect err app <code>` | Return an application error with this decimal code |
 | `expect err platform <Member>` | Return this `CardError` member. The names are the placeholders of D-415 |
 | `expect trap <KIND>` | Trap with this kind, for example `expect trap OVERFLOW` |

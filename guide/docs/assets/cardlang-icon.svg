@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34 -86 513 513" role="img" aria-labelledby="title">
+  <title id="title">CardLang</title>
+  <g id="smart-card">
+    <path fill="#102031" d="M61 0h304l80 79v203c0 33-27 59-60 59H61C27 341 0 315 0 282V59C0 26 27 0 61 0Z"/>
+    <path fill="#C9F9EB" d="M148 90l20 25-69 68 68 67-23 24-94-91Zm153 0 94 93-93 91-23-24 67-67-67-68Z"/>
+    <path fill="#27CBA5" d="M189 148h70v68h-70z"/>
+  </g>
+</svg>

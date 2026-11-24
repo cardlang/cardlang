@@ -40,4 +40,4 @@ uv run python -I examples/fido2/check.py . --backend pyvm
 | `("trap", None)` | A command to an application that is unavailable (BP-55). A scenario checks it with a bare `expect trap` |
 | `("none",)` | No response: a power loss or a security reset |
 
-The runner turns outcomes into status words or raw envelopes for the `expect sw` and `expect raw` forms. Backends never encode bindings themselves.
+The runner turns outcomes into status words or raw envelopes for the `expect sw` and `expect raw` forms, and a success into its length for `expect ok length n`. Backends never encode bindings themselves.

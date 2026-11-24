@@ -7,7 +7,7 @@ from cardlang.front.lexcheck import lex, header
 from cardlang import layout
 from cardlang.front import project
 from cardlang.front import srcpos
-from cardlang.front import hepcheck, expcheck, consteval
+from cardlang.front import hepcheck, expcheck, consteval, namcheck
 from cardlang.front.expcheck import CE
 
 ROOT = layout.at().root
@@ -96,9 +96,7 @@ def token_paths(toks):
 class PltChecker(hepcheck.HepChecker):
     def __init__(self, toks, catalog=None):
         self.catalog = catalog if catalog is not None else load_catalog()
-        clash = declared_names(toks) & PRELUDE_NAMES                          # base types are predeclared (BP-11)
-        if clash:
-            srcpos.set_declarations(toks); raise srcpos.at(CE("CE-NAM-5"), srcpos.decl(sorted(clash)[0]))
+        namcheck.check(toks, PRELUDE)                    # chapter 3 names; the base types are predeclared (BP-11)
         super().__init__(PRELUDE + toks)
 
     def run(self):

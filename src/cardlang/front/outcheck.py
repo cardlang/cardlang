@@ -7,7 +7,8 @@ from cardlang.front import srcpos
 from cardlang.front import funcheck, expcheck, consteval
 from cardlang.front.expcheck import CE, P, p_expr, p_postfix
 
-CARD_ERROR = {"Overflow", "Underflow", "DivisionByZero", "ConversionRange", "AlreadyExists", "NotFound", "WrongResourceType", "Capacity"}
+from cardlang.platform.errors import CARD_ERROR_CODES
+CARD_ERROR = set(CARD_ERROR_CODES)          # the profile's CardError members (BP-12), from its one table
 
 class OutChecker(funcheck.FunChecker):
     def __init__(self, toks):

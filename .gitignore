@@ -47,3 +47,6 @@ __pycache__/
 
 # Third-party reference material, downloaded locally and never committed
 reference/
+
+# The guide's built site (mkdocs build)
+guide/site/

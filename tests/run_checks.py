@@ -15,6 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # with -m (a front-end module runs its chapter's conformance tests), or a script's path from the repository root.
 RUNS = [
     ("cardlang.front.lexcheck", None, "lexical results of every test, and every design-note code block"),
+    ("cardlang.front.namcheck", None, "chapter 3 name rules on nam-* tests"),
     ("cardlang.front.typecheck", None, "chapter 4 type rules on typ-* tests"),
     ("cardlang.front.consteval", None, "chapter 5 constant evaluation on cex-* tests"),
     ("cardlang.front.expcheck", None, "chapter 6 expression typing on exp-* tests"),
@@ -43,6 +44,8 @@ RUNS = [
     ("tests/semantic_check.py", None, "semantic colouring: every identifier has a kind; a pinned sample"),
     ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps"),
     ("editors/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language"),
+    ("tests/guidecheck.py", None, "the guide: every example compiles, fails as it says, or passes its scenario"),
+    ("tests/guide_reference.py", "--check", "the guide's platform reference matches the catalog, the types, CardError and RTF-4"),
     # References stay correct: links, anchors and named files in every document; paths only through layout.
     ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout"),
     # Consistency of the specification text itself.

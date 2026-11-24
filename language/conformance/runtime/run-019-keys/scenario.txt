@@ -22,6 +22,10 @@ command 05 00        # creating with identifier 0
 expect err platform Malformed
 command 07 05 04 60 fe d4 ba 25 5a 9d 31 c9 61 eb 74 c6 35 6d 68 c0 49 b8 92 3b 61 fa 6c e6 69 62 2e 60 f2 9f b6 79 03 fe 10 08 b8 bc 99 a4 1a e9 e9 56 28 bc 64 f2 f1 b2 0c 2d 7e 9f 51 77 a3 c2 94 d4 46 22 98
 expect err platform Malformed
+command 01 0a ff ff ff ff 00 00 00 00 ff ff ff ff ff ff ff ff bc e6 fa ad a7 17 9e 84 f3 b9 ca c2 fc 63 25 51      # a private scalar equal to n, the order of the curve (BP-21)
+expect err platform Malformed
+command 01 0a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00      # a private scalar of zero
+expect err platform Malformed
 command 0b 06        # a public key cannot be generated
 expect err platform Unsupported
 command 0a 01        # output view too short

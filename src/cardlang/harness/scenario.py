@@ -36,6 +36,7 @@ def raw_envelope(outcome):
 def parse_expect(words):
     if words[0] == "sw": return ("sw", int(words[1], 16))
     if words[0] == "raw": return ("raw", [int(w, 16) for w in words[1:]])
+    if words[0] == "ok" and len(words) == 3 and words[1] == "length": return ("ok-length", int(words[2]))
     if words[0] == "ok": return ("ok", [int(w, 16) for w in words[1:]])
     if words[0] == "err" and words[1] == "app": return ("err", "app", int(words[2]))
     if words[0] == "err" and words[1] == "platform": return ("err", "platform", words[2])
@@ -71,6 +72,8 @@ def run_scenario(card, text, trace=None, before=None):
         elif step == "expect":
             want = parse_expect(line[1:])
             got = ("sw", status_word(pending)) if want[0] == "sw" else ("raw", raw_envelope(pending)) if want[0] == "raw" else pending
+            if want[0] == "ok-length" and pending is not None and pending[0] == "ok":
+                got = ("ok-length", len(pending[1]))           # success with any bytes, of this length
             if trace: trace(lineno, step, line[1:], ("expect", want, got))
             if got != want:
                 return f"line {lineno}: expected {want}, got {got}"

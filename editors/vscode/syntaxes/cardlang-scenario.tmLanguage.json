@@ -6,7 +6,7 @@
   "patterns": [
     { "name": "comment.line.number-sign.cardlang-scenario", "match": "#.*$" },
     {
-      "match": "^\\s*(expect)\\b\\s*(ok|err|trap|sw|raw)?\\b\\s*(app|platform)?\\b",
+      "match": "^\\s*(expect)\\b\\s*(ok|err|trap|sw|raw)?\\b\\s*(app|platform|length)?\\b",
       "captures": {
         "1": { "name": "keyword.control.expect.cardlang-scenario" },
         "2": { "name": "constant.language.outcome.cardlang-scenario" },

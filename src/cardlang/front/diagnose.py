@@ -17,7 +17,7 @@ import sys, pathlib, re
 HERE = pathlib.Path(__file__).resolve().parent
 from cardlang.front.lexcheck import lex, LexError, header
 from cardlang import layout
-from cardlang.front import srcpos, consteval, expcheck, pltcheck, typecheck, grammar
+from cardlang.front import srcpos, consteval, expcheck, pltcheck, typecheck, grammar, namcheck
 
 ROOT = layout.at().root
 _messages = None
@@ -44,7 +44,7 @@ _grammar = None
 def check(files, binding=None, kind="application", sources=None):
     """Diagnostics for a program made of these files (paths), as an application unless kind is "fragment".
     sources maps a file's name, as str(path), to text that replaces the file's contents: an editor's unsaved text.
-    The stages: lexical structure (chapter 2); Annex A's grammar; types (chapter 4); the composed checker of
+    The stages: lexical structure (chapter 2); Annex A's grammar; names (chapter 3); types (chapter 4); the composed checker of
     chapters 3 and 6 to 12 and Annex B; then constant evaluation (chapter 5), whose CE-CEX errors the composed
     checker does not detect."""
     global _grammar
@@ -66,6 +66,8 @@ def check(files, binding=None, kind="application", sources=None):
         where = srcpos.position_of(exc)
         if where is not None and where[0] not in names: where = None     # inside the prelude or the scaffold
         return [diagnostic(str(exc), where, detail)]
+    try: namcheck.check(toks, pltcheck.PRELUDE)                            # chapter 3: names
+    except expcheck.CE as e: return located(e)
     errs, _ = typecheck.check_located(pltcheck.PRELUDE + toks)              # with the Base Profile's types
     if errs:
         code, tok = errs[0]

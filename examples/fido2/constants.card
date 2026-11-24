@@ -6,6 +6,8 @@ const MAC_KEY: u32 = 1;
 const DERIVE_KEY: u32 = 2;
 // A Command key (BP-14) holding one credential's private key during the command that uses it.
 const TEMP_KEY: u32 = 3;
+// How many credential nonces make_credential draws before it gives up (see load_credential_key).
+const MAX_NONCE_DRAWS: u32 = 4;
 // PIN protocol keys (pin.card): the key-agreement key and the token are Volatile (they end at power-off);
 // the two halves of the shared secret are Command keys (they end with the command).
 const KA_KEY: u32 = 4;

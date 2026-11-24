@@ -1,0 +1,26 @@
+/* The guide's colours, from the CardLang logo (assets/): navy #102031 and #1D3A58, teal #27CBA5, mint #C9F9EB,
+   light #E8F1F7. Text colours meet WCAG AA contrast: #127A62 on white is 5.3, #27CBA5 on the dark page about 7. */
+
+:root,
+[data-md-color-scheme="default"][data-md-color-primary="custom"] {
+  --md-primary-fg-color: #102031;
+  --md-primary-fg-color--light: #1D3A58;
+  --md-primary-fg-color--dark: #0B1724;
+  --md-primary-bg-color: #E8F1F7;
+  --md-primary-bg-color--light: #C9F9EB;
+  --md-accent-fg-color: #127A62;
+  --md-accent-fg-color--transparent: rgba(39, 203, 165, 0.12);
+  --md-typeset-a-color: #127A62;
+}
+
+[data-md-color-scheme="slate"][data-md-color-primary="custom"] {
+  --md-hue: 211;
+  --md-primary-fg-color: #102031;
+  --md-primary-fg-color--light: #1D3A58;
+  --md-primary-fg-color--dark: #0B1724;
+  --md-primary-bg-color: #E8F1F7;
+  --md-primary-bg-color--light: #C9F9EB;
+  --md-accent-fg-color: #C9F9EB;
+  --md-accent-fg-color--transparent: rgba(39, 203, 165, 0.16);
+  --md-typeset-a-color: #27CBA5;
+}

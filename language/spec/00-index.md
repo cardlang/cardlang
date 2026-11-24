@@ -1,6 +1,6 @@
 # CardLang Language Specification — Draft 0.2
 
-This is the normative specification of the CardLang language.
+This is the normative specification of the CardLang language. To learn the language, start with **[the CardLang Guide](https://cardlang.github.io/cardlang/)**, which teaches it by example and names the rules of this specification as it goes.
 
 **Draft 0.2 (2026-11-19).** What changed since Draft 0.1 is in `language/releases/draft-0.2.md`. The CardLang Base Profile 1, a platform specification, is in `platform/`.
 

@@ -3,6 +3,8 @@
 Write, build, run and debug CardLang smart-card applets in VS Code. The extension is a thin client: the language
 server, the build tools and the debug adapter are commands of the `cardlang` package in the CardLang repository, run through `uv`.
 
+New to CardLang? The first chapter of **[the CardLang Guide](https://cardlang.github.io/cardlang/01-getting-started/)** installs the tools, and builds, runs and debugs a first applet with this extension.
+
 ## Features
 
 | | |
@@ -99,7 +101,7 @@ power_on
 select
 expect sw 9000
 command 80 10 00 00 04        # a command's bytes, in hex; "capacity n" sets the response buffer
-expect sw 9000                # or: expect ok <bytes>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
+expect sw 9000                # or: expect ok <bytes>, expect ok length <n>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
 ```
 
 The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <hex>` (the test random generator) and `interrupt` (a power loss at the next commit). The format is described in `src/cardlang/harness/README.md`.
