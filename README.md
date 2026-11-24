@@ -54,47 +54,32 @@ Key properties of the language:
 - **A single entry point.** One `command` receives the request bytes and writes the response. The language has no transport, status words or dispatch of its own.
 - **A static, acyclic call graph.** There is no recursion, so stack needs and transaction nesting can be checked before the program runs.
 
-## Getting started in VS Code
+## The VM at a glance
 
-The VS Code extension is the easiest way into CardLang: open an example applet, read it with highlighting and errors as you type, build it, run it, and step through it in a debugger.
+Applets run on the CardLang VM, small enough for deeply embedded targets: it is written in portable C, with no heap and no recursion. Roughly:
 
-**1. Set up the repository and the extension.** You need [uv](https://docs.astral.sh/uv/) and VS Code. Clone this repository, and from its root run:
+- **Code:** around 20 KB for the VM, the interpreter and its native library.
+- **VM state:** around 250 bytes.
+- **C stack:** a single-digit number of kilobytes, at most.
+- **The applet's own needs:** its stack and its global state, which depend on the applet. They are known exactly when it is built: `clc build` reports them, so you can fit an applet to your budget.
 
-```bash
-uv sync
-```
+These leave out what the device's platform supplies itself: its hardware layer, its cryptography, and the driver for its persistent storage. The VM's design is in [`vm/`](vm/README.md).
 
-`uv sync` installs the CardLang toolchain into the repository's environment. The extension runs it from there. Then download `cardlang-<version>.vsix` from the [latest release of the extension](https://github.com/cardlang/cardlang/releases), and install it:
+## The CardLang Guide
 
-```bash
-code --install-extension cardlang-<version>.vsix
-```
+**[The CardLang Guide](https://cardlang.github.io/cardlang/)** teaches the language by building one applet, a small PIN-protected store for a secret, chapter by chapter: from a first counter to persistent state, transactions, signing keys, testing and debugging, and a guided reading of the FIDO2 example. Every example in it is compiled and run by the repository's checks. It ends with a chapter for readers coming from C or Java Card, and a reference of the platform's APIs.
 
-To build the extension yourself instead, with Node.js and npm, see its [README](editors/vscode/README.md#installing).
+## The VS Code extension
 
-**2. Open the repository folder in VS Code,** then open `examples/fido2/ctap.card`, a FIDO2 authenticator's command handlers.
-- **Errors as you type:** change a type or misspell a name, and the error appears at once, with its code from the specification (`CE-EXP-4`) and its message.
-- **Go to definition:** F12 or Ctrl+click on any name, across the applet's files and into the platform's types.
-- **Completion:** type `card.` to see the platform's APIs, with their signatures and documentation.
+The CardLang extension for VS Code is the easiest way into the language:
 
-**3. Build the applet.** With a `.card` file of the applet open, run **CardLang: Build Applet** from the command palette, or click the package icon. It checks the whole applet, writes the compiled image to `examples/fido2/build/fido2.clvm`, and prints its size and stack need. Errors go to the Problems panel.
+- **Highlighting**, and colouring by meaning, for applets and scenario files.
+- **Errors as you type,** across all of an applet's files, each with its code from the specification.
+- **Go to definition and completion,** including the platform's APIs, with their signatures, errors and documentation.
+- **Build, check and run** an applet, and its scenarios, from the editor.
+- **A debugger:** breakpoints in the applet and in scenarios, stepping, the call stack, variables and persistent state, and stops on traps and failed expectations.
 
-**4. Run it.** Open `examples/fido2/getinfo.scenario`. A scenario plays the host side: it selects the applet, sends commands, and states the responses it expects. Run **CardLang: Run Scenario** (the play icon) to see every step and its outcome.
-
-**5. Debug it.** Set a breakpoint in `get_info` in `ctap.card`, open the scenario again, and press F5. The debugger stops in the applet. You can then:
-- step by statement: over (F10), in (F11) and out (Shift+F11);
-- see the call stack, the parameters and locals, the `session` and `persistent` globals, and the request and response bytes;
-- turn on the **Traps** or **Failed expectations** breakpoints, in the Breakpoints panel, to stop where a trap happens or an `expect` fails.
-
-**6. Write your own.** An applet is a folder with a `cardlang.json` that lists its files in build order:
-
-```json
-{ "name": "counter", "files": ["counter.card"], "binding": "raw" }
-```
-
-The extension's [README](editors/vscode/README.md) covers the scenario format, debugging configurations and settings. The same tools work from a terminal, as `uv run clc check`, `build`, `disasm` and `run`.
-
-To learn the language itself, continue with **[the CardLang Guide](https://cardlang.github.io/cardlang/)**, which teaches it by building one applet, chapter by chapter.
+It needs a clone of this repository, with `uv sync` run once, and [uv](https://docs.astral.sh/uv/). Download `cardlang-<version>.vsix` from the [latest release of the extension](https://github.com/cardlang/cardlang/releases), and install it from the Extensions view. [Chapter 1 of the guide](https://cardlang.github.io/cardlang/01-getting-started/) walks through installing it, and building, running and debugging a first applet; the [extension's README](editors/vscode/README.md) covers its settings and the scenario format.
 
 ## Repository layout
 
