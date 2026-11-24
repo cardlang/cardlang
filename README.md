@@ -63,7 +63,7 @@ Applets run on the CardLang VM, small enough for deeply embedded targets: it is 
 - **C stack:** a single-digit number of kilobytes, at most.
 - **The applet's own needs:** its stack and its global state, which depend on the applet. They are known exactly when it is built: `clc build` reports them, so you can fit an applet to your budget.
 
-These leave out what the device's platform supplies itself: its hardware layer, its cryptography, and the driver for its persistent storage. The VM's design is in [`vm/`](vm/README.md).
+These leave out what the device's platform supplies itself: its hardware layer, its cryptography, and the driver for its persistent storage.
 
 ## The CardLang Guide
 
