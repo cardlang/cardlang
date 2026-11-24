@@ -50,21 +50,7 @@ A good scenario follows every `command` with an `expect`, and tests the failures
 
 ### Trap kinds
 
-A trap has a *kind*, which says what went wrong. Scenarios name it in `expect trap`, and `clc run` and the debugger show it (*RTF-4*):
-
-| Kind | The command did |
-|---|---|
-| `OVERFLOW` | Arithmetic above its type's maximum, or the signed minimum divided by −1 |
-| `UNDERFLOW` | Arithmetic below its type's minimum, such as an unsigned subtraction below zero |
-| `DIV-ZERO` | A division or remainder by zero, with `/` or `%` |
-| `NEGATION` | Negated the signed minimum |
-| `SHIFT` | A shift by at least the width of its operand |
-| `BOUNDS` | An index or a slice out of range, or slice assignments of different lengths |
-| `RESPONSE-COUNT` | Returned `Ok(count)` with a count larger than the response |
-| `TXN-CAPACITY` | Exceeded what the device can hold in one transaction, or write atomically |
-| `COMMIT` | A commit the platform could not complete |
-| `EXHAUSTED` | Ran out of the execution budget the device allows one command |
-| `NESTED-TXN`, `VM` | Never, in an applet the compiler accepted: these guard the platform itself |
+A trap has a *kind*, which says what went wrong: `BOUNDS` for an index out of range, `OVERFLOW` for arithmetic that does not fit, and so on (*RTF-4*). Scenarios name it in `expect trap`, and `clc run` and the debugger show it. The [platform reference](reference-platform.md#trap-kinds) lists every kind.
 
 The kind is for you, while testing and debugging. The host, on the other hand, usually learns only that a trap happened: in the Base Profile, it gets category `03` with code `00 00`, or status word `6F00`, whatever the kind (*PLT-10*). That is one more reason why anything the host can cause should be an `Err`, which it can tell apart, and not a trap.
 

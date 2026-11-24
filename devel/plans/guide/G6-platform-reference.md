@@ -75,3 +75,16 @@ The two tables are replaced by links (Q3 b):
 - Q2 (a): a committed, generated page, with `--check` in `run_checks`.
 - Q3 (b): chapters 8 and 9 replace their tables with links to the reference.
 - Q4 (a): a block per API.
+
+## 5. Done (2026-11-24, uncommitted, waiting for the user's review)
+
+- **`tests/guide_reference.py`** writes `guide/docs/reference-platform.md`, and is in `run_checks` with `--check`. The page has:
+  - all 36 APIs, by family, as blocks (Q4): the signature, the catalog's summary, types linked to their declarations, errors in precedence order linked to their rows, transaction behaviour, resources, and non-default failure and permission;
+  - the profile's types, in the groups of `base-types.card`, each group with its comment. The file's own header comment is left out;
+  - the `CardError` table (BP-12);
+  - the trap kinds (RTF-4).
+- **Injection:** an edited catalog summary, a removed `CardError` row, and a hand edit to the page each failed `--check`.
+- **Chapters 8 and 9** dropped their tables for links (Q3). Chapter 8 kept its prose about errors, and chapter 9 its prose about trap kinds. Chapter 5's pointer and chapter 8's catalog links now go to the reference. Chapter 5's four-row table of checked-arithmetic errors stays, as a teaching table.
+- **The navigation** gains a *Reference* section, and the front page and `guide/README.md` list the page.
+- **Found:** RTF-4's `BOUNDS` row does not mention slice assignments of different lengths, which FUN-24 makes `trap(BOUNDS)`. Chapter 9's hand table had added it; the generated page follows RTF-4. Fixing RTF-4 is offered to the user.
+- **RTF-4 fixed (user):** the `BOUNDS` row now names slice assignments whose sides differ in length, and cites FUN-24. The reference was regenerated from it; `--check` failed until then, as it should.

@@ -53,7 +53,7 @@ Keeping session state consistent with persistent state after a trap is the appli
 | `DIV-ZERO` | The divisor of `/` or `%` is zero | EXP-24 |
 | `NEGATION` | The signed minimum is negated | EXP-25 |
 | `SHIFT` | A shift count is at least the width of the left operand | EXP-26 |
-| `BOUNDS` | An index, a slice, an element reference, or the argument length of `decode_be`/`decode_le` is out of range | EXP-37, EXP-39, STM-9, FUN-11, FUN-20 |
+| `BOUNDS` | An index, a slice, an element reference, or the argument length of `decode_be`/`decode_le` is out of range, or the two sides of a slice assignment differ in length | EXP-37, EXP-39, STM-9, FUN-11, FUN-20, FUN-24 |
 | `RESPONSE-COUNT` | The command returns a count larger than `response.length` | HEP-9 |
 | `TXN-CAPACITY` | A capacity of the target is exceeded at runtime: a transaction's capacity, or the atomic-update capacity for a destination whose size is known only at runtime | TXN-16, STA-13 |
 | `COMMIT` | A commit fails in a way the platform contains | TXN-12 |

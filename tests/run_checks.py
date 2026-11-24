@@ -45,6 +45,7 @@ RUNS = [
     ("tests/dap_check.py", None, "debug adapter: breakpoints, stepping, stack, variables, traps"),
     ("editors/vscode/check_extension.py", None, "VS Code extension: grammars, keywords and steps match the language"),
     ("tests/guidecheck.py", None, "the guide: every example compiles, fails as it says, or passes its scenario"),
+    ("tests/guide_reference.py", "--check", "the guide's platform reference matches the catalog, the types, CardError and RTF-4"),
     # References stay correct: links, anchors and named files in every document; paths only through layout.
     ("tests/linkcheck.py", None, "links, anchors and named files in every document; repository paths only through layout"),
     # Consistency of the specification text itself.

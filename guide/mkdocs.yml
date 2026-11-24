@@ -62,3 +62,5 @@ nav:
   - 9. Testing and debugging: 09-testing-and-debugging.md
   - 10. A real applet: 10-a-real-applet.md
   - 11. Coming from C or Java Card: 11-coming-from-c.md
+  - Reference:
+      - Platform reference: reference-platform.md

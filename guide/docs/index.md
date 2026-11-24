@@ -74,10 +74,13 @@ The chapters build one applet, the *vault*: a small store for a secret, protecte
 10. [A real applet](10-a-real-applet.md): a guided reading of a FIDO2 authenticator.
 11. [Coming from C or Java Card](11-coming-from-c.md): what is different, and why.
 
+The [platform reference](reference-platform.md) lists every API of the platform, its types, its errors and the kinds of trap.
+
 ## Where to start
 
 - **New to CardLang:** start with [chapter 1](01-getting-started.md), and read in order. Each chapter builds on the ones before.
 - **Coming from C or Java Card,** and want the differences first: read [chapter 11](11-coming-from-c.md), then go back to chapter 1.
+- **Looking up an API, an error or a trap kind:** go to the [platform reference](reference-platform.md).
 - **Looking for an exact rule:** go to the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md).
 
 The guide explains; the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md) decides. When the guide relies on a rule, it names it, as in *EXP-14*, so you can look up the exact wording. Where the two seem to disagree, the specification is right, and the guide has a bug.

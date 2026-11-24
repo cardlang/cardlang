@@ -4,7 +4,7 @@ So far the vault has used only the language. Real applets lean on the platform f
 
 ## The platform's APIs
 
-The platform's services are functions named `card.<family>.<name>`, described in the Base Profile and listed with their exact signatures in its [catalog](https://github.com/cardlang/cardlang/blob/main/platform/base-catalog.txt):
+The platform's services are functions named `card.<family>.<name>`, described in the Base Profile. The [platform reference](reference-platform.md) lists every one, with its exact signature:
 
 | Family | For |
 |---|---|
@@ -21,23 +21,9 @@ A platform API is called like any function, and follows the same rules:
 
 ## The platform's errors
 
-The platform's errors are the members of `CardError`, each with a code fixed by the Base Profile (*BP-12*):
+The platform's errors are the members of `CardError`, such as `CardError.NotFound` and `CardError.Capacity`, each with a code fixed by the Base Profile (*BP-12*). The [platform reference](reference-platform.md#the-platforms-errors) lists them all, with their codes.
 
-| Member | Code | Returned when |
-|---|---|---|
-| `CardError.Overflow` | `0001` | A checked addition or multiplication is too large |
-| `CardError.Underflow` | `0002` | A checked subtraction is too small |
-| `CardError.DivisionByZero` | `0003` | A checked division or remainder by zero |
-| `CardError.ConversionRange` | `0004` | `checked_convert`: the value does not fit |
-| `CardError.NotFound` | `0010` | No key or operation has that identifier |
-| `CardError.AlreadyExists` | `0011` | Creating a key or operation whose identifier is in use |
-| `CardError.WrongResourceType` | `0012` | The identifier names the wrong kind of resource, or a key of a type the API does not accept |
-| `CardError.InvalidState` | `0013` | A multi-part operation used out of order |
-| `CardError.Capacity` | `0014` | No room: for another key, or in the output view |
-| `CardError.Unsupported` | `0020` | An algorithm, size or value the platform does not provide |
-| `CardError.Malformed` | `0021` | Input that is not well-formed, such as a key of the wrong length or out of range |
-
-- **Each API returns only some of them.** The Base Profile's [catalog](https://github.com/cardlang/cardlang/blob/main/platform/base-catalog.txt) lists the errors of every API, and VS Code shows them when it completes a `card.…` call.
+- **Each API returns only some of them.** The [platform reference](reference-platform.md) gives every API with its errors, and VS Code shows them when it completes a `card.…` call.
 - **When several apply,** an API returns the first in a fixed order: `NotFound`, `AlreadyExists`, `WrongResourceType`, `InvalidState`, `Unsupported`, `Malformed`, `Capacity` (*BP-8*).
 - **A failed call changes nothing:** no output is written, and no resource is created or deleted (*BP-7*).
 - **An API never traps because of its arguments' values** (*BP-9*). Whatever it can detect, it reports as an error, which the applet can handle.
