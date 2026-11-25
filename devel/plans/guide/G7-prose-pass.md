@@ -83,3 +83,33 @@ The chapters are edited in batches (Q4). For each:
 - Q2 (a): contractions, in moderation.
 - Q3 (c): the *What next* sections are removed.
 - Q4 (a): four review batches.
+
+## 5. The style sheet, by example
+
+Pairs from the first batch:
+
+| Before | After |
+|---|---|
+| "- **`require`** checks a condition, and returns the error after `else` if it does not hold (*STM-19*)." | "The two `require` lines guard the rest of the command (*STM-19*). If the request isn't exactly one byte long, or there's no room for a 4-byte answer, the command returns the error named after `else`." |
+| "A *scenario* plays the host: it sends commands and states the answers it expects." | "A *scenario* plays the part of the host, sending commands and stating the answer it expects to each one." |
+| "That is what lets the compiler tell you, before the applet ever runs, exactly how much memory it needs." | "Because of that, the compiler knows how much memory an applet needs before it ever runs." |
+| "In this chapter you install the tools and write your first applet: the start of the *vault*…" | "By the end of this chapter you'll have the tools installed and an applet of your own running." |
+| "- **The bounds are evaluated once,** before the first run." (four bold bullets) | "The two ends of the range are worked out once, before the first pass…" (one paragraph) |
+
+## 6. Progress
+
+**Batch 1, 2026-11-25 (front page, chapters 1 to 3), waiting for the user's review:**
+- **Rewritten as prose:** every bullet list that explained code or listed facts. The front page's chapter list is a real list, and stays.
+- **Removed:** the *What next* sections. Two exercises' ideas are gone with them; none was needed by a later chapter.
+- **House rule:** chapter 2's two comparisons with C ("as unsigned arithmetic does in C", "Unlike in C") are gone. Comparisons belong in chapter 11.
+- **Kept, byte for byte:** every code block and check comment. `guidecheck`'s counts are the same as before: 24 programs, 36 fragments, 28 errors, 16 scenarios and 7 excerpts.
+- **Rule citations:** the same set per chapter as on `main`, except the front page's example citation, *EXP-14*, which became *EXP-2* to match chapter 11.
+- **Anchors** that other chapters link to are kept: *Applets, platforms and hosts*, *Your first applet*, *What the host receives*, *Integers*, *Constants*, *Enums*, *Default values* and *An applet's files*. The link check passes.
+
+| Measure (chapters 1 to 3) | Before | After |
+|---|---|---|
+| Bullets | 58 | 0 |
+| Bold-lead bullets | 50 | 0 |
+| Colon introducing a clause | 51 | 8 |
+| "That is why/what" | 3 | 0 |
+| "exactly" | 6 | 2 |

@@ -1,12 +1,12 @@
 # The CardLang Guide
 
-CardLang is a small, statically typed language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and smart-card applets. This guide calls them all *applets*, and teaches you to write them.
+CardLang is a small, statically typed language for secure applications that run isolated on small devices. Think of a trusted application on a microcontroller, code in a TrustZone secure world or in a partition walled off by the memory protection unit, or a smart-card applet. This guide calls all of them *applets*, and shows you how to write one.
 
-It assumes you have programmed before, in C, Python, Java or something similar. You don't need to know embedded or security programming: the guide explains what matters as it comes up.
+You'll need to have programmed before, in C, Python, Java or something like them. Embedded or security experience isn't required, and the guide explains what matters when it comes up.
 
 ## A first look
 
-Here is a whole applet: a counter that a host can read and increment, and that keeps its value when the device loses power.
+This is a complete applet. It keeps a counter that a host can read and increment, and the counter survives when the device loses power.
 
 <!-- check: program counter -->
 ```cardlang
@@ -37,7 +37,7 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-A host talks to it one request at a time. This *scenario* plays the host: it installs the applet, sends requests, and states the responses it expects.
+A host talks to the applet one request at a time. To try it without a device, you write a *scenario*, which plays the host. This one installs the applet, sends three requests and says what each answer should be.
 
 <!-- check: scenario counter -->
 ```scenario
@@ -51,7 +51,7 @@ command 07              # an operation the counter does not know
 expect err app 2
 ```
 
-Every example in this guide is checked like this one, so you can trust that it compiles and does what the text says. The compiler also catches mistakes before a program ever runs. Mixing two different operators without parentheses, for example, is an error:
+Every example in the guide is checked this way, so it compiles and behaves as the text says it does. Many mistakes never get as far as running. The compiler rejects this line, for instance, because it mixes two operators without parentheses:
 
 <!-- check: error CE-EXP-4 -->
 ```cardlang
@@ -60,7 +60,7 @@ const MIXED: u32 = 1 + 2 * 3;
 
 ## How the guide is organised
 
-The chapters build one applet, the *vault*: a small store for a secret, protected by a PIN, from a few lines to a complete program.
+Over the chapters you build one applet, the *vault*, a small PIN-protected store for a secret. It starts as a few lines and ends as a complete program.
 
 1. [Getting started](01-getting-started.md): install the tools, then build, run and debug your first applet.
 2. [Values and types](02-values-and-types.md): integers without implicit conversion, arrays and slices, structures, enums, and default values.
@@ -74,13 +74,10 @@ The chapters build one applet, the *vault*: a small store for a secret, protecte
 10. [A real applet](10-a-real-applet.md): a guided reading of a FIDO2 authenticator.
 11. [Coming from C or Java Card](11-coming-from-c.md): what is different, and why.
 
-The [platform reference](reference-platform.md) lists every API of the platform, its types, its errors and the kinds of trap.
+After the chapters comes the [platform reference](reference-platform.md), with every API of the platform, its types, its errors and the kinds of trap.
 
 ## Where to start
 
-- **New to CardLang:** start with [chapter 1](01-getting-started.md), and read in order. Each chapter builds on the ones before.
-- **Coming from C or Java Card,** and want the differences first: read [chapter 11](11-coming-from-c.md), then go back to chapter 1.
-- **Looking up an API, an error or a trap kind:** go to the [platform reference](reference-platform.md).
-- **Looking for an exact rule:** go to the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md).
+If CardLang is new to you, start with [chapter 1](01-getting-started.md) and read the chapters in order, since each one builds on the last. Readers who know C or Java Card may prefer to begin with [chapter 11](11-coming-from-c.md), which lists the differences, and then go back to chapter 1. To look up an API, an error or a trap kind, use the [platform reference](reference-platform.md).
 
-The guide explains; the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md) decides. When the guide relies on a rule, it names it, as in *EXP-14*, so you can look up the exact wording. Where the two seem to disagree, the specification is right, and the guide has a bug.
+The guide explains the language, and the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md) defines it. Whenever the guide relies on a rule, it gives the rule's name, such as *EXP-2*, so you can look up the exact wording. If the two ever seem to disagree, trust the specification, and treat it as a bug in the guide.
