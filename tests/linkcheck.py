@@ -28,7 +28,8 @@ from cardlang import layout
 IGNORE = "<!-- linkcheck: ignore -->"
 EXTENSIONS = {".md", ".py", ".card", ".txt", ".json", ".c", ".h", ".js", ".toml", ".cmake", ".scenario", ".clvm", ".lock",
               ".yml", ".yaml", ".bin", ".dll", ".so", ".exe", ".html", ".svg", ".png", ".ini"}
-SKIP_DIRS = {".git", ".venv", "node_modules", "build", "reference", "__pycache__", "_deps"}
+SKIP_DIRS = {".git", ".venv", "node_modules", "build", "reference", "__pycache__", "_deps",
+             "toolchain"}                       # build outputs; toolchain: the extension's bundle, made when it is packaged
 SOURCES = (".card", ".c", ".h", ".py", ".js")                                  # source files whose named paths are checked (5)
 GENERATED = {".vsix", ".clvm", ".dll", ".so", ".exe", ".lib", ".obj", ".o"}      # build outputs a document may name
 
