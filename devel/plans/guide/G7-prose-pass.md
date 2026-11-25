@@ -178,3 +178,8 @@ Pairs from the first batch:
 | *What next* sections | 10 | 0 |
 
 Every example, scenario, excerpt and rule citation is unchanged, and so are `guidecheck`'s counts: 24 programs, 36 fragments, 28 errors, 16 scenarios and 7 excerpts.
+
+**The README (user's request, 2026-11-25):** the same pass.
+- **Rewritten as paragraphs:** the list of what the repository holds, the language's key properties, and the extension's features.
+- **The VM's figures** stay a short list, without bold leads.
+- **Unchanged:** the code block, the tables, every link and the licence facts. The link check passes.
