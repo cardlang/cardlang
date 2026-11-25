@@ -19,7 +19,7 @@ const OFFSET: i16 = -200;
 A literal has no type of its own. It takes the type of the place it's used in, and it has to fit there (*EXP-7*, *EXP-10*), so this is an error:
 
 <!-- check: error CE-EXP-2 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-2"
 const TOO_BIG: u8 = 300;
 ```
 
@@ -28,7 +28,7 @@ const TOO_BIG: u8 = 300;
 CardLang never converts from one integer type to another unless you ask. Mixing two types in one expression is an error, even where the conversion would be harmless:
 
 <!-- check: error CE-EXP-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-1"
 function total(small: u8, large: u32) -> u32 {
     return Ok(small + large);
 }
@@ -50,7 +50,7 @@ function conversions(small: u8, large: u32) -> u32 {
 `convert<T>(x)` is for conversions that always fit, such as `u8` to `u32` or `u16` to `i32`. If the value might not fit, `convert` won't compile:
 
 <!-- check: error CE-EXP-8 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-8"
 function narrow(large: u32) -> u8 {
     return Ok(convert<u8>(large));
 }
@@ -77,7 +77,7 @@ function arithmetic(a: u8, b: u8) -> u8 {
 `bool` has the two values `true` and `false`, and the logical operators are the words `and`, `or` and `not`. A condition has to be a `bool`. Zero doesn't mean false, and an integer is never a condition (*STM-11*):
 
 <!-- check: error CE-EXP-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-1"
 function check(count: u8) -> bool {
     if count {
         return Ok(true);
@@ -102,14 +102,14 @@ const BLOCKS: u32 = 4;
 The compiler works out every constant itself, so a constant that overflows or divides by zero is a compile error, not a trap:
 
 <!-- check: error CE-CEX-3 -->
-```cardlang
+```cardlang title="Does not compile: CE-CEX-3"
 const TOTAL: u8 = 200 + 100;
 ```
 
 There's no operator precedence in CardLang. You can't mix two different binary operators without parentheses (*EXP-2*), so the way an expression groups is always visible in the code:
 
 <!-- check: error CE-EXP-4 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-4"
 const MIXED: u32 = 1 + 2 * 3;
 ```
 
@@ -174,7 +174,7 @@ function build_frame() -> bool {
 Both ends of a slice are checked like an index. When you assign to a slice, both sides must have the same length. Chapter 1 already did this, in `response[0..4] = encode_be(counter)`. What you can't do is keep a slice in a variable, since it only lives as long as the statement it's in:
 
 <!-- check: error CE-FUN-5 -->
-```cardlang
+```cardlang title="Does not compile: CE-FUN-5"
 function head(frame: u8[8]) -> u8 {
     var first: u8[2] = frame[0..2];
     return Ok(first[0]);
@@ -238,7 +238,7 @@ You always write a variant together with its enum, as in `Light.Red`. Enums can 
 A `match` has to list every variant, once each (*STM-16*). It has no default arm, and that's useful: add a variant to an enum, and the compiler shows you every `match` that needs a new arm.
 
 <!-- check: error CE-STM-4 -->
-```cardlang
+```cardlang title="Does not compile: CE-STM-4"
 enum Light {
     Red;
     Amber;
@@ -260,7 +260,7 @@ function stop(light: Light) -> bool {
 Variants don't have numbers (*TYP-11*). `Light.Red` isn't 0, and you can't convert an enum to an integer or back:
 
 <!-- check: error CE-EXP-8 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-8"
 enum Light {
     Red;
     Amber;

@@ -37,6 +37,9 @@ theme:
     - search.highlight
     - toc.follow
 
+hooks:
+  - hooks.py
+
 extra_css:
   - stylesheets/cardlang.css
 

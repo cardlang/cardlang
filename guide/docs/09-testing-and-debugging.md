@@ -90,7 +90,7 @@ Scenarios run on one of the toolchain's implementations of the CardLang platform
 Suppose the loop over the digits in `check_pin_format` had been written to start at 1 instead of 0:
 
 <!-- check: none -->
-```cardlang
+```cardlang title="Contains a bug"
     for index: u32 in 1..candidate.length {
 ```
 

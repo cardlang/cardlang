@@ -32,7 +32,7 @@ function withdraw(amount: u32) -> u32 {
 An outcome isn't a value (*OUT-2*). You can't put it in a variable, pass it as an argument or keep it for later:
 
 <!-- check: error CE-EXP-14 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-14"
 function average(a: u32, b: u32) -> u32 {
     return Ok((a + b) / 2);
 }
@@ -57,7 +57,7 @@ It has to be dealt with there and then, and there are four ways to do it.
 A call that uses none of them won't compile (*OUT-7*):
 
 <!-- check: error CE-OUT-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-OUT-1"
 session total: u32;
 
 function add(amount: u32) {
@@ -152,7 +152,7 @@ An applet declares all its errors in a single `errors` declaration, and gives ea
 The host sees the code, so treat the codes as part of your protocol. Once an applet is in use, a code has to keep its meaning in every later version, and a code that belonged to a removed error must not be reused (*OUT-17*). Zero is never a valid code:
 
 <!-- check: error CE-OUT-7 -->
-```cardlang
+```cardlang title="Does not compile: CE-OUT-7"
 errors VaultError {
     MalformedRequest = 0;
 }

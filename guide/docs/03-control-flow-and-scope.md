@@ -11,7 +11,7 @@ The body of a function, an `if` or a loop is a *block*, a list of statements in 
 An expression on its own isn't a statement (*STM-2*). `total + 1;` would compute a value and then throw it away, which is nearly always a mistake, so CardLang rejects it:
 
 <!-- check: error CE-STM-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-STM-1"
 function example(total: u32) {
     total + 1;
     return Ok();
@@ -117,7 +117,7 @@ Loops can't be labelled, so a `break` only ever leaves one loop. There's also no
 The compiler never adds a `return` for you (*STM-21*). It checks that no path through a function can run off the end of its body, and it decides that from the shape of the code alone:
 
 <!-- check: error CE-STM-5 -->
-```cardlang
+```cardlang title="Does not compile: CE-STM-5"
 function sign(value: i32) -> i8 {
     if value < 0 {
         return Ok(-1);
@@ -134,7 +134,7 @@ When `value` is zero, this function runs off the end. Even if the conditions did
 A local variable can be used from its declaration to the end of the block it's declared in. A new name can't be the same as one that's already visible at that point, whether that's a global, a parameter, or a local of an enclosing block (*NAM-21*). Since nothing can be shadowed, a name always means the same thing throughout a function.
 
 <!-- check: error CE-NAM-3 -->
-```cardlang
+```cardlang title="Does not compile: CE-NAM-3"
 persistent count: u32;
 
 function example() -> u32 {

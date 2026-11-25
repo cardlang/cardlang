@@ -54,7 +54,7 @@ expect err app 2
 Every example in the guide is checked this way, so it compiles and behaves as the text says it does. Many mistakes never get as far as running. The compiler rejects this line, for instance, because it mixes two operators without parentheses:
 
 <!-- check: error CE-EXP-4 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-4"
 const MIXED: u32 = 1 + 2 * 3;
 ```
 

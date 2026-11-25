@@ -57,7 +57,7 @@ Every answer ends with a two-byte *status word*. `9000` means success, and other
 In this binding an applet's error codes *are* its status words. Every code therefore has to lie in `6200`–`6EFF` or `9100`–`9FFF` (*BP-52*), which keeps the applet's codes away from `9000`, and from the `6Fxx` range that the platform uses for its own errors and for traps. Any other code is rejected when the applet is built:
 
 <!-- check: error BP-52 binding=iso7816 -->
-```cardlang
+```cardlang title="Does not compile: BP-52"
 errors PinError {
     WrongPin = 4;
 }

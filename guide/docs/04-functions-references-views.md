@@ -61,7 +61,7 @@ You can call a function before its declaration, and from any of the applet's fil
 A function can't call itself, either directly or by way of other functions (*FUN-5*):
 
 <!-- check: error CE-FUN-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-FUN-1"
 function countdown(n: u32) {
     if n > 0 {
         attempt countdown(n - 1);
@@ -77,7 +77,7 @@ Without recursion, the compiler can find the deepest chain of calls an applet ca
 You can't put a call inside the arguments of another call (*EXP-49*):
 
 <!-- check: error CE-EXP-7 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-7"
 function average(a: u32, b: u32) -> u32 {
     var sum: u32 = a + b;
     return Ok(sum / 2);
@@ -131,7 +131,7 @@ Small values such as numbers are best passed by value. The function gets a copy 
 The compiler checks the modes. It rejects a call that leaves out an `inout`, and a function that writes through a `ref`:
 
 <!-- check: error CE-FUN-2 -->
-```cardlang
+```cardlang title="Does not compile: CE-FUN-2"
 function reset(value: inout u32) {
     value = 0;
     return Ok();
@@ -145,7 +145,7 @@ function example() {
 ```
 
 <!-- check: error CE-STM-2 -->
-```cardlang
+```cardlang title="Does not compile: CE-STM-2"
 function reset(value: ref u32) {
     value = 0;
     return Ok();
@@ -203,7 +203,7 @@ You can pass a whole array of any length as a view, or a slice. A slice isn't co
 Only parameters can be views. A variable, a field or a function's result can't have a view type, because a view lives only as long as the call, like any reference:
 
 <!-- check: error CE-TYP-5 -->
-```cardlang
+```cardlang title="Does not compile: CE-TYP-5"
 function first_half(data: ref u8[]) -> u8[] {
     return Ok(data);
 }

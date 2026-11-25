@@ -12,7 +12,8 @@ comment saying what it is:
   <!-- check: program NAME remove=A,B -->   also removes the earlier declarations A and B first, as when the text
                                             tells the reader to delete them
   <!-- check: fragment -->                  a fragment, completed by the HEP-16 scaffold; it must compile
-  <!-- check: error CE-XXX-n -->            a fragment that must fail with exactly that compile error
+  <!-- check: error CE-XXX-n -->            a fragment that must fail with exactly that compile error. Its fence
+                                            carries title="Does not compile: CE-XXX-n", and no other block may
   <!-- check: error CODE binding=B -->      a whole application, built for binding B, that must fail with CODE
   <!-- check: scenario NAME -->             a scenario run against the program NAME as it stands at that point, on
                                             the reference interpreter and the Python VM; every expect must hold
@@ -32,7 +33,9 @@ from cardlang.front.lexcheck import lex, LexError
 from cardlang.harness import backends, scenario
 
 CHECK = re.compile(r"^\s*<!--\s*check:\s*(.*?)\s*-->\s*$")
-FENCE = re.compile(r"^(\s*)(`{3,})\s*([\w-]*)\s*$")       # indented too, as inside a list item
+FENCE = re.compile(r"^(\s*)(`{3,})\s*([\w-]*)\s*(.*?)\s*$")   # indented too, as in a list item; then attributes
+TITLE = re.compile(r'\btitle="([^"]*)"')
+FAILS, BUGGY = "Does not compile", "Contains a bug"
 BACKENDS = ("interp", "pyvm")
 OPENS = {"function", "command", "struct", "enum", "errors"}      # declarations that end with their closing brace
 ENDS = {"const", "persistent", "session"}                        # declarations that end with a semicolon
@@ -44,15 +47,16 @@ def blocks(path):
         m = FENCE.match(lines[i])
         if m:
             indent, fence, lang, start = len(m.group(1)), m.group(2), m.group(3), i
+            title = TITLE.search(m.group(4)); title = title.group(1) if title else None
             prev = CHECK.match(lines[i - 1]) if i > 0 else None
             j = i + 1
             while j < len(lines) and lines[j].strip() != fence: j += 1
             body = [l[indent:] if l[:indent].strip() == "" else l for l in lines[i + 1:j]]
-            out.append((start + 1, lang, prev.group(1) if prev else None, "\n".join(body) + "\n"))
+            out.append((start + 1, lang, prev.group(1) if prev else None, "\n".join(body) + "\n", title))
             i = j + 1
         else:
             if CHECK.match(lines[i]) and not (i + 1 < len(lines) and FENCE.match(lines[i + 1])):
-                out.append((i + 1, None, CHECK.match(lines[i]).group(1), None))       # a comment with no block after it
+                out.append((i + 1, None, CHECK.match(lines[i]).group(1), None, None))  # a comment with no block after it
             i += 1
     return out
 
@@ -127,10 +131,21 @@ def main(repo):
     for md in sorted(docs.rglob("*.md")):
         rel = md.relative_to(L.root).as_posix()
         shown = {}                                     # program name -> where its last block in this chapter is
-        for line, lang, note, text in blocks(md):
+        for line, lang, note, text, title in blocks(md):
             where = f"{rel}:{line}"
             if lang is None:
                 report(False, where, f"a check comment with no code block after it: {note}"); continue
+            # A block that does not compile says so in its title, so that no reader takes it for valid code, and only
+            # such a block does. "Contains a bug" marks code shown with a deliberate bug: unchecked, if it is CardLang.
+            words = (note or "").split()
+            if words[:1] == ["error"]:
+                want = f"{FAILS}: {words[1] if len(words) > 1 else '?'}"
+                if title != want:
+                    report(False, where, f'an error example needs title="{want}", has {title!r}'); continue
+            elif title and title.startswith(FAILS):
+                report(False, where, f"a block titled {title!r} is not an error example"); continue
+            elif title and title.startswith(BUGGY) and lang in ("cardlang", "scenario") and words[:1] != ["none"]:
+                report(False, where, f"a block titled {title!r} must be shown unchecked (check: none)"); continue
             if lang not in ("cardlang", "scenario"):
                 continue
             if note is None:
