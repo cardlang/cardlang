@@ -1,10 +1,10 @@
 # 4. Functions, references and views
 
-The vault's `process` does everything itself, and each new command makes it longer. In this chapter you split it into functions, one per command. Along the way you meet the three ways a function can take its parameters, and see why CardLang's references are safer than C's pointers.
+Every command the vault learns makes `process` longer, and it already does everything itself. In this chapter we split it up, one function per command. To do that you'll need the three ways a function can take its parameters, and a look at what CardLang's references can and can't do.
 
 ## Functions
 
-A function names its parameters and their types, and the type of its result after `->`:
+A function lists its parameters with their types, and puts the type of its result after `->`:
 
 <!-- check: fragment -->
 ```cardlang
@@ -21,7 +21,7 @@ function larger(a: u32, b: u32) -> u32 {
 }
 ```
 
-A function returns its result as `Ok(…)`. Every function can also fail, by returning `Err(…)`, so a call's result is an *outcome*: either `Ok` with a value, or `Err` with an error. [Chapter 5](05-outcomes.md) is about outcomes. In this chapter, you call a function with `attempt`, which takes the value of `Ok`, and passes an `Err` straight on to the caller:
+The result comes back as `Ok(…)`. Any function can also fail, by returning `Err(…)`, so what a call gives you is an *outcome*, either `Ok` with a value or `Err` with an error. Outcomes have [chapter 5](05-outcomes.md) to themselves. For now, call functions with `attempt`, which hands you the value inside an `Ok` and sends an `Err` straight back to your own caller:
 
 <!-- check: fragment -->
 ```cardlang
@@ -36,7 +36,7 @@ function middle(low: u32, high: u32) -> u32 {
 }
 ```
 
-A function with nothing to return leaves out `->`, and returns `Ok()`. It is called with `attempt` as a statement of its own:
+A function that has nothing to return leaves out the `->` and returns `Ok()`. You call it with `attempt` as a statement on its own line:
 
 <!-- check: fragment -->
 ```cardlang
@@ -54,11 +54,11 @@ function add_twice(amount: u32) {
 }
 ```
 
-Like every top-level declaration, a function can be called before it is declared, and from any of the applet's files ([chapter 3](03-control-flow-and-scope.md#an-applets-files)). A function cannot be passed around as a value: there are no function pointers or callbacks, and every call names the function it calls (*FUN-4*).
+You can call a function before its declaration, and from any of the applet's files, as with every top-level declaration ([chapter 3](03-control-flow-and-scope.md#an-applets-files)). Functions aren't values, though. You can't pass one around, there are no callbacks, and every call names the function it calls (*FUN-4*).
 
 ### No recursion
 
-A function may not call itself, directly or through other functions (*FUN-5*):
+A function can't call itself, either directly or by way of other functions (*FUN-5*):
 
 <!-- check: error CE-FUN-1 -->
 ```cardlang
@@ -70,11 +70,11 @@ function countdown(n: u32) {
 }
 ```
 
-That is what lets the compiler work out the deepest chain of calls the applet can make, and so the exact stack it needs: the "stack 44" that Build Applet printed in chapter 1. A device with a few kilobytes of RAM cannot afford to find out at runtime. Write a loop instead.
+Without recursion, the compiler can find the deepest chain of calls an applet can make, and from that the stack it needs. That's where the "stack 44" from Build Applet in chapter 1 came from. On a device with a few kilobytes of RAM, running out of stack isn't something to discover at runtime. Use a loop instead.
 
 ### One call at a time
 
-A call cannot appear in the arguments of another call (*EXP-49*):
+You can't put a call inside the arguments of another call (*EXP-49*):
 
 <!-- check: error CE-EXP-7 -->
 ```cardlang
@@ -88,11 +88,11 @@ function mean_of_three(a: u32, b: u32, c: u32) -> u32 {
 }
 ```
 
-The rule covers intrinsics too: `encode_be(wrapping_add(a, b))` is an error as well. Give the inner result a name first, with `var`. Every call then has its own line, and the order in which things happen is the order in which they are written.
+That goes for intrinsics as well, so `encode_be(wrapping_add(a, b))` is also an error. Store the inner result in a `var` first. With every call on its own line, things happen in the order they're written.
 
 ## Parameter modes
 
-A parameter has one of three *modes*, which say what the function may do with the caller's data (*FUN-6*):
+Each parameter has a *mode*, which says what the function may do with the caller's data (*FUN-6*):
 
 | Mode | Written | The function gets | It can change the caller's data |
 |---|---|---|---|
@@ -100,7 +100,7 @@ A parameter has one of three *modes*, which say what the function may do with th
 | `ref` | `name: ref T` | Read access to the caller's own storage | No |
 | `inout` | `name: inout T` | Read and write access to the caller's own storage | Yes |
 
-The mode is written at the call too, so a reader sees at the call what it may change (*FUN-7*):
+You write the mode at the call as well, so anyone reading the call can see what it might change (*FUN-7*):
 
 <!-- check: fragment -->
 ```cardlang
@@ -126,11 +126,9 @@ function example() -> u32 {
 }
 ```
 
-- **By value** is the right mode for small values, such as numbers. The function gets its own copy, which it can read but not assign to. Copy it into a `var` to change it.
-- **`ref`** avoids copying something large, such as a structure or an array, when the function only reads it.
-- **`inout`** is for a function whose job is to change something of the caller's, like `deposit`.
+Small values such as numbers are best passed by value. The function gets a copy it can read but not assign to, and if it wants to change it, it copies it into a `var`. `ref` saves copying something large, like a structure or an array, that the function only needs to read. `inout` is for a function whose job is to change something that belongs to the caller, as `deposit` does.
 
-Each mode is checked. Leaving out the `inout` at the call, for example, is an error, and so is writing through a `ref`:
+The compiler checks the modes. It rejects a call that leaves out an `inout`, and a function that writes through a `ref`:
 
 <!-- check: error CE-FUN-2 -->
 ```cardlang
@@ -154,13 +152,13 @@ function reset(value: ref u32) {
 }
 ```
 
-A `ref` or `inout` argument must be storage that exists: a variable, a global, a parameter, or a field, element or slice of one. A constant can be passed as `ref`, but never as `inout` (*FUN-9*, *FUN-10*).
+An argument passed as `ref` or `inout` has to be real storage: a variable, a global, a parameter, or a field, element or slice of one of those. Constants can be passed as `ref`, but never as `inout` (*FUN-9*, *FUN-10*).
 
 ### References are not pointers
 
-A `ref` or `inout` parameter refers to the caller's storage only for the duration of the call (*FUN-16*). A reference cannot be stored in a variable, kept in a global, or returned. There are no null references and no pointer arithmetic. So a reference can never point at something that no longer exists.
+A `ref` or `inout` parameter refers to the caller's storage only while the call lasts (*FUN-16*). You can't store a reference in a variable or a global, and you can't return one. There are no null references and no pointer arithmetic either, so a reference can never point at something that has gone away.
 
-What references *can* do is overlap. Passing the same variable twice, as `ref` and as `inout`, is allowed, and a read through the `ref` sees each write made through the `inout` (*FUN-12*, *FUN-13*):
+References can overlap, however. You may pass the same variable twice, once as `ref` and once as `inout`, and a read through the `ref` then sees every write made through the `inout` (*FUN-12*, *FUN-13*):
 
 <!-- check: fragment -->
 ```cardlang
@@ -176,11 +174,11 @@ function example() -> u32 {
 }
 ```
 
-That is why a function should not assume a `ref` parameter stays the same while it writes through another one. When it matters, copy the value into a local first.
+So a function shouldn't count on a `ref` parameter staying the same while it writes through another parameter. If it matters, copy the value into a local first.
 
 ## Views
 
-A function that takes `u8[4]` accepts exactly four bytes. To accept an array of any length, the parameter is a *view*, `T[]`, with no length. A view is always a `ref` or `inout` parameter, and its `.length` tells the function how long it is:
+A parameter of type `u8[4]` takes exactly four bytes. To take an array of any length, give the parameter a *view* type, `T[]`, which has no length. A view is always a `ref` or `inout` parameter, and the function finds out how long it is from `.length`:
 
 <!-- check: fragment -->
 ```cardlang
@@ -200,9 +198,9 @@ function example() -> u8 {
 }
 ```
 
-A view accepts a whole array of any length, or a slice. A slice passed this way is not copied: the function works on the caller's bytes. You have used views since chapter 1: `process` takes the request as `ref u8[]`, and the response as `inout u8[]`.
+You can pass a whole array of any length as a view, or a slice. A slice isn't copied, and the function works directly on the caller's bytes. In fact you've been using views since chapter 1, because `process` receives the request as a `ref u8[]` and the response as an `inout u8[]`.
 
-A view can only be a parameter. A variable, a field or a result cannot have a view type, because a view, like any reference, lives only as long as the call:
+Only parameters can be views. A variable, a field or a function's result can't have a view type, because a view lives only as long as the call, like any reference:
 
 <!-- check: error CE-TYP-5 -->
 ```cardlang
@@ -213,7 +211,7 @@ function first_half(data: ref u8[]) -> u8[] {
 
 ## The vault, one function per command
 
-Now the vault. Each command becomes a function with the same two parameters: the request's data after its command byte, as a `ref u8[]`, and the response, as an `inout u8[]`. Each checks its own data, and returns the length of its answer. Add them to `vault.card`:
+Back to the vault. Each command becomes a function, and they all take the same two parameters: the request's data after the command byte, as a `ref u8[]`, and the response, as an `inout u8[]`. Each function checks its own data and returns the length of its answer. Add them to `vault.card`:
 
 <!-- check: program vault -->
 ```cardlang
@@ -240,11 +238,9 @@ function verify_pin(data: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-- **`increment` ends with `return read_counter(…)`.** It answers with the counter too, so it hands over to `read_counter`, and returns whatever `read_counter` returns: the length, or an error. This is a *forwarding return*, and [chapter 5](05-outcomes.md) has more on it.
-- **`data` is passed on as `ref data`.** A function can pass its own references to the functions it calls.
-- **`verify_pin` takes a `response` it does not use.** Every command function has the same shape, so `process` can treat them alike.
+`increment` answers with the counter too, so it finishes by handing over to `read_counter`, and returns whatever `read_counter` returns, whether that's a length or an error. This is called a *forwarding return*, and [chapter 5](05-outcomes.md) says more about it. Notice that `increment` passes its own reference on as `ref data`, which any function can do. `verify_pin` takes a `response` it never uses, so that all the command functions look alike and `process` can treat them the same way.
 
-`process` shrinks to decoding the request, and choosing the function:
+All that's left for `process` is to decode the request and pick a function:
 
 <!-- check: program vault -->
 ```cardlang
@@ -265,9 +261,9 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-`request[1..request.length]` is the request without its command byte. Passed as `ref`, it is a view of the request itself, not a copy.
+`request[1..request.length]` is the request minus its command byte. It's passed as `ref`, so each function sees the request itself and nothing is copied.
 
-The applet does exactly what it did before. Run the scenario from chapter 3 to check:
+The applet should behave as it did at the end of chapter 3, and running its scenario confirms that:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -291,10 +287,4 @@ command 07
 expect err app 2
 ```
 
-A scenario like this is the safety net for a change that should not change behaviour. When you restructure code, run it before and after.
-
-## What next
-
-- Add a command `03` that resets the counter to zero, as a function of the same shape. Where does it need a change besides its own function?
-- Write `checksum` from the Views section as a command: it answers the checksum of the request's data, in one byte.
-- `increment` changes the counter before `read_counter` checks the response's length. With `command 02 capacity 2`, the counter goes up, and the host gets an error. Change `increment` so that a too-small response leaves the counter alone. [Chapter 5](05-outcomes.md) looks at why `Err` does not undo the change by itself.
+Keep a scenario like this one handy whenever you restructure code, and run it before and after the change.

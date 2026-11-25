@@ -1,6 +1,6 @@
 # 6. State that survives
 
-A device running your applet can lose power at any moment: a card pulled from a reader, a battery running out, a reset. This chapter is about the state that must survive that, and how CardLang makes sure it is never left half-written. By the end, the vault keeps a PIN the user can change, limits wrong guesses, and guards a stored secret behind the PIN.
+A device can lose power at any moment. A card gets pulled out of a reader, a battery runs flat, or the device is reset. This chapter is about the state that has to survive all that, and how CardLang makes sure it's never left half-written. By the end, the vault has a PIN the user can change, it limits wrong guesses, and it keeps a secret that only the right PIN unlocks.
 
 ## Four kinds of storage
 
@@ -11,18 +11,18 @@ A device running your applet can lose power at any moment: a card pulled from a 
 | `session` | Top level | From the start of a session to its end | Its default, at every session start |
 | `var` | In a function | Until the end of its block | Its initializer, or its default |
 
-A *session* is defined by the platform. On a smart card, it runs from power-on to power-off; on other devices, the platform says when one starts and ends (*STA-4*). Session state is the right place for something like "the PIN was verified": it must not outlive the power going off.
+The platform decides what a *session* is. On a smart card it lasts from power-on to power-off, and other devices define their own start and end (*STA-4*). Something like "the PIN has been verified" belongs in session state, because it mustn't outlive the power going off.
 
 ## Starting values: lifecycle handlers
 
-A `persistent` or `session` declaration never has an initializer (*STA-2*). There is exactly one form, and it starts at the type's default:
+You can't give a `persistent` or `session` declaration an initializer (*STA-2*). Such a declaration has a single form, and starts out at its type's default:
 
 <!-- check: error CE-STA-1 -->
 ```cardlang
 persistent tries: u8 = 3;
 ```
 
-State that should start with another value is set up by a *lifecycle handler*: a function with a reserved name, which the platform calls at a particular moment (*STA-5*, *STA-6*):
+If state needs to start with some other value, you set it in a *lifecycle handler*. That's a function with a reserved name, which the platform calls at a particular moment (*STA-5*, *STA-6*):
 
 | Handler | Runs |
 |---|---|
@@ -40,13 +40,13 @@ function on_install() {
 }
 ```
 
-Defining a handler is optional. Your code never calls one: only the platform does (*STA-9*). Put logic that both a handler and a command need in an ordinary function they both call.
+You don't have to define either handler. Your code never calls one, because only the platform does (*STA-9*). If a handler and a command need the same logic, put it in an ordinary function that both of them call.
 
 ## A persistent write is all or nothing
 
-Every assignment to persistent state is *atomic* (*STA-11*). If the power fails during the write, the destination afterwards holds either its old value or its new one, never a mixture. That holds for an assignment to a whole array or structure too: `pin = fill(0);` is one atomic write of all its bytes.
+Every assignment to persistent state is *atomic* (*STA-11*). If the power fails in the middle of the write, the destination ends up with either its old value or its new one, never a mixture. That includes assigning a whole array or structure, so `pin = fill(0);` writes all of its bytes in one atomic step.
 
-Two separate assignments, however, are not atomic together (*STA-12*). Suppose the vault stores a new PIN and then its length:
+Two separate assignments aren't atomic together, though (*STA-12*). Suppose the vault stored a new PIN and then its length:
 
 <!-- check: none -->
 ```cardlang
@@ -54,7 +54,7 @@ pin[0..new_length] = new_pin;
 pin_length = new_length;
 ```
 
-A power cut between the two lines leaves a new PIN with the old length. Neither the old PIN nor the new one would then work, and the vault would be locked for good.
+If the power were cut between those two lines, the new PIN would be stored with the old length. Neither the old PIN nor the new one would work after that, and the vault would be locked for good.
 
 ## Transactions
 
@@ -75,14 +75,11 @@ function store_pin(new_pin: ref u8[]) {
 }
 ```
 
-- **Inside the block,** writes are *pending*. Reads in the block, and in functions it calls, see them.
-- **At the closing brace,** the transaction *commits*: all its writes take effect at once. If the power fails at any point before or during the commit, none of them do (*TXN-13*).
-- **Only persistent state takes part.** Session state and local variables are changed as you go, and are never rolled back (*TXN-4*).
-- **A command is not a transaction by itself** (*TXN-5*). Use a transaction exactly where several writes must stay consistent.
+Writes inside the block are *pending*. Code in the block, including any function it calls, already sees them. At the closing brace the transaction *commits*, and all of its writes take effect at once. If the power fails at any point before or during the commit, none of them do (*TXN-13*). Only persistent state takes part. Session state and local variables change as the code runs, and are never rolled back (*TXN-4*). A command isn't a transaction in itself (*TXN-5*), so put a transaction around exactly the writes that have to stay consistent with each other.
 
 ### Leaving a transaction early
 
-`abort Err(…)` rolls back every pending write, and returns the error (*TXN-7*, *TXN-8*). Inside a transaction, a failing `require` or `attempt` aborts in the same way (*TXN-18*):
+`abort Err(…)` rolls back all the pending writes and returns the error (*TXN-7*, *TXN-8*). Inside a transaction, a `require` or an `attempt` that fails aborts in the same way (*TXN-18*):
 
 <!-- check: fragment -->
 ```cardlang
@@ -103,9 +100,9 @@ function transfer(amount: u32) {
 }
 ```
 
-If `savings` is too small, the `require` aborts, and `current += amount` is rolled back with it.
+If there isn't enough in `savings`, the `require` aborts the transaction, and the earlier `current += amount` is rolled back along with it.
 
-`return` is not allowed inside a transaction, nor a `break` or `continue` that would leave it (*TXN-6*). A transaction ends at its closing brace, or with an abort, and nowhere else:
+You can't `return` from inside a transaction, and a `break` or `continue` can't leave one either (*TXN-6*). A transaction ends at its closing brace or with an abort, and nowhere else:
 
 <!-- check: error CE-TXN-1 -->
 ```cardlang
@@ -119,11 +116,11 @@ function set(next: u32) -> u32 {
 }
 ```
 
-Transactions do not nest (*TXN-10*). A transaction inside another, including one in a function the block calls, is an error: one transaction at a time is the whole model.
+Nor can transactions be nested (*TXN-10*). Opening one inside another is an error, even when the inner one is in a function that the outer block calls. There's only ever one transaction at a time.
 
 ## The vault keeps a PIN
 
-Now the vault gets its real PIN. It is stored in persistent state, from 4 to 8 digits long, with 3 tries. A correct PIN sets a session flag, `verified`, which the secret commands at the end of the chapter check. Replace `VaultError`, remove the `PIN` constant, and add the state:
+Time for the vault's real PIN. It's kept in persistent state, it's 4 to 8 digits long, and it allows 3 tries. A correct PIN sets a session flag, `verified`, which the secret commands at the end of the chapter look at. Replace `VaultError`, delete the `PIN` constant, and add the new state:
 
 <!-- check: program vault remove=PIN -->
 ```cardlang
@@ -157,11 +154,11 @@ function on_install() {
 }
 ```
 
-`on_install` gives the vault a default PIN, `1234`, which the user is expected to change. `verified` needs no setup: as session state, it is `false` at the start of every session.
+`on_install` sets a default PIN, `1234`, which the user is meant to change. `verified` needs no setting up. It's session state, so it's `false` whenever a session starts.
 
 ### Checking a PIN
 
-The check is split in two. The first function only checks that a candidate *looks like* a PIN; the second compares it with the stored one:
+Checking a PIN takes two functions. The first only makes sure the candidate *looks* like a PIN, and the second compares it with the stored one:
 
 <!-- check: program vault -->
 ```cardlang
@@ -187,16 +184,18 @@ function check_pin(candidate: ref u8[]) {
 }
 ```
 
-The order of the lines in `check_pin` is the point of this section:
+What matters most in `check_pin` is the order of its lines:
 
-1. **The format is checked first.** A malformed PIN is not a guess, and costs no try.
-2. **A blocked PIN stops everything,** even the right one.
-3. **`tries` goes down *before* the comparison.** Suppose it went down only after a wrong answer. An attacker could then guess, watch the device, and cut the power the instant a guess turned out wrong, before the decrement was written. Every guess would be free. Written first, the decrement is already stored, atomically, when the comparison runs: cutting the power can only lose a try, never save one.
-4. **A correct PIN restores the tries,** and only then sets `verified`.
+1. The format is checked first. A malformed PIN isn't a guess, and doesn't use up a try.
+2. A blocked PIN is refused, even if it's the right one.
+3. `tries` goes down *before* the comparison.
+4. Only a correct PIN restores the tries and sets `verified`.
 
-Each write here stands alone, and each is atomic, so no transaction is needed: there is no moment at which a power cut leaves the PIN usable with tries it should not have.
+The third step is the one to understand. Suppose `tries` only went down after a wrong answer. An attacker could make a guess, watch the device, and cut the power the moment the guess turned out wrong, before the decrement was written. Every guess would be free. With the decrement written first, it's already stored, atomically, by the time the comparison runs, so cutting the power can lose a try but never save one.
 
-`verify_pin` now uses `check_pin`. An empty verify request asks how many tries are left: since an error carries no data, this is how the host finds out:
+Each of these writes stands on its own, and each is atomic, so there's no need for a transaction. At no point can a power cut leave the PIN usable with more tries than it should have.
+
+`verify_pin` now calls `check_pin`. Since an error carries no data, the host needs another way to find out how many tries are left, so an empty verify request answers with that number:
 
 <!-- check: program vault -->
 ```cardlang
@@ -213,7 +212,7 @@ function verify_pin(data: ref u8[], response: inout u8[]) -> u32 {
 
 ### Changing the PIN
 
-Command `24` changes the PIN. Its data is the old PIN's length, the old PIN, and the new PIN, so `24 04 31 32 33 34 39 38 37 36 35` changes `1234` to `98765`:
+The new command `24` changes the PIN. Its data is the length of the old PIN, then the old PIN, then the new one. `24 04 31 32 33 34 39 38 37 36 35`, for example, changes `1234` to `98765`.
 
 <!-- check: program vault -->
 ```cardlang
@@ -233,13 +232,11 @@ function change_pin(data: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-- **The new PIN's format is checked before the old PIN,** so a typo in the new PIN does not cost a try.
-- **The old PIN is checked with `check_pin`,** so a wrong one counts as a guess, exactly as in `verify_pin`.
-- **The PIN and its length are written in one transaction.** This is the case from the start of the chapter: a power cut now leaves the old PIN or the new one, never a mixture.
+The format of the new PIN is checked before the old PIN, so a typo in the new one doesn't cost a try. The old PIN goes through `check_pin`, which means a wrong one counts as a guess, just as it does in `verify_pin`. Then the PIN and its length are written in a single transaction. That's the case from the start of the chapter, and now a power cut leaves either the old PIN or the new one, never a mixture.
 
 ### A secret behind the PIN
 
-Finally, what the vault is for: a secret of up to 32 bytes, which can only be stored or read after the PIN has been verified in the current session:
+At last, the thing the vault exists for: a secret of up to 32 bytes, which can only be stored or read once the PIN has been verified in the current session.
 
 <!-- check: program vault -->
 ```cardlang
@@ -270,7 +267,7 @@ function read_secret(data: ref u8[], response: inout u8[]) -> u32 {
 
 ### Wiring up the commands
 
-The new commands need variants, decoding and dispatch. Replace `Command`, `decode` and `process`:
+The new commands need variants in `Command`, lines in `decode` and arms in `process`. Replace all three:
 
 <!-- check: program vault -->
 ```cardlang
@@ -326,11 +323,11 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-When you add the `ChangePin` variant, the compiler points at the `match` in `process` until it has an arm for it: the exhaustive `match` of chapter 2, earning its keep.
+If you add the `ChangePin` variant before its arm, the compiler points at the `match` in `process` until the arm is there. That's the rule from chapter 2 that every `match` lists every variant, doing its job.
 
 ### Trying it
 
-This scenario walks through the whole life of the PIN:
+This scenario takes the PIN through its whole life:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -371,7 +368,7 @@ command 20 39 38 37 36 35   # blocked, even with the right PIN
 expect err app 6
 ```
 
-And this one cuts the power in the middle of a PIN change. `interrupt` makes the next commit fail as if the power were lost, and `expect none` says the host got no answer at all:
+This one cuts the power in the middle of changing the PIN. `interrupt` makes the next commit fail as though the power had gone, and `expect none` says the host got no answer at all:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -387,10 +384,6 @@ command 20 31 32 33 34  # the old one still works
 expect ok
 ```
 
-The writes made before the transaction stayed: `check_pin` had accepted the old PIN, so the tries were restored. The transaction itself, the new PIN and its length, never committed, so the old PIN is still the PIN.
+The writes made before the transaction did happen. `check_pin` had accepted the old PIN, so the tries were restored. The transaction, which held the new PIN and its length, never committed, though, so the old PIN is still the PIN.
 
-## What next
-
-- Remove the `transaction` from `change_pin`, and run the interrupted scenario again. It fails: `interrupt` cuts the power at a transaction's commit, and now there is none in the command. On a real device, the power can go at any instant. What could a cut between the two writes leave behind?
-- A blocked vault is blocked for good. Add an unblock command with a second, longer code (a *PUK*), with its own tries.
-- `on_session_start` is not used. What could the vault use it for?
+You can see what the transaction is worth by taking it out of `change_pin` and running this scenario again. It fails, because `interrupt` cuts the power at a transaction's commit and there's no longer a commit to cut. On a real device the power can go at any instant, including between the two writes.

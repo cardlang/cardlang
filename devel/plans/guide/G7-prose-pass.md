@@ -113,3 +113,20 @@ Pairs from the first batch:
 | Colon introducing a clause | 51 | 8 |
 | "That is why/what" | 3 | 0 |
 | "exactly" | 6 | 2 |
+
+**Batch 2, 2026-11-25 (chapters 4 to 6), waiting for the user's review:**
+- **Prose:** explanations as paragraphs. The ordered steps of *Checking a PIN* stay a numbered list, without bold leads, because their order is the point.
+- **Removed:** the *What next* sections. Their bridges forward stay as sentences:
+  - the end of chapter 5 now leads into chapter 6 through `verify_pin`'s unlimited guesses;
+  - chapter 6's "take the transaction out and run the scenario again" is kept as a closing sentence.
+- **House rule:** chapter 4's opening comparison with C's pointers is gone. "Earning its keep" is gone too.
+- **Unchanged:** every code block and check comment, and `guidecheck`'s counts. Rule citations are the same set per chapter as on `main`.
+- **Anchors kept:** *Parameter modes*, *Views*, *Platform errors*, *`Err` undoes nothing*, *Four kinds of storage*, *Transactions*, *Checking a PIN* and *Changing the PIN*.
+
+| Measure (chapters 4 to 6) | Before | After |
+|---|---|---|
+| Bullets | 37 | 4 (one numbered list) |
+| Bold-lead bullets | 28 | 0 |
+| Colon introducing a clause | 38 | 6 |
+| "That is why/what" | 4 | 0 |
+| "exactly" | 7 | 3 |
