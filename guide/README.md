@@ -48,13 +48,15 @@ A block without a comment fails the check. A block indented inside a list item i
 
 ## Writing for the guide
 
-- **Talk to the reader:** "you write…", "your applet…".
-- **Show, then explain.** A short piece of code first, then what it does and why.
-- **One idea per section,** in short paragraphs. Each chapter ends with what to try next.
-- **Name the rule** the first time it matters, as in *EXP-14*, and leave the exact wording to the specification.
-- **Grow the running example,** the vault, rather than inventing a new program for each feature, unless a small fragment shows the point better.
-- **Describe the language as it is.** Plain words, current state, no history of how it came to be.
-- **Compare with other languages only in chapter 11.** The other chapters explain CardLang on its own terms.
-- **Say when code is wrong.** An example that does not compile carries a `// does not compile: …` comment, or a sentence just before it, and is followed by the correct version when there is one.
-- **Stay independent of the host system.** Commands are the toolchain's own (`uv run …`, `clc …`), not shell scripts, and no compiler or build setup of the toolchain is named.
-- **Cite the rule that says it.** Every *XXX-n* is checked to exist; read the rule before citing it, to be sure it is the right one.
+- Talk to the reader as "you", in a conversational tone. Contractions such as "you'll" and "isn't" are fine, in moderation.
+- Show, then explain: a short piece of code first, then what it does and why.
+- Explain in paragraphs. Use a list only for things that really are a list, such as steps to follow in order, and don't open list items with a bold phrase.
+- Vary the sentences. Prefer two sentences, or "because" and "so", to a colon followed by an explanation, and say a consequence where it belongs rather than in a separate "That is why…" sentence.
+- Leave out words that add nothing, such as "exactly", "whole" and "deliberately".
+- Let each chapter open in its own way, and end when its content ends. There are no fixed opening phrases and no end-of-chapter exercise lists.
+- Name the rule the first time it matters, as in *EXP-2*, and leave the exact wording to the specification. Every rule cited is checked to exist, but read it before citing it, to be sure it's the right one.
+- Grow the running example, the vault, rather than inventing a new program for each feature, unless a small fragment makes the point better.
+- Describe the language as it is, in plain words, with no history of how it came to be.
+- Compare with other languages only in chapter 11. The other chapters explain CardLang on its own terms.
+- Say when code is wrong. An example that doesn't compile carries a `// does not compile: …` comment, or a sentence just before it, and is followed by the correct version when there is one.
+- Stay independent of the host system. Commands are the toolchain's own (`uv run …`, `clc …`), not shell scripts, and no compiler or build setup of the toolchain is named.

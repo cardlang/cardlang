@@ -149,3 +149,32 @@ Pairs from the first batch:
 | Colon introducing a clause | 36 | 6 |
 | "That is why/what" | 2 | 0 |
 | "exactly" | 4 | 2 |
+
+**Batch 3:** committed.
+
+**Batch 4, 2026-11-25 (chapters 10 and 11, and `guide/README.md`), waiting for the user's review:**
+- **Chapter 10:** the explanations after each excerpt are prose. *What next*'s reading suggestions became a closing paragraph. All seven excerpts still match the example's files, character for character.
+- **Chapter 11:** the seven "**Why:**" labels are gone, with their reasons woven into each section. *Where to go from here* is a paragraph. The C and Java snippets, and every CardLang block, are unchanged.
+- **`guide/README.md`'s *Writing for the guide*** now describes the guide as it is:
+  - prose over lists, and lists without bold leads;
+  - varied sentences instead of explanatory colons and pivot sentences;
+  - no filler words;
+  - each chapter opens in its own way, with no end-of-chapter exercise lists;
+  - contractions in moderation;
+  - and the earlier house rules.
+- **Rule citations:** the same set per chapter as on `main`.
+
+## 7. Done: the whole guide
+
+| Measure (front page and chapters 1 to 11) | Before | After |
+|---|---|---|
+| Bullets | 174 | 19: the front page's chapter list (11), two numbered procedures (8) |
+| Bold-lead bullets | 131 | 0 |
+| Colon introducing a clause | 160 | 33, of which 11 are the chapter list's |
+| "That is why/what/the point" | 9 | 0 |
+| "exactly" | 21 | 9 |
+| "whole" | 18 | 12, mostly literal ("the whole request") |
+| "deliberately" or "on purpose" | 8 | 4 |
+| *What next* sections | 10 | 0 |
+
+Every example, scenario, excerpt and rule citation is unchanged, and so are `guidecheck`'s counts: 24 programs, 36 fragments, 28 errors, 16 scenarios and 7 excerpts.
