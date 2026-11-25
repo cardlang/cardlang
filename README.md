@@ -5,13 +5,9 @@
   </picture>
 </p>
 
-CardLang is a small, statically typed, imperative language for writing secure applications that run isolated on small devices: trusted applications on microcontrollers, in a TrustZone secure world or a partition isolated by the memory protection unit, and also smart-card applets. This repository holds:
-- **the language:** its specification, a conformance test suite, and the reasoning behind it;
-- **a platform profile:** the APIs a platform gives programs (keys, crypto, CBOR, TLV) and its transport bindings;
-- **a toolchain:** reference checkers, a compiler to a compact bytecode, a reference interpreter, and a Python VM;
-- **a VM in portable C11,** which runs the same images and passes the same tests;
-- **an editor extension** for VS Code, with errors as you type, completion, building and a debugger;
-- **two example applets,** a FIDO2 authenticator and a PIV card application.
+CardLang is a small, statically typed, imperative language for secure applications that run isolated on small devices. That covers trusted applications on microcontrollers, code in a TrustZone secure world or in a partition walled off by the memory protection unit, and smart-card applets too.
+
+This repository has everything around the language. There's the language itself, with its specification, a conformance test suite and the reasoning behind its design, and a platform profile that defines the APIs a platform gives programs (keys, crypto, CBOR, TLV) and how messages reach them. The toolchain includes reference checkers, a compiler to a compact bytecode, a reference interpreter and a Python VM, and a VM written in portable C11 runs the same compiled images and passes the same tests. There's also a VS Code extension, with errors as you type, completion, building and a debugger, and two example applets, a FIDO2 authenticator and a PIV card application.
 
 CardLang is under active development.
 
@@ -45,41 +41,32 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-Key properties of the language:
+All data has a fixed size. The types are the integers `u8`–`u32` and `i8`–`i32`, `bool`, enums, structures and fixed arrays `T[N]`, and there's no heap, no strings, no floating point and no implicit conversion. State is explicit, too. A global is `persistent`, surviving power loss, `session`, cleared at power-on and reset, or `const`. Every assignment to persistent state is atomic, and `transaction { … }` groups several of them together.
 
-- **Fixed-size data only.** Integers `u8`–`u32` and `i8`–`i32`, `bool`, enums, structures and fixed arrays `T[N]`. There is no heap, no strings, no floating point and no implicit conversion.
-- **Explicit state.** Globals are `persistent` (survives power loss), `session` (cleared at power-on and reset) or `const`. Every assignment to persistent state is atomic, and `transaction { … }` groups several of them.
-- **Outcomes, not exceptions.** Every call returns `Ok(…)` or `Err(…)`, which must be handled with `match`, `attempt`, `require` or a forwarding `return`. Execution faults, such as overflow or an out-of-range index, are deterministic *traps*.
-- **References without pointers.** `ref` and `inout` parameters, and slices passed as views. References cannot be stored or returned.
-- **A single entry point.** One `command` receives the request bytes and writes the response. The language has no transport, status words or dispatch of its own.
-- **A static, acyclic call graph.** There is no recursion, so stack needs and transaction nesting can be checked before the program runs.
+There are no exceptions. Every call returns `Ok(…)` or `Err(…)`, and the caller has to handle it, with `match`, `attempt`, `require` or a forwarding `return`. Faults such as an overflow or an out-of-range index are *traps*, which behave the same way every time. Functions take `ref` and `inout` parameters instead of pointers, and slices are passed as views, but a reference can never be stored or returned.
+
+An applet has one entry point, a `command` that receives the request bytes and writes the response. The language itself has no transport, status words or command dispatch. There's no recursion either, so the call graph is fixed, and an applet's stack needs and the nesting of its transactions can be checked before it ever runs.
 
 ## The VM at a glance
 
-Applets run on the CardLang VM, small enough for deeply embedded targets: it is written in portable C, with no heap and no recursion. Roughly:
+Applets run on the CardLang VM, which is small enough for deeply embedded targets. It's written in portable C, with no heap and no recursion, and roughly needs:
 
-- **Code:** around 20 KB for the VM, the interpreter and its native library.
-- **VM state:** around 250 bytes.
-- **C stack:** a single-digit number of kilobytes, at most.
-- **The applet's own needs:** its stack and its global state, which depend on the applet. They are known exactly when it is built: `clc build` reports them, so you can fit an applet to your budget.
+- around 20 KB of code for the VM, the interpreter and its native library;
+- around 250 bytes for the VM's state;
+- a C stack of a few kilobytes at most;
+- whatever stack and global state the applet itself needs. That depends on the applet, but it's known exactly when the applet is built, and `clc build` reports it, so you can fit an applet to your budget.
 
 These leave out what the device's platform supplies itself: its hardware layer, its cryptography, and the driver for its persistent storage.
 
 ## The CardLang Guide
 
-**[The CardLang Guide](https://cardlang.github.io/cardlang/)** teaches the language by building one applet, a small PIN-protected store for a secret, chapter by chapter: from a first counter to persistent state, transactions, signing keys, testing and debugging, and a guided reading of the FIDO2 example. Every example in it is compiled and run by the repository's checks. It ends with a chapter for readers coming from C or Java Card, and a reference of the platform's APIs.
+**[The CardLang Guide](https://cardlang.github.io/cardlang/)** teaches the language by building one applet, a small PIN-protected store for a secret, a chapter at a time. It starts with a counter and goes on through persistent state, transactions, signing keys, testing and debugging, to a guided reading of the FIDO2 example. Every example in it is compiled and run by the repository's checks. The last chapter is for readers who know C or Java Card, and a reference of the platform's APIs comes after it.
 
 ## The VS Code extension
 
-The CardLang extension for VS Code is the easiest way into the language:
+The VS Code extension is the easiest way into the language. It highlights applets and scenario files, colouring each name by what it is, and shows errors as you type, across all of an applet's files, each with its code from the specification. Go to definition and completion work everywhere, including on the platform's APIs, which come with their signatures, errors and documentation. You can build, check and run an applet and its scenarios from the editor, and step through it in a debugger, with breakpoints in the applet or in a scenario, the call stack, variables and persistent state, and stops on traps and failed expectations.
 
-- **Highlighting**, and colouring by meaning, for applets and scenario files.
-- **Errors as you type,** across all of an applet's files, each with its code from the specification.
-- **Go to definition and completion,** including the platform's APIs, with their signatures, errors and documentation.
-- **Build, check and run** an applet, and its scenarios, from the editor.
-- **A debugger:** breakpoints in the applet and in scenarios, stepping, the call stack, variables and persistent state, and stops on traps and failed expectations.
-
-It needs a clone of this repository, with `uv sync` run once, and [uv](https://docs.astral.sh/uv/). Download `cardlang-<version>.vsix` from the [latest release of the extension](https://github.com/cardlang/cardlang/releases), and install it from the Extensions view. [Chapter 1 of the guide](https://cardlang.github.io/cardlang/01-getting-started/) walks through installing it, and building, running and debugging a first applet; the [extension's README](editors/vscode/README.md) covers its settings and the scenario format.
+The extension needs [uv](https://docs.astral.sh/uv/) and a clone of this repository with `uv sync` run once. Download `cardlang-<version>.vsix` from the [latest release of the extension](https://github.com/cardlang/cardlang/releases) and install it from the Extensions view. [Chapter 1 of the guide](https://cardlang.github.io/cardlang/01-getting-started/) walks through installing it and through building, running and debugging a first applet, and the [extension's README](editors/vscode/README.md) covers its settings and the scenario format.
 
 ## Repository layout
 
@@ -103,9 +90,9 @@ It needs a clone of this repository, with `uv sync` run once, and [uv](https://d
 
 ## Licence
 
-CardLang is licensed under the [Apache License, Version 2.0](LICENSE): the specification and the other documents, the toolchain, the C VM, the editor extension and the examples. See also [`NOTICE`](NOTICE).
+Everything in CardLang is licensed under the [Apache License, Version 2.0](LICENSE), including the specification and the other documents, the toolchain, the C VM, the editor extension and the examples. See also [`NOTICE`](NOTICE).
 
-The repository contains no third-party code. These are fetched by the tools, each under its own licence:
+The repository contains no third-party code. The tools fetch these components, each under its own licence:
 
 | Component | Used by | Licence |
 |---|---|---|

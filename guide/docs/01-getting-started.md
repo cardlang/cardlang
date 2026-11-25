@@ -1,65 +1,52 @@
 # 1. Getting started
 
-In this chapter you install the tools and write your first applet: the start of the *vault*, the small PIN-protected store for a secret that this guide builds. You build it, run it, break it on purpose, and step through it in the debugger. The language itself comes in lightly here; each feature you meet is explained properly in a later chapter.
+By the end of this chapter you'll have the tools installed and an applet of your own running. It's the first version of the *vault*, the PIN-protected store for a secret that the guide builds up chapter by chapter. You'll build it, run it, break it on purpose, and step through it in the debugger. Don't worry about the language yet. Each feature you meet here gets a proper explanation later.
 
 ## What you need
 
-- **[uv](https://docs.astral.sh/uv/),** the Python package manager. The CardLang toolchain is a Python package, and uv installs it, with the right Python, into an environment of its own.
-- **[VS Code](https://code.visualstudio.com/).**
-- **The CardLang repository,** cloned, with its toolchain installed:
+The CardLang toolchain is a Python package, installed with [uv](https://docs.astral.sh/uv/), the Python package manager. uv puts it in an environment of its own, together with the right version of Python. You'll also need [VS Code](https://code.visualstudio.com/).
 
-    ```bash
-    git clone https://github.com/cardlang/cardlang.git
-    cd cardlang
-    uv sync
-    ```
+Clone the CardLang repository and install the toolchain into it:
 
-    `uv sync` installs the compiler `clc`, the language server and the debugger into the repository's `.venv`. Nothing is installed system-wide.
+```bash
+git clone https://github.com/cardlang/cardlang.git
+cd cardlang
+uv sync
+```
 
-- **The VS Code extension.** Download `cardlang-<version>.vsix` from the [extension's latest release](https://github.com/cardlang/cardlang/releases). In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on a Mac), click the **…** menu at its top, choose **Install from VSIX…**, and pick the file. Or, from a terminal:
+`uv sync` installs the compiler `clc`, the language server and the debugger into the repository's `.venv` folder, and nothing system-wide.
 
-    ```bash
-    code --install-extension cardlang-<version>.vsix
-    ```
+Then install the VS Code extension. Download `cardlang-<version>.vsix` from the [extension's latest release](https://github.com/cardlang/cardlang/releases), open the Extensions view in VS Code (Ctrl+Shift+X, or Cmd+Shift+X on a Mac), choose **Install from VSIX…** from the **…** menu at the top, and pick the file. If you prefer a terminal:
 
-    The extension runs the toolchain from the repository you cloned.
+```bash
+code --install-extension cardlang-<version>.vsix
+```
+
+The extension runs the toolchain from your clone of the repository.
 
 ## A quick look at a real applet
 
-Before writing your own, see what the tools do. Open the repository's folder in VS Code, and open `examples/fido2/ctap.card`, part of a FIDO2 authenticator.
-
-- **Errors appear as you type.** Change `u32` to `u16` somewhere, or misspell a name: the error is underlined at once, with its code from the specification. Undo the change.
-- **Go to definition** works with F12 or Ctrl+click, across the applet's files.
-- **Completion:** type `card.` inside a function to see the platform's APIs, with their documentation.
+Before you write anything, open the repository's folder in VS Code and look at `examples/fido2/ctap.card`, part of a FIDO2 authenticator. Change a `u32` to `u16` somewhere, or misspell a name, and the mistake is underlined straight away, with an error code from the specification. Undo it. F12 or Ctrl+click takes you to a definition, even in another file, and typing `card.` inside a function lists the platform's APIs with their documentation.
 
 ## Applets, platforms and hosts
 
-Three parties are involved whenever an applet runs:
+Three pieces of software are involved whenever an applet runs. The *applet* is the program you write in CardLang. The *host* is whatever talks to it from outside, which might be the main firmware next to a TrustZone secure partition, an app on a phone, or a computer with a card reader. Between the two sits the *platform*, the software on the device that loads the compiled applet and runs it on the CardLang virtual machine. The platform also keeps the applet's persistent state safe when the power fails, offers it keys, cryptography and randomness through APIs named `card.…`, and carries messages between the applet and the host.
 
-- **The applet** is the program you write in CardLang.
-- **The platform** is the software on the device that runs it. It loads the compiled applet and runs it on the CardLang virtual machine. It keeps the applet's persistent state safe across power loss, and offers it services such as keys, cryptography and randomness, through APIs named `card.…`. And it passes messages between the applet and the host.
-- **The host** is whatever talks to the applet from outside: the main firmware beside a TrustZone secure partition, an app on a phone, or a computer with a card reader.
+CardLang doesn't pin down the details of the platform, so that the same applet can run on very different devices. A *platform profile* writes down what a platform provides. This guide uses the [Base Profile](https://github.com/cardlang/cardlang/blob/main/platform/base-profile.md), which defines the `card.…` APIs, the platform's errors, and two *bindings*, the ways messages travel between host and applet.
 
-The language deliberately leaves the platform's details open, so that the same applets can run on very different devices. What a platform provides is written down in a *platform profile*. This guide uses the [Base Profile](https://github.com/cardlang/cardlang/blob/main/platform/base-profile.md), which defines the `card.…` APIs, the platform's errors, and two ways for messages to travel between host and applet, called *bindings*:
-
-- **The raw binding** passes the host's bytes to the applet exactly as they arrive, and wraps each answer in a small envelope, shown [below](#what-the-host-receives). It suits microcontrollers and TrustZone, where the host is firmware on the same chip.
-- **The ISO 7816 binding** speaks the protocol of smart cards: commands as APDUs, answers ending in a two-byte *status word*. [Chapter 7](07-host.md) covers it.
-
-An applet is built for one binding. The vault uses the raw binding until chapter 7.
+The raw binding hands the applet the host's bytes as they arrive, and wraps every answer in a small envelope, which you'll see [below](#what-the-host-receives). It suits microcontrollers and TrustZone, where the host is firmware on the same chip. The ISO 7816 binding speaks the protocol of smart cards, with commands sent as APDUs and answers that end in a two-byte *status word*. [Chapter 7](07-host.md) covers it. An applet is built for one binding, and the vault uses the raw binding until chapter 7.
 
 ## Your first applet
 
-An applet is a folder of your own, anywhere you like. Make one called `vault`, and open it in VS Code. Since it is outside the CardLang repository, tell the extension where the toolchain is, once: open the settings (Ctrl+, or Cmd+,), search for **cardlang.repository**, and enter the path of your clone.
+An applet is a folder of your own, and it can live anywhere. Make one called `vault` and open it in VS Code. Because the folder is outside the CardLang repository, the extension needs to be told once where the toolchain is. Open the settings (Ctrl+, or Cmd+,), search for **cardlang.repository**, and enter the path of your clone.
 
-The folder needs a `cardlang.json`, which names the applet and lists its source files:
+The folder needs a `cardlang.json`, which names the applet, lists its source files and picks the raw binding:
 
 ```json
 { "name": "vault", "files": ["vault.card"], "binding": "raw" }
 ```
 
-`"binding": "raw"` chooses the raw binding.
-
-Now `vault.card`. For a start, the vault keeps a counter, and answers one command: read it.
+The first version of `vault.card` keeps a counter and answers a single command, which reads it.
 
 <!-- check: program vault -->
 ```cardlang
@@ -84,25 +71,23 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-Read it from the bottom up:
+It's easiest to read from the bottom up. `command process` is the applet's entry point, and every applet has exactly one (*HEP-1*). The host sends a request of a few bytes, and the command writes its answer into `response`. The request is passed as `ref`, so the command can read it but not change it, while `response` is `inout`, so the command can write to it.
 
-- **`command process`** is the applet's entry point. Every applet has exactly one (*HEP-1*). The host sends a request, a few bytes, and the command writes its answer into `response`. `ref` means the command can read the request but not change it; `inout` means it can write the response.
-- **It returns an outcome.** `Ok(4)` says the answer is the first 4 bytes of `response`. `Err(…)` reports an error instead, from the applet's own list of errors, `VaultError`. CardLang has no exceptions; [chapter 5](05-outcomes.md) shows how errors work instead.
-- **`require`** checks a condition, and returns the error after `else` if it does not hold (*STM-19*). Here it makes sure the request is one byte long and there is room for the answer.
-- **`persistent counter: u32`** is a 32-bit unsigned integer that keeps its value when the device loses power. It starts at zero, and [chapter 6](06-state.md) covers the other kinds of state an applet can keep.
-- **`encode_be(counter)`** turns the counter into 4 bytes, most significant first, and `response[0..4] = …` copies them into the first 4 bytes of the response.
+The command doesn't throw exceptions, because CardLang has none. It returns an outcome. `Ok(4)` means the answer is the first 4 bytes of `response`, and `Err(…)` reports one of the applet's own errors from `VaultError` instead. [Chapter 5](05-outcomes.md) is about outcomes. The two `require` lines guard the rest of the command (*STM-19*). If the request isn't exactly one byte long, or there's no room for a 4-byte answer, the command returns the error named after `else`.
 
-**Build it.** With `vault.card` open, run **CardLang: Build Applet** from the command palette (Ctrl+Shift+P), or click the package icon in the editor's title bar. The output panel shows something like:
+`persistent counter: u32` is a 32-bit unsigned integer that keeps its value when the device loses power. It starts at zero, and [chapter 6](06-state.md) covers the other kinds of state an applet can have. Finally, `encode_be(counter)` turns the counter into 4 bytes, most significant first, and `response[0..4] = …` copies them into the start of the response.
+
+To build it, open `vault.card` and run **CardLang: Build Applet** from the command palette (Ctrl+Shift+P), or click the package icon in the editor's title bar. The output panel shows something like this:
 
 ```text
 vault: build\vault.clvm: image 346 bytes (code 70, constants 0), 1 functions; stack 44, persistent 4, session 0 bytes
 ```
 
-The *image* in `build/vault.clvm` is what a device runs: 346 bytes in all. Because CardLang has no recursion and no heap, the compiler knows exactly how much memory the applet can ever need: 44 bytes of stack and 4 bytes of persistent storage, for the counter.
+`build/vault.clvm` is the *image*, the file a device runs, and it's 346 bytes long. CardLang has no recursion and no heap, so the compiler can work out how much memory the applet will ever need: 44 bytes of stack, and 4 bytes of persistent storage for the counter.
 
 ## Running it
 
-You don't need a device to run the applet. A *scenario* plays the host: it sends commands and states the answers it expects. Create `vault.scenario` next to `vault.card`:
+You can run the applet without a device. A *scenario* plays the part of the host, sending commands and stating the answer it expects to each one. Create `vault.scenario` next to `vault.card`:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -129,11 +114,11 @@ vault.scenario: passed (pyvm)
 
 `err app 3` is `ResponseTooSmall`, the error with code 3 in `VaultError`.
 
-Now see a failure: change the first `expect` to `expect ok 00 00 00 05`, and run it again. The scenario stops at that line, and says what it expected and what it got. Change it back.
+It's worth seeing a failure too. Change the first `expect` to `expect ok 00 00 00 05` and run the scenario again. It stops at that line and tells you what it expected and what it got. Then change it back.
 
 ### What the host receives
 
-A command ends in one of four ways, and the host can always tell which. In the raw binding, every answer is an *envelope*: one byte of *category*, two bytes of *code*, most significant first, and then the data (*BP-53*):
+However a command ends, the host can tell how. In the raw binding every answer arrives in an *envelope*, made of one byte of *category*, two bytes of *code* (most significant first), and then any data (*BP-53*):
 
 | The command ends with | Category | Code | Data |
 |---|---|---|---|
@@ -142,7 +127,7 @@ A command ends in one of four ways, and the host can always tell which. In the r
 | `Err` with one of the platform's errors | `02` | The platform error's code | None |
 | A trap | `03` | `00 00` | None |
 
-`expect ok …` and `expect err app …` check what the outcome means. `expect raw` checks the exact bytes the host receives:
+`expect ok …` and `expect err app …` check what an outcome means, and `expect raw` checks the bytes the host actually receives:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -154,11 +139,11 @@ command 01 capacity 2
 expect raw 01 00 03               # category 01: the applet's error 3
 ```
 
-Applet errors and platform errors have separate categories, so the host never confuses the two, even when their codes are equal. The platform's errors appear in [chapter 5](05-outcomes.md#platform-errors), and traps later in this chapter. In the ISO 7816 binding, the same four outcomes become status words instead.
+Because the applet's errors and the platform's errors have separate categories, the host can't mix them up, even if two codes happen to be equal. You'll meet the platform's errors in [chapter 5](05-outcomes.md#platform-errors), and traps later in this chapter. The ISO 7816 binding reports the same four outcomes as status words.
 
 ## Adding a command
 
-A counter that is always zero is not much use. Give the vault a second command, which increments it. Add a constant below `READ_COUNTER`, and replace `process` with this version:
+A counter that never changes isn't much use, so the vault's second command increments it. Add a constant below `READ_COUNTER`, and replace `process` with this version:
 
 <!-- check: program vault -->
 ```cardlang
@@ -179,9 +164,9 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-Both commands answer with the counter, so `return Ok(4)` moves to the end, and any other command byte is an error.
+Both commands answer with the counter, so `return Ok(4)` has moved to the end, and any other command byte is an error.
 
-Replace the scenario too. This one increments twice, then switches the device off and on again with `power_on`, to show that the counter survives:
+Replace the scenario as well. The new one increments the counter twice, then uses `power_on` to switch the device off and on, to show that the counter survives:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -198,23 +183,21 @@ command 07              # a command the vault does not know
 expect err app 2
 ```
 
-**Make a mistake.** In `process`, change `counter = counter + 1;` to `counter = request[0];`. The line is underlined at once, and the Problems panel (Ctrl+Shift+M) says:
+Now introduce a mistake. In `process`, change `counter = counter + 1;` to `counter = request[0];`. The line is underlined immediately, and the Problems panel (Ctrl+Shift+M) says:
 
 ```text
 CE-EXP-1: Type does not match the required type
 ```
 
-`request[0]` is a `u8`, and `counter` a `u32`. CardLang never converts between integer types by itself; [chapter 2](02-values-and-types.md) shows how to convert when you mean to. Every compile error has a code like `CE-EXP-1`, which you can look up in the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md). Undo the change.
+`request[0]` is a `u8` and `counter` is a `u32`, and CardLang never converts between integer types without being asked. [Chapter 2](02-values-and-types.md) shows how you ask. Every compile error has a code like `CE-EXP-1` that you can look up in the [specification](https://github.com/cardlang/cardlang/blob/main/language/spec/00-index.md). Undo the change before going on.
 
 ## Debugging it
 
-Open `vault.card`, and click left of the line `if request[0] == READ_COUNTER {` to set a breakpoint. Then open `vault.scenario` and press F5. The scenario runs until the applet reaches the breakpoint.
+Open `vault.card` and click to the left of the line `if request[0] == READ_COUNTER {` to set a breakpoint. Then open `vault.scenario` and press F5. The scenario runs until the applet reaches your breakpoint. From there, F10 steps over a statement, F11 steps into a call, Shift+F11 steps out, and F5 continues to the next command. The Variables panel shows the request and response bytes, the command's locals, and the `persistent` globals, so you can watch `counter` go up as you step over the increment.
 
-- **Step** with F10 (over), F11 (into) and Shift+F11 (out).
-- **The Variables panel** shows the request and response bytes, the command's locals, and the `persistent` globals: watch `counter` change as you step over the increment.
-- **Continue** with F5 to the next command.
+Some mistakes only show up while the applet runs, such as reading past the end of the request. CardLang turns these into *traps*. A trap stops the command at once, and the host learns nothing except that it trapped (*RTF-1*). Persistent changes made before the trap remain, unless they were inside a transaction, which [chapter 6](06-state.md#transactions) explains (*RTF-2*).
 
-**Catch a trap.** Some mistakes can only show up while the applet runs, like reading past the end of the request. CardLang turns these into *traps*: the command stops at once, with no answer but the fact that it trapped (*RTF-1*). Persistent changes it made before the trap stay, unless they were in a transaction, which [chapter 6](06-state.md#transactions) covers (*RTF-2*). To see one, delete the first `require` line from `process`, so that nothing checks the request's length, and add this to the end of the scenario:
+To cause one, delete the first `require` line from `process`, so nothing checks the length of the request any more, and add two steps to the end of the scenario:
 
 <!-- check: none -->
 ```scenario
@@ -222,13 +205,13 @@ command                 # an empty request: request[0] does not exist
 expect trap BOUNDS
 ```
 
-Run the scenario: the empty request now ends in `trap BOUNDS at vault.card:14`, the line that reads `request[0]`. In the debugger, turn on **Traps** in the Breakpoints panel, and press F5: it stops on that line, with the request in view. Put the `require` back, and remove the two steps.
+Run the scenario again. The empty request now ends in `trap BOUNDS at vault.card:14`, the line that reads `request[0]`. Back in the debugger, turn on **Traps** in the Breakpoints panel and press F5, and execution stops on that same line with the request in view. When you've seen it, put the `require` back and remove the two steps.
 
-A trap is not an error the applet reports; it is a bug. The host receives an envelope of category `03`, with no data: it learns that the command failed, but not why. The `require` turns an empty request into an `Err` the host can understand.
+A trap means the applet has a bug. It isn't an error the applet chose to report. The host gets an envelope of category `03` with no data, so it knows the command failed but not why. With the `require` in place, an empty request becomes an `Err` that the host can make sense of.
 
 ## From a terminal
 
-Everything the extension does is also a command, for scripts and continuous integration. From the `vault` folder:
+Everything the extension does is also available as a command, which is handy for scripts and continuous integration. From the `vault` folder:
 
 ```bash
 uv run --project path/to/cardlang clc check .
@@ -236,9 +219,4 @@ uv run --project path/to/cardlang clc build .
 uv run --project path/to/cardlang clc run vault.scenario
 ```
 
-`clc run` runs on the Python VM unless you choose another with `--backend`, as in `--backend interp` for the reference interpreter.
-
-## What next
-
-- Add a command that resets the counter to zero, with its own byte and a scenario step that checks it.
-- Make `INCREMENT` add the request's second byte instead of 1. You will need to change the first `require`, and you will run into the integer conversion from the mistake above, which [chapter 2](02-values-and-types.md) explains.
+`clc run` uses the Python VM unless you pick something else with `--backend`. `--backend interp` runs the reference interpreter, for example.

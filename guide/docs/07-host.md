@@ -1,10 +1,10 @@
 # 7. Talking to the host
 
-An applet only ever sees bytes: a request comes in, a response goes out. How those bytes travel between the host and the applet, and how the host learns whether a command succeeded, is decided by the *binding* the applet is built for. [Chapter 1](01-getting-started.md#applets-platforms-and-hosts) introduced the two bindings of the Base Profile, and the raw binding's envelope. This chapter puts the two side by side, and then looks closely at ISO 7816, the binding of smart cards, with a small applet written for it.
+All an applet ever sees is bytes. A request comes in and a response goes out. How those bytes travel, and how the host learns whether a command worked, depends on the *binding* the applet is built for. [Chapter 1](01-getting-started.md#applets-platforms-and-hosts) introduced the Base Profile's two bindings and the raw binding's envelope. Here we put the two bindings side by side, and then take a closer look at ISO 7816, the binding smart cards use, with a small applet written for it.
 
 ## One outcome, two encodings
 
-Whatever the binding, a command ends in one of four ways, and the host can always tell them apart (*PLT-9*). Only the encoding differs:
+Whichever binding you use, a command ends in one of four ways, and the host can always tell which (*PLT-9*). The bindings only encode them differently:
 
 | The command ends with | Raw binding: the envelope | ISO 7816: the response |
 |---|---|---|
@@ -13,22 +13,21 @@ Whatever the binding, a command ends in one of four ways, and the host can alway
 | `Err(CardError.m)` | `02`, then `m`'s code | Status word `6F00` + `m`'s code |
 | A trap | `03 00 00` | Status word `6F00` |
 
-The applet's code is the same in both. `return Err(PinError.WrongPin)` is written once, and the platform encodes it for the binding.
+The applet's own code doesn't change. You write `return Err(PinError.WrongPin)` once, and the platform encodes it for whichever binding the applet uses.
 
 ## Choosing a binding
 
-You choose the binding for the device and the host you are writing for. It is named in `cardlang.json`, and an applet is built for exactly one (*BP-47*):
+The binding follows from the device and the host you're writing for. You name it in `cardlang.json`, and an applet is built for exactly one (*BP-47*).
 
-- **The raw binding** is for a host that talks to the applet directly. Typically that is the main firmware of a microcontroller calling into a TrustZone secure partition. You design the request format yourself, as the vault does.
-- **The ISO 7816 binding** is for smart cards and NFC tokens, and for hosts that already speak their protocol: card readers, phones, and standard middleware for PIV, OpenPGP or FIDO. Its requests and status words follow ISO/IEC 7816-4.
+The raw binding is for a host that talks to the applet directly, typically the main firmware of a microcontroller calling into a TrustZone secure partition. You design the request format yourself, as we did for the vault. The ISO 7816 binding is for smart cards and NFC tokens, and for hosts that already speak their protocol, such as card readers, phones, and the standard middleware for PIV, OpenPGP or FIDO. Its requests and status words follow ISO/IEC 7816-4.
 
-An applet written for one rarely needs the other. The vault stays on the raw binding; the rest of this chapter uses a small applet of its own.
+An applet written for one binding rarely needs the other. The vault stays on the raw binding, and the rest of this chapter uses a small applet of its own.
 
 ## The ISO 7816 binding
 
 ### Requests are APDUs
 
-An ISO 7816 command is an *APDU*: four header bytes, then the data. The platform passes it to `command` without its length fields (*BP-50*):
+An ISO 7816 command is called an *APDU*. It has four header bytes followed by data, and the platform passes it to `command` without its length fields (*BP-50*):
 
 | Bytes | Name | Meaning |
 |---|---|---|
@@ -37,13 +36,13 @@ An ISO 7816 command is an *APDU*: four header bytes, then the data. The platform
 | `request[2]`, `request[3]` | P1, P2 | Parameters of the instruction |
 | `request[4..request.length]` | Data | The command data, if any |
 
-The class says whose command it is. `00` is the *interindustry* class: commands defined by ISO 7816-4 itself, such as VERIFY (`00 20`), mean the same on every card. An applet's own commands must not be declared in that space. They use a *proprietary* class, such as `80`, where the applet decides what each instruction means.
+The class says whose command it is. Class `00` is *interindustry*, for the commands that ISO 7816-4 defines itself, such as VERIFY (`00 20`), which mean the same on every card. An applet mustn't declare its own commands there. Its own commands go in a *proprietary* class, such as `80`, where it can decide what each instruction means.
 
-The host's expected response length, *Le*, is not passed: `response.length` is the room the platform gives the answer. Messages too long for one APDU are split by the host, and reassembled by the platform, with *command chaining* or *extended length*. Long answers are split by the platform, with `61XX` and GET RESPONSE. The applet never sees any of this: `command` runs once, on the whole request, and writes the whole response (*BP-48*, *BP-49*).
+The length the host expects back, *Le*, isn't passed to the applet. `response.length` tells it how much room the platform has given the answer instead. If a message is too long for one APDU, the host splits it, using *command chaining* or *extended length*, and the platform puts it back together. Long answers are split by the platform, with `61XX` and GET RESPONSE. None of this reaches the applet. `command` runs once on the whole request and writes the whole response (*BP-48*, *BP-49*).
 
 ### Status words
 
-Every answer ends with a two-byte *status word*. `9000` means success; the rest report errors. ISO 7816-4 defines many, and applets reuse them:
+Every answer ends with a two-byte *status word*. `9000` means success, and other values report errors. ISO 7816-4 defines a great many, and applets reuse them:
 
 | Status word | Meaning |
 |---|---|
@@ -55,7 +54,7 @@ Every answer ends with a two-byte *status word*. `9000` means success; the rest 
 | `6D00` | Instruction not supported |
 | `6E00` | Class not supported |
 
-An applet's error codes *are* its status words, so in an applet built for ISO 7816 every code must lie in `6200`–`6EFF` or `9100`–`9FFF` (*BP-52*). That keeps them clear of `9000`, and of the `6Fxx` range the platform uses for its own errors and for traps. A code outside those ranges is rejected when the applet is built:
+In this binding an applet's error codes *are* its status words. Every code therefore has to lie in `6200`–`6EFF` or `9100`–`9FFF` (*BP-52*), which keeps the applet's codes away from `9000`, and from the `6Fxx` range that the platform uses for its own errors and for traps. Any other code is rejected when the applet is built:
 
 <!-- check: error BP-52 binding=iso7816 -->
 ```cardlang
@@ -70,7 +69,7 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 
 ### SELECT
 
-A card holds several applications, and the host chooses one by its *application identifier* with a SELECT command. The platform handles SELECT itself: the applet never sees it in `command` (*BP-50*). An applet may answer it, though, with the handler `on_select`, whose data becomes the SELECT response (*BP-50a*):
+A card holds several applications, and the host chooses one with a SELECT command, giving the application's *identifier*. The platform deals with SELECT itself, and `command` never sees it (*BP-50*). An applet can still answer it, though, with an `on_select` handler, whose data becomes the response to the SELECT (*BP-50a*):
 
 <!-- check: fragment -->
 ```cardlang
@@ -82,21 +81,21 @@ function on_select(response: inout u8[]) -> u32 {
 }
 ```
 
-If `on_select` returns `Err`, or traps, the applet is not selected.
+If `on_select` returns `Err` or traps, the applet isn't selected.
 
 ### Sessions
 
-On a card, an applet's session starts at power-on, and again at the first SELECT after it was deselected. It ends when another applet is selected, or when the power goes (*BP-56*). So session state, such as "the PIN was verified", is lost as soon as the host talks to another application on the card. This is what smart-card hosts expect, and what security standards such as PIV require.
+On a card, an applet's session begins at power-on, and again at the first SELECT after it was deselected. It ends when another application is selected or the power goes (*BP-56*). So session state such as "the PIN was verified" disappears as soon as the host talks to another application on the card. Smart-card hosts expect this, and security standards such as PIV require it.
 
 ## A PIN applet for smart cards
 
-Here is a small applet in the style of a smart card's PIN check. It answers two commands: the interindustry VERIFY (`00 20`), and a proprietary status command (`80 10`) that says whether the PIN is verified. Its `cardlang.json` names the ISO 7816 binding:
+Here's a small applet in the style of a smart card's PIN check. It answers two commands, the interindustry VERIFY (`00 20`), and a proprietary status command (`80 10`) that says whether the PIN has been verified. Its `cardlang.json` names the ISO 7816 binding:
 
 ```json
 { "name": "pincheck", "files": ["pincheck.card"], "binding": "iso7816" }
 ```
 
-Its errors are status words from the table above:
+Its errors are status words taken from the table above:
 
 <!-- check: program pincheck binding=iso7816 -->
 ```cardlang
@@ -132,7 +131,7 @@ function on_select(response: inout u8[]) -> u32 {
 }
 ```
 
-VERIFY checks the PIN exactly as the vault's `check_pin` does in [chapter 6](06-state.md#checking-a-pin), counting the try before comparing. VERIFY with no data answers the tries left:
+VERIFY checks the PIN the same way the vault's `check_pin` does in [chapter 6](06-state.md#checking-a-pin), counting the try before it compares. Sent without data, it answers the number of tries left:
 
 <!-- check: program pincheck -->
 ```cardlang
@@ -152,7 +151,7 @@ function verify(pin: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-`process` reads the header, and dispatches on the class and the instruction together:
+`process` reads the header and looks at the class and the instruction together:
 
 <!-- check: program pincheck -->
 ```cardlang
@@ -177,13 +176,13 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
 }
 ```
 
-- **P2 = `80`** names the PIN to verify, as ISO 7816 and PIV do. Any other P1 or P2 is `6A86`.
-- **A command is its class and instruction together.** `00 20` is VERIFY, and `80 10` is the applet's own status command. `80 20` and `00 10` are neither, so they are unsupported instructions.
-- **The commands** are decoded with an `if` chain here. With more instructions, an enum and a `decode` function, as in the vault, scale better.
+A command is identified by its class and its instruction together. `00 20` is VERIFY and `80 10` is the applet's own status command, but `80 20` and `00 10` are neither, so they count as unsupported instructions. P2 = `80` names which PIN to verify, as ISO 7816 and PIV do, and any other P1 or P2 gets `6A86`. With only two commands, an `if` chain is enough to tell them apart. An applet with more of them is better off with an enum and a `decode` function, like the vault's.
+
+Real cards report a wrong PIN a little differently, as `63CX`, where `X` is the number of tries left. An error can only carry its code, so that needs one error member per count, such as `Retries2 = 0x63C2;`. The [PIV example](https://github.com/cardlang/cardlang/tree/main/examples/piv) does it that way.
 
 ### Scenarios on ISO 7816
 
-A scenario for an ISO 7816 applet uses two more steps, `select` and `deselect`, and can check status words with `expect sw`:
+Scenarios for an ISO 7816 applet have two extra steps, `select` and `deselect`, and can check status words with `expect sw`:
 
 <!-- check: scenario pincheck -->
 ```scenario
@@ -212,10 +211,4 @@ command A0 20 00 80
 expect sw 6E00                      # a class it does not know
 ```
 
-`expect ok …` checks the data of a successful answer; `expect sw …` checks the status word the host receives, whatever the outcome.
-
-## What next
-
-- Real cards report a wrong PIN as `63CX`, where `X` is the tries left. Since an error carries only its code, that takes one error member per count: `Retries2 = 0x63C2;`, and so on. The [PIV example](https://github.com/cardlang/cardlang/tree/main/examples/piv) does exactly this. Change `verify` to answer `63C2` and `63C1` after wrong guesses.
-- Add CHANGE REFERENCE DATA, instruction `24`, which changes the PIN. Store the PIN in persistent state, and change it in a transaction, as in [chapter 6](06-state.md#changing-the-pin).
-- Send `command 80 10 00 00 FF`, a status request with data. What does the host get, and which `require` decides it?
+`expect ok …` checks the data of a successful answer, while `expect sw …` checks the status word the host receives, whatever the outcome.

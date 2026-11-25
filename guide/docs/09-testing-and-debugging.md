@@ -1,10 +1,10 @@
 # 9. Testing and debugging
 
-You have written a scenario for every version of the vault. This chapter turns those habits into a method: scenarios as a test suite, run in VS Code or from a terminal; the debugger, used to find a real bug; and a look inside the compiled image.
+You've written a scenario for every version of the vault so far. This chapter turns that habit into a method. We'll treat scenarios as a test suite, run them from VS Code and from a terminal, use the debugger to track down a real bug, and finish with a look inside the compiled image.
 
 ## A test suite of scenarios
 
-A scenario is a test: it drives the applet as a host would, and checks every answer. Keep them beside the applet, one file per feature, each starting from a fresh `install`, so that each can run on its own:
+A scenario is a test. It drives the applet the way a host would, and checks every answer. Keep your scenarios next to the applet, one file per feature, and start each with a fresh `install` so it can run on its own:
 
 ```text
 vault/
@@ -17,7 +17,7 @@ vault/
   signing.scenario
 ```
 
-A good scenario follows every `command` with an `expect`, and tests the failures as carefully as the successes: the wrong PIN, the short request, the response with no room. Those are the cases a host will hit, and the ones nobody tries by hand.
+In a good scenario every `command` has an `expect` after it, and the failures get as much attention as the successes. Wrong PINs, short requests and responses with no room are what hosts will actually send, and they're also the cases nobody bothers to try by hand.
 
 ### Steps
 
@@ -46,17 +46,17 @@ A good scenario follows every `command` with an `expect`, and tests the failures
 | `expect raw <hex>` | Exactly this raw-binding envelope |
 | `expect sw <hex>` | Exactly this ISO 7816 status word |
 
-`#` starts a comment, anywhere on a line.
+Anything after `#` on a line is a comment.
 
 ### Trap kinds
 
-A trap has a *kind*, which says what went wrong: `BOUNDS` for an index out of range, `OVERFLOW` for arithmetic that does not fit, and so on (*RTF-4*). Scenarios name it in `expect trap`, and `clc run` and the debugger show it. The [platform reference](reference-platform.md#trap-kinds) lists every kind.
+Every trap has a *kind* that says what went wrong, such as `BOUNDS` for an index out of range or `OVERFLOW` for arithmetic that doesn't fit (*RTF-4*). Scenarios name the kind in `expect trap`, and `clc run` and the debugger display it. The [platform reference](reference-platform.md#trap-kinds) lists them all.
 
-The kind is for you, while testing and debugging. The host, on the other hand, usually learns only that a trap happened: in the Base Profile, it gets category `03` with code `00 00`, or status word `6F00`, whatever the kind (*PLT-10*). That is one more reason why anything the host can cause should be an `Err`, which it can tell apart, and not a trap.
+The kind is there for you, while you test and debug. The host usually learns only that some trap happened. In the Base Profile it gets category `03` with code `00 00`, or status word `6F00`, whatever the kind was (*PLT-10*). That's one more reason to make anything the host can cause an `Err`, which the host can tell apart, rather than a trap.
 
 ## Repeatable randomness
 
-Random bytes, and keys generated from them, are different on every real device. To make them repeatable in a test, `seed` restarts the test platform's random generator from a value you give. From then on, the same seed gives the same bytes, on every run. A real platform ignores `seed`.
+Random bytes, and keys generated from them, come out differently on every real device. To make them repeatable in a test, `seed` restarts the test platform's random generator from a value you choose, and after that the same seed always produces the same bytes. A real platform ignores `seed`.
 
 <!-- check: program dice -->
 ```cardlang
@@ -77,26 +77,24 @@ command 00
 expect ok 62 1F 46 6F       # always these bytes, after this seed
 ```
 
-Use it sparingly: a test that pins exact random bytes breaks whenever the applet draws one more byte earlier on. Prefer checking what the random bytes are *for*.
+Use it with care. A test that pins down exact random bytes breaks as soon as the applet draws one more byte somewhere earlier, so where you can, check what the random bytes are *for* instead.
 
 ## Running the tests
 
-**In VS Code,** **CardLang: Run Scenario** runs the open scenario, and prints every step and expectation.
+In VS Code, **CardLang: Run Scenario** runs the scenario that's open and prints every step and expectation. From a terminal, `clc run` runs one scenario, and exits with 0 if it passes, so any script or CI job can run the whole suite, on whatever shell or system it uses.
 
-**From a terminal,** `clc run` runs one scenario. Its exit code is 0 when the scenario passes, so any script or CI job can run the whole suite, whatever shell or system it uses.
-
-**Where it runs.** A scenario runs on one of the toolchain's implementations of the CardLang platform, its *backends*. The Python VM, which runs the compiled image, is the default, and what the debugger uses. `--backend interp`, or the setting `cardlang.scenarioBackend`, chooses the reference interpreter instead. The backends are tested to behave identically, so one is enough for your applet's tests: the default is the natural choice.
+Scenarios run on one of the toolchain's implementations of the CardLang platform, called *backends*. The default is the Python VM, which runs the compiled image, and it's also what the debugger uses. `--backend interp`, or the `cardlang.scenarioBackend` setting, runs the reference interpreter instead. The backends are tested to behave identically, so your applet's tests only need one of them, and the default is the obvious choice.
 
 ## Finding a bug
 
-Suppose that, in `check_pin_format`, the loop over the digits had been written to start at 1, not 0:
+Suppose the loop over the digits in `check_pin_format` had been written to start at 1 instead of 0:
 
 <!-- check: none -->
 ```cardlang
     for index: u32 in 1..candidate.length {
 ```
 
-Every scenario so far still passes: the right PIN is accepted, wrong ones are refused. A new scenario, `pin-format.scenario`, catches it:
+Every scenario so far would still pass. The right PIN is accepted and wrong ones are refused. A new scenario, `pin-format.scenario`, catches the bug:
 
 <!-- check: scenario vault -->
 ```scenario
@@ -108,7 +106,7 @@ command 20
 expect ok 03                # still three tries
 ```
 
-With the bug, it fails at once:
+With the bug in place, it fails straight away:
 
 ```text
 pin-format.scenario:3: command 20 41 32 33 34  -> err app 0x4
@@ -116,41 +114,38 @@ pin-format.scenario:4: FAIL expect err app 1  (got ('err', 'app', 4))
 pin-format.scenario: FAILED, line 4: expected ('err', 'app', 1), got ('err', 'app', 4) (pyvm)
 ```
 
-`A234` was taken for a well-formed PIN, compared, and counted as a wrong guess: a typo costs the user a try. To see why:
+`A234` was treated as a well-formed PIN, compared, and counted as a wrong guess, so a typo has cost the user a try. Here's how to see why with the debugger:
 
-1. In the Breakpoints panel, make sure **Failed expectations** is on. Open `pin-format.scenario`, and press F5. The debugger stops at the failing `expect`, with the outcome in the Debug Console.
-2. Set a breakpoint on the first line of `check_pin_format`, and restart (Ctrl+Shift+F5). This time it stops inside the applet, during the command.
-3. Press F10 until you are inside the loop. In the Variables panel, `index` is 1 on the first pass, and `candidate[0]` is `0x41`, the `A`: it was never checked.
-4. Fix the loop's start, and run the scenario again. It passes.
+1. Check that **Failed expectations** is turned on in the Breakpoints panel, open `pin-format.scenario`, and press F5. The debugger stops at the failing `expect`, and the outcome appears in the Debug Console.
+2. Set a breakpoint on the first line of `check_pin_format` and restart with Ctrl+Shift+F5. This time execution stops inside the applet, in the middle of the command.
+3. Press F10 until you're inside the loop. In the Variables panel, `index` is 1 on the first pass, while `candidate[0]` is `0x41`, the `A`, which was never checked.
+4. Fix the start of the loop and run the scenario again. It passes.
 
-The bug is fixed, and the scenario stays in the suite, so it cannot come back unnoticed.
+The scenario stays in the suite after the fix, so the bug can't creep back unnoticed.
+
+Not every bug can be caught this way, though. Try moving `tries -= 1` in `check_pin` to after the comparison. No scenario fails, because a scenario can't cut the power at exactly that moment, and [chapter 6](06-state.md) explains why that moment matters. Some properties can only be checked by reading the code.
 
 ## The debugger, in full
 
-- **Breakpoints** go on lines of the `.card` files, or on scenario lines, to stop before a step runs.
-- **Stepping is by statement:** F10 steps over, F11 steps into a call, and Shift+F11 steps out.
-- **The call stack** runs from the current function down to `process`, with the scenario step at the bottom.
-- **Variables** shows the parameters and locals in scope, and the `session`, `persistent` and constant globals. Arrays, structures and views expand.
-- **Traps** and **Failed expectations**, in the Breakpoints panel, stop where a trap happens, with the faulting frame intact, or at an `expect` that does not match.
-- **A configuration** in `.vscode/launch.json` keeps a scenario to debug, as the extension's README shows. <!-- linkcheck: ignore -->
+You can put breakpoints on lines of the `.card` files, or on lines of a scenario to stop before that step runs. Stepping goes statement by statement, with F10 stepping over, F11 stepping into a call, and Shift+F11 stepping out. The call stack runs from the current function down to `process`, with the scenario step at the very bottom. The Variables panel shows the parameters and locals in scope along with the `session`, `persistent` and constant globals, and arrays, structures and views can be expanded.
 
-The debugger runs the compiled image on the Python VM, the same code a device runs.
+The Breakpoints panel has two extra switches. **Traps** stops where a trap happens, with the faulting frame still intact, and **Failed expectations** stops at an `expect` that doesn't match. To keep a scenario ready for debugging, add a configuration in `.vscode/launch.json`, as the extension's README describes. <!-- linkcheck: ignore -->
+
+The debugger runs the compiled image on the Python VM, the same code that runs on a device.
 
 ## Inside the image
 
-`clc build`, or Build Applet, prints a summary of the compiled image. For the vault, it is something like:
+`clc build`, or Build Applet, prints a summary of the compiled image. For the vault it looks something like this:
 
 ```text
 vault: build\vault.clvm: image 3490 bytes (code 971, constants 6), 12 functions; stack 182, persistent 53, session 1 bytes
 ```
 
-- **image** is the whole file a device loads, with its code and constants.
-- **stack** is the most stack the applet can ever use, in bytes. With no recursion, the compiler works it out exactly, across every chain of calls.
-- **persistent** and **session** are the bytes of state, laid out by the compiler.
+The *image* is the whole file a device loads, code and constants included. *stack* is the most stack the applet can ever use, in bytes. With no recursion, the compiler can work it out precisely, along every chain of calls. *persistent* and *session* are the bytes of state, laid out by the compiler.
 
-These numbers are your budget. On a device with a few kilobytes of RAM, watch the stack when you add a large local array, or a deeper chain of calls.
+Treat these numbers as your budget. On a device with a few kilobytes of RAM, keep an eye on the stack when you add a large local array or a longer chain of calls.
 
-`clc disasm` lists the compiled code, function by function, with the source line of each part:
+`clc disasm` lists the compiled code function by function, marking which source line each part comes from:
 
 ```text
 ; function 0: on_install  (frame 24, argc 0, payload 0, operands from 8, code 58 bytes)
@@ -162,9 +157,4 @@ These numbers are your budget. On a device with a few kilobytes of RAM, watch th
 0036  75                       TXN.COMMIT
 ```
 
-You rarely need it, but it answers "what does this cost?" precisely: here, `attempt` inside a transaction is a single jump to an abort.
-
-## What next
-
-- Split the vault's scenarios into one file per feature, as above, and run each with `clc run` from a terminal.
-- Plant a bug of your own: change `tries -= 1` to come after the comparison in `check_pin`. Which scenario catches it? If none does, write one. (Hint: chapter 6 says why a power cut there matters, and no scenario can cut the power at that moment. Some properties can only be checked by reading the code.)
+You won't need it often, but when you want to know what something costs, it gives a precise answer. Here, for example, it shows that an `attempt` inside a transaction compiles to a single jump to an abort.
