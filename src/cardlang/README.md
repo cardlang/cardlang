@@ -2,7 +2,7 @@
 
 The CardLang toolchain in Python: the front end, the compiler, the reference interpreter, the Python VM, the harness, the command line, the language server and the debug adapter. None of it is normative: when the package and `language/spec/` disagree, the specification wins, and the package is the thing to fix.
 
-It is installed, editable, into the repository's uv environment by `uv sync`, and it works from a checkout of the repository: `cardlang.layout` finds the specification, the conformance suite and the Base Profile there. Its one dependency is `cffi`, for the C VM.
+It is installed, editable, into the repository's uv environment by `uv sync`, and it works from a checkout of the repository: `cardlang.layout` finds the specification, the conformance suite and the Base Profile there. The VS Code extension carries a copy of the package laid out the same way, with only the few specification and platform files the package reads while it runs (`editors/vscode/bundle.py` lists them). Code that reads another file of the repository at run time has to be added to that list. Its one dependency is `cffi`, for the C VM.
 
 | Module | What it is |
 |---|---|

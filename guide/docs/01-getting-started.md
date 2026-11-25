@@ -4,23 +4,23 @@ By the end of this chapter you'll have the tools installed and an applet of your
 
 ## What you need
 
-All you need is [VS Code](https://code.visualstudio.com/) and the CardLang extension for it. Download `cardlang-<version>.vsix` from the [extension's latest release](https://github.com/cardlang/cardlang/releases), open the Extensions view in VS Code (Ctrl+Shift+X, or Cmd+Shift+X on a Mac), choose **Install from VSIX…** from the **…** menu at the top, and pick the file. If you prefer a terminal:
+You need [VS Code](https://code.visualstudio.com/) and the CardLang extension. Download `cardlang-<version>.vsix` from the [extension's latest release](https://github.com/cardlang/cardlang/releases), open the Extensions view in VS Code (Ctrl+Shift+X, or Cmd+Shift+X on a Mac), choose **Install from VSIX…** from the **…** menu at the top, and pick the file. If you prefer a terminal:
 
 ```bash
 code --install-extension cardlang-<version>.vsix
 ```
 
-The first time you open a CardLang applet, the extension offers to set up the toolchain: the compiler `clc`, the language server and the debugger. Choose **Set Up**. The extension downloads [uv](https://docs.astral.sh/uv/), the Python package manager, and checks the download against a fingerprint it carries. uv then installs the toolchain, along with a Python if your computer has none. It all goes into VS Code's storage for the extension, and nothing is installed system-wide. **CardLang: Set Up Toolchain** runs the setup again whenever you need it.
+The extension brings its own copy of the CardLang toolchain, which is the compiler `clc`, the language server and the debugger. The first time you open an applet, it asks whether it may set the toolchain up. Click **Set Up** and give it a minute. It downloads [uv](https://docs.astral.sh/uv/), a tool for installing Python software, checks that the download hasn't been tampered with, and has uv install the toolchain, along with Python if your computer doesn't have it yet. Everything stays in VS Code's storage for the extension, so nothing is installed system-wide. If you ever need to repeat the setup, run **CardLang: Set Up Toolchain** from the Command Palette.
 
 ## A quick look at a real applet
 
-Before you write anything, get the CardLang repository, which holds the specification and the examples:
+Before you write anything of your own, it helps to see a finished applet. The examples live in the CardLang repository, next to the specification, so get a copy of it:
 
 ```bash
 git clone https://github.com/cardlang/cardlang.git
 ```
 
-Open its folder in VS Code and look at `examples/fido2/ctap.card`, part of a FIDO2 authenticator. Change a `u32` to `u16` somewhere, or misspell a name, and the mistake is underlined straight away, with an error code from the specification. Undo it. F12 or Ctrl+click takes you to a definition, even in another file, and typing `card.` inside a function lists the platform's APIs with their documentation.
+Open the folder in VS Code and look at `examples/fido2/ctap.card`, part of a FIDO2 authenticator. Change a `u32` to `u16` somewhere, or misspell a name, and the mistake is underlined straight away, with an error code from the specification. Undo it. F12 or Ctrl+click takes you to a definition, even in another file, and typing `card.` inside a function lists the platform's APIs with their documentation.
 
 ## Applets, platforms and hosts
 
@@ -205,7 +205,7 @@ A trap means the applet has a bug. It isn't an error the applet chose to report.
 
 ## From a terminal
 
-Everything the extension does is also available as a command, which is handy for scripts and continuous integration. For that you need uv itself, [installed](https://docs.astral.sh/uv/getting-started/installation/) so you can run it, and the clone of the repository. uv installs the toolchain into the clone the first time. From the `vault` folder:
+Everything the extension does is also available as a command, which is handy for scripts and continuous integration. The commands run from your copy of the repository, through uv, so for these you need [uv installed](https://docs.astral.sh/uv/getting-started/installation/) on your computer. The first command installs the toolchain into the repository's folder, which takes a moment. From the `vault` folder:
 
 ```bash
 uv run --project path/to/cardlang clc check .
