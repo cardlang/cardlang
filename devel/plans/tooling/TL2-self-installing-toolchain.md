@@ -80,3 +80,14 @@ That's about 2 MB, roughly 1 MB in the `.vsix`. `layout.py` needs no change, bec
 - **Trust.** Running a downloaded program is something users and reviewers notice. The prompt says exactly what is downloaded and from where, the archive is checked against a pinned hash, and nothing runs without the user's agreement.
 - **uv's editable install** of the bundled project points into the extension's folder. That folder is fixed per version, and `env-<version>` follows it. The self-test proves this works on all three systems before release.
 - **Size.** The `.vsix` grows from about 400 KB to about 1.5 MB.
+
+## 6. Progress
+
+**Built 2026-11-25,** on the branch `vscode-self-setup`. Two departures from the plan:
+
+- **Linux uses uv's static musl builds,** not the glibc ones. They run on glibc and musl systems alike, so one pin covers Alpine too.
+- **A repository with no uv** also gets the setup offer. Without it, a user who opens a clone first, as chapter 1 suggests, would get a language server that can't start. After the setup, the repository is run with the extension's own uv.
+
+The setup lives in `toolchain.js`, plain Node, so `selftest.js` runs exactly the shipped code against an unpacked `.vsix`. Locally, on Windows x64, the self-test passes: the setup, `clc check`, `build` and `run`, the language server's diagnostics and `card.` completion, the debug adapter, and a second setup that reuses uv. A first run found that a removal could fail on Windows while a server's Python was still exiting. The self-test now closes the servers as VS Code does, and the setup's removals retry.
+
+Not yet verified: a machine with no Python (CI runners have one), a corrupted download (only by reading the code), and the extension inside VS Code.

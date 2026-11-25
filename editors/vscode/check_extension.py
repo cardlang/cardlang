@@ -7,6 +7,8 @@
 - Every regular expression of both grammars compiles (in Python's syntax, which these patterns share with
   Oniguruma), and the keyword patterns colour every keyword token of both applets.
 - The extension starts the tools only by the commands the package installs, never a script by its path.
+- The uv pin (uv.json) covers every platform, each with a release URL of the pinned version and a SHA-256, and the
+  bundle (bundle.py) names only files that exist; the .vsix leaves neither out.
 Usage: uv run python -I editors/vscode/check_extension.py .
 """
 import sys, re, json, pathlib, tomllib
@@ -62,12 +64,26 @@ def main(repo):
     dbg = (contrib.get("debuggers") or [{}])[0]
     check("the debugger contribution", dbg.get("type") == "cardlang" and dbg["configurationAttributes"]["launch"]["required"] == ["scenario"]
           and {b["language"] for b in contrib.get("breakpoints", [])} == {"cardlang", "cardlang-scenario"}
-          and 'registerDebugAdapterDescriptorFactory("cardlang"' in js and 'commandArgs(root, "cardlang-dap"' in js, str(dbg.get("type")))
+          and 'registerDebugAdapterDescriptorFactory("cardlang"' in js and 'tools.run("cardlang-dap"' in js, str(dbg.get("type")))
     scripts = tomllib.loads((layout.at(repo).root / "pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("scripts", {})
-    used = set(re.findall(r'commandArgs\(root, "([\w-]+)"', js))
+    used = set(re.findall(r'tools\.run\("([\w-]+)"', js))
     check("the extension runs only commands the package installs", used == {"clc", "cardlang-lsp", "cardlang-dap"} and used <= set(scripts),
           f"uses {sorted(used)}; installed {sorted(scripts)}")
-    check("the extension names no script by its path", not re.search(r'\.py\b', js), "")
+    tjs = (HERE / "toolchain.js").read_text(encoding="utf-8")
+    check("the extension names no script by its path", not re.search(r'\.py\b', js + tjs), "")
+    pin = docs.get("uv.json", {}); plats = pin.get("platforms", {})
+    want_plats = {f"{o}-{a}" for o in ("win32", "darwin", "linux") for a in ("x64", "arm64")}
+    good = all(re.fullmatch(r"https://github\.com/astral-sh/uv/releases/download/" + re.escape(pin.get("version", "?")) + r"/uv-[\w.-]+\.(zip|tar\.gz)", e.get("url", ""))
+               and re.fullmatch(r"[0-9a-f]{64}", e.get("sha256", "")) for e in plats.values())
+    check("uv.json pins uv for every platform", set(plats) == want_plats and good, f"uv {pin.get('version')}, platforms {sorted(plats)}")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bundle", HERE / "bundle.py"); bundle = importlib.util.module_from_spec(spec); spec.loader.exec_module(bundle)
+    files = bundle.sources(layout.at(repo))
+    missing = [str(f) for f in files if not f.is_file()]
+    check("the bundle names only files that exist", files and not missing, f"{len(files)} files; missing {missing[:3]}")
+    ignored = [l.strip() for l in (HERE / ".vscodeignore").read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")]
+    shipped = ("toolchain", "toolchain.js", "uv.json", "extension.js")
+    check("the .vsix keeps the toolchain, toolchain.js and uv.json", not [l for l in ignored if l.split("/")[0] in shipped], str(ignored))
     kw_rx = [re.compile(p["match"]) for p in g["repository"]["keywords"]["patterns"]]
     missed = set()
     for app in ("fido2", "piv"):

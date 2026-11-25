@@ -1,6 +1,9 @@
 # Left out of the .vsix: development files. vsce adds the production dependencies by itself.
 check_extension.py
 install.py
+bundle.py
+pin_uv.py
+selftest.js
 .gitignore
 *.vsix
 **/__pycache__/**

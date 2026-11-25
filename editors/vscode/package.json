@@ -2,7 +2,7 @@
   "name": "cardlang",
   "displayName": "CardLang",
   "description": "CardLang for VS Code: highlighting, diagnostics as you type, building, running and debugging applets.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "publisher": "cardlang",
   "icon": "images/icon.png",
   "galleryBanner": { "color": "#14264D", "theme": "dark" },
@@ -27,7 +27,7 @@
     "onDebugDynamicConfigurations:cardlang"
   ],
   "scripts": {
-    "package": "vsce package --out cardlang.vsix"
+    "package": "uv run python -I bundle.py && vsce package --out cardlang.vsix"
   },
   "contributes": {
     "semanticTokenModifiers": [
@@ -138,6 +138,11 @@
         "command": "cardlang.restartServer",
         "title": "Restart Language Server",
         "category": "CardLang"
+      },
+      {
+        "command": "cardlang.setUpToolchain",
+        "title": "Set Up Toolchain",
+        "category": "CardLang"
       }
     ],
     "menus": {
@@ -175,12 +180,12 @@
         "cardlang.repository": {
           "type": "string",
           "default": "",
-          "description": "The CardLang repository, whose pyproject.toml names the cardlang package. Empty: the workspace folder that contains it, or a folder above it."
+          "description": "The CardLang repository, whose pyproject.toml names the cardlang package. Empty: the workspace folder that contains it, or a folder above it; failing that, the toolchain bundled with the extension (CardLang: Set Up Toolchain)."
         },
         "cardlang.uvPath": {
           "type": "string",
-          "default": "uv",
-          "description": "The uv executable that runs the CardLang commands (clc, cardlang-lsp, cardlang-dap) in the repository's Python environment."
+          "default": "",
+          "description": "The uv executable that runs the CardLang commands (clc, cardlang-lsp, cardlang-dap). Empty: the uv the extension installed during its setup, else uv on the PATH."
         },
         "cardlang.scenarioBackend": {
           "type": "string",

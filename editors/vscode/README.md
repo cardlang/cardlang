@@ -1,7 +1,8 @@
 # CardLang for VS Code
 
-Write, build, run and debug CardLang smart-card applets in VS Code. The extension is a thin client: the language
-server, the build tools and the debug adapter are commands of the `cardlang` package in the CardLang repository, run through `uv`.
+Write, build, run and debug CardLang smart-card applets in VS Code. The language server, the build tools and the
+debug adapter are commands of the `cardlang` package, run through `uv`. The extension carries that package and sets it
+up on first use, or uses the CardLang repository's when one is open.
 
 New to CardLang? The first chapter of **[the CardLang Guide](https://cardlang.github.io/cardlang/01-getting-started/)** installs the tools, and builds, runs and debugs a first applet with this extension.
 
@@ -20,12 +21,22 @@ New to CardLang? The first chapter of **[the CardLang Guide](https://cardlang.gi
 
 ## Requirements
 
-- **The CardLang repository,** with its uv environment (`uv sync` once). `uv sync` installs the `cardlang` package and its commands `clc`, `cardlang-lsp` and `cardlang-dap`, which the extension runs with `uv run --project <repository>`.
-- **[uv](https://docs.astral.sh/uv/)** on the `PATH`, or named by the `cardlang.uvPath` setting.
-- **VS Code 1.91 or later.**
+- **VS Code 1.91 or later.** Nothing else: the extension offers to set up its toolchain (see below).
 - **Node.js and npm,** only to develop or package the extension itself.
 
-The extension finds the repository, the folder whose `pyproject.toml` names the `cardlang` project, in the workspace or in a folder above it. You can also set `cardlang.repository`.
+## The toolchain
+
+The extension runs the commands `clc`, `cardlang-lsp` and `cardlang-dap` of the `cardlang` package, from one of two places:
+
+- **The CardLang repository,** when it is open in the workspace (the folder whose `pyproject.toml` names the `cardlang` project, or a folder above the workspace), or when `cardlang.repository` names it. The extension runs `uv run --project <repository>`, so the repository's own environment is used, and kept in step with it.
+- **The toolchain it carries,** otherwise. The `.vsix` holds the package and the few specification and platform files it reads while it runs. The first time an applet is opened, the extension offers a one-time setup:
+  1. it downloads the [uv](https://docs.astral.sh/uv/) release pinned in `uv.json` for your system from uv's GitHub releases, checks it against the SHA-256 pinned there, and keeps it in VS Code's storage for the extension;
+  2. uv installs the package into an environment in the same storage, one for each version of the extension, with a Python if the computer has none (and `cffi` from PyPI);
+  3. a smoke test runs `clc`, and the language server starts.
+
+  "Not Now" leaves highlighting and snippets working, and the offer doesn't come back by itself. **CardLang: Set Up Toolchain** runs the setup at any time, and any command that needs the toolchain offers it too. Progress and errors go to the **CardLang** output channel.
+
+If `cardlang.uvPath` names a uv, the extension uses it for everything and downloads none. Without it, the extension uses its own uv once it has one, else `uv` on the `PATH`. The C VM backend (`cardlang.scenarioBackend: cvm`) needs the repository, with the C VM built.
 
 ## Installing
 
@@ -35,7 +46,7 @@ The extension finds the repository, the folder whose `pyproject.toml` names the 
 code --install-extension cardlang-<version>.vsix
 ```
 
-A newer release installs over an older one. The extension still needs a clone of the repository, with `uv sync` run once (see Requirements).
+A newer release installs over an older one, and sets up its own environment the first time it starts; the downloaded uv is kept.
 
 **For development,** VS Code loads the extension straight from the repository:
 
@@ -54,7 +65,17 @@ uv run python -I editors/vscode/install.py --remove
 code --install-extension editors/vscode/cardlang.vsix --force
 ```
 
-`npm run package` writes `editors/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools are the `cardlang` package in the repository, so the extension still needs the repository, through `cardlang.repository` or the workspace. `--force` replaces an installed copy of the same version.
+`npm run package` first runs `bundle.py`, which copies the toolchain into `editors/vscode/toolchain/` (git ignores it), and then writes `editors/vscode/cardlang.vsix`, about 650 KB, which holds the extension, `vscode-languageclient` and the toolchain. `--force` replaces an installed copy of the same version.
+
+**The uv pin** is `uv.json`. To move to another uv release, run `uv run python -I editors/vscode/pin_uv.py <version>`, which reads the SHA-256 that uv publishes for each archive, and review the change.
+
+**The self-test,** `selftest.js`, runs the setup outside VS Code against an unpacked `.vsix`, then uses `clc`, the language server and the debug adapter from the bundled toolchain alone:
+
+```bash
+node editors/vscode/selftest.js <unpacked .vsix>/extension
+```
+
+It downloads the pinned uv into a new temporary folder.
 
 ## Releasing
 
@@ -64,11 +85,11 @@ GitHub builds and checks the extension on every push or pull request that touche
 2. Tag that commit `vscode-v<version>` and push the tag:
 
    ```bash
-   git tag vscode-v0.1.2
-   git push origin vscode-v0.1.2
+   git tag vscode-v0.2.0
+   git push origin vscode-v0.2.0
    ```
 
-The workflow checks that the tag matches `package.json`'s version, builds `cardlang-<version>.vsix`, and creates the GitHub Release with it attached.
+The workflow builds `cardlang-<version>.vsix`, runs the self-test on Windows, macOS and Linux, checks that the tag matches `package.json`'s version, and creates the GitHub Release with the `.vsix` attached.
 
 ## Applets and projects
 
@@ -147,8 +168,8 @@ The debugger runs the applet on the Python VM (`pyvm`), which executes exactly w
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `cardlang.repository` | empty | The CardLang repository. Empty: found from the workspace |
-| `cardlang.uvPath` | `uv` | The uv executable |
+| `cardlang.repository` | empty | The CardLang repository. Empty: found from the workspace, else the toolchain the extension carries |
+| `cardlang.uvPath` | empty | The uv executable. Empty: the extension's own uv, else `uv` on the `PATH` |
 | `cardlang.scenarioBackend` | `pyvm` | Where Run Scenario runs the applet |
 
 ## Colouring persistent state
@@ -179,6 +200,7 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 | Part | Where |
 |---|---|
 | The extension: grammars, snippets, commands, the language client and the debugger contribution | `editors/vscode/` (plain JavaScript, using `vscode-languageclient`) |
+| The setup of the bundled toolchain | `editors/vscode/toolchain.js`, with `uv.json`, `bundle.py` and `pin_uv.py` |
 | The language server: diagnostics, semantic tokens, definitions and completion | `cardlang.lsp`: `server.py`, `semantic.py`, `complete.py` |
 | The debug adapter | `cardlang.dap.adapter` |
 | The JSON-RPC framing both use | `src/cardlang/jsonrpc.py` |
@@ -190,6 +212,8 @@ Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and mod
 - `poscheck.py`: diagnostics and their positions;
 - `clc_check.py`: the command line;
 - `lsp_check.py` and `semantic_check.py`: the language server;
-- `check_extension.py`: the extension's static parts;
+- `check_extension.py`: the extension's static parts, the uv pin and the bundle's file list;
 - `debug_check.py`: the image's debug information;
 - `dap_check.py`: the debug adapter.
+
+The extension's workflow also runs `selftest.js` on every system, on the packaged `.vsix`.
