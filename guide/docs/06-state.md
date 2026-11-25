@@ -18,7 +18,7 @@ The platform decides what a *session* is. On a smart card it lasts from power-on
 You can't give a `persistent` or `session` declaration an initializer (*STA-2*). Such a declaration has a single form, and starts out at its type's default:
 
 <!-- check: error CE-STA-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-STA-1"
 persistent tries: u8 = 3;
 ```
 
@@ -49,7 +49,7 @@ Every assignment to persistent state is *atomic* (*STA-11*). If the power fails 
 Two separate assignments aren't atomic together, though (*STA-12*). Suppose the vault stored a new PIN and then its length:
 
 <!-- check: none -->
-```cardlang
+```cardlang title="Contains a bug"
 pin[0..new_length] = new_pin;
 pin_length = new_length;
 ```
@@ -105,7 +105,7 @@ If there isn't enough in `savings`, the `require` aborts the transaction, and th
 You can't `return` from inside a transaction, and a `break` or `continue` can't leave one either (*TXN-6*). A transaction ends at its closing brace or with an abort, and nowhere else:
 
 <!-- check: error CE-TXN-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-TXN-1"
 persistent value: u32;
 
 function set(next: u32) -> u32 {

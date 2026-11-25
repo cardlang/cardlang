@@ -24,3 +24,43 @@
   --md-accent-fg-color--transparent: rgba(39, 203, 165, 0.16);
   --md-typeset-a-color: #27CBA5;
 }
+
+/* Code blocks that are wrong on purpose (guide/hooks.py adds the classes): a red title for
+   "Does not compile", an amber one for "Contains a bug", with a matching bar down the block. */
+
+:root {
+  --cl-fails: #B3261E;
+  --cl-fails-bg: rgba(179, 38, 30, 0.10);
+  --cl-buggy: #8A5300;
+  --cl-buggy-bg: rgba(214, 140, 0, 0.12);
+}
+
+[data-md-color-scheme="slate"] {
+  --cl-fails: #FF8A80;
+  --cl-fails-bg: rgba(255, 138, 128, 0.12);
+  --cl-buggy: #FFCC66;
+  --cl-buggy-bg: rgba(255, 204, 102, 0.12);
+}
+
+.md-typeset .highlight span.filename.cl-fails,
+.md-typeset .highlight span.filename.cl-buggy {
+  font-weight: 700;
+}
+
+.md-typeset .highlight span.filename.cl-fails {
+  color: var(--cl-fails);
+  background-color: var(--cl-fails-bg);
+  border-left: 0.2rem solid var(--cl-fails);
+}
+
+.md-typeset .highlight span.filename.cl-buggy {
+  color: var(--cl-buggy);
+  background-color: var(--cl-buggy-bg);
+  border-left: 0.2rem solid var(--cl-buggy);
+}
+
+.md-typeset .highlight span.filename.cl-fails::before { content: "\2717\00a0"; }
+.md-typeset .highlight span.filename.cl-buggy::before { content: "\26A0\00a0"; }
+
+.md-typeset .highlight:has(> span.filename.cl-fails) > pre { border-left: 0.2rem solid var(--cl-fails); }
+.md-typeset .highlight:has(> span.filename.cl-buggy) > pre { border-left: 0.2rem solid var(--cl-buggy); }

@@ -39,7 +39,7 @@ CardLang and scenario code is highlighted by the package's own Pygments lexers, 
 | `<!-- check: program NAME -->` | Top-level declarations of the program `NAME`. They carry over: a block continues the program from every earlier block of that name, in this chapter and earlier ones, and a declaration with the same name as an earlier one replaces it. So a chapter shows only what changed. The program must compile at the end of each chapter that shows it. Add `binding=iso7816` for the ISO 7816 binding (the default is raw) |
 | `<!-- check: program NAME remove=A,B -->` | As above, after first removing the earlier declarations `A` and `B`, for when the text tells the reader to delete them |
 | `<!-- check: fragment -->` | A fragment that must compile |
-| `<!-- check: error CE-XXX-n -->` | A fragment that must fail with exactly that error. With `binding=iso7816` or `binding=raw`, the block is a whole applet, built for that binding |
+| `<!-- check: error CE-XXX-n -->` | A fragment that must fail with exactly that error. Its fence carries `title="Does not compile: CE-XXX-n"`, and no other block may. With `binding=iso7816` or `binding=raw`, the block is a whole applet, built for that binding |
 | `<!-- check: scenario NAME -->` | A scenario for the program `NAME` as it stands at that point, run on the reference interpreter and the Python VM |
 | `<!-- check: excerpt PATH -->` | Lines quoted from the repository file `PATH`, such as `examples/fido2/ctap.card`. Each run of lines must appear in the file exactly, in order; a line `// ...` on its own stands for lines left out |
 | `<!-- check: none -->` | Shown, not checked. Use it rarely |
@@ -58,5 +58,5 @@ A block without a comment fails the check. A block indented inside a list item i
 - Grow the running example, the vault, rather than inventing a new program for each feature, unless a small fragment makes the point better.
 - Describe the language as it is, in plain words, with no history of how it came to be.
 - Compare with other languages only in chapter 11. The other chapters explain CardLang on its own terms.
-- Say when code is wrong. An example that doesn't compile carries a `// does not compile: …` comment, or a sentence just before it, and is followed by the correct version when there is one.
+- Say when code is wrong. An example that doesn't compile is titled `Does not compile: CE-XXX-n`, which guidecheck enforces. An example that compiles but is wrong on purpose is titled `Contains a bug` and checked with `none` (or written in another language, as in chapter 11). The site draws both titles in warning colours. Either kind is followed by the correct version when there is one.
 - Stay independent of the host system. Commands are the toolchain's own (`uv run …`, `clc …`), not shell scripts, and no compiler or build setup of the toolchain is named.

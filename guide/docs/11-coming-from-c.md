@@ -48,7 +48,7 @@ An applet that can't allocate can't run out of memory halfway through a command.
 
 In C an error is a return value, and nothing forces the caller to look at it:
 
-```c
+```c title="Contains a bug"
 if (len != PIN_LENGTH) return ERR_LENGTH;
 ...
 verify_pin(pin, len);           /* the result is silently ignored */
@@ -63,7 +63,7 @@ if (len != PIN_LENGTH) ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
 In CardLang every call returns an outcome, and the compiler insists that you handle each one ([chapter 5](05-outcomes.md)). The mistake in the C code above won't compile:
 
 <!-- check: error CE-OUT-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-OUT-1"
 errors VaultError {
     WrongLength = 1;
 }
@@ -76,7 +76,7 @@ function verify_pin(pin: ref u8[]) {
 }
 
 function unlock(pin: ref u8[]) {
-    verify_pin(ref pin);                        // does not compile: the outcome is ignored
+    verify_pin(ref pin);
     verified = true;
     return Ok();
 }
@@ -140,18 +140,18 @@ A plain `a + b` that doesn't fit traps, and `checked_add` returns an error inste
 
 C and Java share a classic bug:
 
-```c
+```c title="Contains a bug"
 if (flags & MASK == 0) { ... }  /* means flags & (MASK == 0) */
 ```
 
 CardLang has no precedence, and two different operators always need parentheses ([chapter 2](02-values-and-types.md#constants)). So the same line doesn't compile:
 
 <!-- check: error CE-EXP-4 -->
-```cardlang
+```cardlang title="Does not compile: CE-EXP-4"
 const MASK: u8 = 0x0F;
 
 function is_clear(flags: u8) -> bool {
-    return Ok(flags & MASK == 0);               // does not compile: & and == are mixed
+    return Ok(flags & MASK == 0);
 }
 ```
 
@@ -175,9 +175,9 @@ In C a pointer can be null, can outlive what it points to, and can be pushed pas
 In CardLang, `ref` and `inout` give a function access to its caller's data for the length of the call and no longer ([chapter 4](04-functions-references-views.md#parameter-modes)). They can't be stored, returned or null, and every index is checked. A view type can't even be declared anywhere except as a parameter:
 
 <!-- check: error CE-TYP-5 -->
-```cardlang
+```cardlang title="Does not compile: CE-TYP-5"
 struct Request {
-    data: u8[];                                 // does not compile: a view cannot be stored
+    data: u8[];
 }
 ```
 
@@ -188,10 +188,10 @@ Because references are never stored, none of them can dangle, and the compiler c
 C and Java both allow recursion, and on a device with a few kilobytes of stack, a deep recursion overflows at runtime. CardLang rejects any cycle in the call graph:
 
 <!-- check: error CE-FUN-1 -->
-```cardlang
+```cardlang title="Does not compile: CE-FUN-1"
 function walk(depth: u32) {
     if depth > 0 {
-        attempt walk(depth - 1);                // does not compile: walk calls itself
+        attempt walk(depth - 1);
     }
     return Ok();
 }
