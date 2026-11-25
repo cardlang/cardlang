@@ -1,195 +1,58 @@
 # CardLang for VS Code
 
-Write, build, run and debug CardLang smart-card applets in VS Code. The extension is a thin client: the language
-server, the build tools and the debug adapter are commands of the `cardlang` package in the CardLang repository, run through `uv`.
+[CardLang](https://github.com/cardlang/cardlang) is a small language for secure applets on microcontrollers, TrustZone and smart cards. This extension lets you write, build, run and debug those applets in VS Code.
 
-New to CardLang? The first chapter of **[the CardLang Guide](https://cardlang.github.io/cardlang/01-getting-started/)** installs the tools, and builds, runs and debugs a first applet with this extension.
+## What it does
 
-## Features
+While you type, the extension colours each name by what it is and underlines mistakes straight away, each with its error code from the specification. F12 jumps to a definition, even in another file, and typing `card.` lists the platform's APIs along with their documentation.
 
-| | |
+You can build an applet and run it against a *scenario*, a short script that sends it commands and checks the answers. When an answer isn't what you expected, start the debugger. You can stop at a breakpoint, step through the applet line by line, and look at its variables and its stored state.
+
+## Getting started
+
+Install the extension and open the folder of an applet, which is a folder with a `cardlang.json` and some `.card` files. The first time, the extension asks whether it may set up the CardLang toolchain, the compiler, language server and debugger it works with. Click **Set Up** and give it a minute. It downloads [uv](https://docs.astral.sh/uv/), a tool for installing Python software, checks that the download hasn't been tampered with, and installs everything into VS Code's storage for the extension. You only do this once.
+
+New to CardLang? [Chapter 1 of the CardLang Guide](https://cardlang.github.io/cardlang/01-getting-started/) takes you from an empty folder to your first applet, built, tested and stepped through in the debugger with this extension.
+
+## Commands
+
+| Command | What it does |
 |---|---|
-| **Highlighting** | Keywords, literals, byte strings, comments and operators in `.card` files and in scenario files |
-| **Colouring by meaning** | Each name coloured by what it is: function, structure, enum and member, parameter, local, field, intrinsic, `card` API, and globals marked `static` (`session`) or `persistent` |
-| **Errors as you type** | The reference checkers run on your unsaved text, across every file of the applet, and report each error with its code (`CE-EXP-4`) and the specification's message |
-| **Go to definition** | F12, Ctrl+click and Peek (Alt+F12) on any name, across files, including the Base Profile's types |
-| **Completion** | After `card.`: the Base Profile's namespaces and APIs, with signatures and documentation, inserting each argument's `ref` or `inout`. After `Owner.`: the members of an enum or error set |
-| **Snippets** | `command`, `function`, `if`, `while`, `for`, `match`, `require`, `attempt`, `transaction`, `errors`, `struct`, `enum`, `persistent`, `session` |
-| **Build and run** | **CardLang: Build Applet**, **Check Applet** and **Run Scenario**, with errors in the Problems panel |
-| **Debugging** | Run a scenario against the applet and stop at breakpoints in `.card` or scenario files; step over, in and out; see the call stack, parameters, locals, globals, and the request and response bytes; stop where a trap happens or an `expect` fails |
+| **CardLang: Check Applet** | Checks the applet and lists any errors in the Problems panel |
+| **CardLang: Build Applet** | Checks and compiles the applet |
+| **CardLang: Run Scenario** | Runs the open scenario and shows each step and its result |
+| **CardLang: Debug Scenario** | Runs the open scenario in the debugger. F5 does the same |
+| **CardLang: Set Up Toolchain** | Runs the setup again |
 
-## Requirements
-
-- **The CardLang repository,** with its uv environment (`uv sync` once). `uv sync` installs the `cardlang` package and its commands `clc`, `cardlang-lsp` and `cardlang-dap`, which the extension runs with `uv run --project <repository>`.
-- **[uv](https://docs.astral.sh/uv/)** on the `PATH`, or named by the `cardlang.uvPath` setting.
-- **VS Code 1.91 or later.**
-- **Node.js and npm,** only to develop or package the extension itself.
-
-The extension finds the repository, the folder whose `pyproject.toml` names the `cardlang` project, in the workspace or in a folder above it. You can also set `cardlang.repository`.
-
-## Installing
-
-**From a release,** for normal use: download `cardlang-<version>.vsix` from the repository's [Releases](https://github.com/cardlang/cardlang/releases) and install it:
-
-```bash
-code --install-extension cardlang-<version>.vsix
-```
-
-A newer release installs over an older one. The extension still needs a clone of the repository, with `uv sync` run once (see Requirements).
-
-**For development,** VS Code loads the extension straight from the repository:
-
-```bash
-cd editors/vscode && npm install
-uv run python -I editors/vscode/install.py
-```
-
-Then run **Developer: Reload Window**. After any change to the extension, reload again. `install.py --remove` removes the link.
-
-**From a package you build,** for trying a change. Build it, remove a development link if you made one, and install it:
-
-```bash
-cd editors/vscode && npm install && npm run package
-uv run python -I editors/vscode/install.py --remove
-code --install-extension editors/vscode/cardlang.vsix --force
-```
-
-`npm run package` writes `editors/vscode/cardlang.vsix`, about 400 KB, which holds the extension and `vscode-languageclient`. The language server, the debugger and the build tools are the `cardlang` package in the repository, so the extension still needs the repository, through `cardlang.repository` or the workspace. `--force` replaces an installed copy of the same version.
-
-## Releasing
-
-GitHub builds and checks the extension on every push or pull request that touches it, or the toolchain it checks against (`.github/workflows/vscode-extension.yml`); each run keeps the `.vsix` as a downloadable artifact. To publish a release:
-
-1. Raise `version` in `package.json` (and in `package-lock.json`, with `npm install`), and commit it to `main`.
-2. Tag that commit `vscode-v<version>` and push the tag:
-
-   ```bash
-   git tag vscode-v0.1.2
-   git push origin vscode-v0.1.2
-   ```
-
-The workflow checks that the tag matches `package.json`'s version, builds `cardlang-<version>.vsix`, and creates the GitHub Release with it attached.
-
-## Applets and projects
-
-An applet is a directory with a `cardlang.json` project file:
-
-```json
-{ "name": "wallet", "files": ["constants.card", "accounts.card", "entry.card"], "binding": "iso7816" }
-```
-
-- `files` lists the source files in build order.
-- `binding` is `iso7816` or `raw`.
-
-A `.card` file listed there is checked as part of the whole applet. A `.card` file outside any project is checked on its own, as an application, or as a fragment if its header says `// kind: fragment`. `examples/fido2` and `examples/piv` are complete applets to try.
-
-## Building
-
-| Command | What it does | The same in a terminal |
-|---|---|---|
-| **CardLang: Check Applet** | Runs every check of the specification | `uv run clc check examples/fido2` |
-| **CardLang: Build Applet** (the package icon) | Checks, then writes `build/<name>.clvm` in the applet's directory and prints the image's figures | `uv run clc build examples/fido2` |
-| | Lists the code, with source lines and variable scopes | `uv run clc disasm examples/fido2/build/fido2.clvm` |
-
-## Scenarios
-
-A scenario drives the applet the way a terminal would. It has one step per line, and `#` starts a comment:
-
-```text
-install
-power_on
-select
-expect sw 9000
-command 80 10 00 00 04        # a command's bytes, in hex; "capacity n" sets the response buffer
-expect sw 9000                # or: expect ok <bytes>, expect ok length <n>, expect err app <code>, expect err platform <Member>, expect trap <KIND>
-```
-
-The other steps are `session_start`, `session_end`, `reset`, `deselect`, `seed <hex>` (the test random generator) and `interrupt` (a power loss at the next commit). The format is described in `src/cardlang/harness/README.md`.
-
-Scenario files are named `scenario.txt` or `*.scenario`. **CardLang: Run Scenario** (the play icon) runs one and prints every step, its outcome, and each `expect`. On `pyvm`, a trap is shown with the statement where it happened. The `cardlang.scenarioBackend` setting chooses what runs it:
-- `pyvm`, the Python VM;
-- `interp`, the reference interpreter;
-- `cvm`, the C VM, which must be built first (`vm/c/README.md` in the repository).
-
-## Debugging
-
-Open a scenario and press F5, or click **CardLang: Debug Scenario** (the debug icon). Set breakpoints in the applet's `.card` files, or on scenario lines to stop before a step. To keep a configuration, add it to `.vscode/launch.json`: <!-- linkcheck: ignore -->
+If you debug the same scenario often, keep it in `.vscode/launch.json`: <!-- linkcheck: ignore -->
 
 ```json
 {
   "type": "cardlang",
   "request": "launch",
-  "name": "Debug getInfo",
-  "scenario": "${workspaceFolder}/examples/fido2/getinfo.scenario",
-  "program": "${workspaceFolder}/examples/fido2",
-  "stopOnEntry": false
+  "name": "Debug the PIN tests",
+  "scenario": "${workspaceFolder}/pin.scenario"
 }
 ```
-
-`program` defaults to the scenario's directory.
-
-**What you see when it stops:**
-- **The call stack:** each function down to the entry point, then the scenario step at the bottom.
-- **Locals:** the parameters and locals in scope. Structures, arrays and views expand into their fields and elements.
-- **Globals:** `session`, `persistent` and constant.
-- **Hover:** a variable's value.
-- **The Debug Console:** every scenario step, its outcome and each `expect`.
-
-**Stepping is by statement.** Step over (F10) stays in the current function, step in (F11) enters calls, and step out (Shift+F11) returns to the caller.
-
-**Exception breakpoints,** in the Breakpoints panel:
-- **Traps** stop where a trap happens, with the faulting frame and its variables still intact;
-- **Failed expectations** stop at an `expect` that does not match.
-
-The debugger runs the applet on the Python VM (`pyvm`), which executes exactly what the C VM does: both pass the same tests.
 
 ## Settings
 
-| Setting | Default | Meaning |
-|---|---|---|
-| `cardlang.repository` | empty | The CardLang repository. Empty: found from the workspace |
-| `cardlang.uvPath` | `uv` | The uv executable |
-| `cardlang.scenarioBackend` | `pyvm` | Where Run Scenario runs the applet |
+| Setting | What it's for |
+|---|---|
+| `cardlang.scenarioBackend` | What runs your scenarios: `pyvm`, the Python VM (the default), or `interp`, the reference interpreter. `cvm`, the C VM, needs a clone of the CardLang repository with the C VM built |
+| `cardlang.repository` | A clone of the CardLang repository to take the toolchain from. You only need it if you work on CardLang itself |
+| `cardlang.uvPath` | Your own uv, if you'd rather the extension didn't download one |
 
-## Colouring persistent state
-
-Themes colour the standard kinds. To make `persistent` globals stand out, add a rule to your settings:
+To make `persistent` globals stand out in your theme, add this to your settings:
 
 ```json
 "editor.semanticTokenColorCustomizations": {
-  "rules": {
-    "variable.persistent": { "foreground": "#d19a66", "fontStyle": "underline" },
-    "variable.static": { "fontStyle": "italic" }
-  }
+  "rules": { "variable.persistent": { "fontStyle": "underline" } }
 }
 ```
 
-Use **Developer: Inspect Editor Tokens and Scopes** to see a name's kind and modifiers.
+## Good to know
 
-## Known limits
+CardLang is young, and so is this extension. The checker shows one error at a time, and a few rules about names aren't checked yet, so a duplicate name or a shadowed variable goes unreported. Completion covers the platform's APIs and the members of enums and error sets, but not yet the fields of a variable. The debugger runs applets on the Python VM.
 
-- **One error at a time:** the checkers stop at their first error, so each applet shows at most one.
-- **Placement:** some errors are placed at the end of their construct; for example, a `match` missing an arm is reported at its closing brace.
-- **Missing name rules:** fourteen name rules of chapter 3 have no checker yet. Duplicate names, shadowing, and redeclared intrinsics are not reported.
-- **Completion:** it covers the `card` APIs and enum and error-set members. Fields after a variable (`head.`) are not completed yet.
-- **The debugger** runs on the Python VM only. The C VM has no debug hook yet.
-
-## How it is built
-
-| Part | Where |
-|---|---|
-| The extension: grammars, snippets, commands, the language client and the debugger contribution | `editors/vscode/` (plain JavaScript, using `vscode-languageclient`) |
-| The language server: diagnostics, semantic tokens, definitions and completion | `cardlang.lsp`: `server.py`, `semantic.py`, `complete.py` |
-| The debug adapter | `cardlang.dap.adapter` |
-| The JSON-RPC framing both use | `src/cardlang/jsonrpc.py` |
-| The command line | `cardlang.cli`, the command `clc` |
-| Diagnostics with positions | `src/cardlang/front/diagnose.py` |
-| Debug information in images (IMG-10) | `src/cardlang/bytecode/debuginfo.py` |
-
-**The checks** are rows of `tests/run_checks.py`:
-- `poscheck.py`: diagnostics and their positions;
-- `clc_check.py`: the command line;
-- `lsp_check.py` and `semantic_check.py`: the language server;
-- `check_extension.py`: the extension's static parts;
-- `debug_check.py`: the image's debug information;
-- `dap_check.py`: the debug adapter.
+The extension is part of the [CardLang repository](https://github.com/cardlang/cardlang), under the Apache License 2.0. If you'd like to work on it, [DEVELOPMENT.md](DEVELOPMENT.md) explains how it's put together.

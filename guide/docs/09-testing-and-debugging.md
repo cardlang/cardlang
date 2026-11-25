@@ -81,7 +81,7 @@ Use it with care. A test that pins down exact random bytes breaks as soon as the
 
 ## Running the tests
 
-In VS Code, **CardLang: Run Scenario** runs the scenario that's open and prints every step and expectation. From a terminal, `clc run` runs one scenario, and exits with 0 if it passes, so any script or CI job can run the whole suite, on whatever shell or system it uses.
+In VS Code, **CardLang: Run Scenario** runs the scenario that's open and prints every step and expectation. From a terminal, `clc run` runs one scenario, as in [chapter 1](01-getting-started.md#from-a-terminal), and exits with 0 if it passes, so any script or CI job can run the whole suite, on whatever shell or system it uses.
 
 Scenarios run on one of the toolchain's implementations of the CardLang platform, called *backends*. The default is the Python VM, which runs the compiled image, and it's also what the debugger uses. `--backend interp`, or the `cardlang.scenarioBackend` setting, runs the reference interpreter instead. The backends are tested to behave identically, so your applet's tests only need one of them, and the default is the obvious choice.
 
