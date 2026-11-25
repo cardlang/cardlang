@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- The repository's social preview, 1280x640, from the dark logo. Render it with a browser in headless mode at that
+     window size, for example: msedge --headless=new --window-size=1280,640 --screenshot=social-preview.png social-preview.html -->
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(ellipse 900px 520px at 50% 38%, rgba(39,203,165,0.13), transparent 70%),
+      linear-gradient(160deg, #13283D 0%, #102031 55%, #0B1724 100%);
+    font-family: "Segoe UI", system-ui, sans-serif; color: #E8F1F7;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  body::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,249,235,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,249,235,0.045) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .logo { width: 780px; height: auto; position: relative; }
+  .tagline { position: relative; margin-top: 30px; font-size: 38px; font-weight: 600; letter-spacing: 0.2px; text-align: center; }
+  .tagline em { font-style: normal; color: #27CBA5; }
+  .chips { position: relative; display: flex; gap: 16px; margin-top: 34px; }
+  .chip { font-size: 22px; font-weight: 600; color: #C9F9EB; padding: 9px 20px; border-radius: 999px;
+          border: 1.5px solid rgba(39,203,165,0.55); background: rgba(39,203,165,0.08); }
+  .url { position: absolute; bottom: 34px; font-size: 21px; color: rgba(232,241,247,0.55); letter-spacing: 0.4px; }
+</style></head><body>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-40 -40 1898 421" class="logo">
+  <title id="title">CardLang</title>
+  <g id="smart-card">
+    <path fill="#1D3A58" d="M61 0h304l80 79v203c0 33-27 59-60 59H61C27 341 0 315 0 282V59C0 26 27 0 61 0Z"/>
+    <path fill="#C9F9EB" d="M148 90l20 25-69 68 68 67-23 24-94-91Zm153 0 94 93-93 91-23-24 67-67-67-68Z"/>
+    <path fill="#27CBA5" d="M189 148h70v68h-70z"/>
+  </g>
+  <g transform="translate(499 59)">
+  <g id="wordmark" fill="#E8F1F7" fill-rule="evenodd">
+    <path d="M205 42l-33 36c-15-17-31-27-57-27-36 0-64 29-64 63s28 63 64 63c25 0 43-11 57-29l33 34c-21 27-53 44-91 44C48 226 3 178 3 114S50 7 114 7c37 0 69 12 91 35Z"/>
+    <path id="letter-a" d="M221 84c19-16 44-24 71-24 45 0 73 23 73 68v96h-46v-18c-11 14-29 21-51 21-34 0-56-19-56-48 0-35 26-52 71-52h34v-3c0-15-10-24-29-24-15 0-31 5-45 16Zm96 72h-28c-18 0-29 7-29 19 0 11 9 17 23 17 18 0 34-12 34-29Z"/>
+    <path d="M384 64h46v19c10-15 25-23 44-23 4 0 7 0 10 1v45h-10c-27 0-43 16-43 44v74h-47Z"/>
+    <path d="M604 0h47v224h-46v-18c-12 14-28 21-49 21-43 0-72-34-72-83s30-84 73-84c20 0 36 7 47 20Zm-71 143c0 24 15 41 36 41 22 0 36-17 36-41 0-23-14-41-36-41-21 0-36 18-36 41Z"/>
+    <path d="M672 9h48v168h87v47H672Z"/>
+    <path transform="translate(606)" d="M221 84c19-16 44-24 71-24 45 0 73 23 73 68v96h-46v-18c-11 14-29 21-51 21-34 0-56-19-56-48 0-35 26-52 71-52h34v-3c0-15-10-24-29-24-15 0-31 5-45 16Zm96 72h-28c-18 0-29 7-29 19 0 11 9 17 23 17 18 0 34-12 34-29Z"/>
+    <path d="M988 64h46v19c11-15 28-23 48-23 34 0 56 23 56 61v103h-48v-92c0-18-10-29-26-29-17 0-29 12-29 30v91h-47Z"/>
+    <path d="M1271 63h46v137c0 53-32 84-86 84-31 0-57-8-74-22l24-35c14 10 30 15 47 15 26 0 42-14 42-39v-6c-12 12-28 19-47 19-43 0-72-32-72-78s30-78 73-78c20 0 37 7 47 21Zm-71 75c0 21 15 36 35 36 21 0 36-15 36-36 0-22-15-37-36-37-20 0-35 15-35 37Z"/>
+  </g>
+  </g>
+</svg>
+<div class="tagline">A small language for <em>secure applications</em> on microcontrollers</div>
+<div class="chips">
+  <div class="chip">No heap</div>
+  <div class="chip">Atomic persistent state</div>
+  <div class="chip">Every error handled</div>
+  <div class="chip">Tiny VM</div>
+</div>
+<div class="url">github.com/cardlang/cardlang</div>
+</body></html>
