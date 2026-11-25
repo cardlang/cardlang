@@ -130,3 +130,22 @@ Pairs from the first batch:
 | Colon introducing a clause | 38 | 6 |
 | "That is why/what" | 4 | 0 |
 | "exactly" | 7 | 3 |
+
+**Batch 2:** committed.
+
+**Batch 3, 2026-11-25 (chapters 7 to 9), waiting for the user's review:**
+- **Prose:** explanations as paragraphs. The debugger walk-through in chapter 9 stays a numbered list of four steps, without bold leads, because it is a procedure.
+- **Removed:** the *What next* sections. Two items kept their substance as paragraphs:
+  - chapter 7's `63CX` convention, with its pointer to the PIV example;
+  - chapter 9's "moving the try counter breaks no scenario; some properties can only be checked by reading the code", now the end of *Finding a bug*.
+- **Kept:** the `linkcheck: ignore` marker on the `.vscode/launch.json` line.
+- **Unchanged:** every code block and check comment, and `guidecheck`'s counts. Rule citations are the same set per chapter as on `main`.
+- **Anchors kept:** *One outcome, two encodings*, *Keys are resources* and *Inside the image*.
+
+| Measure (chapters 7 to 9) | Before | After |
+|---|---|---|
+| Bullets | 40 | 4 (one numbered list) |
+| Bold-lead bullets | 28 | 0 |
+| Colon introducing a clause | 36 | 6 |
+| "That is why/what" | 2 | 0 |
+| "exactly" | 4 | 2 |
