@@ -5,17 +5,19 @@
   chaining, extended length, long responses through 61xx and GET RESPONSE, session events, and refusals.
 - State files: the echo applet's persistent counter and key, and a FIDO2 credential, survive a restart of the card;
   a changed program or another set of applets refuses the old state; a backend that can't save its state says so.
+- The link to the virtual reader (vpcd), against a stand-in for vpcd: the protocol, reconnecting, waiting while
+  vpcd is away, and `clc card` as a process of its own, serving the security key.
 - The FIDO2 and PIV example checks (examples/*/check.py), replayed through the transport: every request they make
   goes to the security key (examples/security-key.json) as APDUs, once in short APDUs with chaining and GET RESPONSE,
   and once in extended APDUs.
 
 Usage: uv run python -I tests/card_check.py . [--backend NAME]      (default: pyvm)
 """
-import sys, os, json, shutil, tempfile, hashlib, pathlib, importlib.util, io, contextlib, types
+import sys, os, json, shutil, socket, subprocess, threading, time, tempfile, hashlib, pathlib, importlib.util, io, contextlib, types
 from cardlang import layout
 from cardlang.harness import scenario
 from cardlang.platform import testcrypto
-from cardlang.card import apdu, card, iso7816, state
+from cardlang.card import apdu, card, iso7816, state, vpcd
 
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:], default="pyvm")
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
@@ -195,6 +197,98 @@ def state_checks(tmp):
     valid = st == 0 and q and testcrypto.ecdsa_verify(q, ga[2] + cdh2, fido.der_to_raw(ga[3]))
     check("FIDO2: after a restart, the credential signs in, with a valid signature", valid, st)
 
+# ------------------------------------------------------------------ the link to vpcd
+class StandInVpcd:
+    """vpcd's side of the socket: it listens, and speaks the length-prefixed protocol."""
+    def __init__(self):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind(("127.0.0.1", 0)); self.server.listen(1)
+        self.port = self.server.getsockname()[1]
+        self.conn = None
+    def accept(self, timeout=60):
+        self.server.settimeout(timeout)
+        self.conn, _ = self.server.accept(); self.conn.settimeout(60)
+    def send(self, data): self.conn.sendall(len(data).to_bytes(2, "big") + bytes(data))
+    def receive(self):
+        def read(n):
+            out = b""
+            while len(out) < n:
+                chunk = self.conn.recv(n - len(out))
+                if not chunk: raise OSError("closed")
+                out += chunk
+            return out
+        return read(int.from_bytes(read(2), "big"))
+    def control(self, code): self.send(bytes([code]))
+    def atr(self): self.control(vpcd.GET_ATR); return self.receive()
+    def apdu(self, raw): self.send(raw); return self.receive()
+    def drop(self): self.conn.close(); self.conn = None
+    def close(self):
+        if self.conn: self.conn.close()
+        self.server.close()
+
+def vpcd_checks(tmp):
+    events = []
+    reader = StandInVpcd()
+    link = vpcd.Link(card.load(L.tests / "testdata" / "echo-card.json", BACKEND), "127.0.0.1", reader.port, log=events.append)
+    link.card.open()
+    thread = threading.Thread(target=link.serve, daemon=True); thread.start()
+    try:
+        reader.accept()
+        reader.control(vpcd.POWER_ON)
+        check("vpcd: the ATR, on request", reader.atr() == bytes.fromhex("3B80800101"))
+        r = reader.apdu(apdu.build(0x00, 0xA4, 0x04, 0x00, ECHO1, 256))
+        check("vpcd: an APDU and its response", (data(r), sw(r)) == (b"\xE0", 0x9000), r.hex())
+        r = reader.apdu(apdu.build(0x00, 0x01, 0, 0, b"x" * 600, 65536))
+        check("vpcd: a 600-byte extended APDU and response", (data(r), sw(r)) == (b"x" * 600, 0x9000), f"{len(r)}")
+        reader.control(vpcd.POWER_OFF); reader.control(vpcd.POWER_ON)
+        r = reader.apdu(apdu.build(0x00, 0x02, 0, 0, ne=256))
+        check("vpcd: power off and on end the selection", sw(r) == 0x6985, r.hex())
+        reader.drop()
+        reader.accept()
+        check("vpcd: after the connection drops, the card connects again", reader.atr() == bytes.fromhex("3B80800101"))
+    except OSError as e:
+        check("vpcd: the conversation", False, repr(e))
+    finally:
+        link.stop(); thread.join(5); reader.close()
+    check("vpcd: the link stops when asked", not thread.is_alive())
+
+    events.clear()
+    port = StandInVpcd(); free = port.port; port.close()            # a port where nothing listens
+    link = vpcd.Link(card.load(L.tests / "testdata" / "echo-card.json", BACKEND), "127.0.0.1", free, log=events.append)
+    thread = threading.Thread(target=link.serve, kwargs={"retry": 0.1}, daemon=True); thread.start()
+    time.sleep(0.5); link.stop(); thread.join(5)
+    check("vpcd: without a reader, the link says it waits, once, and keeps trying",
+          not thread.is_alive() and sum("waiting for the virtual reader" in e for e in events) == 1, events)
+
+    # clc card, as a process of its own, serving the security key with a state file.
+    reader = StandInVpcd()
+    key_state = tmp / "clc-card.state"
+    proc = subprocess.Popen([sys.executable, "-I", "-m", "cardlang.cli", "card", str(L.examples / "security-key.json"),
+                             "--host", "127.0.0.1", "--port", str(reader.port), "--state", str(key_state),
+                             "--backend", BACKEND if BACKEND == "pyvm" else "pyvm", "--trace"],
+                            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8")
+    try:
+        reader.accept(timeout=120)
+        reader.control(vpcd.POWER_ON)
+        check("clc card: the ATR", reader.atr() == bytes.fromhex("3B80800101"))
+        r = reader.apdu(apdu.build(0x00, 0xA4, 0x04, 0x00, FIDO, 256))
+        check("clc card: SELECT of the FIDO2 applet", (data(r), sw(r)) == (b"FIDO_2_0", 0x9000), r.hex())
+        r = reader.apdu(apdu.build(0x80, 0x10, 0x00, 0x00, b"\x04", 256))
+        check("clc card: CTAP getInfo", sw(r) == 0x9000 and data(r)[:1] == b"\x00" and len(data(r)) > 10, r.hex())
+        r = reader.apdu(apdu.build(0x00, 0xA4, 0x04, 0x00, bytes.fromhex("A000000308"), 256))
+        check("clc card: SELECT of the PIV applet by its short AID", sw(r) == 0x9000 and data(r)[:1] == b"\x61", r.hex())
+        check("clc card: the state file is written", key_state.exists())
+    except OSError as e:
+        check("clc card: the conversation", False, repr(e))
+    finally:
+        proc.terminate()
+        try: out = proc.communicate(timeout=20)[0]
+        except subprocess.TimeoutExpired: proc.kill(); out = proc.communicate()[0]
+        reader.close()
+    check("clc card: it lists the applets and the state, and traces the APDUs",
+          "fido2" in out and "A0 00 00 06 47 2F 00 01" in out and "private keys in the clear" in out
+          and "> 00 A4 04 00 08 A0 00 00 06 47 2F 00 01" in out, out[-600:])
+
 # ------------------------------------------------------------------ the example checks, replayed as APDUs
 FIDO, PIV = bytes.fromhex("A0000006472F0001"), bytes.fromhex("A0000003080000100001 00".replace(" ", ""))
 
@@ -269,6 +363,7 @@ def main():
     transport_checks()
     with tempfile.TemporaryDirectory() as tmp:
         state_checks(pathlib.Path(tmp))
+        vpcd_checks(pathlib.Path(tmp))
     replay_checks()
     print("ALL PASS" if all(results) else "FAILURES")
     return all(results)

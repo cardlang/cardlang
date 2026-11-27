@@ -168,7 +168,7 @@ class VirtualCard:
         if self.selected is None:
             return self._sw(SW_CONDITIONS, "no applet is selected")
         outcome = self.selected.backend.command(list(header + data), self.capacity)
-        return self._answer(outcome, c.ne)
+        return self._answer(outcome, c.ne, self.selected)
 
     def _channel(self, cla):
         """The logical channel a CLA names (ISO 7816-4 §5.4.1); proprietary classes are coded like interindustry ones."""
@@ -186,16 +186,20 @@ class VirtualCard:
         outcome = target.backend.select()
         self._log(f"select {target.name}: {outcome}")
         if outcome is None or outcome[0] != "ok":
-            return self._answer(outcome, c.ne)          # the applet is not selected (BP-50a)
+            return self._answer(outcome, c.ne, target)  # the applet is not selected (BP-50a)
         self.selected = target
         if c.p2 & 0x0C == 0x0C: outcome = ("ok", [])    # P2 asks for no response data
         return self._answer(outcome, c.ne)
 
-    def _answer(self, outcome, ne):
+    def _answer(self, outcome, ne, applet=None):
         """The response APDU for an outcome: the data (in parts if longer than Le) and the status word (BP-51)."""
         if outcome is None or outcome[0] != "ok":
             sw = status_word(outcome)
-            return self._sw(SW_TRAP if sw is None else sw, f"outcome {outcome}")
+            why = f"{applet.name if applet else 'the card'}: {outcome}"
+            where = getattr(applet.backend, "trap_position", None) if applet and outcome and outcome[0] == "trap" else None
+            position = where() if where else None
+            if position: why += f" at {Path(position[0]).name}:{position[1]}"
+            return self._sw(SW_TRAP if sw is None else sw, why)
         return self._send(bytes(outcome[1]), ne)
 
     def _send(self, data, ne):

@@ -39,6 +39,7 @@ def _encode(card, snap):
 def save(path, card, snap=None):
     """Write the card's state to path, atomically."""
     path = pathlib.Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(_encode(card, snapshot(card) if snap is None else snap), indent=1) + "\n"
     tmp = path.with_name(path.name + ".tmp")
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:

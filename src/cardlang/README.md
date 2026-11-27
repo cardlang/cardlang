@@ -28,7 +28,7 @@ uv run clc build examples/fido2
 uv run clc run examples/fido2/getinfo.scenario --backend pyvm
 ```
 
-`cardlang-lsp` and `cardlang-dap` are the language server and the debug adapter, which the editor starts. Any module with its own entry runs as `uv run python -I -m cardlang.<module>`.
+`uv run clc card examples/security-key.json` serves a virtual card to a virtual smart card reader, so other software can talk to the applets (see [`card/README.md`](card/README.md)). `cardlang-lsp` and `cardlang-dap` are the language server and the debug adapter, which the editor starts. Any module with its own entry runs as `uv run python -I -m cardlang.<module>`.
 
 ## Run everything
 

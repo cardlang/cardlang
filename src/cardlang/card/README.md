@@ -8,6 +8,7 @@ A virtual card runs one or more applets behind the ISO 7816 binding and talks AP
 | `iso7816.py` | `VirtualCard`: the card's side of the ISO 7816 binding, from APDUs to the applets and back |
 | `card.py` | Card files, and building the card one describes |
 | `state.py` | State files: a card's committed state, kept across restarts |
+| `vpcd.py` | The link to vsmartcard's virtual smart card reader, vpcd |
 
 ## Card files
 
@@ -37,6 +38,26 @@ response = c.transmit(bytes.fromhex("00A4040008A0000006472F0001"))   # SELECT th
 ```
 
 `open()` without a file installs the applets and keeps nothing.
+
+## Serving a card to a reader
+
+`clc card` serves a card to [vsmartcard](https://github.com/frankmorgner/vsmartcard)'s virtual reader, *vpcd*. The operating system sees vpcd as an ordinary smart card reader, so any PC/SC software can talk to the card, as it would to a real one:
+
+```bash
+uv run clc card examples/security-key.json
+```
+
+It builds the applets, restores or installs them, and connects to vpcd on `localhost`, port 35963, its default. It reconnects whenever the reader service restarts, and waits while vpcd isn't there. Ctrl+C stops it. Its options:
+
+| Option | What it does |
+|---|---|
+| `--port N`, `--host H` | Where vpcd listens |
+| `--state FILE`, `--no-state` | Another state file than the card file's, or none |
+| `--backend B` | Another backend than the card file's |
+| `--seed HEX` | A fixed seed for the random generator, for tests. Without it, the generator is seeded from the operating system |
+| `--trace` | Print every APDU, every response and every card event, with the source line of any trap |
+
+vpcd speaks a small protocol over its socket. Every message, both ways, is a 2-byte big-endian length followed by that many bytes. A one-byte message from vpcd is a control code: `00` power off, `01` power on, `02` reset, or `04` for the ATR, which the card sends back. Anything longer is a command APDU, answered with the response APDU.
 
 ## State files
 
@@ -78,4 +99,4 @@ Where the profile leaves a choice to the platform, the card makes these:
 
 ## Checks
 
-[`tests/card_check.py`](../../../tests/card_check.py) checks APDU parsing, then the transport on two copies of a small echo applet (`tests/testdata/echo/`). It checks state files: the echo applet's persistent counter and key survive a restart, as does a FIDO2 credential, which still signs in with a valid signature. A changed program or another set of applets refuses the old state. Then it replays the FIDO2 and PIV example checks through the card: every request they make goes to the security key as APDUs, once as short APDUs with chaining and GET RESPONSE, and once as extended APDUs.
+[`tests/card_check.py`](../../../tests/card_check.py) checks APDU parsing, then the transport on two copies of a small echo applet (`tests/testdata/echo/`). It checks state files: the echo applet's persistent counter and key survive a restart, as does a FIDO2 credential, which still signs in with a valid signature. A changed program or another set of applets refuses the old state. It checks the link to vpcd against a stand-in for it: the protocol, reconnecting, waiting while vpcd is away, and `clc card` as a process of its own. Then it replays the FIDO2 and PIV example checks through the card: every request they make goes to the security key as APDUs, once as short APDUs with chaining and GET RESPONSE, and once as extended APDUs.

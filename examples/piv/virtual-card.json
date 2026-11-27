@@ -1,4 +1,5 @@
 {
+  "state": "build/piv.state",
   "applets": [
     { "program": ".", "aid": "A0 00 00 03 08 00 00 10 00 01 00" }
   ]
