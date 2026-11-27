@@ -216,7 +216,9 @@ def piv_setup(work, reader):
             .sign(ca, hashes.SHA256()))
     cert_pem = work / "9a.pem"; cert_pem.write_bytes(cert.public_bytes(serialization.Encoding.PEM))     # piv-tool reads PEM
     code, out = run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--cert", "9A", "--in", str(cert_pem)], env=env)
-    check("PIV: piv-tool loads a certificate for that key", code == 0, out)
+    check("PIV: piv-tool loads a certificate for that key", code == 0, f"exit {code}: {out}")
+    code, out = run(["pkcs11-tool", "--list-objects"])
+    print(f"(pkcs11-tool --list-objects, exit {code}:\n{out}\n)", flush=True)
     return public
 
 def piv_sign(work, public, label):
@@ -238,7 +240,7 @@ def piv_sign(work, public, label):
     except (InvalidSignature, OSError, ValueError) as e:
         valid = repr(e)
     check(f"PIV: {label}: pkcs11-tool signs with the PIN, and the signature checks against the certificate's key",
-          code == 0 and valid is True, f"{valid} {out[-300:]}")
+          code == 0 and valid is True, f"{valid}; pkcs11-tool exit {code}: {out}")
 
 # ------------------------------------------------------------------ the run
 def main():
