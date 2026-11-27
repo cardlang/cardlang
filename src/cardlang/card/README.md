@@ -16,7 +16,7 @@ A card file is a small JSON file that lists the applets and their AIDs:
 
 ```json
 {
-  "atr": "3B 80 80 01 01",
+  "atr": "3B 88 80 01 43 61 72 64 4C 61 6E 67 19",
   "backend": "pyvm",
   "applets": [
     { "program": "fido2", "aid": "A0 00 00 06 47 2F 00 01" },
@@ -86,7 +86,7 @@ Where the profile leaves a choice to the platform, the card makes these:
 
 | Choice | The card's answer |
 |---|---|
-| The ATR | `3B 80 80 01 01`: T=1, no historical bytes. A card file can set another |
+| The ATR | `3B 88 80 01 43 61 72 64 4C 61 6E 67 19`: T=1, with `CardLang` as its historical bytes. A card file can set another. A bare T=1 ATR won't do: `3B 80 80 01 01`, for one, is a real product's, and OpenSC takes a card with it for a PIVKEY token, which it treats as having no EC keys |
 | Requests and responses | Up to 4096 bytes each, above the profile's 1280 (BP-48). A longer request gets `6700` |
 | AIDs | A SELECT matches the applet whose AID starts with the given bytes, as PIV clients select with `A0 00 00 03 08`. No applet's AID may start with another's |
 | SELECT of an unknown AID | `6A82`, and the applet selected before stays selected |

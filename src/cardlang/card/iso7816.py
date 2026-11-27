@@ -36,10 +36,14 @@ class Applet:
         self.name, self.aid, self.backend = name, bytes(aid), backend
         self.installed = False
 
+# The card's own ATR: T=1, with "CardLang" as its historical bytes. A bare T=1 ATR such as 3B 80 80 01 01 is already
+# some real product's (OpenSC takes that one for a PIVKEY token, which it treats as having no EC keys).
+DEFAULT_ATR = bytes.fromhex("3B888001436172644C616E6719")
+
 class VirtualCard:
     """A card holding applets, driven by APDUs. Build it, then power it on (which returns the ATR)."""
 
-    def __init__(self, applets, atr=bytes.fromhex("3B80800101"), capacity=4096, max_request=4096):
+    def __init__(self, applets, atr=DEFAULT_ATR, capacity=4096, max_request=4096):
         if max_request < 1280 or capacity < 1280:
             raise ValueError("the profile asks for requests and responses of at least 1280 bytes (BP-48)")
         aids = [a.aid for a in applets]

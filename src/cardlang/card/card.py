@@ -1,7 +1,7 @@
 """Card files: a JSON description of a virtual card, and building the card it describes.
 
     {
-      "atr": "3B 80 80 01 01",
+      "atr": "3B 88 80 01 43 61 72 64 4C 61 6E 67 19",
       "backend": "pyvm",
       "applets": [
         { "program": "fido2", "aid": "A0 00 00 06 47 2F 00 01" },

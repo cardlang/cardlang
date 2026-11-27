@@ -70,7 +70,7 @@ def fetch(c, r):
 def transport_checks():
     c = card.load(L.tests / "testdata" / "echo-card.json", BACKEND)
     check("both echo applets install", all(o == ("ok", []) for _, o in c.install()), c.install())
-    check("power on returns the ATR", c.power_on() == bytes.fromhex("3B80800101"))
+    check("power on returns the ATR", c.power_on() == iso7816.DEFAULT_ATR)
     check("a command with no applet selected: 6985", sw(c.transmit(bytes.fromhex("0001000000"))) == 0x6985)
 
     r = select(c, ECHO1)
@@ -235,7 +235,7 @@ def vpcd_checks(tmp):
     try:
         reader.accept()
         reader.control(vpcd.POWER_ON)
-        check("vpcd: the ATR, on request", reader.atr() == bytes.fromhex("3B80800101"))
+        check("vpcd: the ATR, on request", reader.atr() == iso7816.DEFAULT_ATR)
         r = reader.apdu(apdu.build(0x00, 0xA4, 0x04, 0x00, ECHO1, 256))
         check("vpcd: an APDU and its response", (data(r), sw(r)) == (b"\xE0", 0x9000), r.hex())
         r = reader.apdu(apdu.build(0x00, 0x01, 0, 0, b"x" * 600, 65536))
@@ -245,7 +245,7 @@ def vpcd_checks(tmp):
         check("vpcd: power off and on end the selection", sw(r) == 0x6985, r.hex())
         reader.drop()
         reader.accept()
-        check("vpcd: after the connection drops, the card connects again", reader.atr() == bytes.fromhex("3B80800101"))
+        check("vpcd: after the connection drops, the card connects again", reader.atr() == iso7816.DEFAULT_ATR)
     except OSError as e:
         check("vpcd: the conversation", False, repr(e))
     finally:
@@ -270,7 +270,7 @@ def vpcd_checks(tmp):
     try:
         reader.accept(timeout=120)
         reader.control(vpcd.POWER_ON)
-        check("clc card: the ATR", reader.atr() == bytes.fromhex("3B80800101"))
+        check("clc card: the ATR", reader.atr() == iso7816.DEFAULT_ATR)
         r = reader.apdu(apdu.build(0x00, 0xA4, 0x04, 0x00, FIDO, 256))
         check("clc card: SELECT of the FIDO2 applet", (data(r), sw(r)) == (b"FIDO_2_0", 0x9000), r.hex())
         r = reader.apdu(apdu.build(0x80, 0x10, 0x00, 0x00, b"\x04", 256))

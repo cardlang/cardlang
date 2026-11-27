@@ -2,8 +2,8 @@
 # virtual reader (vpcd), the virtual card served by `clc card`, and two independent clients, python-fido2 and OpenSC
 # (tests/reader_check.py). A push or pull request that touches the toolchain, the examples or this check.
 #
-# OpenSC is built from its release source: Ubuntu's package is built without EC support, and the PIV example's keys
-# are P-256. The build is cached between runs.
+# OpenSC is built from its latest release source, checked against its published SHA-256, so the PIV part runs against
+# current upstream OpenSC rather than whichever version the distribution ships. The build is cached between runs.
 name: Virtual reader
 
 on:

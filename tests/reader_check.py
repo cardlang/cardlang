@@ -35,7 +35,7 @@ L = layout.at(ROOT)
 from smartcard.System import readers as pcsc_readers
 from smartcard.Exceptions import CardConnectionException, NoCardException
 
-ATR = [0x3B, 0x80, 0x80, 0x01, 0x01]
+ATR = list(bytes.fromhex("3B888001436172644C616E6719"))     # the virtual card's own (src/cardlang/card/iso7816.py)
 ADMIN_KEY = "01:02:03:04:05:06:07:08:01:02:03:04:05:06:07:08"     # the example's test default (examples/piv/README.md)
 PIN = "123456"
 
