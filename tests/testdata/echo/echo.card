@@ -1,0 +1,42 @@
+// A small applet for the virtual card's checks (tests/card_check.py): it echoes requests, counts the commands of
+// its session, and makes responses of any length, so the transport's chaining, GET RESPONSE, extended length and
+// session events can be checked on their own.
+
+errors EchoError {
+    WrongLength = 0x6700;
+    InsNotSupported = 0x6D00;
+}
+
+session count: u32;
+
+// SELECT returns one byte, E0.
+function on_select(response: inout u8[]) -> u32 {
+    response[0] = 0xE0;
+    return Ok(1);
+}
+
+command process(request: ref u8[], response: inout u8[]) -> u32 {
+    require request.length >= 4 else EchoError.WrongLength;
+    var ins: u8 = request[1];
+    if ins == 0x01 {
+        // The data field, returned as it came.
+        var n: u32 = request.length - 4;
+        require response.length >= n else EchoError.WrongLength;
+        response[0..n] = request[4..request.length];
+        return Ok(n);
+    } else if ins == 0x02 {
+        // How many times this command ran in the session.
+        count += 1;
+        response[0..4] = encode_be(count);
+        return Ok(4);
+    } else if ins == 0x03 {
+        // P1 P2 bytes, counting up from 00.
+        var n: u32 = (convert<u32>(request[2]) * 256) + convert<u32>(request[3]);
+        require response.length >= n else EchoError.WrongLength;
+        for i: u32 in 0..n {
+            response[i] = truncate<u8>(i);
+        }
+        return Ok(n);
+    }
+    return Err(EchoError.InsNotSupported);
+}

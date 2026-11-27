@@ -1,0 +1,1 @@
+{ "name": "echo", "files": ["echo.card"], "binding": "iso7816" }

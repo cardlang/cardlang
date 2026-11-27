@@ -67,9 +67,11 @@ RUNS = [
     # The compiler and the Python VM as a backend of the harness: the same scenarios (V-12).
     ("cardlang.harness.scenario", "--backend pyvm", "pyvm: runtime scenarios on the Python VM (V-12 item 1)"),
     ("tests/check_state.py", None, "pyvm: all VM state in its context, within 1 KiB (V-31, V-2)"),
+    ("tests/card_check.py", None, "virtual card on pyvm: APDUs, the ISO 7816 transport, the examples behind it"),
     # The C VM, as built by CMake with any C11 toolchain, through cffi: the same scenarios.
     ("tests/compile_all.py", "--backend cvm", "cvm: every compiled image loads in the C VM (V-12 item 3)"),
     ("cardlang.harness.scenario", "--backend cvm", "cvm: runtime scenarios on the C VM"),
+    ("tests/card_check.py", "--backend cvm", "virtual card on cvm: the transport and the examples behind it"),
 ]
 
 # The example applets: each examples/<app>/check.py checks its applet independently of the applet's own logic,

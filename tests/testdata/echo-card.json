@@ -1,0 +1,6 @@
+{
+  "applets": [
+    { "program": "echo", "aid": "F0 43 4C 01 01" },
+    { "program": "echo", "aid": "F0 43 4C 02 01 00" }
+  ]
+}

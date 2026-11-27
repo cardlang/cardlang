@@ -44,6 +44,7 @@ It prints one line per run, with the number of tests that passed, and exits non-
 | `lsp_check.py` | The language server, through a scripted editor session |
 | `semantic_check.py` | Semantic colouring, against a pinned sample in `testdata/`, and completion |
 | `dap_check.py` | The debug adapter: breakpoints, stepping, the stack, variables and traps |
+| `card_check.py` | The virtual card: APDU parsing, the ISO 7816 transport on an echo applet, and the FIDO2 and PIV example checks replayed as APDUs |
 | `editors/vscode/check_extension.py` | The extension's grammars, keywords and scenario steps match the language; its uv pin covers every platform, and its bundle lists only files that exist |
 
 ## Generators

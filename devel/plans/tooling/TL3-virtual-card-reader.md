@@ -113,3 +113,11 @@ Each step ends with `run_checks` passing, and is committed on its own when asked
 - **Speed.** The Python VM's ECDSA is pure Python. If a signature takes long enough to trip a client's timeout, the C VM backend of step 7 is the answer, and step 5 measures it.
 - **Clients that expect a YubiKey.** Some tools check a vendor's version command first. They're out of scope: we test against the standards, through clients that follow them.
 - **The ATR.** A plain T=1 ATR should be enough for both systems' reader stacks. If Windows' smart card plug-and-play insists on a driver for an unknown ATR, the ATR in the card file is the knob, and the checklist records what works.
+
+## 8. Progress
+
+**Step 1 built 2026-11-27,** on the branch `virtual-card-reader`. `src/cardlang/card/` has `apdu.py`, `iso7816.py` (`VirtualCard`) and `card.py` (card files). The examples have card files: `examples/fido2/virtual-card.json`, `examples/piv/virtual-card.json`, and `examples/security-key.json` with both. `tests/card_check.py` checks APDU parsing, then the transport on two copies of a small echo applet (`tests/testdata/echo/`). Then it replays both example checks through the security key, as short APDUs with chaining and GET RESPONSE and as extended APDUs. It runs as two rows of `run_checks`, on pyvm and on cvm, and it also passes on interp. The card's own choices are in `src/cardlang/card/README.md`.
+
+Two things the replay showed:
+- The example checks model a power cycle as a reset followed by a session start, with no new SELECT, because a backend card has one applet, selected for good. Over the transport the replay selects again after power-on, as real hosts do.
+- None of the FIDO2 example's requests or responses go over 255 bytes, so its short and extended runs send the same APDUs. Only the echo applet and PIV exercise chaining and GET RESPONSE.
