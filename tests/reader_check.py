@@ -214,8 +214,8 @@ def piv_setup(work, reader):
             .public_key(public).serial_number(x509.random_serial_number())
             .not_valid_before(now - datetime.timedelta(days=1)).not_valid_after(now + datetime.timedelta(days=30))
             .sign(ca, hashes.SHA256()))
-    cert_der = work / "9a.der"; cert_der.write_bytes(cert.public_bytes(serialization.Encoding.DER))
-    code, out = run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--cert", "9A", "--in", str(cert_der)], env=env)
+    cert_pem = work / "9a.pem"; cert_pem.write_bytes(cert.public_bytes(serialization.Encoding.PEM))     # piv-tool reads PEM
+    code, out = run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--cert", "9A", "--in", str(cert_pem)], env=env)
     check("PIV: piv-tool loads a certificate for that key", code == 0, out)
     return public
 
