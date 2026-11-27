@@ -51,6 +51,14 @@ class CardProcess:
         self.proc = subprocess.Popen([sys.executable, "-I", "-m", "cardlang.cli", "card", str(L.examples / "security-key.json"),
                                       "--state", str(self.work / "security-key.state"), "--port", str(ARGS.port), "--trace"],
                                      cwd=ROOT, stdout=self.log, stderr=subprocess.STDOUT)
+    def wait_connected(self, timeout=90):
+        """Wait until this run of clc card has connected to vpcd: before that, the reader may still show the last run's card."""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            if "connected to the virtual reader" in (self.work / f"clc-card-{self.runs}.log").read_text(encoding="utf-8"): return True
+            if self.proc.poll() is not None: return False
+            time.sleep(0.2)
+        return False
     def stop(self):
         if self.proc:
             self.proc.terminate()
@@ -132,9 +140,9 @@ def run(args, **kw):
 def opensc_reader_index():
     """OpenSC's number for the reader that holds the card."""
     code, out = run(["opensc-tool", "--list-readers"])
-    for line in out.splitlines():
-        m = re.match(r"\s*(\d+)\s+\S+\s+(\S+)\s+(.*)$", line)
-        if m and ARGS.reader.lower() in m.group(3).lower() and m.group(2).lower() == "yes": return m.group(1)
+    for line in out.splitlines():                   # "Nr.  Card  Features  Name", where Features may be empty
+        m = re.match(r"\s*(\d+)\s+(Yes|No)\s+(.*?)\s*$", line)
+        if m and m.group(2) == "Yes" and ARGS.reader.lower() in m.group(3).lower(): return m.group(1)
     return None
 
 def piv_setup(work):
@@ -196,6 +204,7 @@ def main():
     if not have_opensc: print("(OpenSC is not installed, so the PIV part is skipped)")
     try:
         card.start()
+        check("clc card connects to the virtual reader", card.wait_connected(), card.tail())
         reader, conn = find_card()
         check("the card shows up in the reader", reader is not None, f"readers seen: {conn}\n{card.tail()}")
         if reader is None: return False
@@ -207,6 +216,7 @@ def main():
 
         card.stop()
         card.start()
+        check("after a restart, clc card connects again", card.wait_connected(), card.tail())
         reader, conn = find_card()
         check("after a restart of clc card, the card is back", reader is not None, card.tail())
         if reader is None: return False
