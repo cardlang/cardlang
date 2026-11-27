@@ -1,6 +1,9 @@
 # Runs the example applets behind a real smart card reader on Linux: the PC/SC service (pcscd) with vsmartcard's
 # virtual reader (vpcd), the virtual card served by `clc card`, and two independent clients, python-fido2 and OpenSC
 # (tests/reader_check.py). A push or pull request that touches the toolchain, the examples or this check.
+#
+# OpenSC is built from its release source: Ubuntu's package is built without EC support, and the PIV example's keys
+# are P-256. The build is cached between runs.
 name: Virtual reader
 
 on:
@@ -35,15 +38,37 @@ jobs:
   reader:
     name: Linux, vpcd
     runs-on: ubuntu-24.04
+    env:
+      OPENSC_VERSION: "0.27.1"
+      OPENSC_SHA256: 976f4a23eaf3397a1a2c3a7aac80bf971a8c3d829c9a79f06145bfaeeae5eca7
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
 
       # The reader stack and the clients. pyscard builds from source on Linux, so it needs the PC/SC headers and SWIG.
-      - name: Install pcscd, vpcd, OpenSC and pyscard's build tools
+      - name: Install pcscd, vpcd, and the build tools for OpenSC and pyscard
         run: |
           sudo apt-get update
-          sudo apt-get install -y pcscd vsmartcard-vpcd opensc libpcsclite-dev swig
+          sudo apt-get install -y pcscd vsmartcard-vpcd libpcsclite-dev swig libssl-dev zlib1g-dev pkg-config
+
+      - uses: actions/cache@v4
+        id: opensc
+        with:
+          path: opensc-build
+          key: opensc-${{ env.OPENSC_VERSION }}-ubuntu-24.04
+      - name: Build OpenSC ${{ env.OPENSC_VERSION }}
+        if: steps.opensc.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p opensc-build && cd opensc-build
+          curl -fsSLO "https://github.com/OpenSC/OpenSC/releases/download/$OPENSC_VERSION/opensc-$OPENSC_VERSION.tar.gz"
+          echo "$OPENSC_SHA256  opensc-$OPENSC_VERSION.tar.gz" | sha256sum -c -
+          tar xzf "opensc-$OPENSC_VERSION.tar.gz" && cd "opensc-$OPENSC_VERSION"
+          ./configure --prefix=/usr/local --sysconfdir=/etc --disable-doc --disable-notify --enable-openssl --enable-pcsc
+          make -j"$(nproc)"
+      - name: Install OpenSC
+        run: |
+          cd "opensc-build/opensc-$OPENSC_VERSION" && sudo make install && sudo ldconfig
+          opensc-tool --info
       - name: Install the cardlang package, with the reader group
         run: uv sync --locked --group reader
 
