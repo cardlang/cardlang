@@ -215,8 +215,13 @@ def piv_setup(work, reader):
             .not_valid_before(now - datetime.timedelta(days=1)).not_valid_after(now + datetime.timedelta(days=30))
             .sign(ca, hashes.SHA256()))
     cert_pem = work / "9a.pem"; cert_pem.write_bytes(cert.public_bytes(serialization.Encoding.PEM))     # piv-tool reads PEM
-    code, out = run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--cert", "9A", "--in", str(cert_pem)], env=env)
-    check("PIV: piv-tool loads a certificate for that key", code == 0, f"exit {code}: {out}")
+    run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--cert", "9A", "--in", str(cert_pem)], env=env)
+    # piv-tool's exit status after --cert is the number of bytes it wrote, modulo 256, not an error code. So the load
+    # is judged by the certificate itself, read back through OpenSC's PKCS#11 module.
+    back = work / "9a-back.der"
+    code, out = run(["pkcs11-tool", "--read-object", "--type", "cert", "--id", "01", "--output-file", str(back)])
+    same = back.exists() and back.read_bytes() == cert.public_bytes(serialization.Encoding.DER)
+    check("PIV: piv-tool loads a certificate for that key, and OpenSC reads the same one back", same, f"exit {code}: {out}")
     code, out = run(["pkcs11-tool", "--list-objects"])
     print(f"(pkcs11-tool --list-objects, exit {code}:\n{out}\n)", flush=True)
     return public
