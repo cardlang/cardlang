@@ -100,3 +100,6 @@ The repository contains no third-party code. The tools fetch these components, e
 | [cffi](https://cffi.readthedocs.io/) | the harness, to drive the C VM from Python | MIT-0 |
 | [vscode-languageclient](https://github.com/microsoft/vscode-languageserver-node) | the VS Code extension, bundled into its package | MIT |
 | [@vscode/vsce](https://github.com/microsoft/vscode-vsce) | packaging the extension | MIT |
+| [uv](https://github.com/astral-sh/uv) | the VS Code extension's own setup, downloaded and checked against its SHA-256 | MIT or Apache-2.0 |
+| [python-fido2](https://github.com/Yubico/python-fido2), with [cryptography](https://github.com/pyca/cryptography) | the checks: an independent FIDO2 client and server for the FIDO2 example | BSD-2-Clause; Apache-2.0 or BSD-3-Clause |
+| [pyscard](https://github.com/LudovicRousseau/pyscard) | talking to a smart card reader, in the `reader` dependency group | LGPL-2.1-or-later |

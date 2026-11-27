@@ -44,6 +44,7 @@ It prints one line per run, with the number of tests that passed, and exits non-
 | `lsp_check.py` | The language server, through a scripted editor session |
 | `semantic_check.py` | Semantic colouring, against a pinned sample in `testdata/`, and completion |
 | `dap_check.py` | The debug adapter: breakpoints, stepping, the stack, variables and traps |
+| `fido2_client_check.py` | The FIDO2 example against Yubico's python-fido2: a WebAuthn registration and authentication made by its client and verified by its server, through the virtual card, then both PIN protocols, a wrong PIN, changing it, and reset. With pyscard installed (`uv sync --group reader`), python-fido2's own PC/SC device runs too |
 | `card_check.py` | The virtual card: APDU parsing, the ISO 7816 transport on an echo applet, state files, the link to vpcd and `clc card`, and the FIDO2 and PIV example checks replayed as APDUs |
 | `editors/vscode/check_extension.py` | The extension's grammars, keywords and scenario steps match the language; its uv pin covers every platform, and its bundle lists only files that exist |
 
