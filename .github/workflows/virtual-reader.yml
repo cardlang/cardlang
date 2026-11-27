@@ -1,0 +1,64 @@
+# Runs the example applets behind a real smart card reader on Linux: the PC/SC service (pcscd) with vsmartcard's
+# virtual reader (vpcd), the virtual card served by `clc card`, and two independent clients, python-fido2 and OpenSC
+# (tests/reader_check.py). A push or pull request that touches the toolchain, the examples or this check.
+name: Virtual reader
+
+on:
+  push:
+    paths:
+      - "src/cardlang/**"
+      - "examples/**"
+      - "platform/**"
+      - "tests/reader_check.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/virtual-reader.yml"
+  pull_request:
+    paths:
+      - "src/cardlang/**"
+      - "examples/**"
+      - "platform/**"
+      - "tests/reader_check.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/virtual-reader.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: virtual-reader-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reader:
+    name: Linux, vpcd
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+
+      # The reader stack and the clients. pyscard builds from source on Linux, so it needs the PC/SC headers and SWIG.
+      - name: Install pcscd, vpcd, OpenSC and pyscard's build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pcscd vsmartcard-vpcd opensc libpcsclite-dev swig
+      - name: Install the cardlang package, with the reader group
+        run: uv sync --locked --group reader
+
+      # pcscd normally starts on demand and stops when idle; this run keeps one in the foreground, with its log, and
+      # without polkit, which would refuse the runner's user.
+      - name: Start pcscd with vpcd's reader
+        run: |
+          sudo systemctl stop pcscd.socket pcscd.service || true
+          sudo sh -c 'pcscd --foreground --debug --disable-polkit > /tmp/pcscd.log 2>&1 &'
+          sleep 2
+          opensc-tool --list-readers
+
+      - name: Run the example applets behind the reader
+        run: uv run python -I tests/reader_check.py .
+
+      - name: Show pcscd's log
+        if: failure()
+        run: tail -n 120 /tmp/pcscd.log
