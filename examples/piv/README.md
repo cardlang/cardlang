@@ -25,7 +25,7 @@ A PIV card application (NIST SP 800-73-5) for the contact interface, written in 
 
 A real issuer would personalise the card instead.
 
-**Not yet done:** testing against real host software, such as OpenSC and `pkcs11-tool`. That needs a bridge to a virtual reader, or the C VM on a device.
+**Against real host software:** behind a virtual smart card reader, OpenSC recognises the applet as a PIV card. `piv-tool` loads a certificate with the administration key, and `pkcs11-tool` logs in with the PIN and signs with a P-256 key, and the signature checks against the certificate. `tests/reader_check.py` does this in CI, through `clc card` and vsmartcard's reader (see `src/cardlang/card/README.md`).
 
 ## Files
 

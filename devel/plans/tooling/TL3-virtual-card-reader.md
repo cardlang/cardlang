@@ -135,3 +135,12 @@ The echo applet gained a persistent counter and a persistent key. `card_check.py
 - for each PIN protocol: setPIN, WebAuthn with user verification through the PIN, a wrong PIN, changePIN and authenticatorReset.
 
 All 27 pass on pyvm and cvm, as two new rows of `run_checks`. The PIV part of this step is dropped: pyscard only carries APDUs, so in-process it adds nothing to the PIV replay of step 1. The independent PIV client is OpenSC, behind the real reader in step 5.
+
+**Step 5 done 2026-11-27,** green at `d5ceaaa`. `tests/reader_check.py` starts `clc card` on the security key behind vpcd and pcscd, and runs 16 checks, all passing:
+- python-fido2 over PC/SC: a WebAuthn registration, then authentication after a restart, both verified by its server;
+- OpenSC: it recognises the PIV card and loads a certificate, then `pkcs11-tool` refuses a wrong PIN and signs with the right one, and the signature checks against the certificate's key, before and after the restart.
+
+The *Virtual reader* workflow runs it on Ubuntu 24.04. pcscd runs in the foreground without polkit, and OpenSC 0.27.1 is built from its release, checked against its SHA-256 and cached. It took eight runs, and what they found:
+- **The card's ATR.** The default was the bare T=1 ATR `3B 80 80 01 01`, which OpenSC's ATR table lists as a PIVKEY token, a card type it treats as having no EC keys (`CI_NO_EC`). It registered no ECDSA, so `C_SignInit` failed with `CKR_MECHANISM_INVALID`. The card now has its own ATR, with `CardLang` as its historical bytes. For two runs this was taken for a build of Ubuntu's OpenSC without EC, which is why OpenSC is built from source. That build now just means testing against current upstream OpenSC.
+- **piv-tool's quirks.** Ubuntu's `piv-tool` can't write out an EC public key after generating one ("This build of OpenSSL does not support EC keys"), so the check generates the 9A key with plain PIV APDUs. `piv-tool` reads certificates only as PEM. After `--cert`, its exit status is the number of bytes written, modulo 256 (in 0.27.1 `main` returns `load_cert`'s `sc_write_binary` result), so the check reads the certificate back through PKCS#11 instead.
+- **The check's own faults.** OpenSC's reader list has an empty "Features" column, which the first pattern misread. OpenSC calls the card "Personal Identity Verification Card". After a restart the reader still showed the last run's card, so the check now waits until the new `clc card` has connected.
