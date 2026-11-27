@@ -241,6 +241,15 @@ def piv_sign(work, public, label):
         valid = repr(e)
     check(f"PIV: {label}: pkcs11-tool signs with the PIN, and the signature checks against the certificate's key",
           code == 0 and valid is True, f"{valid}; pkcs11-tool exit {code}: {out}")
+    if code != 0:                                   # what OpenSC sees, to say why it would not sign
+        print("(pkcs11-tool --list-mechanisms:\n" + run(["pkcs11-tool", "--list-mechanisms"])[1] + "\n)", flush=True)
+        print("(pkcs11-tool --login --list-objects:\n" + run(["pkcs11-tool", "--login", "--pin", PIN, "--list-objects"])[1] + "\n)", flush=True)
+        debug = work / "opensc-debug.log"
+        run(["pkcs11-tool", "--login", "--pin", PIN, "--sign", "--id", "01", "--mechanism", "ECDSA", "--input-file", str(data),
+             "--output-file", str(sig), "--signature-format", "openssl"], env=dict(os.environ, OPENSC_DEBUG="9", OPENSC_DEBUG_FILE=str(debug)))
+        lines = debug.read_text(encoding="utf-8", errors="replace").splitlines() if debug.exists() else []
+        keep = [l for l in lines if re.search(r"C_SignInit|mechanism|MECHANISM|key_alg|field_length|algorithm|returning with", l)]
+        print("(OpenSC's debug log, around signing:\n" + "\n".join(keep[-60:]) + "\n)", flush=True)
 
 # ------------------------------------------------------------------ the run
 def main():
