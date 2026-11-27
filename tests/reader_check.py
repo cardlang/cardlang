@@ -10,9 +10,11 @@ It starts `clc card` on the security key (examples/security-key.json) with a sta
 - finds the card in the reader, and reads its ATR through PC/SC;
 - FIDO2: python-fido2 finds the card as a PC/SC authenticator, and registers a WebAuthn credential with its client and
   server;
-- PIV: OpenSC recognises a PIV card; piv-tool generates a P-256 key in slot 9A with the administration key; a
-  certificate for that key is loaded; pkcs11-tool logs in with the PIN (a wrong PIN first) and signs a digest; the
-  signature checks against the certificate's key;
+- PIV: OpenSC recognises a PIV card; a P-256 key is generated in slot 9A with the administration key; piv-tool loads
+  a certificate for that key; pkcs11-tool logs in with the PIN (a wrong PIN first) and signs a digest; the signature
+  checks against the certificate's key. The key is generated with plain PIV APDUs (GENERAL AUTHENTICATE with the
+  administration key, then GENERATE ASYMMETRIC KEY PAIR), because piv-tool's EC key generation depends on how its
+  OpenSSL was built, and Ubuntu's can't write out an EC public key;
 - restarts `clc card`, and then authenticates with the FIDO2 credential and signs with the PIV key again, so the state
   file has kept both.
 
@@ -145,7 +147,51 @@ def opensc_reader_index():
         if m and m.group(2) == "Yes" and ARGS.reader.lower() in m.group(3).lower(): return m.group(1)
     return None
 
-def piv_setup(work):
+def tlv(tag, value):
+    t = tag.to_bytes((tag.bit_length() + 7) // 8 or 1, "big"); n = len(value)
+    return t + (bytes([n]) if n < 0x80 else bytes([0x81, n]) if n < 0x100 else bytes([0x82]) + n.to_bytes(2, "big")) + value
+
+def tlvs(data):
+    """{tag: value} of a run of BER-TLV objects."""
+    out, i = {}, 0
+    while i < len(data):
+        j = i + 1
+        if data[i] & 0x1F == 0x1F:
+            while data[j] & 0x80: j += 1
+            j += 1
+        tag, n = int.from_bytes(data[i:j], "big"), data[j]; j += 1
+        if n & 0x80: k = n & 0x7F; n = int.from_bytes(data[j:j + k], "big"); j += k
+        out[tag] = bytes(data[j:j + n]); i = j + n
+    return out
+
+def piv_generate(reader):
+    """Generate a P-256 key in 9A with plain PIV APDUs over PC/SC; its public key, or None."""
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+    conn = reader.createConnection(); conn.connect()
+    def apdu(ins, p1, p2, data=b""):
+        resp, sw1, sw2 = conn.transmit(list(bytes([0x00, ins, p1, p2, len(data)]) + data + b"\x00"))
+        while sw1 == 0x61:
+            more, sw1, sw2 = conn.transmit([0x00, 0xC0, 0x00, 0x00, sw2]); resp += more
+        return bytes(resp), (sw1 << 8) | sw2
+    try:
+        _, sw = apdu(0xA4, 0x04, 0x00, bytes.fromhex("A000000308000010000100"))
+        if sw != 0x9000: return None
+        resp, sw = apdu(0x87, 0x08, 0x9B, tlv(0x7C, tlv(0x81, b"")))                  # a challenge (SP 800-73-5 A.1)
+        if sw != 0x9000: return None
+        challenge = tlvs(tlvs(resp)[0x7C])[0x81]
+        key = bytes.fromhex(ADMIN_KEY.replace(":", ""))
+        encryptor = Cipher(algorithms.AES(key), modes.ECB()).encryptor()
+        _, sw = apdu(0x87, 0x08, 0x9B, tlv(0x7C, tlv(0x82, encryptor.update(challenge) + encryptor.finalize())))
+        if sw != 0x9000: return None
+        resp, sw = apdu(0x47, 0x00, 0x9A, tlv(0xAC, tlv(0x80, b"\x11")))              # GENERATE, P-256
+        if sw != 0x9000: return None
+        point = tlvs(tlvs(resp)[0x7F49])[0x86]
+        return ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), point)
+    finally:
+        conn.disconnect()
+
+def piv_setup(work, reader):
     """Generate a key in 9A, load a certificate for it; return the certificate's public key, or None."""
     from cryptography import x509
     from cryptography.hazmat.primitives import hashes, serialization
@@ -155,14 +201,12 @@ def piv_setup(work):
     check("PIV: OpenSC lists the reader with the card", index is not None, run(["opensc-tool", "--list-readers"])[1])
     if index is None: return None
     code, out = run(["opensc-tool", "--reader", index, "--name"])
-    check("PIV: OpenSC recognises a PIV card", code == 0 and "PIV" in out, out)
+    check("PIV: OpenSC recognises a PIV card", code == 0 and ("PIV" in out or "Personal Identity Verification" in out), out)
     key_file = work / "admin.key"; key_file.write_text(ADMIN_KEY, encoding="ascii")
     env = dict(os.environ, PIV_EXT_AUTH_KEY=str(key_file))
-    public_pem = work / "9a-public.pem"
-    code, out = run(["piv-tool", "--reader", index, "--admin", "A:9B:08", "--genkey", "9A:11", "--out", str(public_pem)], env=env)
-    check("PIV: piv-tool generates a P-256 key in 9A with the administration key", code == 0 and public_pem.exists(), out)
-    if not public_pem.exists(): return None
-    public = serialization.load_pem_public_key(public_pem.read_bytes())
+    public = piv_generate(reader)
+    check("PIV: a P-256 key is generated in 9A, after authenticating with the administration key", public is not None)
+    if public is None: return None
     ca = ec.generate_private_key(ec.SECP256R1())
     name = lambda cn: x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, cn)])
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -211,7 +255,7 @@ def main():
         check("the ATR, through PC/SC", conn.getATR() == ATR, conn.getATR())
         conn.disconnect()
         credential = fido2_register(reader)
-        public = piv_setup(work) if have_opensc else None
+        public = piv_setup(work, reader) if have_opensc else None
         if have_opensc: piv_sign(work, public, "first run")
 
         card.stop()
