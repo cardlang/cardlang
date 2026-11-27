@@ -3,16 +3,19 @@
 - APDU parsing and building, for every case, short and extended, and malformed input.
 - The transport, on two copies of a small echo applet (tests/testdata/echo/): SELECT with full and partial AIDs,
   chaining, extended length, long responses through 61xx and GET RESPONSE, session events, and refusals.
+- State files: the echo applet's persistent counter and key, and a FIDO2 credential, survive a restart of the card;
+  a changed program or another set of applets refuses the old state; a backend that can't save its state says so.
 - The FIDO2 and PIV example checks (examples/*/check.py), replayed through the transport: every request they make
   goes to the security key (examples/security-key.json) as APDUs, once in short APDUs with chaining and GET RESPONSE,
   and once in extended APDUs.
 
 Usage: uv run python -I tests/card_check.py . [--backend NAME]      (default: pyvm)
 """
-import sys, pathlib, importlib.util, io, contextlib, types
+import sys, os, json, shutil, tempfile, hashlib, pathlib, importlib.util, io, contextlib, types
 from cardlang import layout
 from cardlang.harness import scenario
-from cardlang.card import apdu, card, iso7816
+from cardlang.platform import testcrypto
+from cardlang.card import apdu, card, iso7816, state
 
 BACKEND, ARGS = scenario.take_backend(sys.argv[1:], default="pyvm")
 ROOT = pathlib.Path(ARGS[0]).resolve() if ARGS else layout.at().root
@@ -117,6 +120,81 @@ def transport_checks():
     r = c.transmit(apdu.build(0x00, 0xA4, 0x04, 0x00, ECHO1, 256))
     check("a command after power off powers the card on first", sw(r) == 0x9000 and count() == 1)
 
+# ------------------------------------------------------------------ state files
+def restart(card_file, path, seed):
+    """A fresh card from the card file, as after a restart of the bridge, with its state restored from path."""
+    c = card.load(card_file, BACKEND); c.seed(seed); c.open(path); c.power_on()
+    return c
+
+def cmd(c, ins, ne=256):
+    r = c.transmit(apdu.build(0x00, ins, 0, 0, ne=ne)); return data(r), sw(r)
+
+def state_checks(tmp):
+    echo_card = L.tests / "testdata" / "echo-card.json"
+    path = tmp / "echo.state"
+    if BACKEND != "pyvm":
+        try: card.load(echo_card, BACKEND).open(path); refused = False
+        except state.StateError as e: refused = "use pyvm" in str(e)
+        check(f"a state file on {BACKEND} is refused, with a hint", refused)
+        return
+    c = restart(echo_card, path, b"first run")
+    check("open() installs the applets and writes the state file", path.exists() and all(a.installed for a in c.applets))
+    select(c, ECHO1)
+    counts = [cmd(c, 0x04)[0], cmd(c, 0x04)[0]]
+    generated = cmd(c, 0x05)[1]
+    public, pub_sw = cmd(c, 0x06)
+    check("the echo applet counts, and makes a persistent key", counts == [b"\x00\x00\x00\x01", b"\x00\x00\x00\x02"] and generated == 0x9000
+          and pub_sw == 0x9000 and len(public) == 65, f"{counts} {generated:04X} {pub_sw:04X}")
+    before = os.stat(path).st_mtime_ns, path.read_bytes()
+    cmd(c, 0x02); select(c, ECHO1)
+    check("a command that commits nothing leaves the file alone", (os.stat(path).st_mtime_ns, path.read_bytes()) == before)
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    check("the file says what it is, and that it holds private keys in the clear",
+          doc["format"] == state.FORMAT and "private keys" in doc["warning"] and not list(tmp.glob("*.tmp")), str(doc)[:80])
+
+    c = restart(echo_card, path, b"second run")
+    select(c, ECHO1)
+    check("after a restart the persistent counter goes on", cmd(c, 0x04)[0] == b"\x00\x00\x00\x03")
+    check("after a restart the persistent key is the same", cmd(c, 0x06)[0] == public)
+    check("after a restart the key can't be made again: it exists", cmd(c, 0x05)[1] >> 8 == 0x6F)
+    select(c, ECHO2)
+    check("the other applet's state is its own", cmd(c, 0x04)[0] == b"\x00\x00\x00\x01")
+
+    changed = tmp / "changed"; shutil.copytree(L.tests / "testdata" / "echo", changed / "echo")
+    source = changed / "echo" / "echo.card"
+    source.write_text(source.read_text(encoding="utf-8").replace("persistent stored: u32;", "persistent stored: u32;\npersistent extra: u32;"), encoding="utf-8")
+    shutil.copy(echo_card, changed / "echo-card.json")
+    try: restart(changed / "echo-card.json", path, b"x"); refused = None
+    except state.StateError as e: refused = str(e)
+    check("a changed program refuses the old state", refused and "has changed" in refused, refused)
+    (tmp / "one.json").write_text(json.dumps({"applets": [{"program": str(L.tests / "testdata" / "echo"), "aid": "F0434C0101"}]}), encoding="utf-8")
+    try: restart(tmp / "one.json", path, b"x"); refused = None
+    except state.StateError as e: refused = str(e)
+    check("another set of applets refuses the old state", refused and "the card has" in refused, refused)
+
+    # A FIDO2 credential, registered, then used after a restart.
+    fido = load_check(L.examples / "fido2" / "check.py")
+    key_card, key_path = L.examples / "security-key.json", tmp / "security-key.state"
+    def ctap(c, code, params):
+        r = c.transmit(apdu.build(0x80, 0x10, 0x00, 0x00, bytes([code]) + fido.enc(params), 256))
+        body, last = fetch(c, r)
+        return (body[0], fido.dec(body, 1)[0] if len(body) > 1 else None) if last == 0x9000 else (None, None)
+    rp, cdh = "example.com", hashlib.sha256(b"register").digest()
+    c = restart(key_card, key_path, b"first run")
+    select(c, FIDO)
+    st, att = ctap(c, 0x01, {1: cdh, 2: {"id": rp}, 3: {"id": b"\x07", "name": "bob"}, 4: [{"alg": -7, "type": "public-key"}]})
+    ad = att[2] if st == 0 else b""
+    n = int.from_bytes(ad[53:55], "big") if ad else 0
+    cred, cose = ad[55:55 + n], (fido.dec(ad, 55 + n)[0] if ad else {})
+    check("FIDO2: a credential is registered", st == 0 and n > 0 and -2 in cose, st)
+    c = restart(key_card, key_path, b"second run")
+    select(c, FIDO)
+    cdh2 = hashlib.sha256(b"sign in").digest()
+    st, ga = ctap(c, 0x02, {1: rp, 2: cdh2, 3: [{"id": cred, "type": "public-key"}]})
+    q = (int.from_bytes(cose[-2], "big"), int.from_bytes(cose[-3], "big")) if -2 in cose else None
+    valid = st == 0 and q and testcrypto.ecdsa_verify(q, ga[2] + cdh2, fido.der_to_raw(ga[3]))
+    check("FIDO2: after a restart, the credential signs in, with a valid signature", valid, st)
+
 # ------------------------------------------------------------------ the example checks, replayed as APDUs
 FIDO, PIV = bytes.fromhex("A0000006472F0001"), bytes.fromhex("A0000003080000100001 00".replace(" ", ""))
 
@@ -189,6 +267,8 @@ def replay_checks():
 def main():
     apdu_checks()
     transport_checks()
+    with tempfile.TemporaryDirectory() as tmp:
+        state_checks(pathlib.Path(tmp))
     replay_checks()
     print("ALL PASS" if all(results) else "FAILURES")
     return all(results)

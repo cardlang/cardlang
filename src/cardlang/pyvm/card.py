@@ -75,6 +75,18 @@ class VmCard:
     def reset(self):
         self.session_end()
 
+    # ---- the state a platform keeps across restarts (the virtual card's state files)
+    def export_state(self):
+        """The installed application's committed state, or None if it isn't installed."""
+        if self.ctx.state == vm.NOT_INSTALLED: return None
+        return self.hal.export_persistent()
+
+    def import_state(self, state):
+        """Restore an installed application from export_state, with no session open."""
+        if len(state["partition"]) != self.persistent_size:
+            raise ValueError(f"the state has {len(state['partition'])} persistent bytes; the program has {self.persistent_size}")
+        self.hal.import_persistent(state); self.end_session(); self.ctx.state = vm.NO_SESSION
+
     def seed(self, data): self.hal.test_seed(data)
     def interrupt_next_commit(self): self.hal.test_interrupt_next_commit()
 

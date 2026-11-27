@@ -10,7 +10,8 @@
     }
 
 `program` is a program directory or `.card` file, relative to the card file. Every applet is built for the ISO 7816
-binding. `atr` and `backend` are optional: the defaults are the card's plain T=1 ATR and the Python VM.
+binding. `atr`, `backend` and `state` are optional: the defaults are the card's plain T=1 ATR, the Python VM, and no
+state file. `state` names the file, relative to the card file, that keeps the card's state across restarts.
 """
 import json, pathlib
 from cardlang.front import project
@@ -44,5 +45,7 @@ def load(path, backend=None):
             raise CardFileError(f"{path}: applet {label} is built for the {meta['binding']} binding, not iso7816")
         applets.append(Applet(label, aid, backends.build(name, project.program_files(program), "iso7816")))
     kwargs = {"atr": _hex(desc["atr"], f"{path}: atr")} if "atr" in desc else {}
-    try: return VirtualCard(applets, **kwargs)
+    try: vc = VirtualCard(applets, **kwargs)
     except ValueError as e: raise CardFileError(f"{path}: {e}") from None
+    vc.state_file = (path.parent / desc["state"]).resolve() if desc.get("state") else None    # for open()
+    return vc

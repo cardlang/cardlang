@@ -45,6 +45,29 @@ class TestHal:
     def create_partition(self, size): self.partition = bytearray(size); self.shadow = None; self.pkeys = {}
     def delete_partition(self): self.partition = None; self.shadow = None; self.pkeys = {}
 
+    # ---- the committed state, saved and restored by a platform that keeps it across restarts (the virtual card)
+    def export_persistent(self):
+        """The committed persistent bytes and the persistent keys, as plain data: {"partition": bytes,
+        "keys": [(id, type, material bytes)]}. Only between commands, so nothing is pending."""
+        assert self.shadow is None and self.update is None, "export with a transaction or an update open"
+        keys = []
+        for ident, k in sorted(self.pkeys.items()):
+            if k.type == "EcP256Private": material = k.material.to_bytes(32, "big")
+            elif k.type == "EcP256Public": material = bytes(p256.encode_point(k.material))
+            else: material = bytes(k.material)                                              # AES and HMAC keys
+            keys.append((ident, k.type, material))
+        return {"partition": bytes(self.partition), "keys": keys}
+
+    def import_persistent(self, state):
+        """Restore what export_persistent returned."""
+        self.partition = bytearray(state["partition"]); self.shadow = None; self.update = None
+        self.pkeys = {}
+        for ident, ktype, material in state["keys"]:
+            if ktype == "EcP256Private": m = int.from_bytes(material, "big")
+            elif ktype == "EcP256Public": m = p256.decode_point(list(material))
+            else: m = tuple(material)
+            self.pkeys[ident] = Key(ktype, "Persistent", m)
+
     # ---- storage (HAL-15 to HAL-20)
     def storage_size(self): return len(self.partition) if self.partition is not None else 0
     def atomic_capacity(self): return self.ATOMIC_CAPACITY

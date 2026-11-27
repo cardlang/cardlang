@@ -1,6 +1,6 @@
 // A small applet for the virtual card's checks (tests/card_check.py): it echoes requests, counts the commands of
 // its session, and makes responses of any length, so the transport's chaining, GET RESPONSE, extended length and
-// session events can be checked on their own.
+// session events can be checked on their own. A persistent counter and a persistent key test the state files.
 
 errors EchoError {
     WrongLength = 0x6700;
@@ -8,6 +8,10 @@ errors EchoError {
 }
 
 session count: u32;
+persistent stored: u32;
+
+const KEY: u32 = 1;
+const KEY_SPEC: KeySpec = KeySpec { type: KeyType.EcP256Private, storage: KeyStorage.Persistent };
 
 // SELECT returns one byte, E0.
 function on_select(response: inout u8[]) -> u32 {
@@ -37,6 +41,18 @@ command process(request: ref u8[], response: inout u8[]) -> u32 {
             response[i] = truncate<u8>(i);
         }
         return Ok(n);
+    } else if ins == 0x04 {
+        // A persistent counter, one up.
+        stored += 1;
+        response[0..4] = encode_be(stored);
+        return Ok(4);
+    } else if ins == 0x05 {
+        // Generate the persistent key.
+        attempt card.key.generate(KEY, KEY_SPEC);
+        return Ok(0);
+    } else if ins == 0x06 {
+        // The persistent key's public point.
+        return card.key.export_public(KEY, inout response);
     }
     return Err(EchoError.InsNotSupported);
 }

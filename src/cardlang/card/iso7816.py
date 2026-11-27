@@ -14,6 +14,8 @@ to do:
 
 The choices the profile leaves to the platform are this card's own: see the package README.
 """
+import hashlib
+from pathlib import Path
 from cardlang.card import apdu
 from cardlang.harness.scenario import status_word
 
@@ -51,8 +53,40 @@ class VirtualCard:
         self.chain = None               # (header, collected data) of a command chain in progress
         self.pending = b""              # response data still to be fetched with GET RESPONSE
         self.log = None                 # if set, called as log(text) for every event
+        self.state_path = None          # the state file, once open() has named one
+        self.saved = None               # the state as last saved
 
-    # ------------------------------------------------------------------ installation and power
+    # ------------------------------------------------------------------ installation, state and power
+    def open(self, state_path=None):
+        """Make the card ready: restore its state file, if one is named and exists, and install whatever applet
+        isn't installed yet. From then on, the card saves its state after every change. Returns install()'s results."""
+        from cardlang.card import state
+        if state_path is not None:
+            unsupported = [a.name for a in self.applets if not state.supports(a)]
+            if unsupported:
+                raise state.StateError(f"this backend can't save the state of {', '.join(unsupported)}; use pyvm")
+            self.state_path = state_path
+            if Path(state_path).exists():
+                state.restore(state_path, self)
+                self._log(f"state restored from {state_path}")
+        results = self.install()
+        self._persist()
+        return results
+
+    def seed(self, data):
+        """Seed every applet's random generator: each from the data and its AID, so no two applets draw the same bytes."""
+        for a in self.applets:
+            a.backend.seed(hashlib.sha256(bytes(data) + a.aid).digest())
+
+    def _persist(self):
+        """Save the state if it changed since the last save."""
+        if self.state_path is None: return
+        from cardlang.card import state
+        snap = state.snapshot(self)
+        if snap != self.saved:
+            state.save(self.state_path, self, snap)
+            self.saved = snap
+
     def install(self):
         """Install every applet that isn't installed yet. Returns [(name, outcome of on_install)]."""
         results = []
@@ -62,6 +96,7 @@ class VirtualCard:
                 a.installed = outcome is not None and outcome[0] == "ok"
                 results.append((a.name, outcome))
                 self._log(f"install {a.name}: {outcome}")
+        self._persist()
         return results
 
     def power_on(self):
@@ -73,6 +108,7 @@ class VirtualCard:
                 outcome = a.backend.session_start()
                 if outcome is not None and outcome[0] != "ok": self._log(f"on_session_start of {a.name}: {outcome}")
         self._log("power on")
+        self._persist()                                 # on_session_start may have committed
         return self.atr
 
     def power_off(self):
@@ -96,6 +132,11 @@ class VirtualCard:
     def transmit(self, command_apdu):
         """Process one command APDU; return the response APDU."""
         if not self.powered: self.power_on()
+        response = self._transmit(command_apdu)
+        self._persist()
+        return response
+
+    def _transmit(self, command_apdu):
         try:
             c = apdu.parse(command_apdu)
         except apdu.ApduError as e:
